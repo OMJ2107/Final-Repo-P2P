@@ -366,7 +366,6 @@
             var requiredDate = $("#ToDate").val();
             var status = $("#Status").val();
             var priorityId = parseInt($("#priority").val());
-            var description = $("#Description").val();
 
             if (requiredDate) {
                 var parts = requiredDate.split('/');
@@ -401,7 +400,6 @@
                 RequiredDate: requiredDate,
                 Status: 5,
                 PriorityId: priorityId,
-                Description: description,
                 ApproveRejectedDate: null,
                 Items: items
             };

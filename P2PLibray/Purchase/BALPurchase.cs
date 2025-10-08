@@ -1440,7 +1440,6 @@ namespace P2PLibray.Purchase
             prParam.Add("@AddedBy", purchase.AddedBy);
             prParam.Add("@AddedDate", DateTime.Now.ToString());
             prParam.Add("@PriorityId", purchase.PriorityId.ToString());
-            prParam.Add("@Description", purchase.Description);
 
             await obj.ExecuteStoredProcedure("PurchaseProcedure", prParam);
 
