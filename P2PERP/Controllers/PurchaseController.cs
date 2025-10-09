@@ -407,7 +407,8 @@ namespace P2PERP.Controllers
                 ItemCode = x.ItemCode,
                 ItemName = x.ItemName,
                 UOMName = x.UOMName,
-                Description = x.Description
+                Description = x.Description,
+                quantity = x.Quantity
             });
 
             return Json(result, JsonRequestBehavior.AllowGet);
@@ -1016,34 +1017,65 @@ namespace P2PERP.Controllers
                 return View();
             }
 
-            /// <summary>
-            /// Creates a new Purchase Requisition (PR) via AJAX form submission.
-            /// </summary>
-            [HttpPost]
-            public async Task<JsonResult> CreatePR(PurchaseHeader purchase)
-            {
-                try
-                {
-                    purchase.AddedBy = Session["StaffCode"].ToString();
-                    await bal.CreatePR(purchase);
-                    return Json(new { success = true });
-                }
-                catch (Exception ex)
-                {
-                    return Json(new { sucess = false, message = ex.Message });
-                }
+        /// <summary>
+        /// Creates a new Purchase Requisition (PR) via AJAX form submission.
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult> CreatePR(PurchaseHeader purchase)
+        {
 
+            var validationMessage = ValidatePurchase(purchase);
+
+            if (!string.IsNullOrEmpty(validationMessage))
+            {
+                // Determine which field caused the error
+                string fieldName = "";
+                if (string.IsNullOrWhiteSpace(purchase.PRCode))
+                    fieldName = "PRCode";
+                else if (purchase.RequiredDate == DateTime.MinValue || purchase.RequiredDate < DateTime.Today)
+                    fieldName = "ToDate";
+                else if (purchase.PriorityId <= 0)
+                    fieldName = "priority";
+
+                return Json(new { success = false, message = validationMessage, field = fieldName });
             }
 
-    #endregion
+            purchase.AddedBy = Session["StaffCode"].ToString();
+            await bal.CreatePR(purchase);
 
-    #region Omkar
-    /*################################################# Vendor Management ###################################################*/
+            return Json(new { success = true });
+        }
+        private string ValidatePurchase(PurchaseHeader purchase)
+        {
+            if (purchase == null)
+                return "Invalid data submitted.";
 
-    /// <summary>
-    /// Displays the vendor management view page.
-    /// </summary>
-    [HttpGet]
+            if (string.IsNullOrWhiteSpace(purchase.PRCode))
+                return "PR Code is required.";
+
+            if (purchase.RequiredDate == DateTime.MinValue)
+                return "Required Date is required.";
+
+            if (purchase.RequiredDate < DateTime.Today)
+                return "Required Date cannot be in the past.";
+
+            if (purchase.PriorityId <= 0)
+                return "Please select a valid Priority.";
+
+
+            return string.Empty; // means validation passed
+        }
+
+
+        #endregion
+
+        #region Omkar
+        /*################################################# Vendor Management ###################################################*/
+
+        /// <summary>
+        /// Displays the vendor management view page.
+        /// </summary>
+        [HttpGet]
         public ActionResult VenderManagementOK()
         {
             return View();
@@ -2307,16 +2339,30 @@ namespace P2PERP.Controllers
             return Json(new { data = list }, JsonRequestBehavior.AllowGet);
         }
 
-        // for save the new RFQ's
         [HttpPost]
-        public async Task<JsonResult> SaveRFQSJ(Purchase model)
+        public async Task<JsonResult> SaveRFQSJ()
         {
             try
             {
-                if (!ModelState.IsValid)
+                Request.InputStream.Seek(0, SeekOrigin.Begin);
+                string jsonData = new StreamReader(Request.InputStream).ReadToEnd();
+
+                // Allow dd/MM/yyyy parsing
+                var settings = new JsonSerializerSettings
+                {
+                    Culture = new System.Globalization.CultureInfo("en-GB"),
+                    DateFormatHandling = DateFormatHandling.IsoDateFormat
+                };
+
+                var model = JsonConvert.DeserializeObject<Purchase>(jsonData, settings);
+
+                if (!TryValidateModel(model))
                     return Json(new { success = false, error = "Invalid model state" });
 
-                int result = await bal.SaveRFQSJ(model);
+                string staffCode = Session["StaffCode"]?.ToString() ?? "";
+                string date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                int result = await bal.SaveRFQSJ(model, staffCode, date);
                 return Json(new { success = result > 0 });
             }
             catch (Exception ex)
@@ -2324,6 +2370,9 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, error = ex.Message });
             }
         }
+
+
+
 
 
         // For all RFQ's
@@ -2342,7 +2391,7 @@ namespace P2PERP.Controllers
                         SrNo = dr["SrNo"].ToString(),
                         PRCode = dr["PRCode"].ToString(),
                         RFQCode = dr["RFQCode"]?.ToString(),
-                        RequiredDate = dr["ExpectedDate"]?.ToString(),
+                        RequiredDate = dr["ExpectedDate"].ToString(),
                         Description = dr["Description"]?.ToString(),
                         Status = dr["StatusName"]?.ToString()
                     });
@@ -2458,6 +2507,7 @@ namespace P2PERP.Controllers
         {
             try
             {
+                // 🔹 Step 1: Read JSON body
                 string json;
                 using (var reader = new StreamReader(Request.InputStream))
                 {
@@ -2473,9 +2523,10 @@ namespace P2PERP.Controllers
                 if (request.Vendors == null || request.Vendors.Count == 0)
                     return Json(new { success = false, message = "No vendors selected." });
 
+                // 🔹 Step 2: Get RFQ details
                 DataSet ds = await bal.GetRFQDetailsSJ(request.RFQCode);
                 if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
-                    return Json(new { success = false, message = "RFQ not found" });
+                    return Json(new { success = false, message = "RFQ not found." });
 
                 DataRow firstRow = ds.Tables[0].Rows[0];
                 var header = new Purchase
@@ -2487,34 +2538,38 @@ namespace P2PERP.Controllers
                     MobileNo = Convert.ToInt64(firstRow["ContactNo"]?.ToString()),
                     RequiredDate = Convert.ToDateTime(firstRow["RequiredDate"]?.ToString()),
                     Address = firstRow["Address"]?.ToString(),
-                    Description = firstRow["Description1"]?.ToString()
+                    Description = firstRow["Description1"]?.ToString(),
+                    Vendors = request.Vendors
                 };
 
-                var items = new List<Purchase>();
-                foreach (DataRow dr in ds.Tables[0].Rows)
+                // 🔹 Step 3: Generate RFQ PDF once
+                string pdfPath = GenerateRFQPdfSJ(header, ds.Tables[0].AsEnumerable().Select(dr => new Purchase
                 {
-                    items.Add(new Purchase
-                    {
-                        ItemName = dr["ItemName"]?.ToString(),
-                        Description = dr["Description"]?.ToString(),
-                        RequiredQuantity =Convert.ToDecimal(dr["RequiredQuantity"]),
-                        UOMNamee = dr["UOMName"]?.ToString()
-                    });
-                }
+                    ItemName = dr["ItemName"]?.ToString(),
+                    Description = dr["Description"]?.ToString(),
+                    RequiredQuantity = Convert.ToDecimal(dr["RequiredQuantity"]),
+                    UOMNamee = dr["UOMName"]?.ToString()
+                }).ToList());
 
-                string pdfPath = GenerateRFQPdfSJ(header, items);
+                if (string.IsNullOrEmpty(pdfPath) || !System.IO.File.Exists(pdfPath))
+                    return Json(new { success = false, message = "Failed to generate RFQ PDF." });
 
-                header.Vendors = request.Vendors;
-                int savedCount = await bal.SaveRFQVendorsSJ(header);
+                // 🔹 Step 4: Save RFQ-vendor mapping
+                string staffCode = Session["StaffCode"]?.ToString() ?? "";
+                string addedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                int savedCount = await bal.SaveRFQVendorsSJ(header, staffCode, addedDate);
                 if (savedCount == 0)
                     return Json(new { success = false, message = "Failed to save RFQ-Vendor mapping." });
 
+                // 🔹 Step 5: Fetch vendor details
                 string vendorIdsCsv = string.Join(",", request.Vendors);
                 DataSet vendorDs = await bal.GetVendorsByIdsSJ(vendorIdsCsv);
 
                 if (vendorDs == null || vendorDs.Tables.Count == 0 || vendorDs.Tables[0].Rows.Count == 0)
                     return Json(new { success = false, message = "No vendor details found." });
 
+                // 🔹 Step 6: Send email with attachment to each vendor
                 foreach (DataRow dr in vendorDs.Tables[0].Rows)
                 {
                     var vendor = new Purchase
@@ -2533,20 +2588,46 @@ namespace P2PERP.Controllers
                     try
                     {
                         string subject = $"RFQ {request.RFQCode} from {request.PRCode}";
-                        string body = $"Dear {vendor.VendorName},\n\nPlease find attached the RFQ document.\n\nRegards,\nProcurement Team";
+                        string body = $@"Dear {vendor.VendorName},
 
-                        SendEmailWithAttachmentSJ(vendor.Email, subject, body, pdfPath);
+We are pleased to invite you to submit a quotation for the attached Request for Quotation (RFQ) document, under reference number {request.RFQCode}, pertaining to Purchase Requisition {request.PRCode}.
+
+The RFQ includes detailed item descriptions, quantities, and terms. Kindly review the document carefully and provide your best quotation by the stated due date.
+
+Your timely response will be highly appreciated.
+
+Should you require any additional information or clarification, please do not hesitate to contact our procurement team.
+
+Sincerely,
+Procurement Team
+[Gayasoft Technology]";
+
+
+                        // 🔹 Make a temp copy for each vendor (avoids file lock issues)
+                        string tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.pdf");
+                        System.IO.File.Copy(pdfPath, tempFile, true);
+
+                        // Send mail
+                        SendEmailWithAttachmentSJ(vendor.Email, subject, body, tempFile);
+
+                        // Clean up temp copy
+                        System.IO.File.Delete(tempFile);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Failed to send email to {vendor.Email}: {ex.Message}");
+                        Console.WriteLine($"❌ Failed to send email to {vendor.Email}: {ex.Message}");
                     }
                 }
+
+                // 🔹 Step 7: Delete original PDF after all emails sent
+                if (System.IO.File.Exists(pdfPath))
+                    System.IO.File.Delete(pdfPath);
 
                 return Json(new { success = true, message = "RFQ sent successfully to selected vendors!" });
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"❌ SendRFQToVendorsSJ() Error: {ex.Message}");
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
@@ -2660,11 +2741,11 @@ namespace P2PERP.Controllers
             return filePath;
         }
 
-        //Send Email with vendors
+
         private void SendEmailWithAttachmentSJ(string toEmail, string subject, string body, string attachmentPath)
         {
             var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
-            string fromPassword = "pbji sngj tkgz ylow";
+            string fromPassword = "pbji sngj tkgz ylow"; // ⚠️ Move this to config or environment variable
 
             using (var smtp = new SmtpClient("smtp.gmail.com", 587)
             {
@@ -2685,9 +2766,6 @@ namespace P2PERP.Controllers
 
                 smtp.Send(message);
             }
-
-            if (!string.IsNullOrEmpty(attachmentPath) && System.IO.File.Exists(attachmentPath))
-                System.IO.File.Delete(attachmentPath);
         }
 
 
@@ -2805,6 +2883,9 @@ namespace P2PERP.Controllers
             {
                 int VendorMaxId = 0;
                 int VendorcompanyMaxId = 0;
+                string staffCode = Session["StaffCode"]?.ToString();
+                string date = DateTime.Now.ToString();
+
                 DataSet ds = await bal.FetchVendorandVendorCompantMaxIdSJ();
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
@@ -2814,28 +2895,31 @@ namespace P2PERP.Controllers
                 {
                     VendorcompanyMaxId = Convert.ToInt32(ds.Tables[1].Rows[i]["VendorCompanyMaxId"].ToString());
                 }
+
                 string VendorCode = "VEN" + (VendorMaxId + 1).ToString("D3");
                 string VendorCompanyCode = "VCC" + (VendorcompanyMaxId + 1).ToString("D3");
+
                 p.VendorCode = VendorCode;
                 p.VendorCompanyCode = VendorCompanyCode;
+                p.StaffCode = staffCode;   // ✅ assign here
+
                 bool issaved = await bal.SaveVendorSJ(p);
+
                 if (issaved)
                 {
-                    var message = "Vendor saved successfully!";
-                    return Json(new { success = true, message });
+                    return Json(new { success = true, message = "Vendor saved successfully!" });
                 }
                 else
                 {
-                    var message = "Vendor not saved, please try again!";
-                    return Json(new { success = false, message });
+                    return Json(new { success = false, message = "Vendor not saved, please try again!" });
                 }
             }
             catch (Exception ex)
             {
-
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
         #endregion
     }
 }
