@@ -706,7 +706,20 @@
                 },
                 { data: "ItemCode", title: "ITEM CODE" },
                 { data: "ItemName", title: "ITEM NAME" },
-                { data: "Description", title: "DESCRIPTION" },
+                {
+                    data: "Description", title: "DESCRIPTION",
+                    createdCell: function (td, cellData) {
+                        if (cellData) {
+                            // truncate text if too long
+                            let shortText = cellData.length > 25 ? cellData.substring(0, 25) + "..." : cellData;
+                            $(td)
+                                .text(shortText)
+                                .attr("title", cellData)
+                                .attr("data-bs-toggle", "tooltip")
+                                .attr("data-bs-placement", "top");
+                        }
+                    }
+                },
                 { data: "RequiredQuantity", title: "QTY" },
                 {
                     data: "UnitRate",
@@ -852,7 +865,6 @@
             paging: true,
             searching: true,
             ordering: false, 
-            ordering: true,
             info: true,
             lengthChange: false,
             pageLength: 5,
