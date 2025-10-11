@@ -62,7 +62,8 @@
             </div>
             <div class="col-md-4">
                 <label class="fw-semibold">Invoice Date:<span class="text-danger">*</span></label>
-                <input type="date" id="txtInvoiceDate" class="form-control form-control-sm bg-white">
+                <input type="date" id="txtInvoiceDate" class="form-control form-control-sm bg-white"
+                       max="@DateTime.Now.ToString("yyyy-MM-dd")">
             </div>
         </div>
     </div>
@@ -352,14 +353,18 @@ $(document).ready(function () {
         const invoiceNo = $('#txtInvoiceNo').val().trim();
         const invoiceDate = $('#txtInvoiceDate').val();
 
-        if (!invoiceNo) {
-            Swal.fire({ icon: 'warning', title: 'Please enter Invoice No', showConfirmButton: false, timer: 1800 });
-            return;
-        }
-        if (!invoiceNo.match(/^[a-zA-Z0-9\-\/]+$/)) {
-            Swal.fire({ icon: 'warning', title: 'Invoice No must be alphanumeric', showConfirmButton: false, timer: 1800 });
-            return;
-        }
+     if (!invoiceNo) {
+    Swal.fire({ icon: 'warning', title: 'Please enter Invoice No', showConfirmButton: false, timer: 1800 });
+    return;
+    }
+
+     const invoicePattern = /^[a-zA-Z0-9\-\/]+$/;
+
+     if (!invoicePattern.test(invoiceNo)) {
+    Swal.fire({ icon: 'warning', title: 'Enter correct Invoice No', showConfirmButton: false, timer: 1800 });
+    return;
+     }
+
 
         if (!invoiceDate) {
             Swal.fire({ icon: 'warning', title: 'Please select Invoice Date', showConfirmButton: false, timer: 1800 });
