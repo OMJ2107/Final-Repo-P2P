@@ -68,17 +68,23 @@ $(function () {
         success: function (data) {
             var $ddl = $("#cmbbxtaxrate");
             $ddl.empty().append('<option value="0">--select HSNCode--</option>');
-
             $.each(data, function (i, item) {
-                // ✅ Show only first 4 digits, tooltip has full code
                 var hsnFull = item.HSNCode ? item.HSNCode.toString() : "";
                 var hsnShort = hsnFull.substring(0, 4);
                 $ddl.append('<option value="' + item.TaxRateId + '" title="' + hsnFull + '">' + hsnShort + '</option>');
             });
-
-            // ✅ Pre-select value if editing
             var selectedId = '@Model.TaxRateId';
-            if (selectedId && selectedId !== "0") $ddl.val(selectedId);
+            var selectedHSN = '@Model.HSNCode'; 
+
+            if (selectedId && selectedId !== "0" && $ddl.find("option[value='" + selectedId + "']").length === 0) {
+                $ddl.append('<option value="' + selectedId + '" title="' + selectedHSN + '">' + selectedHSN + '</option>');
+            }
+            if (selectedId && selectedId !== "0") {
+                $ddl.val(selectedId);
+            }
+        },
+        error: function () {
+            Swal.fire('Error', 'Failed to load HSN Codes.', 'error');
         }
     });
 

@@ -40,7 +40,7 @@
 </div>
 
 <!-- GRN Details Modal -->
-<div class="modal fade" bs-backdrop="true" id="grnDetailsModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" data-bs-backdrop="true" id="grnDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary position-relative py-2">
@@ -54,6 +54,7 @@
         </div>
     </div>
 </div>
+
 
 
 <script>
@@ -84,10 +85,9 @@ $(document).ready(function () {
         type: 'GET',
         responsive: true,
         data: d => { d.fromDate = fromDate; d.toDate = toDate; },
-        dataSrc: function (json) {
-            if (json.data.length === 0) showInfo("No records found for selected date range");
-            return json.data;
-        }
+           dataSrc: function (json) {
+               return json.data;
+           }
     },
     destroy: true,
        responsive: true,
@@ -126,7 +126,7 @@ $(document).ready(function () {
                     : '';
                 return `
                 <div class="d-flex flex-column flex-sm-row gap-1 justify-content-center">
-                    <button class="btn btn-info btn-sm btnViewGRN"
+                    <button class="btn btn-primary btn-sm btnViewGRN"
                             data-grn="${row.GRNCode}"
                             data-bs-toggle="tooltip"
                             title="View GRN: ${row.GRNCode}">
@@ -393,12 +393,11 @@ $(document).ready(function () {
         drops: "down",
         locale: { format: "DD-MM-YYYY", cancelLabel: "Clear" },
         ranges: {
-            "Today": [moment(), moment()],
-            "Yesterday": [moment().subtract(1, "days"), moment().subtract(1, "days")],
-            "Last 7 Days": [moment().subtract(6, "days"), moment()],
-            "Last 30 Days": [moment().subtract(29, "days"), moment()],
-            "This Month": [moment().startOf("month"), moment().endOf("month")],
-            "Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+            'Today': [moment(), moment()],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 1 Month': [moment().subtract(1, 'month'), moment()],
+            'Last 3 Months': [moment().subtract(3, 'month'), moment()],
+            'Last 1 Year': [moment().subtract(1, 'year'), moment()]
         }
     }, function (start, end) {
         fromDate = start.format("YYYY-MM-DD");

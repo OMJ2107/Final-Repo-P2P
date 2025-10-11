@@ -106,8 +106,11 @@ $(document).ready(function () {
             { data: "POQuantity", className: 'text-center' },
             { data: "GRNQuantity", className: 'text-center' },
             { data: "RemainingQuantity", className: 'text-center' },
-            { data: "UnitRate", className: 'text-center', render: d => parseNum(d).toFixed(2) },
-            { data: "Discount", className: 'text-center', render: d => parseNum(d).toFixed(2) + " %" },
+            {
+                data: "UnitRate",
+                className: 'text-center',
+                render: d => `₹ ${parseNum(d).toFixed(2)}`  
+            },            { data: "Discount", className: 'text-center', render: d => parseNum(d).toFixed(2) + " %" },
             { data: "GST", className: 'text-center', render: d => parseNum(d).toFixed(2) + " %" },
             {
                 data: null,
