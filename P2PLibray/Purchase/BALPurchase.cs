@@ -439,8 +439,16 @@ namespace P2PLibray.Purchase
                             Description = row["Description"].ToString(),
                             HasUnregisteredVendors = row.Table.Columns.Contains("HasUnregisteredVendors") && row["HasUnregisteredVendors"] != DBNull.Value
                                 ? Convert.ToInt32(row["HasUnregisteredVendors"])
+                                : 0,
+
+ AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
+                                ? Convert.ToInt32(row["HasRegisteredQuotation"])
                                 : 0
+
+
                         });
+
+
                     }
                 }
                 return items;
@@ -797,7 +805,8 @@ namespace P2PLibray.Purchase
                             Quantity = row["Quantity"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Quantity"]),
                             CostPerUnit = row["CostPerUnit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["CostPerUnit"]),
                             Discount = row["Discount"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Discount"]),
-                            GST = row["GSTPct"] == DBNull.Value ? 0 : Convert.ToDecimal(row["GSTPct"])
+                            GST = row["GSTPct"] == DBNull.Value ? 0 : Convert.ToDecimal(row["GSTPct"]),
+                           // ShippingCharges= row["ShippingCharges"]== DBNull.Value ? 0 : Convert.ToDecimal(row["ShippingCharges"])
                         });
                     }
                 }
@@ -924,7 +933,10 @@ namespace P2PLibray.Purchase
                             Quantity = row.Table.Columns.Contains("Quantity") && row["Quantity"] != DBNull.Value ? Convert.ToDecimal(row["Quantity"]) : 0m,
                             CostPerUnit = row.Table.Columns.Contains("CostPerUnit") && row["CostPerUnit"] != DBNull.Value ? Convert.ToDecimal(row["CostPerUnit"]) : 0m,
                             Discount = row.Table.Columns.Contains("Discount") && row["Discount"] != DBNull.Value ? Convert.ToDecimal(row["Discount"]) : 0m,
-                            GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m
+                            GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m,
+                        ShippingCharges =row.Table.Columns.Contains("ShippingCharges") && row["ShippingCharges"] != DBNull.Value ? Convert.ToDecimal(row["ShippingCharges"]) : 0m
+
+
                         });
                     }
                 }
@@ -1131,6 +1143,9 @@ namespace P2PLibray.Purchase
                 return false;
             }
         }
+
+
+
         #endregion Vaibhavi
 
         #region Akash
@@ -1859,6 +1874,10 @@ namespace P2PLibray.Purchase
             para.Add("@Flag", "GetQuotationAllDatatoCreatePOOK");
             para.Add("@RegisterQuotationCode", RegisterQuotationCode);
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
+            for (int i = 0; i < ds.Tables.Count; i++)
+            {
+                Console.WriteLine($"Table {i}: {ds.Tables[i].Rows.Count} rows");
+            }
             return ds;
         }
 
@@ -1971,6 +1990,28 @@ namespace P2PLibray.Purchase
             Dictionary<string, string> para = new Dictionary<string, string>();
             para.Add("@Flag", "FetchPOdetailsForPOPDFOK");
             para.Add("@POCode", POCode);
+            DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
+            return ds;
+        }
+        //<summary>
+        //Fetch All Just In Time Items to create the PO
+        //</summary>
+        public async Task<DataSet> FetchAllJITItemsOK()
+        {
+            Dictionary<string, string> para = new Dictionary<string, string>();
+            para.Add("@Flag", "FetchAllJITItemsOK");
+            DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
+            return ds;
+        }
+        /// <summary>
+        /// Fetch item details for selected JIT items
+        /// </summary>
+        public async Task<DataSet> FetchSelectedJITItemDetailstOK(List<string> itemCodes)
+        {
+            Dictionary<string, string> para = new Dictionary<string, string>();
+            string csvItemCodes = string.Join(",", itemCodes);
+            para.Add("@Flag", "FetchJITDetaistoPOOK");
+            para.Add("@ItemCodes", csvItemCodes);
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
             return ds;
         }

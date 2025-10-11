@@ -741,12 +741,13 @@ namespace P2PLibray.Inventory
         /// Gets bins by row code.
         /// Returns List of InventoryBinDRB (Code, Name, CurrentItems, MaxQuantity).
         /// </summary>
-        public async Task<List<InventoryBinDRB>> GetBinDRB(string code)
+        public async Task<List<InventoryBinDRB>> GetBinDRB(string code,string GrnItemCode)
         {
             Dictionary<string, string> param = new Dictionary<string, string>
                 {
                     { "@Flag", "GetBinDRB" },
-                    { "@RowCode", code }
+                    { "@RowCode", code },
+                    { "@GRNItemCode", GrnItemCode },
                 };
 
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", param);
@@ -1008,12 +1009,11 @@ namespace P2PLibray.Inventory
                         ItemCode = dr["ItemCode"].ToString(),
                         ItemName = dr["ItemName"].ToString(),
                         CurrentQty = Convert.ToInt32(dr["TotalQty"]),
-                        AddedDate = dr["AddedDate"] != DBNull.Value ? Convert.ToDateTime(dr["AddedDate"]).ToString("dd-MM-yyyy") : string.Empty,
-                        ExpiryDate = dr["ExpiryDate"] != DBNull.Value ? Convert.ToDateTime(dr["ExpiryDate"]).ToString("dd-MM-yyyy") : string.Empty,
+                        AddedDate = dr["AddedDate"] != DBNull.Value ? Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy") : string.Empty,
+                        ExpiryDate = dr["ExpiryDate"] != DBNull.Value ? Convert.ToDateTime(dr["ExpiryDate"]).ToString("dd/MM/yyyy") : string.Empty,
                         BinName = dr["BinList"].ToString(),
                         BinCode = dr["BinCodeList"].ToString()
                     });
-
                 }
             }
 
@@ -1065,7 +1065,7 @@ namespace P2PLibray.Inventory
                         ItemName = dr["ItemName"].ToString(),
                         ItemCount = Convert.ToInt32(dr["TotalItems"]),
                         Date = dr["AddedDate"] != DBNull.Value
-                        ? Convert.ToDateTime(dr["AddedDate"]).ToString("dd-MM-yyyy")
+                        ? Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy")
                         : string.Empty,
                         Status = dr["StatusName"].ToString()
                     });
@@ -1100,12 +1100,12 @@ namespace P2PLibray.Inventory
         /// </summary>
         /// <param name="id">The unique identifier of the requirement to view</param>
         /// <returns>DataSet containing detailed requirement information</returns>
-        public async Task<DataSet> ViewReqMasterRHK(int id)
+        public async Task<DataSet> ViewReqMasterRHK()
         {
             // Create parameter dictionary for stored procedure
             Dictionary<string, string> para = new Dictionary<string, string>();
             para.Add("@Flag", "ViewRequirementMasterRHK"); // Flag for detailed view operation
-            para.Add("@Id", id.ToString()); // Specific requirement ID to retrieve
+          
 
             // Execute stored procedure and return results
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", para);
@@ -2508,6 +2508,7 @@ namespace P2PLibray.Inventory
                 itm.ItemName = ds.Tables[0].Rows[i]["ItemName"].ToString();
                 itm.ItemCode = ds.Tables[0].Rows[i]["ItemCode"].ToString();
                 itm.Description = ds.Tables[0].Rows[i]["Description"].ToString();
+                itm.ReorderQuantity = ds.Tables[0].Rows[i]["ReorderQuantity"].ToString();
             }
 
             for (int i = 0; i < ds.Tables[1].Rows.Count; i++)
@@ -2757,7 +2758,7 @@ namespace P2PLibray.Inventory
             {
                 //Itemmater
                 InventoryOJ items = new InventoryOJ();
-                items.ItemIdOJ =Convert.ToInt32(da["ItemId"]);
+                items.ItemIdOJ = Convert.ToInt32(da["ItemId"]);
                 items.ItemCode = da["ItemCode"].ToString();
                 items.ItemName = da["ItemName"].ToString();
                 items.UOMId = Convert.ToInt32(da["UOMId"]);
@@ -3096,6 +3097,7 @@ namespace P2PLibray.Inventory
             }
         }
 
+
         /// <summary>
         /// Generates the next sequential QualityCode (e.g., IQ001, IQ002).
         /// </summary>
@@ -3142,7 +3144,7 @@ namespace P2PLibray.Inventory
                 DataTable dt = ds.Tables[0];
                 string lastCode = dt.Rows[0]["PlanCode"].ToString();
 
-                int number = int.Parse(lastCode.Substring(5));
+                int number = int.Parse(lastCode.Substring(3));
                 string nextCode = "PLN" + (number + 1).ToString("D3");
 
                 return nextCode;
@@ -3283,17 +3285,12 @@ namespace P2PLibray.Inventory
                 Dictionary<string, object> Edititem = new Dictionary<string, object>();
                 Edititem.Add("@Flag", "UpdateItemOJ");
                 Edititem.Add("@ItemId", n.ItemIdOJ);
-                Edititem.Add("@ItemName", n.ItemName);
-                Edititem.Add("@ItemCategoryId", n.ItemCategoryId);
                 Edititem.Add("@ItemStatusId", n.ItemStatusId);
                 Edititem.Add("@Date", DateTime.Now);
-                Edititem.Add("@UOMId", n.UOMId);
-                Edititem.Add("@Description", n.Description);
                 Edititem.Add("@UnitRates", n.UnitRates);
                 Edititem.Add("@RecorderQ", n.RecorderQuantity);
                 Edititem.Add("@minQ", n.MinQuantity);
-                Edititem.Add("@itemby", n.ItemMakeId);
-                Edititem.Add("@Addedby", "STF002");
+                Edititem.Add("@Addedby", n.StaffCode ?? "");
                 Edititem.Add("@ExpiryDays", n.ExpiryDays);
                 Edititem.Add("@IsQuality", n.ISQualityBit);
 
