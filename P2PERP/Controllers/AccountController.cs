@@ -109,6 +109,7 @@ namespace P2PERP.Controllers
 
             Session["StaffCodeForForgotPassword"] = str;
             Session["ForgetPasswordEmail"] = acc.EmailAddress;
+            Session["VerificationCode"] = acc.Code;
 
             return Json(new { success = true });
         }
