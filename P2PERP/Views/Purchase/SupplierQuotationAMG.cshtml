@@ -169,6 +169,7 @@
 
     // ✅ Modal trigger from buttons inside partials
     $(document).on("click", ".btn-view", function () {
+       let shipCharge = 0;
         const code = $(this).data("id");
         const modalEl = document.getElementById('quotationModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -221,6 +222,7 @@
 
                 $("#qDate").text(formatDate(hdr[0].VQDate));
                 $("#qDelDate").text(formatDate(hdr[0].VendorDeliveryDate));
+                 shipCharge = parseFloat(hdr[0].ShippingCharges || 0);
 
                 $("#qShip").text(hdr[0].ShippingCharges ? parseFloat(hdr[0].ShippingCharges).toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) : "N/A");
             }
@@ -253,7 +255,18 @@
                 gtotal += parseFloat(item.FinalAmount || 0);
                 // (append rows as above)
             });
-            $("#qGrand").text(gtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
+
+            //let shipCharge = 0;
+            //const shipText = $("#qShip").text().replace(/[^0-9.-]+/g, ""); // remove currency symbols
+            //if (shipText) shipCharge = parseFloat(shipText) || 0;
+
+            const grandTotal = gtotal + shipCharge;
+
+            $("#qGrand").text(grandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
+
+
+
+            //$("#qGrand").text(gtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
 
             // ✅ Initialize DataTable
             $("#quotationItemsTable").DataTable({
