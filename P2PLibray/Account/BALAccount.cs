@@ -363,7 +363,6 @@ namespace P2PLibray.Account
                     acc.Add(new Account
                     {
                         IdCode = dr.IsDBNull(dr.GetOrdinal("PRCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("PRCode")),
-                        Status = dr.IsDBNull(dr.GetOrdinal("StatusName")) ? string.Empty : dr.GetString(dr.GetOrdinal("StatusName")),
                         AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate"))
                     });
@@ -437,7 +436,6 @@ namespace P2PLibray.Account
                     acc.Add(new Account
                     {
                         IdCode = dr.IsDBNull(dr.GetOrdinal("RFQCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("RFQCode")),
-                        Status = dr.IsDBNull(dr.GetOrdinal("StatusName")) ? string.Empty : dr.GetString(dr.GetOrdinal("StatusName")),
                         AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate")),
                         EndDate = dr.IsDBNull(dr.GetOrdinal("ExpectedDate")) ? DateTime.Today : dr.GetDateTime(dr.GetOrdinal("ExpectedDate"))
@@ -574,7 +572,6 @@ namespace P2PLibray.Account
                     acc.Add(new Account
                     {
                         IdCode = dr.IsDBNull(dr.GetOrdinal("POCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("POCode")),
-                        Status = dr.IsDBNull(dr.GetOrdinal("StatusName")) ? string.Empty : dr.GetString(dr.GetOrdinal("StatusName")),
                         AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate"))
                     });
@@ -744,8 +741,7 @@ namespace P2PLibray.Account
                 {
                     acc.Add(new Account
                     {
-                        IdCode = dr.IsDBNull(dr.GetOrdinal("GoodReturnCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("GoodReturnCode")),
-                        Status = dr.IsDBNull(dr.GetOrdinal("StatusName")) ? string.Empty : dr.GetString(dr.GetOrdinal("StatusName")),
+                        IdCode = dr.IsDBNull(dr.GetOrdinal("GoodReturnCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("GoodReturnCode"))
                         AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate"))
                     });
