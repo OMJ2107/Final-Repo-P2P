@@ -17,6 +17,16 @@
         text-align: center !important;
         vertical-align: middle !important;
     }
+
+    #quotationItemsTable tfoot td {
+        text-align: right !important;
+        background-color: #f8f9fa;
+        border-top: 2px solid #000;
+        font-weight: bold;
+    }
+
+
+
 </style>
 <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index : 1100;"></div>
 
@@ -56,8 +66,8 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white justify-content-center">
-                <h5 class="modal-title text-center text-white w-100 fw-bold" id="quotationModalLabel">Quotation Details</h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title text-center text-white w-100 fw-bold mb-3" id="quotationModalLabel">Quotation Details</h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3 mb-3" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
@@ -89,7 +99,7 @@
                     </div>
                 </div>
 
-                <div class="row mb-4">
+                @*<div class="row mb-4">
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Shipping Charges</label>
                         <div id="qShip" class="form-control-plaintext"></div>
@@ -98,7 +108,7 @@
                         <label class="form-label fw-bold">Grand Total</label>
                         <div id="qGrand" class="form-control-plaintext text-success fw-bold"></div>
                     </div>
-                </div>
+                </div>*@
 
                 <!-- Items Section -->
                 <h6 class="fw-bold">Items</h6>
@@ -119,6 +129,20 @@
                         </tr>
                     </thead>
                     <tbody></tbody>
+                    <tfoot class="fw-bold">
+                        <tr>
+                            <td colspan="10" class="text-end">Total Amount:</td>
+                            <td id="qTotal" class="text-end text-primary"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="10" class="text-end">Shipping Charges:</td>
+                            <td id="qShip" class="text-end text-secondary"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="10" class="text-end">Grand Total:</td>
+                            <td id="qGrand" class="text-end text-success fs-6"></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -169,7 +193,7 @@
 
     // ✅ Modal trigger from buttons inside partials
     $(document).on("click", ".btn-view", function () {
-       let shipCharge = 0;
+       let shipCharge = 0; 
         const code = $(this).data("id");
         const modalEl = document.getElementById('quotationModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -224,7 +248,7 @@
                 $("#qDelDate").text(formatDate(hdr[0].VendorDeliveryDate));
                  shipCharge = parseFloat(hdr[0].ShippingCharges || 0);
 
-                $("#qShip").text(hdr[0].ShippingCharges ? parseFloat(hdr[0].ShippingCharges).toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) : "N/A");
+                //$("#qShip").text(hdr[0].ShippingCharges ? parseFloat(hdr[0].ShippingCharges).toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) : "N/A");
             }
         });
 
@@ -250,23 +274,37 @@
 
             });
             //$("#qGrand").text(total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
-            let gtotal = 0;
-            $.each(items, function (i, item) {
-                gtotal += parseFloat(item.FinalAmount || 0);
-                // (append rows as above)
-            });
+            //let gtotal = 0;
+            //$.each(items, function (i, item) {
+            //    gtotal += parseFloat(item.FinalAmount || 0);
+            //    // (append rows as above)
+            //});
 
             //let shipCharge = 0;
             //const shipText = $("#qShip").text().replace(/[^0-9.-]+/g, ""); // remove currency symbols
             //if (shipText) shipCharge = parseFloat(shipText) || 0;
 
-            const grandTotal = gtotal + shipCharge;
+           // const grandTotal = gtotal + shipCharge;
 
-            $("#qGrand").text(grandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
+           // $("#qGrand").text(grandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
 
 
 
             //$("#qGrand").text(gtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
+
+//            let total = 0;
+            $.each(items, function (i, item) {
+                total += parseFloat(item.FinalAmount || 0);
+            });
+
+            // Update totals in footer
+            $("#qTotal").text(total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
+            $("#qShip").text(shipCharge.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
+
+            const grandTotal = total + shipCharge;
+            $("#qGrand").text(grandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }));
+
+
 
             // ✅ Initialize DataTable
             $("#quotationItemsTable").DataTable({

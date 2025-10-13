@@ -7,6 +7,19 @@
         text-align: center !important;
         vertical-align: middle !important;
     }
+
+
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+
 </style>
 
 
@@ -272,6 +285,8 @@
                                 extend: 'excelHtml5',
                                 text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                                 title: "Approved Quotations",
+                                messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY'),
+
                                 action: function (e, dt, button, config) {
                                     if ($('#approvedTable tbody input.row-check:checked').length === 0) {
                                         showToast("Please select at least one row to export Excel!", "warning");
@@ -283,6 +298,8 @@
                                 exportOptions: {
                                     rows: function (idx, data, node) { return $(node).find('.row-check').prop('checked'); },
                                     columns: ':visible:not(:first-child):not(:last-child)',
+                                    messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY'),
+
                                     format: {
                                         body: function (data, row, column, node) {
                                             if (column === 1)
@@ -310,6 +327,16 @@
                                         body: function (data, row, column, node) {
                                             if (column === 1)
                                                 return $('#approvedTable tbody input.row-check:checked').index($(node).closest('tr').find('.row-check')) + 1;
+
+                                            if (column === 6 || column === 7) {
+                                                if (typeof data === 'string') {
+                                                    return data
+                                                        .replace(/₹|Rs\.?|,/g, '') // remove ₹, Rs, commas
+                                                        .trim();
+                                                }
+                                            }
+
+
                                             return data;
                                         }
                                     }
@@ -322,25 +349,7 @@
                             { data: null, render: (data, type, row, meta) => meta.row + 1 },
                             { data: "RFQCode" },
                             { data: "RegisterQuotationCode" },
-                            //{
-                            //    data: "AddedDate", type: "string",   // ✅ override datetime detection
-                            //    render: function (data, type, row) {
-
-
-                            //        if (!data) return "";
-
-                            //        // Ensure format like "2025-08-06"
-                            //        let parts = data.split(" ")[0].split("-"); // ["2025","08","06"]
-                            //        if (parts.length !== 3) return data;
-
-                            //        let yyyy = parts[0];
-                            //        let mm = parts[1];
-                            //        let dd = parts[2];
-
-                            //        return `${dd}/${mm}/${yyyy}`;
-                            //    }
-                            //},
-
+                           
 
                             {
                                 data: "AddedDate", title: "Approved Date",
@@ -392,8 +401,21 @@
 
 
                     $('#selectAllApproved').off('change').on('change', function () {
-                        $('#approvedTable tbody input.row-check').prop('checked', $(this).prop('checked'));
+                        const isChecked = $(this).prop('checked');
+                        $('#approvedTable tbody input.row-check').prop('checked', isChecked);
                     });
+
+                    $('#approvedTable tbody').off('change', 'input.row-check').on('change', 'input.row-check', function () {
+                        const total = $('#approvedTable tbody input.row-check').length;
+                        const checked = $('#approvedTable tbody input.row-check:checked').length;
+
+                        // If all rows selected → check header checkbox, else uncheck it
+                        $('#selectAllApproved').prop('checked', total === checked);
+                    });
+
+
+
+
                 }
             });
         }
