@@ -363,7 +363,6 @@ namespace P2PLibray.Account
                     acc.Add(new Account
                     {
                         IdCode = dr.IsDBNull(dr.GetOrdinal("PRCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("PRCode")),
-                        Status = dr.IsDBNull(dr.GetOrdinal("StatusName")) ? string.Empty : dr.GetString(dr.GetOrdinal("StatusName")),
                         AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate"))
                     });
@@ -420,6 +419,41 @@ namespace P2PLibray.Account
             return prDetails;
         }
 
+        public async Task<List<object>> GetPurchaseRequisitionEvents()
+        {
+            var events = new List<object>();
+
+            var PRList = await PRListPCM();
+
+            foreach (var pr in PRList)
+            {
+                var prDetails = await PRDetails(pr.IdCode);
+                events.Add(new
+                {
+                    id = pr.IdCode,
+                    title = $"Purchase Requisition Is Added By {pr.AddedBy}",
+                    start = pr.AddedDate.ToString("yyyy/MM/ddTHH:mm:ss"),
+                    color = "#007bff",
+                    extendedProps = new
+                    {
+                        module = "PurchaseRequisition",
+                        PRCode = prDetails.PRCode,
+                        RequiredDate = prDetails.RequiredDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        StatusName = prDetails.StatusName,
+                        Description = prDetails.Description,
+                        AddedBy = prDetails.AddedBy,
+                        AddedDate = prDetails.AddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        ApprovedBy = prDetails.ApprovedBy,
+                        ApprovedDate = prDetails.ApprovedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        PriorityName = prDetails.PriorityName,
+                        Items = prDetails.Items
+                    }
+                });
+            }
+
+            return events;
+        }
+
         /// <summary>
         /// Retrieves a list of RFQs (Request for Quotation) to display on the calendar.
         /// </summary>
@@ -437,7 +471,6 @@ namespace P2PLibray.Account
                     acc.Add(new Account
                     {
                         IdCode = dr.IsDBNull(dr.GetOrdinal("RFQCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("RFQCode")),
-                        Status = dr.IsDBNull(dr.GetOrdinal("StatusName")) ? string.Empty : dr.GetString(dr.GetOrdinal("StatusName")),
                         AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate")),
                         EndDate = dr.IsDBNull(dr.GetOrdinal("ExpectedDate")) ? DateTime.Today : dr.GetDateTime(dr.GetOrdinal("ExpectedDate"))
@@ -493,6 +526,40 @@ namespace P2PLibray.Account
             }
 
             return rfqDetails;
+        }
+
+        public async Task<List<object>> GetRFQEventsAsync()
+        {
+            var events = new List<object>();
+            var RFQList = await RFQListPCM();
+
+            foreach (var rfq in RFQList)
+            {
+                var rfqDetails = await RFQDetails(rfq.IdCode);
+                events.Add(new
+                {
+                    id = rfq.IdCode,
+                    title = $"Request For Quotation Is Added By {rfq.AddedBy}",
+                    start = rfq.AddedDate.ToString("yyyy-MM-dd"),
+                    end = ((rfq.EndDate.Date.AddDays(1) - rfq.AddedDate.Date).TotalDays > 7 ? rfq.AddedDate.Date.AddDays(7) : rfq.EndDate.Date.AddDays(-2)).ToString("yyyy-MM-dd"),
+                    color = "#17a2b8",
+                    extendedProps = new
+                    {
+                        module = "RequestForQuotation",
+                        rfqDetails.RFQCode,
+                        rfqDetails.PRCode,
+                        ExpectedDate = rfqDetails.ExpectedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        rfqDetails.Description,
+                        rfqDetails.AddedBy,
+                        AddedDate = rfqDetails.AddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        rfqDetails.AccountantName,
+                        rfqDetails.AccountantEmail,
+                        rfqDetails.DeliveryAddress,
+                        rfqDetails.Items
+                    }
+                });
+            }
+            return events;
         }
 
         /// <summary>
@@ -557,6 +624,46 @@ namespace P2PLibray.Account
             return RqDetails;
         }
 
+
+        public async Task<List<object>> GetRegisterQuotationEventsAsync()
+        {
+            var events = new List<object>();
+            var RQList = await RQListPCM();
+            foreach (var rq in RQList)
+            {
+                var rqDetails = await RQDetails(rq.AddedDate.ToString("yyyy-MM-dd"));
+
+                var items = rqDetails.Select(i => new {
+                    i.RegisterQuotationCode,
+                    i.RFQCode,
+                    i.VendorName,
+                    i.StatusName,
+                    i.AddedBy,
+                    DeliveryDate = i.DeliveryDate.HasValue ? i.DeliveryDate.Value.ToString("dd-MM-yyyy").Replace("-", "/") : "",
+                    AddedDate = i.AddedDate.HasValue ? i.AddedDate.Value.ToString("dd-MM-yyyy").Replace("-", "/") : "",
+                    i.ApprovedBy,
+                    ApprovedDate = i.ApprovedDate.HasValue ? i.ApprovedDate.Value.ToString("dd-MM-yyyy").Replace("-", "/") : "",
+                    i.ShippingCharges
+                });
+
+                events.Add(new
+                {
+                    id = $"RQ-{rq.AddedDate:yyyyMMdd}",
+                    title = $"{rq.Count} Quotation{(rq.Count != 1 ? "s" : "")} {(rq.Count != 1 ? "Are" : "Is")} Registerd By {rq.AddedBy}",
+                    start = rq.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    color = "#6f42c1",
+
+                    extendedProps = new
+                    {
+                        module = "RegisterQuotation",
+
+                        Items = items
+                    }
+                });
+            }
+            return events;
+        }
+
         /// <summary>
         /// Retrieves a list of POs (Purchase Orders) to display on the calendar.
         /// </summary>
@@ -574,7 +681,6 @@ namespace P2PLibray.Account
                     acc.Add(new Account
                     {
                         IdCode = dr.IsDBNull(dr.GetOrdinal("POCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("POCode")),
-                        Status = dr.IsDBNull(dr.GetOrdinal("StatusName")) ? string.Empty : dr.GetString(dr.GetOrdinal("StatusName")),
                         AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate"))
                     });
@@ -646,6 +752,42 @@ namespace P2PLibray.Account
             }
 
             return podetails;
+        }
+
+        public async Task<List<object>> GetPurchaseOrderEventsAsync()
+        {
+            var events = new List<object>();
+            var POList = await POListPCM();
+
+            foreach (var po in POList)
+            {
+                var PODetails = await GetPODetails(po.IdCode);
+                events.Add(new
+                {
+                    id = po.IdCode,
+                    title = $"Purchase Order Is Added By {po.AddedBy}",
+                    start = po.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    color = "#fd7e14",
+                    extendedProps = new
+                    {
+                        module = "PurchaseOrder",
+                        PODetails.POCode,
+                        PODetails.StatusName,
+                        AddedDate = PODetails.AddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        ApprovedDate = PODetails.ApprovedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        PODetails.TotalAmount,
+                        PODetails.BillingAddress,
+                        PODetails.VendorName,
+                        PODetails.AddedBy,
+                        PODetails.ApprovedBy,
+                        PODetails.AccountantName,
+                        PODetails.ShippingCharges,
+                        PODetails.Items,
+                        TermConditions = PODetails.TermConditions ?? new List<string>()
+                    }
+                });
+            }
+            return events;
         }
 
         /// <summary>
@@ -728,6 +870,55 @@ namespace P2PLibray.Account
             return grnDetails;
         }
 
+        public async Task<List<object>> GetGRNEventsAsync()
+        {
+            var events = new List<object>();
+            var GRNList = await GRNListPCM();
+
+            foreach (var grn in GRNList)
+            {
+                var grnDetails = await GRNDetails(grn.IdCode);
+                var items = grnDetails.Items.Select(g => new
+                {
+                    g.GRNCode,
+                    g.GRNItemCode,
+                    g.ItemCode,
+                    g.ItemName,
+                    g.Quantity,
+                    g.CostPerUnit,
+                    g.Discount,
+                    g.TaxRate,
+                    g.FinalAmount
+                });
+
+                events.Add(new
+                {
+                    id = grn.IdCode,
+                    title = $"GRN Is Added By {grn.AddedBy}",
+                    start = grn.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    color = "#28a745",
+                    extendedProps = new
+                    {
+                        module = "GRNInfo",
+                        grnDetails.POCode,
+                        grnDetails.GRNCode,
+                        PODate = grnDetails.PODate?.ToString("dd/MM/yyyy"),
+                        GRNDate = grnDetails.GRNDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        InvoiceDate = grnDetails.InvoiceDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        grnDetails.VendorName,
+                        grnDetails.InvoiceCode,
+                        grnDetails.CompanyAddress,
+                        grnDetails.BillingAddress,
+                        grnDetails.StatusName,
+                        grnDetails.TotalAmount,
+                        grnDetails.ShippingCharges,
+                        Items = items
+                    }
+                });
+            }
+            return events;
+        }
+
         /// <summary>
         /// Retrieves a list of GRs (Goods Returns) to display on the calendar.
         /// </summary>
@@ -745,7 +936,6 @@ namespace P2PLibray.Account
                     acc.Add(new Account
                     {
                         IdCode = dr.IsDBNull(dr.GetOrdinal("GoodReturnCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("GoodReturnCode")),
-                        Status = dr.IsDBNull(dr.GetOrdinal("StatusName")) ? string.Empty : dr.GetString(dr.GetOrdinal("StatusName")),
                         AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate"))
                     });
@@ -801,6 +991,40 @@ namespace P2PLibray.Account
             }
 
             return grDetails;
+        }
+
+        public async Task<List<object>> GetGoodsReturnEventsAsync()
+        {
+            var events = new List<object>();
+            var goodsReturnList = await GRListPCM();
+
+            foreach (var gr in goodsReturnList)
+            {
+                var grDetails = await GRDetails(gr.IdCode);
+                events.Add(new
+                {
+                    id = gr.IdCode,
+                    title = $"Goods Return Entry Is Added By {gr.AddedBy}",
+                    start = gr.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    color = "#ffc107",
+                    extendedProps = new
+                    {
+                        module = "GoodsReturnInfo",
+                        grDetails.GoodsReturnCode,
+                        grDetails.GRNCode,
+                        grDetails.TransporterName,
+                        grDetails.TransportContactNo,
+                        grDetails.VehicleNo,
+                        grDetails.VehicleType,
+                        grDetails.Reason,
+                        grDetails.AddedBy,
+                        AddedDate = grDetails.AddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                        grDetails.StatusName,
+                        grDetails.Items
+                    }
+                });
+            }
+            return events;
         }
 
         /// <summary>
@@ -880,6 +1104,134 @@ namespace P2PLibray.Account
             }
 
             return qcdetails;
+        }
+
+        public async Task<List<object>> GetQualityCheckEventsAsync()
+        {
+            var events = new List<object>();
+            var QCList = await QCListPCM();
+
+            foreach (var qc in QCList)
+            {
+                var qcDetails = await QCDetails(qc.AddedDate.ToString("yyyy-MM-dd"), qc.Status);
+                var items = qcDetails.Select(i => new
+                {
+                    i.QualityCheckCode,
+                    i.StatusName,
+                    i.GRNItemsCode,
+                    i.ItemCode,
+                    i.ItemName,
+                    i.Quantity,
+                    i.InspectionFrequency,
+                    i.SampleQualityChecked,
+                    i.SampleTestFailed,
+                    i.QCAddedBy,
+                    QCAddedDate = i.QCAddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                    i.QCFailedAddedBy,
+                    QCFailedDate = i.QCFailedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
+                    i.Reason
+                });
+
+                events.Add(new
+                {
+                    id = $"QC-{qc.AddedDate:yyyyMMdd}",
+                    title = $"{qc.Count} Items Has {(qc.Status == "Confirmed" ? "Passed" : "Failed")} Quality Check",
+                    start = qc.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    color = "#dc3545",
+                    extendedProps = new
+                    {
+                        module = "QualityCheckInfo",
+                        Items = items
+                    }
+                });
+            }
+            return events;
+        }
+
+        public async Task<List<Account>> ISRListPCM()
+        {
+            List<Account> acc = new List<Account>();
+
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("@Flag", "ShowISROnCalendar");
+            using (SqlDataReader dr = await sql.ExecuteStoredProcedureReturnDataReader("AccountProcedure", param))
+            {
+                while (await dr.ReadAsync())
+                {
+                    acc.Add(new Account
+                    {
+                        Count = dr.IsDBNull(dr.GetOrdinal("ItemCount")) ? 0 : dr.GetInt32(dr.GetOrdinal("ItemCount")),
+                        AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate")),
+                        AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName"))
+                    });
+                }
+            }
+
+            return acc;
+        }
+
+        public async Task<List<object>> GetItemStockRefileEvents()
+        {
+            var events = new List<object>();
+
+            var ISRList = await ISRListPCM();
+
+            foreach (var isr in ISRList)
+            {
+                events.Add(new
+                {
+                    id = $"RQ-{isr.AddedDate:yyyyMMdd}",
+                    title = $"{isr.Count} Item Stock Refile Request{(isr.Count != 1 ? "s":"")} {(isr.Count != 1 ? "Are" : "Is")} Registerd By {isr.AddedBy}",
+                    start = isr.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    color = "#6f42c1"
+                });
+            }
+
+            return events;
+        }
+
+        public async Task<List<Account>> JITListPCM()
+        {
+            List<Account> acc = new List<Account>();
+
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("@Flag", "ShowJITOnCalendar");
+            using (SqlDataReader dr = await sql.ExecuteStoredProcedureReturnDataReader("AccountProcedure", param))
+            {
+                while (await dr.ReadAsync())
+                {
+                    acc.Add(new Account
+                    {
+                        Count = dr.IsDBNull(dr.GetOrdinal("ItemCount")) ? 0 : dr.GetInt32(dr.GetOrdinal("ItemCount")),
+                        AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate")),
+                        AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName"))
+                    });
+                }
+            }
+
+            return acc;
+        }
+
+        public async Task<List<Account>> MROListPCM()
+        {
+            List<Account> acc = new List<Account>();
+
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("@Flag", "ShowMRPOnCalendar");
+            using (SqlDataReader dr = await sql.ExecuteStoredProcedureReturnDataReader("AccountProcedure", param))
+            {
+                while (await dr.ReadAsync())
+                {
+                    acc.Add(new Account
+                    {
+                        IdCode = dr.IsDBNull(dr.GetOrdinal("MaterialReqPlanningCode")) ? string.Empty : dr.GetString(dr.GetOrdinal("MaterialReqPlanningCode")),
+                        AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
+                        AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate"))
+                    });
+                }
+            }
+
+            return acc;
         }
     }
 }

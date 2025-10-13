@@ -503,262 +503,31 @@ namespace P2PERP.Controllers
                 switch (perm.PermissionName)
                 {
                     case "PurchaseRequisition":
-                        // Load Purchase Requisition events
-                        var PRList = await bal.PRListPCM();
-                        foreach (var pr in PRList)
-                        {
-                            var PRDetails = await bal.PRDetails(pr.IdCode);
-                            events.Add(new
-                            {
-                                id = pr.IdCode,
-                                title = $"Purchase Requisition Is Added By {pr.AddedBy}",
-                                start = pr.AddedDate.ToString("yyyy/MM/ddTHH:mm:ss"),
-                                color = "#007bff",
-
-                                extendedProps = new
-                                {
-                                    module = "PurchaseRequisition",
-                                    PRCode = PRDetails.PRCode,
-                                    RequiredDate = PRDetails.RequiredDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    StatusName = PRDetails.StatusName,
-                                    Description = PRDetails.Description,
-                                    AddedBy = PRDetails.AddedBy,
-                                    AddedDate = PRDetails.AddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    ApprovedBy = PRDetails.ApprovedBy,
-                                    ApprovedDate = PRDetails.ApprovedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    PriorityName = PRDetails.PriorityName,
-
-                                    Items = PRDetails.Items
-                                }
-                            });
-                        }
+                        events.AddRange(await bal.GetPurchaseRequisitionEvents());
                         break;
+
                     case "RequestForQuotation":
-                        // Load RFQ events
-                        var RFQList = await bal.RFQListPCM();
-                        foreach (var pr in RFQList)
-                        {
-                            var RFQDetails = await bal.RFQDetails(pr.IdCode);
-                            events.Add(new
-                            {
-                                id = pr.IdCode,
-                                title = $"Request For Quotation Is Added By {pr.AddedBy}",
-                                start = pr.AddedDate.ToString("yyyy-MM-dd"),
-                                end = ((pr.EndDate.Date.AddDays(1) - pr.AddedDate.Date).TotalDays > 7 ? pr.AddedDate.Date.AddDays(7) : pr.EndDate.Date.AddDays(-2)).ToString("yyyy-MM-dd"),
-                                color = "#17a2b8",
-
-                                extendedProps = new
-                                {
-                                    module = "RequestForQuotation",
-                                    RFQCode = RFQDetails.RFQCode,
-                                    PRCode = RFQDetails.PRCode,
-                                    ExpectedDate = RFQDetails.ExpectedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    Description = RFQDetails.Description,
-                                    AddedBy = RFQDetails.AddedBy,
-                                    AddedDate = RFQDetails.AddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    AccountantName = RFQDetails.AccountantName,
-                                    AccountantEmail = RFQDetails.AccountantEmail,
-                                    DeliveryAddress = RFQDetails.DeliveryAddress,
-
-                                    Items = RFQDetails.Items
-                                }
-                            });
-                        }
+                        events.AddRange(await bal.GetRFQEventsAsync());
                         break;
+
                     case "RegisterQuotation":
-                        // Load Register Quotation events (grouped by date)
-                        var RQList = await bal.RQListPCM();
-                        foreach (var pr in RQList)
-                        {
-                            var RQDetails = await bal.RQDetails(pr.AddedDate.ToString("yyyy-MM-dd"));
-
-                            var items = RQDetails.Select(i => new {
-                                i.RegisterQuotationCode,
-                                i.RFQCode,
-                                i.VendorName,
-                                i.StatusName,
-                                i.AddedBy,
-                                DeliveryDate = i.DeliveryDate.HasValue ? i.DeliveryDate.Value.ToString("dd-MM-yyyy").Replace("-", "/") : "",
-                                AddedDate = i.AddedDate.HasValue ? i.AddedDate.Value.ToString("dd-MM-yyyy").Replace("-", "/") : "",
-                                i.ApprovedBy,
-                                ApprovedDate = i.ApprovedDate.HasValue ? i.ApprovedDate.Value.ToString("dd-MM-yyyy").Replace("-", "/") : "",
-                                i.ShippingCharges
-                            });
-
-                            events.Add(new
-                            {
-                                id = $"RQ-{pr.AddedDate:yyyyMMdd}",
-                                title = $"{pr.Count} Quotations are Registerd By {pr.AddedBy}",
-                                start = pr.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
-                                color = "#6f42c1",
-
-                                extendedProps = new
-                                {
-                                    module = "RegisterQuotation",
-
-                                    Items = items
-                                }
-                            });
-                        }
+                        events.AddRange(await bal.GetRegisterQuotationEventsAsync());
                         break;
+
                     case "PurchaseOrder":
-                        // Load Purchase Order events
-                        var POList = await bal.POListPCM();
-                        foreach (var po in POList)
-                        {
-                            var PODetails = await bal.GetPODetails(po.IdCode);
-
-                            events.Add(new
-                            {
-                                id = po.IdCode,
-                                title = $"Purchase Order Is Added By {po.AddedBy}",
-                                start = po.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
-                                color = "#fd7e14",
-
-                                extendedProps = new
-                                {
-                                    module = "PurchaseOrder",
-
-                                    POCode = PODetails.POCode,
-                                    StatusName = PODetails.StatusName,
-                                    AddedDate = PODetails.AddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    ApprovedDate = PODetails.ApprovedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    TotalAmount = PODetails.TotalAmount,
-                                    BillingAddress = PODetails.BillingAddress,
-                                    VendorName = PODetails.VendorName,
-                                    AddedBy = PODetails.AddedBy,
-                                    ApprovedBy = PODetails.ApprovedBy,
-                                    AccountantName = PODetails.AccountantName,
-                                    ShippingCharges = PODetails.ShippingCharges,
-
-                                    Items = PODetails.Items,
-
-                                    TermConditions = PODetails.TermConditions ?? new List<string>()
-                                }
-                            });
-                        }
+                        events.AddRange(await bal.GetPurchaseOrderEventsAsync());
                         break;
+
                     case "GRNInfo":
-                        // Load GRN (Goods Receipt Note) events
-                        var GRNList = await bal.GRNListPCM();
-                        foreach (var grn in GRNList)
-                        {
-                            var GRNDetails = await bal.GRNDetails(grn.IdCode);
-
-                            var items = GRNDetails.Items.Select(g => new
-                            {
-                                g.GRNCode,
-                                g.GRNItemCode,
-                                g.ItemCode,
-                                g.ItemName,
-                                g.Quantity,
-                                g.CostPerUnit,
-                                g.Discount,
-                                g.TaxRate,
-                                g.FinalAmount
-                            }).ToList();
-
-                            events.Add(new
-                            {
-                                id = grn.IdCode,
-                                title = $"GRN Is Added By {grn.AddedBy}",
-                                start = grn.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
-                                color = "#28a745",
-
-                                extendedProps = new
-                                {
-                                    module = "GRNInfo",
-
-                                    POCode = GRNDetails.POCode,
-                                    GRNCode = GRNDetails.GRNCode,
-                                    PODate = GRNDetails.PODate?.ToString("dd/MM/yyyy").Replace("-","/"),
-                                    GRNDate = GRNDetails.GRNDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    InvoiceDate = GRNDetails.InvoiceDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    VendorName = GRNDetails.VendorName,
-                                    InvoiceCode = GRNDetails.InvoiceCode,
-                                    CompanyAddress = GRNDetails.CompanyAddress,
-                                    BillingAddress = GRNDetails.BillingAddress,
-                                    StatusName = GRNDetails.StatusName,
-                                    TotalAmount = GRNDetails.TotalAmount,
-                                    ShippingCharges = Convert.ToDecimal(GRNDetails.ShippingCharges),
-
-                                    Items = items,
-                                }
-                            });
-                        }
+                        events.AddRange(await bal.GetGRNEventsAsync());
                         break;
+
                     case "GoodsReturnInfo":
-                        // Load Goods Return events
-                        var goodsReturnList = await bal.GRListPCM();
-                        foreach (var gr in goodsReturnList)
-                        {
-                            var GRDetails = await bal.GRDetails(gr.IdCode);
-                            events.Add(new
-                            {
-                                id = gr.IdCode,
-                                title = $"Goods Return Entry Is Added By {gr.AddedBy}",
-                                start = gr.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
-                                color = "ffc107",
-
-                                extendedProps = new
-                                {
-                                    module = "GoodsReturnInfo",
-
-                                    GoodsReturnCode = GRDetails.GoodsReturnCode,
-                                    GRNCode = GRDetails.GRNCode,
-                                    TransporterName = GRDetails.TransporterName,
-                                    TransportContactNo = GRDetails.TransportContactNo,
-                                    VehicleNo = GRDetails.VehicleNo,
-                                    VehicleType = GRDetails.VehicleType,
-                                    Reason = GRDetails.Reason,
-                                    AddedBy = GRDetails.AddedBy,
-                                    AddedDate = GRDetails.AddedDate?.ToString("dd-MM-yyyy").Replace("-", "/"),
-                                    Status = GRDetails.StatusName,
-
-                                    Items = GRDetails.Items,
-                                }
-                            });
-                        }
+                        events.AddRange(await bal.GetGoodsReturnEventsAsync());
                         break;
+
                     case "QualityCheckInfo":
-                        // Load Quality Check events
-                        var QCList = await bal.QCListPCM();
-                        foreach (var qc in QCList)
-                        {
-                            var QCDetails = await bal.QCDetails(qc.AddedDate.ToString("yyyy-MM-dd"), qc.Status);
-
-                            var items = QCDetails.Select(i => new {
-                                i.QualityCheckCode,
-                                i.StatusName,
-                                i.GRNItemsCode,
-                                i.ItemCode,
-                                i.ItemName,
-                                i.Quantity,
-                                i.InspectionFrequency,
-                                i.SampleQualityChecked,
-                                i.SampleTestFailed,
-                                i.QCAddedBy,
-                                QCAddedDate = i.QCAddedDate.HasValue ? i.QCAddedDate.Value.ToString("dd-MM-yyyy").Replace("-", "/") : "",
-                                i.QCFailedAddedBy,
-                                QCFailedDate = i.QCFailedDate.HasValue ? i.QCFailedDate.Value.ToString("dd-MM-yyyy").Replace("-", "/") : "",
-                                i.Reason
-                            });
-
-                            events.Add(new
-                            {
-                                id = $"QC-{qc.AddedDate:yyyyMMdd}",
-                                title = $"{qc.Count} Items Has {(qc.Status == "Confirmed" ? "Passed" : "Failed")} Quality Check",
-                                start = qc.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
-                                color = "#dc3545",
-
-                                extendedProps = new
-                                {
-                                    module = "QualityCheckInfo",
-
-                                    Items = items,
-                                }
-                            });
-                        }
+                        events.AddRange(await bal.GetQualityCheckEventsAsync());
                         break;
                 }
             }
