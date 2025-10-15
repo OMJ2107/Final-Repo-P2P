@@ -501,8 +501,13 @@ namespace P2PLibray.Purchase
         public long WarehousePhone { get; set; }
         public string WarehouseEmail { get; set; }
         public List<string> POItems { get; set; } = new List<string>();
+
+        public List<string> Itemslst { get; set; } = new List<string>();
         public decimal GrandTotal { get; set; }
         public decimal SubAmount { get; set; }
+        public int RequestTypeId { get; set; }
+        public int JITQuantity { get; set; }
+
         #endregion
 
         #region Sandesh
