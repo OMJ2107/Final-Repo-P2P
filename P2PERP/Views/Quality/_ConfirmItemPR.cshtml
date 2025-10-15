@@ -494,7 +494,7 @@
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     title: 'Confirm Item List',
-                    message: 'Generated on: ' + moment().format("DD/MM/YYYY"),
+                    messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-checkbox').prop('checked');
@@ -515,6 +515,36 @@
                                 return data;
                             }
                         }
+                    },
+                    customize: function (xlsx) {
+                        let sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // Insert "Sr. No" column at start and make it bold (s="2")
+                        let serial = 1;
+                        $('row', sheet).each(function () {
+                            let rowIndex = parseInt($(this).attr('r'));
+
+                            if (rowIndex === 1) {
+                                // Title row - center align and bold
+                                $(this).find('c').attr('s', '51');
+                            } else if (rowIndex === 2) {
+                                // Generated date row - center align and bold
+                                $(this).find('c').attr('s', '51');
+                            } else if (rowIndex === 3) {
+                                // Header row: Add Sr. No column
+                                $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>`);
+                                // Make all header cells bold and centered
+                                $(this).find('c').attr('s', '2');
+                            } else if (rowIndex > 3) {
+                                // Data rows: Add serial numbers
+                                $(this).find('c:first').before(`<c t="inlineStr"><is><t>${serial}</t></is></c>`);
+                                serial++;
+                            }
+                        });
+
+                        // Center align title and date rows
+                        $('row[r="1"] c', sheet).attr('s', '51'); // center & bold title
+                        $('row[r="2"] c', sheet).attr('s', '51'); // center & bold date
                     },
                     action: function (e, dt, button, config) {
                         const selected = $('input.row-checkbox:checked').length;
@@ -790,7 +820,7 @@
                         extend: 'excelHtml5',
                         text: '<i class="bi bi-file-earmark-excel text-success fs-6"></i>',
                         title: 'Confirm Item Details - ' + $('#modalGRNCode').text(),
-                        message: 'Generated on: ' + moment().format("DD/MM/YYYY"),
+                        messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
                         exportOptions: {
                             rows: function (idx, data, node) {
                                 return $(node).find('.modal-confirm-checkbox').prop('checked');
@@ -811,6 +841,36 @@
                                     return data;
                                 }
                             }
+                        },
+                        customize: function (xlsx) {
+                            let sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                            // Insert "Sr. No" column at start and make it bold
+                            let serial = 1;
+                            $('row', sheet).each(function () {
+                                let rowIndex = parseInt($(this).attr('r'));
+
+                                if (rowIndex === 1) {
+                                    // Title row - center align and bold
+                                    $(this).find('c').attr('s', '51');
+                                } else if (rowIndex === 2) {
+                                    // Generated date row - center align and bold
+                                    $(this).find('c').attr('s', '51');
+                                } else if (rowIndex === 3) {
+                                    // Header row: Add Sr. No column
+                                    $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>`);
+                                    // Make all header cells bold and centered
+                                    $(this).find('c').attr('s', '2');
+                                } else if (rowIndex > 3) {
+                                    // Data rows: Add serial numbers
+                                    $(this).find('c:first').before(`<c t="inlineStr"><is><t>${serial}</t></is></c>`);
+                                    serial++;
+                                }
+                            });
+
+                            // Center align title and date rows
+                            $('row[r="1"] c', sheet).attr('s', '51');
+                            $('row[r="2"] c', sheet).attr('s', '51');
                         },
                         action: function (e, dt, button, config) {
                             const selected = $('.modal-confirm-checkbox:checked').length;
