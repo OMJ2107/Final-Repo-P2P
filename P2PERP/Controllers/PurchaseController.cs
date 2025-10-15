@@ -2175,11 +2175,7 @@ namespace P2PERP.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for approved PR
-        public ActionResult ShowApprovePRPartialPRK()
-        {
-            return PartialView("_ShowApprovePRPartialPRK");
-        }
+      
 
         // Rejected PR main view
         public ActionResult ShowRejectedPRPRK()
@@ -2251,11 +2247,7 @@ namespace P2PERP.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for pending PR
-        public ActionResult ShowPendingPRPartialPRK()
-        {
-            return PartialView("_ShowPendingPRPartialPRK");
-        }
+      
 
         // Approved PR items partial (by PRCode)
         public ActionResult ShowApporvePRItemPRK(string prCode)
@@ -2309,86 +2301,128 @@ namespace P2PERP.Controllers
 
         //Manager Dashboard 
 
+        // Partial view for approved PR
+
+        public async Task<ActionResult> ShowApprovPRDashPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowApprovedPRDashPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ShowApprovePRPartialPRK(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowApprovePRPartialPRK");
+        }
+
+
+
+
+        // Partial view for pending PR
+
+        public async Task<ActionResult> ShowPendingPRDashPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowPendingPRDashPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ShowPendingPRPartialPRK(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowPendingPRPartialPRK");
+        }
 
 
         // Requested RFQ
-        public async Task<ActionResult> ShowRequestedRFQPRK()
+        public async Task<ActionResult> ShowRequestedRFQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowRequestedRFQPRK();
+            var data = await bal.ShowRequestedRFQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Requested RFQ
-        public ActionResult ShowReuestedRFQPartialPRK()
+        public ActionResult ShowReuestedRFQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd"); 
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowReuestedRFQPartialPRK");
         }
 
         //Pending RFQ
-        public async Task<ActionResult> ShowPendingRFQPRK()
+        public async Task<ActionResult> ShowPendingRFQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowPendingRFQPRK();
+            var data = await bal.ShowPendingRFQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Pending RFQ
-        public ActionResult ShowPendingRFQPartialPRK()
+        public ActionResult ShowPendingRFQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingRFQPartialPRK");
         }
 
         // Approve RQ
-        public async Task<ActionResult> ShowApproveRQPRK()
+        public async Task<ActionResult> ShowApproveRQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowApproveRQPRK();
+            var data = await bal.ShowApproveRQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         //   // Partial view for Approve RQ
-        public ActionResult ShowApproveRQPartialPRK()
+        public ActionResult ShowApproveRQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowApproveRQPartialPRK");
         }
 
         //Pending RQ
-        public async Task<ActionResult> ShowPendingRQPRK()
+        public async Task<ActionResult> ShowPendingRQPRK(DateTime startDate, DateTime endDate)
         {
 
-            var data = await bal.ShowPendingRQPRK();
+            var data = await bal.ShowPendingRQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for Pending RQ
-        public ActionResult ShowPendingRQPartialPRK()
+        // Partial view for Pending RQ 
+        public ActionResult ShowPendingRQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingRQPartialPRK");
         }
 
 
 
         //Approve PO
-        public async Task<ActionResult> ShowApprovePOPRK()
+        public async Task<ActionResult> ShowApprovePOPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowApprovePOPRK();
+            var data = await bal.ShowApprovePOPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Approve PO
-        public ActionResult ShowApprovePOPartialPRK()
+        public ActionResult ShowApprovePOPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowApprovePOPartialPRK");
         }
 
         //Pending PO
-        public async Task<ActionResult> ShowPendingPOPRK()
+        public async Task<ActionResult> ShowPendingPOPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowPendingPOPRK();
+            var data = await bal.ShowPendingPOPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Approve PO
-        public ActionResult ShowPendingPOPartialPRK()
+        public ActionResult ShowPendingPOPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingPOPartialPRK");
         }
     
