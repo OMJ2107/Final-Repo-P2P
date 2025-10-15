@@ -1106,6 +1106,13 @@
                                         <div data-i18n="Purchase Order History">Purchase Order History</div>
                                     </a>
                                 </li>
+                                @*just in time*@
+                                @*<li class="menu-item @(currentAction == "PurchaseOrederHistoryOK" ? "active" : "")">
+                                        <a href="@Url.Action("PurchaseOrederHistoryOK", "Purchase")" class="menu-link d-flex align-items-center rounded-2 py-2 px-3 submenu-item-hover">
+                                            <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
+                                            <div data-i18n="Purchase Order History">Purchase Order History</div>
+                                        </a>
+                                    </li>*@
                             </ul>
                         </li>
                     }
@@ -1244,11 +1251,11 @@
                                 </a>
                                 <ul class="menu-sub">
                                     @*<li class="menu-item @(currentAction == "CurrentStockReportAMG" ? "active" : "")">
-                                        <a href="@Url.Action("CurrentStockReportAMG", "Inventory")" class="menu-link d-flex align-items-center rounded-2 py-2 px-3 submenu-item-hover">
-                                            <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
-                                            <div data-i18n="Current Stock Reports">Current Stock Reports</div>
-                                        </a>
-                                    </li>*@
+                                            <a href="@Url.Action("CurrentStockReportAMG", "Inventory")" class="menu-link d-flex align-items-center rounded-2 py-2 px-3 submenu-item-hover">
+                                                <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
+                                                <div data-i18n="Current Stock Reports">Current Stock Reports</div>
+                                            </a>
+                                        </li>*@
                                     <li class="menu-item @(currentAction == "ReceivedMaterialReport" ? "active" : "")">
                                         <a href="@Url.Action("ReceivedMaterialReportAMG", "Inventory")" class="menu-link d-flex align-items-center rounded-2 py-2 px-3 submenu-item-hover">
                                             <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
@@ -1515,10 +1522,10 @@
     <!-- / Layout wrapper -->
     <!-- Global Loader -->
     <div id="globalLoader" class="global-loader" style="display: none;">
-      
-            <div class="loader"></div>
 
-       
+        <div class="loader"></div>
+
+
     </div>
 
     <script>
@@ -2056,7 +2063,7 @@
             LoaderManager.instance.forceHide();
         };
 
-       
+
 
         // Handle link clicks that might trigger AJAX
         document.addEventListener('click', function(e) {
