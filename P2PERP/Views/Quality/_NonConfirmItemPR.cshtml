@@ -45,7 +45,7 @@
             <!--  Modal Header with Centered Title -->
             <div class="modal-header bg-primary text-white justify-content-center py-3">
                 <!-- Added py-3 for vertical padding -->
-                <h5 class="modal-title text-white fw-bold text-center w-100" id="viewDetailsModalLabel">Non-Confirm Items</h5> <!-- Added text-center and w-100 -->
+                <h5 class="modal-title text-white fw-bold text-center w-100" id="viewDetailsModalLabel">Non-Confirm Items</h5> 
                 <button type="button" class="btn-close btn-close-white position-absolute end-0me-1 mt-2 mb-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -169,7 +169,7 @@
             "timeOut": "3000"
         };
 
-        // ✅ UPDATED: Date Range Picker with DD-MM-YYYY format
+        //  UPDATED: Date Range Picker with DD-MM-YYYY format
         $('#Tabledate').daterangepicker({
             autoUpdateInput: false,
             alwaysShowCalendars: false,
@@ -219,8 +219,8 @@
             if (!start || !end) return true;
 
             // Get both date columns
-            const addDateStr = data[4]; // Add Date column (index 4)
-            const qualityCheckDateStr = data[5]; // Quality Check Date column (index 5)
+            const addDateStr = data[4]; 
+            const qualityCheckDateStr = data[5]; 
 
             //  Check if EITHER AddDate OR QualityCheckDate falls within the selected range
             let addDateInRange = false;
@@ -313,13 +313,13 @@
                         format: {
                             body: function (data, row, column, node) {
                                 // ✅ Sequential serial numbers for selected rows
-                                if (column === 1) { // Sr No column (index 1)
+                                if (column === 1) { 
                                     const $node = $(node);
                                     if ($node.closest('tr').find('.row-select').prop('checked')) {
                                         const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
                                         const currentRow = $node.closest('tr');
                                         const currentIndex = selectedRows.index(currentRow.find('.row-select'));
-                                        return currentIndex + 1; // Sequential number
+                                        return currentIndex + 1; 
                                     }
                                     return ''; // Empty for non-selected
                                 }
@@ -360,7 +360,7 @@
             </style>
         `);
 
-                        // ✅ FIXED: Single header with title and date - TABLE KE UPAR EK HI BAR
+                        //  FIXED: Single header with title and date 
                         $body.prepend(`
             <div style="text-align: center; margin-bottom: 20px;">
                 <h2>Non-Confirm Item List</h2>
@@ -368,11 +368,11 @@
             </div>
         `);
 
-                        // ✅ Center align all content in print
+                        //  Center align all content in print
                         $body.find('table').addClass('centered-content');
                         $body.find('td, th').css('text-align', 'center');
 
-                        // ✅ Fix serial numbers in print - sequential for selected rows only
+                        //  Fix serial numbers in print - sequential for selected rows only
                         const $table = $body.find('table');
                         let serialNo = 1;
                         $table.find('tbody tr').each(function () {
@@ -380,8 +380,8 @@
                             $row.find('td:first').text(serialNo++);
                         });
 
-                        // ✅ REMOVE DUPLICATE TITLE THAT APPEARS ABOVE TABLE
-                        $body.find('h1').remove(); // DataTable default title remove
+                        //  REMOVE DUPLICATE TITLE THAT APPEARS ABOVE TABLE
+                        $body.find('h1').remove(); 
                     }
                 },
 
@@ -398,7 +398,7 @@
                         format: {
                             body: function (data, row, column, node) {
                                 // ✅ Sequential serial numbers for selected rows
-                                if (column === 1) { // Sr No column
+                                if (column === 1) {
                                     const $node = $(node);
                                     if ($node.closest('tr').find('.row-select').prop('checked')) {
                                         const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
@@ -421,9 +421,9 @@
                         $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                     },
                     customize: function (doc) {
-                        doc.pageMargins = [40, 60, 40, 40]; // Reduced top margin
+                        doc.pageMargins = [40, 60, 40, 40]; 
 
-                        // ✅ FIXED: Single title with generated date
+                        //  FIXED: Single title with generated date
                         doc.content[0] = {
                             text: 'Non-Confirm Item List\nGenerated on: ' + moment().format("DD/MM/YYYY"),
                             alignment: 'center',
@@ -458,10 +458,10 @@
                             let serialNo = 1;
                             table.table.body.forEach((row, rowIndex) => {
                                 if (rowIndex > 0) {
-                                    row[0].text = serialNo++; // Sequential serial number
+                                    row[0].text = serialNo++; 
                                 }
                                 row.forEach(cell => {
-                                    cell.alignment = 'center'; // Center align all cells
+                                    cell.alignment = 'center'; 
                                 });
                             });
 
@@ -475,7 +475,7 @@
                     }
                 },
 
-                // ✅ EXCEL - Main Table (UPDATED: Sr. No column और center alignment)
+                //  EXCEL - Main Table 
                 {
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
@@ -542,12 +542,12 @@
                     }
                 },
 
-                // CSV - Main Table (UPDATED: Title और Generated Date अलग-अलग)
+                // CSV - Main Table
                 {
                     extend: 'csvHtml5',
                     text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
-                    title: 'Non-Confirm Item List', // ✅ Title अलग
-                    message: 'Generated on: ' + moment().format("DD/MM/YYYY"), // ✅ Generated date अलग
+                    title: 'Non-Confirm Item List',
+                    message: 'Generated on: ' + moment().format("DD/MM/YYYY"), 
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -556,7 +556,7 @@
                         format: {
                             body: function (data, row, column, node) {
                                 // ✅ Sequential serial numbers for selected rows
-                                if (column === 1) { // Sr No column
+                                if (column === 1) { 
                                     const $node = $(node);
                                     if ($node.closest('tr').find('.row-select').prop('checked')) {
                                         const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
@@ -663,7 +663,7 @@
                                         format: {
                                             body: function (data, row, column, node) {
                                                 // ✅ Sequential serial numbers for selected modal items
-                                                if (column === 1) { // Sr No column
+                                                if (column === 1) {
                                                     const $node = $(node);
                                                     if ($node.closest('tr').find('.item-row-select').prop('checked')) {
                                                         const selectedRows = $('.item-row-select:checked');
@@ -710,7 +710,7 @@
                     </style>
                 `);
 
-                                        // ✅ FIXED: Single header for modal
+                                        // FIXED: Single header for modal
                                         $body.prepend(`
                     <div style="text-align: center; margin-bottom: 20px;">
                         <h2>Failed Items Details - ${$('#modalGRNCodeNonConfirm').text()}</h2>
@@ -718,11 +718,11 @@
                     </div>
                 `);
 
-                                        // ✅ Center align all content in print
+                                        //  Center align all content in print
                                         $body.find('table').addClass('centered-content');
                                         $body.find('td, th').css('text-align', 'center');
 
-                                        // ✅ Fix serial numbers in modal print
+                                        //  Fix serial numbers in modal print
                                         const $table = $body.find('table');
                                         let serialNo = 1;
                                         $table.find('tbody tr').each(function () {
@@ -732,7 +732,7 @@
                                     }
                                 },
 
-                                // ✅ PDF - Modal Table
+                                //  PDF - Modal Table
                                 {
                                     extend: 'pdfHtml5',
                                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-6"></i>',
@@ -744,9 +744,8 @@
                                         columns: ':not(:first-child)',
                                         format: {
                                             body: function (data, row, column, node) {
-                                                // ✅ Sequential serial numbers for selected modal items
-                                                if (column === 1) { // Sr No column
-                                                    const $node = $(node);
+                                                //  Sequential serial numbers for selected modal items
+                                                if (column === 1) {                                                     const $node = $(node);
                                                     if ($node.closest('tr').find('.item-row-select').prop('checked')) {
                                                         const selectedRows = $('.item-row-select:checked');
                                                         const currentRow = $node.closest('tr');
@@ -768,9 +767,9 @@
                                         $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                                     },
                                     customize: function (doc) {
-                                        doc.pageMargins = [40, 80, 40, 40]; // Reduced top margin
+                                        doc.pageMargins = [40, 80, 40, 40]; 
 
-                                        // ✅ FIXED: Single title for modal PDF
+                                        //  FIXED: Single title for modal PDF
                                         doc.content[0] = {
                                             text: `Failed Items Details - ${$('#modalGRNCodeNonConfirm').text()}\nGenerated on: ${moment().format("DD/MM/YYYY")}`,
                                             alignment: 'center',
@@ -801,14 +800,14 @@
                                                 cell.bold = true;
                                             });
 
-                                            // ✅ Center align all cells and fix serial numbers
+                                            //  Center align all cells and fix serial numbers
                                             let serialNo = 1;
                                             table.table.body.forEach((row, rowIndex) => {
                                                 if (rowIndex > 0) {
                                                     row[0].text = serialNo++;
                                                 }
                                                 row.forEach(cell => {
-                                                    cell.alignment = 'center'; // Center align all cells
+                                                    cell.alignment = 'center'; 
                                                 });
                                             });
 
@@ -822,7 +821,7 @@
                                     }
                                 },
 
-                                // ✅ EXCEL - Modal Table (UPDATED: Sr. No column और center alignment)
+                                //  EXCEL 
                                 {
                                     extend: 'excelHtml5',
                                     text: '<i class="bi bi-file-earmark-excel text-success fs-6"></i>',
@@ -889,12 +888,12 @@
                                     }
                                 },
 
-                                // CSV - Modal Table (UPDATED: Title और Generated Date अलग-अलग)
+                                // CSV 
                                 {
                                     extend: 'csvHtml5',
                                     text: '<i class="bi bi-filetype-csv text-success fs-6"></i>',
-                                    title: 'Failed Items Details - ' + $('#modalGRNCodeNonConfirm').text(), // ✅ Title अलग
-                                    message: 'Generated on: ' + moment().format("DD/MM/YYYY"), // ✅ Generated date अलग
+                                    title: 'Failed Items Details - ' + $('#modalGRNCodeNonConfirm').text(), 
+                                    message: 'Generated on: ' + moment().format("DD/MM/YYYY"), 
                                     exportOptions: {
                                         rows: function (idx, data, node) {
                                             return $(node).find('.item-row-select').prop('checked');
@@ -903,7 +902,7 @@
                                         format: {
                                             body: function (data, row, column, node) {
                                                 // ✅ Sequential serial numbers for selected modal items
-                                                if (column === 1) { // Sr No column
+                                                if (column === 1) { 
                                                     const $node = $(node);
                                                     if ($node.closest('tr').find('.item-row-select').prop('checked')) {
                                                         const selectedRows = $('.item-row-select:checked');

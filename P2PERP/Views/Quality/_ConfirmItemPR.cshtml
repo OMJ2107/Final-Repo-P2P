@@ -187,7 +187,7 @@
             content: none !important;
         }
 
-    /* Search input styling - Main table जैसा ही */
+    /* Search input styling  */
     .input-group-text {
         background-color: #f8f9fa;
         border: 1px solid #ced4da;
@@ -204,7 +204,7 @@
             "timeOut": "3000"
         };
 
-        //  ✅ Initialize Date Range Picker with the format you provided
+        //   Initialize Date Range Picker with the format you provided
         $('#tblConfirm').daterangepicker({
             autoUpdateInput: false,
             alwaysShowCalendars: false,
@@ -268,7 +268,7 @@
             return addDate.isSameOrAfter(start) && addDate.isSameOrBefore(end);
         });
 
-        // ✅ Initialize Main DataTable
+        //  Initialize Main DataTable
         const table = $('#confirmItemTable').DataTable({
             processing: true,
             serverSide: false,
@@ -543,8 +543,8 @@
                         });
 
                         // Center align title and date rows
-                        $('row[r="1"] c', sheet).attr('s', '51'); // center & bold title
-                        $('row[r="2"] c', sheet).attr('s', '51'); // center & bold date
+                        $('row[r="1"] c', sheet).attr('s', '51'); 
+                        $('row[r="2"] c', sheet).attr('s', '51');
                     },
                     action: function (e, dt, button, config) {
                         const selected = $('input.row-checkbox:checked').length;
@@ -638,7 +638,7 @@
                 `);
             });
 
-            // Reinitialize DataTable with proper DOM including search
+            
             // Reinitialize DataTable with proper DOM including search
             const modalTable = $('#itemDetailsTable').DataTable({
                 processing: true,
