@@ -60,7 +60,7 @@
 
 <script>
 
-    // ✅ Validations for max number according to quantity and allow only numbers
+    //  Validations for max number according to quantity and allow only numbers
     $('#itf').on('input', function () {
         // Allow only digits
         this.value = this.value.replace(/[^0-9]/g, '');
@@ -72,7 +72,7 @@
         $('#itfError').remove();
         $(this).removeClass('is-invalid');
 
-        // ✅ Show error only if current value > maxVal
+        //  Show error only if current value > maxVal
         if (currentVal > maxVal) {
             this.value = maxVal; // Reset value to max
 
@@ -82,7 +82,7 @@
             </small>
         `);
         }
-        // ✅ If value is valid (≤ max), remove error message immediately
+        //  If value is valid (≤ max), remove error message immediately
         else {
             $('#itfError').remove();
             $(this).removeClass('is-invalid');
@@ -100,11 +100,11 @@
     });
 
 
-
+    //Nc buton code for update status and some fields 
     function finalnc() {
 
 
-        // ✅ Clear "Item Tested Failed" error immediately when user types valid number
+        //  Clear "Item Tested Failed" error immediately when user types valid number
         $('#itf').on('input', function () {
             const val = parseInt($(this).val(), 10);
             const sqc = parseInt($('#sqc').val(), 10) || 0;
@@ -115,7 +115,7 @@
             }
         });
 
-        // ✅ Clear "Reason of Rejection" error immediately when user types valid text
+        //  Clear "Reason of Rejection" error immediately when user types valid text
         $('#ROr').on('input', function () {
             const text = $(this).val().trim();
 
@@ -137,7 +137,7 @@
         let ROR = $('#ROr').val().trim();
         let hasError = false;
 
-        // 🔹 Validate Item Tested Failed
+        //  Validate Item Tested Failed
         if (!STF) {
             $('#itf').addClass('is-invalid').after(`
                 <small class="text-danger fw-semibold error-text">
@@ -209,7 +209,7 @@
             })
             .fail(() => Swal.fire({ icon: 'error', title: 'Failed', text: 'Something went wrong. Please try again!', showConfirmButton: false, timer: 2000 }));
     }
-    // 🧱 Ensure multiple modals stack properly
+    //  Ensure multiple modals stack properly
     $(document).on('show.bs.modal', '.modal', function () {
         const zIndex = 1050 + 10 * $('.modal:visible').length;
         $(this).css('z-index', zIndex);
@@ -221,7 +221,7 @@
         }, 0);
     });
 
-    // ♻️ Keep body scroll behavior correct when closing nested modals
+    //  Keep body scroll behavior correct when closing nested modals
     $(document).on('hidden.bs.modal', '.modal', function () {
         if ($('.modal.show').length) {
             $('body').addClass('modal-open');

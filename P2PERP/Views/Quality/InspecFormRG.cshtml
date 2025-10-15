@@ -176,7 +176,7 @@
                 }
             });
          
-
+            //parameter load in table
 
             $.ajax({
                 url: '/Quality/ParameterTableRG',
@@ -281,7 +281,7 @@
 
 
             
-
+            //confirm button function for update status and some fields
 
             $.ajax({
                 url: '/Quality/qualitycheckitemRG',
@@ -321,7 +321,7 @@
             });
         }
 
-
+        //non confirm form will open
         function InitiateNc() {
             const GRIcode = $('#GRNItemCode').val();
             const sqc = $('#txtSamplequalitycheck').val();

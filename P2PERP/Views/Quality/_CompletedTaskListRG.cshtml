@@ -29,23 +29,12 @@
 </button>
 <!-- 🔹 Single Card Wrapper -->
 <div class="card shadow-lg rounded-3 border-0">
-    @*<div class="card-header bg-white text-dark d-flex align-items-center justify-content-end">*@
-
-
-    @*</div>*@
-
-
-
-
-
-
-
-    <div class="card-body">
+   <div class="card-body">
 
         <!-- GRN Info -->
         <div class="d-flex align-items-center mb-3 mt-4">
             <label for="grnno" class="fw-semibold me-2 mb-0">GRN No:</label>
-            <input type="text" id="grnno" value="@ViewBag.GRN" name="GRNCode" class="form-control w-auto" readonly />
+            <input type="text" id="grnno" value="@ViewBag.GRN" name="GRNCode" class="form-control w-auto bg-light" readonly />
         </div>
 
         <!-- Table -->
@@ -80,10 +69,7 @@
         color: black !important;
     }
 
-       
-
-
-    button.dt-button.processing,
+      button.dt-button.processing,
     div.dt-button.processing {
         pointer-events: auto !important;
         opacity: 1 !important;
@@ -613,12 +599,7 @@
                                                     return data;
                                                 
                                                 }
-
-
-
-
-
-                                                return data;
+                                           return data;
                                             };
                                         })()
                                     }
