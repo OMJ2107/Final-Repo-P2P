@@ -378,6 +378,7 @@
                             return $(node).find('.row-check').prop('checked');
                         },
                         columns: ':visible:not(:first-child)',
+
                         format: {
                             body: function (data, row, column, node) {
                                 if (column === 1) {
@@ -392,6 +393,7 @@
                                 }
                                 return data;
                             }
+
                         }
                     }
                 },
@@ -407,6 +409,20 @@
                         }
                         $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                     },
+                    customize: function (xlsx) {
+                        // Access the first sheet
+                        const sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // Find the cell containing the messageTop text (usually in row 2)
+                        $('row c[r^="A2"] t', sheet).each(function () {
+                            // Center align text in that cell
+                            $(this).closest('c').attr('s', '51'); // style 51 = center alignment (built-in style)
+                        });
+
+                        // Optional: make the text bold
+                        $('row c[r^="A2"]', sheet).attr('s', '51');
+                    }
+                    ,
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-check').prop('checked');
@@ -429,6 +445,7 @@
                         }
                     }
                 },
+
 
 
                 {
