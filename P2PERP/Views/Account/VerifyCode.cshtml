@@ -184,7 +184,7 @@
                 if (remainingSeconds <= 0) {
                     clearInterval(timerInterval);
                     sessionStorage.removeItem('verificationTimer');
-                    window.location.href = '@Url.Action("MainLogin", "Account")';
+                    window.location.href = '@Url.Action("Logout", "Account")';
                 }
         
                 remainingSeconds--;
