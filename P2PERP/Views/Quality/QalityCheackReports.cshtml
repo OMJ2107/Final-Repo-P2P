@@ -129,6 +129,17 @@
         top: 50%;
         transform: translateY(-50%);
     }
+
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
 </style>
 
 <!-- ✅ Combined Charts Container -->
@@ -721,6 +732,7 @@
         }
 
         // Common table buttons configuration
+        
         function getTableButtons(title, tableId, columnCount) {
             return [
                 {
@@ -746,9 +758,20 @@
                         }
                     },
                     customize: function (win) {
-                        $(win.document.body).find('h1').css('text-align', 'center');
-                        $(win.document.body).find('h1').css('font-size', '18px');
-                        $(win.document.body).find('h1').css('margin-bottom', '20px');
+                        // Remove the default title
+                        $(win.document.body).find('h1').remove();
+
+                        // Create custom header with title and generated date
+                        $(win.document.body).prepend(
+                            '<div style="text-align:center; margin-bottom:30px;">' +
+                            '<h1 style="font-size:18px; margin-bottom:10px; font-weight:bold;">' + currentModalTitle + '</h1>' +
+                            '<div style="font-size:12px; color:#666;">Generated on: ' + moment().format("DD/MM/YYYY ") + '</div>' +
+                            '</div>'
+                        );
+
+                        // Style the table
+                        $(win.document.body).find('table').css('font-size', '11px');
+                        $(win.document.body).find('table').css('width', '100%');
                     },
                     action: function (e, dt, button, config) {
                         const selected = $(`${tableId} input.row-select:checked`).length;
@@ -763,7 +786,9 @@
                     extend: 'pdf',
                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                     title: currentModalTitle,
-                    filename: currentModalTitle.replace(/\s+/g, '_'),
+                    filename: function () {
+                        return currentModalTitle.replace(/\s+/g, '_') + '_' + moment().format("DD-MM-YYYY");
+                    },
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -791,7 +816,7 @@
                         $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                     },
                     customize: function (doc) {
-                        doc.pageMargins = [40, 60, 40, 40];
+                        doc.pageMargins = [40, 80, 40, 40]; // Increased top margin for date
                         doc.styles.title = {
                             fontSize: 16,
                             bold: true,
@@ -799,12 +824,15 @@
                             margin: [0, 0, 0, 10]
                         };
 
+                        // Remove the default title and add custom title with date
+                        doc.content[0].text = currentModalTitle;
                         doc.content.splice(1, 0, {
-                            text: `Generated on: ${moment().format("DD-MM-YYYY")}`,
+                            text: 'Generated on: ' + moment().format("DD-MM-YYYY HH:mm"),
                             alignment: 'center',
-                            margin: [0, 0, 0, 10],
+                            margin: [0, 0, 0, 15],
                             fontSize: 10,
-                            italics: true
+                            italics: true,
+                            color: '#666666'
                         });
 
                         const table = doc.content.find(n => n.table);
@@ -848,7 +876,10 @@
                     extend: 'excel',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     title: currentModalTitle,
-                    filename: currentModalTitle.replace(/\s+/g, '_'),
+                    message: 'Generated on: ' + moment().format("DD/MM/YYYY"), // ✅ Generated date title के नीचे
+                    filename: function () {
+                        return currentModalTitle.replace(/\s+/g, '_') + '_' + moment().format("DD_MM_YYYY");
+                    },
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -880,7 +911,9 @@
                     extend: 'csv',
                     text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
                     title: currentModalTitle,
-                    filename: currentModalTitle.replace(/\s+/g, '_'),
+                    filename: function () {
+                        return currentModalTitle.replace(/\s+/g, '_') + '_' + moment().format("DD-MM-YYYY");
+                    },
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -909,6 +942,9 @@
                     }
                 }
             ];
+        
+        
+            
         }
 
         //  Initialize all checkbox handlers on document ready
