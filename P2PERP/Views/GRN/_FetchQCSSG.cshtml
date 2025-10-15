@@ -1,14 +1,14 @@
 ﻿@model IEnumerable<P2PLibray.GRN.GRN>
 
 <div class="mb-3">
-    <label for="txtGRNCodeQC" class="form-label">GRN No:</label>
-    <input type="text" id="txtGRNCodeQC" class="form-control d-inline-block w-auto" readonly="readonly" />
+    <label for="txtGRNCodeQC" class="fw-semibold">GRN No:</label>
+    <input type="text" id="txtGRNCodeQC" class="form-control d-inline-block w-auto bg-light" readonly="readonly" />
 </div>
 
-<!--  QC Items Table -->
+<!-- QC Items Table -->
 <div class="table-responsive shadow p-3 bg-white rounded">
     <table id="qcItemsTable" class="table table-bordered table-striped table-hover text-center align-middle">
-        <thead class="table-dark">
+        <thead class="table-dark text-center">
             <tr>
                 <th>Sr. No.</th>
                 <th>GRN Item Code</th>
@@ -45,6 +45,7 @@
     </table>
 </div>
 
+
 <!--  Assign QC -->
 <div class="d-flex justify-content-end mt-3 mb-3 gap-2">
     <button type="button" id="btnAssignQC" class="btn btn-success btn-lg px-4">
@@ -68,7 +69,6 @@
     function showExportInfo(message) { toastr.info(message, "Info"); }
 
     $(document).ready(function () {
-        // Generated date (only date)
         const today = new Date();
         const formattedDate = today.toLocaleDateString();
 
@@ -88,14 +88,17 @@
             language: { emptyTable: "No QC items available" },
             dom: '<"row mb-3"<"col-md-6"><"col-md-6 d-flex justify-content-end"f>>t<"row mt-3"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>',
 
-            // Auto-generate Sr No
             columnDefs: [
                 {
-                    targets: 0, // Sr. No. column index
+                    targets: '_all',
+                    className: 'text-center align-middle'
+                },
+                {
+                    targets: 0,
                     orderable: false,
                     searchable: false,
                     render: function (data, type, row, meta) {
-                        return meta.row + 1; // auto increment row wise
+                        return meta.row + 1; 
                     }
                 }
             ]
@@ -104,8 +107,6 @@
         // Assign QC button click using SweetAlert
         $('#btnAssignQC').on('click', function () {
             let grnCode = $('#txtGRNCodeQC').val();
-
-            // Collect ALL item codes from the DataTable
             let allItems = [];
             $('#qcItemsTable tbody tr').each(function () {
                 let itemId = $(this).data('id');
@@ -161,13 +162,10 @@
 
         // Re-initialize tooltips after DataTable draw
         $('#qcItemsTable').on('draw.dt', function () {
-            // Dispose all existing tooltips first
             $('[data-bs-toggle="tooltip"]').each(function () {
                 let tooltipInstance = bootstrap.Tooltip.getInstance(this);
                 if (tooltipInstance) tooltipInstance.dispose();
             });
-
-            // Re-initialize tooltips
             $('[data-bs-toggle="tooltip"]').tooltip({
                 template: '<div class="tooltip" role="tooltip">' +
                     '<div class="tooltip-arrow"></div>' +
@@ -175,7 +173,6 @@
                     '</div>'
             });
         });
-
 
         // Initial call for first page
         $('#qcItemsTable').trigger('draw.dt');

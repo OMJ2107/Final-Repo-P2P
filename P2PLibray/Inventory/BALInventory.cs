@@ -3356,7 +3356,6 @@ namespace P2PLibray.Inventory
             param.Add("@TaxRateId", i.TaxRateId.ToString());
             await obj.ExecuteStoredProcedure("InventoryProcedure", param);
         }
-
         /// <summary>
         /// Updates an existing item category in the database.
         /// Calls InventoryProcedure with flag = "UpdateCategorySSG".

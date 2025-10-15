@@ -1964,6 +1964,8 @@ namespace P2PERP.Controllers
             return Json(new { success = true, message = "Category created successfully." });
         }
 
+
+
         // Update Category POST
         [HttpPost]
         public async Task<JsonResult> UpdateCategorySSG(InventorySSG objCategory)
