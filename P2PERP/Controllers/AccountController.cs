@@ -26,6 +26,7 @@ namespace P2PERP.Controllers
         /// Displays the login page and clears any existing session.
         /// </summary>
         /// <returns>The login view.</returns>
+        [Route("Account/Login")]
         [HttpGet]
         public ActionResult MainLogin()
         {
@@ -59,6 +60,7 @@ namespace P2PERP.Controllers
         /// A JSON result indicating success or failure. 
         /// On success, includes the department ID.
         /// </returns>
+        [Route("Account/Login")]
         [HttpPost]
         public async Task<ActionResult> MainLogin(Account acc)
         {
@@ -73,6 +75,9 @@ namespace P2PERP.Controllers
             Session["StaffCode"] = acc1.StaffCode;
             Session["DepartmentId"] = acc1.DepartmentId;
             Session["RoleId"] = acc1.RoleId;
+
+            await bal.AfterLogin();
+
             return Json(new { success = true, departmentId = acc1.DepartmentId });
         }
 
@@ -496,14 +501,55 @@ namespace P2PERP.Controllers
 
             // Fetch user permissions
             var permissions = await bal.GetReadPermissions(staffCode);
+            var permissionNames = permissions.Select(p => p.PermissionName).ToList();
 
-            // Loop through each permission and load events accordingly
+            bool hasPR = permissionNames.Contains("PurchaseRequisition");
+            bool hasPO = permissionNames.Contains("PurchaseOrder");
+            bool hasSP = permissionNames.Contains("StockPlanning");
+
+            // --- Combined logic ---
+            if (hasSP)
+            {
+                // Always load these if user has StockPlanning
+                var isrEvents = await bal.GetItemStockRefillEventsAsync();
+                var mrpEvents = await bal.GetMaterialReqPlanningEventsAsync();
+                var jitEvents = await bal.GetJustInTimeEventsAsync();
+
+                // Filter based on PR/PO presence
+                if (hasPR && hasPO)
+                {
+                    // All three → keep all
+                    events.AddRange(isrEvents);
+                    events.AddRange(mrpEvents);
+                    events.AddRange(jitEvents);
+                }
+                else if (hasPR && !hasPO)
+                {
+                    // PR + SP → Refile + Planning
+                    events.AddRange(isrEvents);
+                    events.AddRange(mrpEvents);
+                }
+                else if (hasPO && !hasPR)
+                {
+                    // PO + SP → JIT only
+                    events.AddRange(jitEvents);
+                }
+                else
+                {
+                    // Only SP (no PR, no PO) → All three
+                    events.AddRange(isrEvents);
+                    events.AddRange(mrpEvents);
+                    events.AddRange(jitEvents);
+                }
+            }
+
+            // --- Main permission-based events ---
             foreach (var perm in permissions)
             {
                 switch (perm.PermissionName)
                 {
                     case "PurchaseRequisition":
-                        events.AddRange(await bal.GetPurchaseRequisitionEvents());
+                        events.AddRange(await bal.GetPurchaseRequisitionEventsAsync());
                         break;
 
                     case "RequestForQuotation":
