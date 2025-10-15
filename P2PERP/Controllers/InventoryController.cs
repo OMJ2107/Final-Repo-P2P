@@ -164,7 +164,6 @@ namespace P2PERP.Controllers
                     {
                         GRNCode = dr["GRNCode"].ToString(),
                         AddedDate = Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy"),
-                        StatusName = dr["StatusName"].ToString(),
                     };
 
                     ReceiveMaterialList.Add(ReceiveMaterial);

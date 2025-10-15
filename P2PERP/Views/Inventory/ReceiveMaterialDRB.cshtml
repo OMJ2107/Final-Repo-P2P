@@ -21,7 +21,6 @@
                                 <th>Sr No</th>
                                 <th>GRNNO</th>
                                 <th>GRNDate</th>
-                                @*<th>GRNstatus</th>*@
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -356,28 +355,8 @@
                     orderable: false,
                 },
                 { data: "GRNCode", title: "GRN Code" },
-                {
-                    data: "AddedDate",
-                    title: "GRN Date",
-                    render: function (data, type, row) {
-                        if (!data) return "";
-                        return data.replace(/-/g, "/");
-                    },
-                    className: "text-center align-middle"
-                },
-                //{ data: "StatusName", title: "GRNstatus" },
-                {
-                    data: "StatusName",
-                    title: "Action",
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, row) {
-                        return `
-            <button type="button" class="btn btn-success btn-InStock square-pill d-inline-flex align-items-center px-2 py-1 shadow-InStock" data-bs-toggle="tooltip" title="In Stock">
-                <i class="bi bi-box-seam fs-6"></i>
-            </button>`;
-                    }
-                }
+                
+               
             ],
             ordering: false,
             language: { emptyTable: "No approved POs available" },
