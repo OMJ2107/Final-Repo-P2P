@@ -68,6 +68,8 @@
                                 <label for="WarehouseName">Warehouse Name <span class="text-danger">*</span></label>
                             </div>
                         </div>
+                        <div id="WarehouseNameError" class="text-danger" style="font-size: 0.9rem;"></div>
+
                     </div>
 
                     <!-- Address -->
@@ -894,6 +896,23 @@
                 });
             });
         });
+        // ✅ Remove error when user starts typing in WarehouseName
+$(document).on("input", "[name='WarehouseName']", function () {
+    $(this).removeClass("is-invalid");
+    $("#WarehouseNameError").html(""); // Clear the message
+});
+
+        $('#addWarehouseModal').on('hidden.bs.modal', function () {
+            // Clear all input/select values
+            $('#addWarehouseForm')[0].reset();
+
+            // Remove error messages
+            $('#WarehouseNameError').html('');
+            $(".text-danger.field-error").remove();
+
+            // Remove red border
+            $("input, select").removeClass("is-invalid");
+        });
 
         // ================= Form Submit =================
         $("#addWarehouseForm").on("submit", function (e) {
@@ -909,7 +928,6 @@
                 success: function (res) {
                     if (res.success) {
                         $("#addWarehouseModal").modal("hide");
-                        // ✅ Refresh table and maintain latest entries on top
                         $('#warehouseTable').DataTable().ajax.reload(null, false);
                         Swal.fire({
                             title: "Success",
@@ -919,14 +937,35 @@
                             timer: 2000
                         });
                     } else {
-                        Swal.fire({
-                            title: "Error",
-                            text: res.message,
-                            icon: "error",
-                            confirmButtonText: "OK"
-                        });
+                        // ✅ Clear previous errors
+                        $(".text-danger.field-error").remove();
+                        $("input, select").removeClass("is-invalid");
+
+                        if (res.field) {
+                            // ✅ Locate the input box
+                            let input = $(`[name=${res.field}]`);
+                            input.addClass("is-invalid");
+
+                            // ✅ Show error message in the specific div
+                            $("#WarehouseNameError").html(res.message);
+
+                            // ✅ Scroll & focus to the invalid field
+                            input.focus();
+                            $('html, body').animate({
+                                scrollTop: input.offset().top - 100  // Adjusts position slightly above
+                            }, 300);
+                        } else {
+                            Swal.fire({
+                                title: "Error",
+                                text: res.message,
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
                     }
                 },
+
+
                 error: function () {
                     Swal.fire({
                         title: "Error",
