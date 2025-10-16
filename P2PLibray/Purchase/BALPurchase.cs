@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using static P2PLibray.Purchase.Purchase;
@@ -2492,15 +2493,111 @@ namespace P2PLibray.Purchase
         /////DashBord/////
 
         /// <summary>
-        /// This Function Show Approved PR List
+        /// This Function Show Pending PR List
         /// </summary>
-        /// <returns>Approved PR List</returns>
-        public async Task<List<Purchase>> ShowRequestedRFQPRK()
+        /// <returns>List of Pending PR </returns>
+        public async Task<List<Purchase>> ShowPendingPRDashPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "RequestedRFQCDashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                { 
+                    { "@Flag", "ShowAllPendingPRDashPRK" },
+                    { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+                     { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
+                DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+
+                        Purchase p = new Purchase();
+
+
+                        p.PRCode = row["PRCode"].ToString();
+                        p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
+                        p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
+                        p.FullName = row["FullName"].ToString();
+                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        //p.StatusName = row["StatusName"].ToString();
+                        p.Priority = row["Priority"].ToString();
+                        lst.Add(p);
+
+                    }
+                }
+
+                return lst;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error in ShowPendingPRPRK", ex);
+            }
+        }
+
+        /// <summary>
+        /// This Function Show Approved PR List
+        /// </summary>
+        /// <returns>Approved PR List</returns>
+        public async Task<List<Purchase>> ShowApprovedPRDashPRK(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<Purchase> lst = new List<Purchase>();
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "ViewApprovePRDashPRK" },
+                    { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
+                DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        Purchase p = new Purchase();
+
+
+                        p.PRCode = row["PRCode"].ToString();
+                        p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
+                        p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
+                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        //p.StatusName = row["StatusName"].ToString();
+                        p.ApprovedRejectedDate = Convert.ToDateTime(row["ApproveRejectedDate"].ToString());
+                        p.ApprovedRejectedDateString = p.ApprovedRejectedDate.ToString("dd-MM-yyyy");
+                        p.Priority = row["Priority"].ToString();
+                        lst.Add(p);
+                    }
+                }
+
+                return lst;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error in ShowApprovedPRPRK", ex);
+            }
+        }
+
+
+
+        /// <summary>
+        /// This Function Show Approved PR List
+        /// </summary>
+        /// <returns>Approved PR List</returns>
+        public async Task<List<Purchase>> ShowRequestedRFQPRK(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<Purchase> lst = new List<Purchase>();
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "RequestedRFQCDashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2537,12 +2634,17 @@ namespace P2PLibray.Purchase
         /// This Function Show RFQ PR List
         /// </summary>
         /// <returns>Approved RFQ  List</returns>
-        public async Task<List<Purchase>> ShowPendingRFQPRK()
+        public async Task<List<Purchase>> ShowPendingRFQPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "PendingRFQDashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "PendingRFQDashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2577,12 +2679,17 @@ namespace P2PLibray.Purchase
         /// This Function Show RQ PR List
         /// </summary>
         /// <returns>Approved RQ  List</returns>
-        public async Task<List<Purchase>> ShowApproveRQPRK()
+        public async Task<List<Purchase>> ShowApproveRQPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "ApprovedRQDashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                { 
+                    { "@Flag", "ApprovedRQDashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2618,12 +2725,17 @@ namespace P2PLibray.Purchase
         /// This Function Show RFQ PR List
         /// </summary>
         /// <returns>Pending RFQ  List</returns>
-        public async Task<List<Purchase>> ShowPendingRQPRK()
+        public async Task<List<Purchase>> ShowPendingRQPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "PendingRQDashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "PendingRQDashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2661,12 +2773,17 @@ namespace P2PLibray.Purchase
         /// This Function Show PO  List
         /// </summary>
         /// <returns>Approved PO  List</returns>
-        public async Task<List<Purchase>> ShowApprovePOPRK()
+        public async Task<List<Purchase>> ShowApprovePOPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "ApprovePODashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                { 
+                    { "@Flag", "ApprovePODashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2704,12 +2821,17 @@ namespace P2PLibray.Purchase
         /// This Function Show PO  List
         /// </summary>
         /// <returns>Pending PO  List</returns>
-        public async Task<List<Purchase>> ShowPendingPOPRK()
+        public async Task<List<Purchase>> ShowPendingPOPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "PendingPODashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "PendingPODashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)

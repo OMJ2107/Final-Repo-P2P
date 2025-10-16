@@ -4,15 +4,7 @@
 
 <!-- ✅ Date Filter + Table Container -->
 <div class="p-3 bg-white rounded shadow-sm">
-    <!-- Date Range Picker -->
-    <div class="mb-3">
-        <div class="input-group" style="max-width: 280px;">
-            <span class="input-group-text bg-primary text-white">
-                <i class="bi bi-calendar-date"></i>
-            </span>
-            <input type="text" id="poDateFilter" class="form-control" placeholder="Select date range" readonly />
-        </div>
-    </div>
+   
 
     <!-- Table -->
     <div class="table-responsive shadow-sm rounded mt-3">
@@ -49,6 +41,16 @@
         transform: translateY(-2px);
         transition: background-color 0.3s, transform 0.3s;
     }
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
 </style>
 
 <!-- ✅ JavaScript -->
@@ -68,14 +70,40 @@
             toastr[type](message);
         }
 
+
+                function destroyDataTable(tableSelector) {
+    if ($.fn.DataTable.isDataTable(tableSelector)) {
+        $(tableSelector).DataTable().clear().destroy(true); // destroy completely
+
+    }
+    $(tableSelector).find('tbody').empty();
+}
+
+const startDate = "@ViewBag.StartDate";
+const endDate = "@ViewBag.EndDate";
+
+
+
         // 🔹 Load Pending PO Data
         function loadPendingPO() {
             $.ajax({
                 url: '/Purchase/ShowPendingPOPRK',
                 type: 'GET',
+                data: { startDate: startDate, endDate: endDate },
+                dataType: 'json',
+                cache: false,
                 success: function (data) {
                     const $tbody = $("#tbodyPendingPo");
                     $tbody.empty();
+
+
+
+                    // ✅ Properly destroy any existing DataTable
+                    if ($.fn.DataTable.isDataTable(tableId)) {
+                        $(tableId).DataTable().clear().destroy();
+                    }
+
+
 
                     if (!data || data.length === 0) {
                         $tbody.append('<tr><td colspan="6" class="text-center text-muted py-3">No records found</td></tr>');
@@ -131,7 +159,7 @@
                                     $(win.document.body).prepend(`
                 <div style="text-align:center; margin-bottom:10px;">
                     <h2 style="margin:0;">Requested RFQ List</h2>
-                    <div style="font-size:12px; color:gray;">Generated on: ${generatedDate}</div>
+                    <div style="font-size:12px; color:gray;">Generated Date: ${generatedDate}</div>
                 </div>
             `);
                                     const $table = $(win.document.body).find('table');
@@ -189,7 +217,7 @@
                                         doc.content[0].fontSize = 14;
                                         const exportDate = new Date().toLocaleDateString('en-GB');
                                         doc.content.splice(1, 0, {
-                                            text: 'Export Date: ' + exportDate,
+                                            text: 'Generated Date: ' + exportDate,
                                             alignment: 'center',
                                             margin: [0, 0, 0, 8],
                                             fontSize: 10
@@ -250,8 +278,57 @@
                                             return data;
                                         }
                                     }
+                                },
+                                customize: function (xlsx) {
+                                    const sheet = xlsx.xl.worksheets['sheet1.xml'];
+                                    const now = new Date();
+                                    const formattedDate = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+
+                                    const newRowNumber = 2;
+
+                                    // Create "Generated On" row
+                                    const dateRow = `
+            <row r="${newRowNumber}">
+                <c t="inlineStr" r="A${newRowNumber}">
+                    <is><t>Generated Date: ${formattedDate}</t></is>
+                </c>
+            </row>`;
+
+                                    // Shift existing rows down by +1
+                                    $('row', sheet).each(function () {
+                                        const r = parseInt($(this).attr('r'));
+                                        if (r >= newRowNumber) $(this).attr('r', r + 1);
+                                    });
+                                    $('c', sheet).each(function () {
+                                        const cellRef = $(this).attr('r');
+                                        const col = cellRef.replace(/[0-9]/g, '');
+                                        const row = parseInt(cellRef.replace(/[A-Z]/g, ''));
+                                        if (row >= newRowNumber) $(this).attr('r', col + (row + 1));
+                                    });
+
+                                    // Add the new date row right after the title
+                                    $('row[r="1"]', sheet).after(dateRow);
+
+                                    // ✅ Merge across all columns
+                                    const totalCols = $('row[r="3"] c', sheet).length; // Check the next row to get column count
+                                    const lastCol = String.fromCharCode(64 + totalCols); // Convert number to letter
+                                    let mergeCells = $('mergeCells', sheet);
+                                    if (mergeCells.length === 0) {
+                                        $('worksheet', sheet).prepend(`<mergeCells count="1"><mergeCell ref="A${newRowNumber}:${lastCol}${newRowNumber}"/></mergeCells>`);
+                                    } else {
+                                        const count = parseInt(mergeCells.attr('count')) + 1;
+                                        mergeCells.attr('count', count);
+                                        mergeCells.append(`<mergeCell ref="A${newRowNumber}:${lastCol}${newRowNumber}"/>`);
+                                    }
+
+                                    // ✅ Center align the merged cell
+                                    const styles = xlsx.xl['styles.xml'];
+                                    const styleIndex = $('cellXfs xf', styles).length;
+                                    $('cellXfs', styles).append('<xf xfId="0" applyAlignment="1"><alignment horizontal="center"/></xf>');
+                                    $(`c[r="A${newRowNumber}"]`, sheet).attr('s', styleIndex);
                                 }
                             },
+
 
                             // ✅ CSV
                             {
@@ -273,13 +350,17 @@
                                     },
                                     format: {
                                         body: function (data, rowIdx, colIdx) {
-                                            if (colIdx === 1) return rowIdx + 1;
-                                            if (colIdx === 3) {
-                                                const formatted = moment(data, ["YYYY-MM-DD", "DD/MM/YYYY HH:mm:ss"]).format("DD/MM/YYYY");
-                                                return formatted === "Invalid date" ? data : formatted;
+                                            // Remove HTML tags and trim
+                                            if (typeof data === 'string') data = data.replace(/<[^>]*>/g, '').trim();
+
+                                            // Serial number column
+                                            if (colIdx === 0 || colIdx === 1) {
+                                                // Initialize counter once
+                                                if (typeof this.srnoCounter === 'undefined') this.srnoCounter = 0;
+                                                return ++this.srnoCounter;
                                             }
-                                            if (typeof data === "string") return data.replace(/<\/?[^>]+(>|$)/g, "").trim();
-                                            return data;
+
+                                            return data; // fallback
                                         }
                                     }
                                 }
