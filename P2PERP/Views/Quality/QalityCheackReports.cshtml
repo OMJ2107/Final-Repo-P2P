@@ -700,17 +700,17 @@
 
             console.log(`Table: ${tableId}, Total: ${totalRows}, Checked: ${checkedRows}`);
 
-            // Clear indeterminate state first
+           
             $selectAll.prop('indeterminate', false);
 
             if (checkedRows === 0) {
-                // No rows selected
+             
                 $selectAll.prop('checked', false);
             } else if (checkedRows === totalRows) {
-                // All rows selected
+                
                 $selectAll.prop('checked', true);
             } else {
-                // Some rows selected - select all should be unchecked
+                
                 $selectAll.prop('checked', false);
             }
         }
