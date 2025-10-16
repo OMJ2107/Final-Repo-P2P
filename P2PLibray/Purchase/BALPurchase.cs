@@ -2017,6 +2017,124 @@ namespace P2PLibray.Purchase
             return ds;
         }
 
+
+
+        /// <summary>
+        /// Save Just In Time Items to create PO
+        /// <summary>
+
+        public async Task<bool> SaveJITPOOK(Purchase model)
+        {
+            try
+            {
+                DateTime date = DateTime.Now;
+                if (model == null || model.POItems == null || !model.POItems.Any())
+                    throw new ArgumentException("PO items are required");
+
+                string itemsCsv = string.Join(",", model.POItems);
+
+                string itemscodeCsv = string.Join(",", model.Itemslst);
+
+                // Join terms as CSV string
+                string termsCsv = model.TermConditionIds;
+
+                // Prepare parameters
+                Dictionary<string, object> para = new Dictionary<string, object>();
+                para.Add("@Flag", "SaveJITPOOK");
+                para.Add("@RegisterQuotationCode", model.RegisterQuotationCode);
+                para.Add("@BillingAddress", model.BillingAddress);
+                para.Add("@TermsConditionIds", termsCsv);
+                para.Add("@UserCode", model.UserCode);
+                para.Add("@AddedDate", date);
+                para.Add("@StaffCode", model.StaffCode);
+                para.Add("@TotalAmount", model.TotalAmount);
+
+                SqlDataReader rd = await obj.ExecuteStoredProcedureReturnDataReaderObject("PurchaseProcedure", para);
+
+                string poCode = null;
+                if (rd != null && await rd.ReadAsync())
+                {
+                    poCode = rd["POCode"].ToString();
+                }
+                else
+                {
+                    throw new Exception("No POCode returned from stored procedure.");
+                }
+                rd.Close();
+
+                // Save items
+                await SavePOJITItemsOK(model, poCode);
+
+                // ✅ Update ItemRequirement Status separately
+                await UpdateItemRequirementStatus(model);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> SavePOJITItemsOK(Purchase model, string POcode)
+        {
+            foreach (var item in model.POItems)
+            {
+                // Parse JSON string
+                    var arr = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(item);
+
+                    foreach (var objs in arr)
+                    {
+                        string rqItemCode = objs["RQItemCode"].ToString();
+
+                        Dictionary<string, string> para = new Dictionary<string, string>();
+                        para.Add("@Flag", "SaveJITPOItemsOK");
+                        para.Add("@POCode", POcode);
+                        para.Add("@RQItemCode", rqItemCode);
+                       // para.Add("@ItemCode", itemcode);
+
+                        await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
+                    }
+
+            }
+            return true;
+        }
+
+
+        // ✅ Separate function to update ItemRequirement Status
+        public async Task<bool> UpdateItemRequirementStatus(Purchase model)
+        {
+            foreach (var item in model.Itemslst)
+            {
+                var arr = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(item);
+                foreach (var objs in arr)
+                {
+                    string itemCode = objs["ItemCode"]?.ToString();
+                    if (string.IsNullOrEmpty(itemCode))
+                        continue;
+
+                    Dictionary<string, string> para = new Dictionary<string, string>
+            {
+                { "@Flag", "UpdateItemRequirementStatusOK" }, // New flag
+                { "@ItemCode", itemCode }
+            };
+
+                    await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
+                }
+            }
+            return true;
+        }
+
+
+        public async Task<SqlDataReader> FetchMaxPoCodeToAttachmentok()
+        {
+            Dictionary<string, string> para = new Dictionary<string, string>();
+            para.Add("@Flag", "FetchMaxPOCodeOK");
+            SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("PurchaseProcedure", para);
+            return dr;
+        }
+
         #endregion
 
         #region prathamesh
