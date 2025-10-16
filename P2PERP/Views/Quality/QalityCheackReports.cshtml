@@ -152,7 +152,7 @@
 </style>
 
 <!-- ✅ Combined Charts Container -->
-<div class="col-12 d-flex">
+<div class="container m-3 col-12 d-flex">
     <div class="chart-card w-100">
 
         <!-- 🔹 Header with Date Picker -->
@@ -255,6 +255,7 @@
                     </div>
                 </div>
                 <!-- Centered Chart: Confirm vs Non-Confirm vs Pending -->
+                
                 <div class="text-center">
                     <h6 class="text-center mb-3">Quality Status Distribution</h6>
                     <div class="legend-container">
@@ -281,6 +282,7 @@
 </div>
 
 <!-- ✅ Tabs Section -->
+<div class="container m-4">
 <div class="tab-section">
     <ul class="nav nav-pills" id="stockTabs" role="tablist">
         <li class="nav-item" role="presentation">
@@ -295,6 +297,7 @@
         </li>
     </ul>
 </div>
+    </div>
 
 <div class="tab-content mt-3">
     <div class="tab-pane fade show active" id="current" role="tabpanel">
@@ -325,7 +328,7 @@
             alwaysShowCalendars: false,
             locale: {
                 cancelLabel: 'Clear',
-                format: 'DD-MM-YYYY',
+                format: 'DD/MM/YYYY',
                 applyLabel: 'Apply',
                 customRangeLabel: 'Custom Range'
             },
@@ -339,14 +342,14 @@
             }
         }, function (start, end, label) {
             // This function is called when the date range is applied
-            console.log('New date range selected: ' + start.format('DD-MM-YYYY') + ' to ' + end.format('DD-MM-YYYY'));
+            console.log('New date range selected: ' + start.format('DD/MM/YYYY') + ' to ' + end.format('DD/MM/YYYY'));
 
             // Update the input field with the selected range
-            $('#qualityDateRange').val(start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY'));
+            $('#qualityDateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
 
             // Store the dates
-            startDate = start.format('YYYY-MM-DD');
-            endDate = end.format('YYYY-MM-DD');
+            startDate = start.format('YYYY/MM/DD');
+            endDate = end.format('YYYY/MM/DD');
 
             // Reload the chart with the new date range
             loadQualityChart(startDate, endDate);
@@ -371,9 +374,9 @@
 
         // Fixed color mapping for statuses
         const statusColorMap = {
-            'Confirmed': '#87CEEB',      // skyblue
-            'Non-Confirmed': '#00008B',  // darkblue
-            'Pending': '#FFA500'         // orange
+            'Confirmed': '#87CEEB',      
+            'Non-Confirmed': '#00008B',  
+            'Pending': '#FFA500'        
         };
 
         // Load Quality Chart - UPDATED WITH PROPER DATE FILTERING
@@ -612,7 +615,7 @@
                     $tbody.empty();
 
                     if (items.length > 0) {
-                        console.log(`✅ Loaded ${items.length} ${statusName} items`);
+                        console.log(` Loaded ${items.length} ${statusName} items`);
 
                         items.forEach((item, index) => {
                             let row = '';
@@ -642,7 +645,7 @@
                             $tbody.append(row);
                         });
                     } else {
-                        console.log(`❌ No ${statusName} items found for selected date range`);
+                        console.log(` No ${statusName} items found for selected date range`);
                         $tbody.append(`<tr><td colspan="${colCount}" class="text-center text-muted">No ${statusName} records found for selected date range</td></tr>`);
                     }
 
@@ -774,7 +777,7 @@
                         $(win.document.body).prepend(
                             '<div style="text-align:center; margin-bottom:30px;">' +
                             '<h1 style="font-size:18px; margin-bottom:10px; font-weight:bold;">' + currentModalTitle + '</h1>' +
-                            '<div style="font-size:12px; color:#666;">Generated on: ' + moment().format("DD/MM/YYYY ") + '</div>' +
+                            '<div style="font-size:12px; color:#666;">Generated Date: ' + moment().format("DD/MM/YYYY ") + '</div>' +
                             '</div>'
                         );
 

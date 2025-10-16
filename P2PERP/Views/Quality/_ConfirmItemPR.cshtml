@@ -210,7 +210,7 @@
             alwaysShowCalendars: false,
             locale: {
                 cancelLabel: 'Clear',
-                format: 'DD-MM-YYYY',
+                format: 'DD/MM/YYYY',
                 applyLabel: 'Apply',
                 customRangeLabel: 'Custom Range'
             },
@@ -223,7 +223,7 @@
             }
         }, function (start, end) {
             // Set the date range in the input field
-            $('#tblConfirm').val(start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY'));
+            $('#tblConfirm').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
 
             // Store the dates in data attributes for filtering
             $('#tblConfirm').data('start', start);
@@ -258,7 +258,7 @@
             if (!addDateStr || addDateStr.trim() === '') return false;
 
             // Try multiple common date formats with priority to DD-MM-YYYY
-            const addDate = moment(addDateStr, ['DD-MM-YYYY', 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'], true);
+            const addDate = moment(addDateStr, ['DD/MM/YYYY', 'YYYY/MM/DD', 'MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'], true);
 
             if (!addDate.isValid()) {
                 console.warn('Invalid date format in table:', addDateStr);
@@ -326,7 +326,7 @@
                 }
             ],
             buttons: [
-                // PRINT - Main Table
+                // PRINT
                 {
                     extend: 'print',
                     text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
@@ -388,7 +388,7 @@
                         $body.prepend(`
                             <div style="text-align: center; margin-bottom: 20px;">
                                 <h2>Confirm Item List</h2>
-                                <p>Generated on: ${moment().format("DD/MM/YYYY")}</p>
+                                <p>Generated Date: ${moment().format("DD/MM/YYYY")}</p>
                             </div>
                         `);
 
@@ -405,7 +405,7 @@
                         $body.find('h1').remove();
                     }
                 },
-                // PDF - Main Table
+                // PDF
                 {
                     extend: 'pdfHtml5',
                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
@@ -443,7 +443,7 @@
                         doc.pageMargins = [40, 60, 40, 40];
 
                         doc.content[0] = {
-                            text: 'Confirm Item List\nGenerated on: ' + moment().format("DD/MM/YYYY"),
+                            text: 'Confirm Item List\nGenerated Date: ' + moment().format("DD/MM/YYYY"),
                             alignment: 'center',
                             margin: [0, 0, 0, 10],
                             fontSize: 14,
@@ -489,7 +489,7 @@
                         };
                     }
                 },
-                // EXCEL - Main Table
+                // EXCEL 
                 {
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
@@ -654,7 +654,7 @@
                     search: "Search:",
                 },
                 buttons: [
-                    // PRINT - Modal Table
+                    // PRINT 
                     {
                         extend: 'print',
                         text: '<i class="bi bi-printer-fill text-dark fs-6"></i>',
@@ -716,7 +716,7 @@
                             $body.prepend(`
                     <div style="text-align: center; margin-bottom: 20px;">
                         <h2>Confirm Item Details - ${$('#modalGRNCode').text()}</h2>
-                        <p>Generated on: ${moment().format("DD/MM/YYYY")}</p>
+                        <p>Generated Date: ${moment().format("DD/MM/YYYY")}</p>
                     </div>
                 `);
 
@@ -731,7 +731,7 @@
                             });
                         }
                     },
-                    // PDF - Modal Table
+                    // PDF 
                     {
                         extend: 'pdfHtml5',
                         text: '<i class="bi bi-file-earmark-pdf text-danger fs-6"></i>',
@@ -769,7 +769,7 @@
                             doc.pageMargins = [40, 80, 40, 40];
 
                             doc.content[0] = {
-                                text: `Confirm Item Details - ${$('#modalGRNCode').text()}\nGenerated on: ${moment().format("DD/MM/YYYY")}`,
+                                text: `Confirm Item Details - ${$('#modalGRNCode').text()}\nGenerated Date: ${moment().format("DD/MM/YYYY")}`,
                                 alignment: 'center',
                                 margin: [0, 0, 0, 10],
                                 fontSize: 14,
@@ -815,7 +815,7 @@
                             };
                         }
                     },
-                    // EXCEL - Modal Table
+                    // EXCEL
                     {
                         extend: 'excelHtml5',
                         text: '<i class="bi bi-file-earmark-excel text-success fs-6"></i>',
@@ -956,8 +956,8 @@
             const end = $('#tblConfirm').data('end');
             if (start && end) {
                 console.log('Active date filter:', {
-                    start: start.format('DD-MM-YYYY'),
-                    end: end.format('DD-MM-YYYY')
+                    start: start.format('DD/M/YYYY'),
+                    end: end.format('DD/MM/YYYY')
                 });
             }
         });

@@ -175,7 +175,7 @@
             alwaysShowCalendars: false,
             locale: {
                 cancelLabel: 'Clear',
-                format: 'DD-MM-YYYY',
+                format: 'DD/MM/YYYY',
                 applyLabel: 'Apply',
                 customRangeLabel: 'Custom Range'
             },
@@ -188,7 +188,7 @@
             }
         }, function (start, end) {
             // Set the date range in the input field
-            $('#Tabledate').val(start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY'));
+            $('#Tabledate').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
 
             // Store the dates in data attributes for filtering
             $('#Tabledate').data('start', start);
@@ -425,7 +425,7 @@
 
                         //  FIXED: Single title with generated date
                         doc.content[0] = {
-                            text: 'Non-Confirm Item List\nGenerated on: ' + moment().format("DD/MM/YYYY"),
+                            text: 'Non-Confirm Item List\nGenerated Date: ' + moment().format("DD/MM/YYYY"),
                             alignment: 'center',
                             margin: [0, 0, 0, 10],
                             fontSize: 14,
@@ -547,7 +547,7 @@
                     extend: 'csvHtml5',
                     text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
                     title: 'Non-Confirm Item List',
-                    message: 'Generated on: ' + moment().format("DD/MM/YYYY"), 
+                    message: 'Generated Date: ' + moment().format("DD/MM/YYYY"), 
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -645,7 +645,7 @@
                             lengthChange: false,
                             pageLength: 5,
                             responsive: true,
-                            dom: '<"d-flex justify-content-end align-items-center mb-2"Bf>rt<"d-flex justify-content-between align-items-center mt-2"ip>',
+                              dom: '<"row align-items-center mb-2"<"col-auto"B><"col-auto ms-auto"f>>rt<"row align-items-center mt-2"<"col-md-6"i><"col-md-6"p>>',
                             language: {
                                 search: "Search:"
                             },
@@ -714,7 +714,7 @@
                                         $body.prepend(`
                     <div style="text-align: center; margin-bottom: 20px;">
                         <h2>Failed Items Details - ${$('#modalGRNCodeNonConfirm').text()}</h2>
-                        <p>Generated on: ${moment().format("DD/MM/YYYY")}</p>
+                        <p>Generated Date: ${moment().format("DD/MM/YYYY")}</p>
                     </div>
                 `);
 
@@ -771,7 +771,7 @@
 
                                         //  FIXED: Single title for modal PDF
                                         doc.content[0] = {
-                                            text: `Failed Items Details - ${$('#modalGRNCodeNonConfirm').text()}\nGenerated on: ${moment().format("DD/MM/YYYY")}`,
+                                            text: `Failed Items Details - ${$('#modalGRNCodeNonConfirm').text()}\nGenerated Date: ${moment().format("DD/MM/YYYY")}`,
                                             alignment: 'center',
                                             margin: [0, 0, 0, 10],
                                             fontSize: 14,
@@ -893,7 +893,7 @@
                                     extend: 'csvHtml5',
                                     text: '<i class="bi bi-filetype-csv text-success fs-6"></i>',
                                     title: 'Failed Items Details - ' + $('#modalGRNCodeNonConfirm').text(), 
-                                    message: 'Generated on: ' + moment().format("DD/MM/YYYY"), 
+                                    message: 'Generated Date: ' + moment().format("DD/MM/YYYY"), 
                                     exportOptions: {
                                         rows: function (idx, data, node) {
                                             return $(node).find('.item-row-select').prop('checked');
@@ -963,8 +963,8 @@
             const end = $('#Tabledate').data('end');
             if (start && end) {
                 console.log('Active date filter:', {
-                    start: start.format('DD-MM-YYYY'),
-                    end: end.format('DD-MM-YYYY')
+                    start: start.format('DD/MM/YYYY'),
+                    end: end.format('DD/MM/YYYY')
                 });
             }
         });
