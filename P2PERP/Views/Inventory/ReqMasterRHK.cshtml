@@ -13,6 +13,16 @@
         text-align: center;
         vertical-align: middle;
     }
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
 
  
 </style>
@@ -333,6 +343,7 @@
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     className: 'btn btn-sm btn-outline-success',
                     title: "Requirement Master",
+                    messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY'),
                     action: function (e, dt, button, config) {
                         if ($('#reqTable tbody input.row-select:checked').length === 0) {
                             showExportToast();
@@ -355,8 +366,28 @@
                                     : data;
                             }
                         }
+                    },
+                    customize: function (xlsx) {
+                        const sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // 🔹 Center align the Title (Row 1)
+                        $('row:first c', sheet).attr('s', '51');
+
+                        // 🔹 Center align the "Generated Date" (Row 2)
+                        $('row:eq(1) c', sheet).attr('s', '51');
+
+                        // 🔹 Optional: Make Title Bold (stronger visual)
+                        const styles = xlsx.xl['styles.xml'];
+                        const cellXfs = $('cellXfs xf', styles);
+                        const fontBold = '<font><b val="1"/></font>';
+                        const xf = cellXfs.first().clone(); // Clone first style
+                        xf.attr('applyFont', '1');
+                        $('alignment', xf).attr('horizontal', 'center');
+                        $('font', xf).replaceWith(fontBold);
+                        cellXfs.append(xf);
                     }
-                },
+                }
+,
                 // 🔹 CSV
                 {
                     extend: 'csvHtml5',
@@ -418,7 +449,7 @@
             autoUpdateInput: false,
             locale: {
                 cancelLabel: 'Clear',
-                format: 'YYYY-MM-DD'
+                format: 'DD/MM/YYYY'
             },
             ranges: {
                 'Today': [moment(), moment()],
@@ -432,7 +463,7 @@
         $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
             tableStartDate = picker.startDate;
             tableEndDate = picker.endDate;
-            $(this).val(tableStartDate.format('YYYY-MM-DD') + ' - ' + tableEndDate.format('YYYY-MM-DD'));
+            $(this).val(tableStartDate.format('DD/MM/YYYY') + ' - ' + tableEndDate.format('DD/MM/YYYY'));
             filterTableByDate();
         });
 

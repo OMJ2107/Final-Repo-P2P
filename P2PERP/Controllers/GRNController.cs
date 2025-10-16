@@ -919,7 +919,9 @@ namespace P2PERP.Controllers
                     POCode = dr["POCode"].ToString(),
                     ItemCode = dr["ItemCode"].ToString(),
                     ItemName = dr["ItemName"].ToString(),
-                    Quantity = Convert.ToInt32(dr["Quantity"]),
+                    OrderQuantity = Convert.ToInt32(dr["OrderedQty"]),
+                    RecievedQuantity = Convert.ToInt32(dr["ReceivedQty"]),
+                    PendingQuantity = Convert.ToInt32(dr["PendingQty"]),
                     ExpectedDate = Convert.ToDateTime(dr["VendorDeliveryDate"]),
                     OrderedBy = dr["AddedBy"].ToString(),
                 });
