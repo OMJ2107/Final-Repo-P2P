@@ -407,7 +407,7 @@
             {
                 data: null,
                 orderable: false,
-                className: "dt-body-center",
+                className: "dt-body-center no-export",
                 title: `<input type="checkbox" id="selectAll">`,
                 render: (data, type, row) =>
                     `<input type="checkbox" class="row-select" value="${row.ItemCode || row.GRNCode || row.IssueCode}">`
@@ -415,6 +415,7 @@
             {
                 data: null,
                 title: "SR.NO",
+                className: "dt-body-center",
                 orderable: false,
                 render: (data, type, row, meta) => meta.row + 1
             }
@@ -501,7 +502,7 @@
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
                         },
-                        columns: [1, 2, 3, 4, 5],
+                        columns: ':visible:not(.no-export)',
                         format: {
                             body: function (data, row, column, node) {
                                 if (column === 1) return ++exportRowIndex;
@@ -576,7 +577,7 @@
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
                         },
-                        columns: [1, 2, 3, 4, 5, 6],
+                        columns: ':visible:not(.no-export)',
                         format: {
                             body: function (data, row, column, node) {
                                 if (column === 1) return ++exportRowIndex;
@@ -585,9 +586,6 @@
                         }
                     },
                     action: function (e, dt, button, config) {
-                        //  Reset Sr.No before export
-                        exportRowIndex = 0;
-
                         var selected = dt.$('.row-select:checked', { page: 'all' }).length;
                         var btnApi = dt.button(button);
                         if (selected === 0) { showExportToast(); btnApi.processing(false); return; }
@@ -632,7 +630,7 @@
 
                         var tableNode = doc.content.find(n => n.table);
                         if (tableNode) {
-                            tableNode.table.widths = [50, 120, 60, 100, 40, 120];
+                            tableNode.table.widths = [50, 120, 60, 100, 70, 90];
                             tableNode.layout = {
                                 fillColor: rowIndex => rowIndex === 0 ? '#343a40' : null,
                                 hLineColor: () => '#ccc',
@@ -664,13 +662,13 @@
                 {
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
-                    title: `Inventory_Report`,
-                    filename: `Generated On ${moment().format("DD/MM/YYYY")}`,
+                    title: null,
+                    filename:'Inventory Report',
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
                         },
-                        columns: [1, 2, 3, 4, 5],
+                        columns: ':visible:not(.no-export)',
                         format: {
                             body: function (data, row, column, node) {
                                 if (column === 1) return ++exportRowIndex;
@@ -680,40 +678,79 @@
                     },
                     customize: function (xlsx) {
                         var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                        var now = moment().format("DD/MM/YYYY");
-                        var sheetName = 'Inventory Sheet';
+                        var stylesXml = xlsx.xl['styles.xml'];
 
-                        // Change sheet name
-                        var sheetNames = xlsx.xl['workbook.xml'].getElementsByTagName('sheet');
-                        if (sheetNames.length > 0) {
-                            sheetNames[0].setAttribute('name', sheetName);
+
+
+
+                        // ===== Create a centered text style =====
+                        var cellXfs = $('cellXfs xf', stylesXml);
+                        var centerStyleIndex = cellXfs.length;
+                        cellXfs.last().after(
+                            '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">' +
+                            '<alignment horizontal="center" vertical="center"/></xf>'
+                        );
+
+                        // ===== Detect number of exported columns dynamically =====
+                        var numCols = $('cols col', sheet).length;
+                        if (numCols === 0) numCols = 7; // fallback if DataTables doesn't generate <cols>
+
+                        // Calculate last column letter (A, B, C, ...)
+                        function getExcelColumn(colNum) {
+                            var dividend = colNum, columnName = "", modulo;
+                            while (dividend > 0) {
+                                modulo = (dividend - 1) % 26;
+                                columnName = String.fromCharCode(65 + modulo) + columnName;
+                                dividend = Math.floor((dividend - modulo) / 26);
+                            }
+                            return columnName;
+                        }
+                        var lastColLetter = getExcelColumn(numCols);
+
+                        // ===== Ensure <mergeCells> exists =====
+                        if ($('mergeCells', sheet).length === 0) {
+                            $('worksheet', sheet).prepend('<mergeCells count="0"></mergeCells>');
                         }
 
-                        // Add date below title (insert new row after title)
-                        var rows = $('row', sheet);
-                        var newRow = `
-            <row r="2">
-                <c t="inlineStr" r="A2">
-                    <is><t>Date: ${now}</t></is>
-                </c>
-            </row>
-        `;
+                        var mergeCells = $('mergeCells', sheet);
+                        var count = parseInt(mergeCells.attr('count') || 0);
 
-                        // Shift all rows down by 1
-                        rows.each(function () {
+                        // ===== Add merged cells for Title and Date =====
+                        mergeCells.append(`<mergeCell ref="A1:${lastColLetter}1"/>`);
+                        mergeCells.append(`<mergeCell ref="A2:${lastColLetter}2"/>`);
+                        mergeCells.attr('count', count + 2);
+
+                        // ===== Create Title & Date rows =====
+                        var title = "Inventory Report";
+                        var dateText = "Generated Date: " + moment().format("DD/MM/YYYY");
+
+                        var titleRow = `
+    <row r="1">
+        <c r="A1" t="inlineStr" s="${centerStyleIndex}">
+            <is><t>${title}</t></is>
+        </c>
+    </row>
+    <row r="2">
+        <c r="A2" t="inlineStr" s="${centerStyleIndex}">
+            <is><t>${dateText}</t></is>
+        </c>
+    </row>
+`;
+
+                        // ===== Shift existing rows down by 2 =====
+                        $('row', sheet).each(function () {
                             var r = parseInt($(this).attr('r'));
-                            $(this).attr('r', r + 1);
+                            $(this).attr('r', r + 2);
                             $(this).find('c').each(function () {
-                                var cellRef = $(this).attr('r');
-                                if (cellRef) {
-                                    var col = cellRef.replace(/[0-9]/g, '');
-                                    $(this).attr('r', col + (r + 1));
-                                }
+                                var ref = $(this).attr('r');
+                                var col = ref.replace(/[0-9]/g, '');
+                                $(this).attr('r', col + (r + 2));
                             });
                         });
 
-                        // Insert date row
-                        sheet.childNodes[0].childNodes[1].innerHTML = newRow + sheet.childNodes[0].childNodes[1].innerHTML;
+                        // ===== Insert new rows at top =====
+                        var sheetData = $('sheetData', sheet);
+                        sheetData.prepend(titleRow);
                     },
                     action: function (e, dt, button, config) {
                         exportRowIndex = 0;
@@ -740,7 +777,7 @@
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
                         },
-                        columns: [1, 2, 3, 4, 5],
+                        columns: ':visible:not(.no-export)',
                         format: {
                             body: function (data, row, column, node) {
                                 if (column === 1) return ++exportRowIndex;

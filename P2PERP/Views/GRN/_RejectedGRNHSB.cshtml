@@ -55,7 +55,7 @@
                 </h5>
 
                 <!-- Close Button Full Height -->
-                <button type="button" class="btn-close btn-close-white m-0 p-3 h-100 position-absolute end-0 top-0"
+                <button type="button" class="btn-close top-0 end-0 rounded-end-3 fs-4 position-absolute btn-close-white m-3"
                         data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -395,7 +395,9 @@
                 {
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
-                    title: `Rejected GRN Report Generated on: ${moment().format("DD/MM/YYYY")}`,
+                    title: null,
+                    sheetName: 'Rejected Goods',
+                    filename:'RejectedGoods',
                     exportOptions: {
                         columns: [1, 2, 3, 4],
                         rows: selectedRows,
@@ -411,7 +413,84 @@
                         try { btnApi.processing(true); } catch (err) { }
                         $.fn.dataTable.ext.buttons.excelHtml5.__originalAction.call(this, e, dt, button, config);
                         setTimeout(function () { try { btnApi.processing(false); } catch (err) { } }, 300);
-                    }
+                    },
+                    customize: function (xlsx) {
+                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                        var stylesXml = xlsx.xl['styles.xml'];
+
+
+
+
+                        // ===== Create a centered text style =====
+                        var cellXfs = $('cellXfs xf', stylesXml);
+                        var centerStyleIndex = cellXfs.length;
+                        cellXfs.last().after(
+                            '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">' +
+                            '<alignment horizontal="center" vertical="center"/></xf>'
+                        );
+
+                        // ===== Detect number of exported columns dynamically =====
+                        var numCols = $('cols col', sheet).length;
+                        if (numCols === 0) numCols = 7; // fallback if DataTables doesn't generate <cols>
+
+                        // Calculate last column letter (A, B, C, ...)
+                        function getExcelColumn(colNum) {
+                            var dividend = colNum, columnName = "", modulo;
+                            while (dividend > 0) {
+                                modulo = (dividend - 1) % 26;
+                                columnName = String.fromCharCode(65 + modulo) + columnName;
+                                dividend = Math.floor((dividend - modulo) / 26);
+                            }
+                            return columnName;
+                        }
+                        var lastColLetter = getExcelColumn(numCols);
+
+                        // ===== Ensure <mergeCells> exists =====
+                        if ($('mergeCells', sheet).length === 0) {
+                            $('worksheet', sheet).prepend('<mergeCells count="0"></mergeCells>');
+                        }
+
+                        var mergeCells = $('mergeCells', sheet);
+                        var count = parseInt(mergeCells.attr('count') || 0);
+
+                        // ===== Add merged cells for Title and Date =====
+                        mergeCells.append(`<mergeCell ref="A1:${lastColLetter}1"/>`);
+                        mergeCells.append(`<mergeCell ref="A2:${lastColLetter}2"/>`);
+                        mergeCells.attr('count', count + 2);
+
+                        // ===== Create Title & Date rows =====
+                        var title = "Rejected Goods List";
+                        var dateText = "Generated Date: " + moment().format("DD/MM/YYYY");
+
+                        var titleRow = `
+    <row r="1">
+        <c r="A1" t="inlineStr" s="${centerStyleIndex}">
+            <is><t>${title}</t></is>
+        </c>
+    </row>
+    <row r="2">
+        <c r="A2" t="inlineStr" s="${centerStyleIndex}">
+            <is><t>${dateText}</t></is>
+        </c>
+    </row>
+`;
+
+                        // ===== Shift existing rows down by 2 =====
+                        $('row', sheet).each(function () {
+                            var r = parseInt($(this).attr('r'));
+                            $(this).attr('r', r + 2);
+                            $(this).find('c').each(function () {
+                                var ref = $(this).attr('r');
+                                var col = ref.replace(/[0-9]/g, '');
+                                $(this).attr('r', col + (r + 2));
+                            });
+                        });
+
+                        // ===== Insert new rows at top =====
+                        var sheetData = $('sheetData', sheet);
+                        sheetData.prepend(titleRow);
+                    },
+
                 },
 
                 // CSV Export

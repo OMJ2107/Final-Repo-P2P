@@ -45,7 +45,7 @@
             </div>
             <div class="col-md-6">
                 <label class="form-label fw-bold">Transport Contact<span class="text-danger">*</span></label>
-                @Html.TextBoxFor(m => m.TransportContact, new { @class = "form-control transport-contact", placeholder = "Enter Transport Contact" })
+                @Html.TextBoxFor(m => m.TransportContact, new { @class = "form-control transport-contact", placeholder = "Enter Transport Contact" , type="number"})
                 <span class="text-danger error-msg"></span>
             </div>
             <div class="col-md-6">
@@ -114,6 +114,43 @@
 <script>
     $(document).ready(function () {
 
+        // Function to clean invalid characters
+        function cleanTransportName() {
+            let value = $(".transport-name").val();
+            value = value.replace(/[^A-Za-z\s]/g, ''); // Allow only letters & spaces
+            $(".transport-name").val(value);
+        }
+
+        // Function to validate the transport name
+        function validateTransportName() {
+            let value = $(".transport-name").val().trim();
+            let errorMsg = $(".transport-name").next(".error-msg");
+
+            if (value.length === 0) {
+                errorMsg.text("Transport Name is required");
+                $(".transport-name").addClass("is-invalid");
+                return false;
+            } else if (value.length < 2) {
+                errorMsg.text("Transport Name must be at least 2 characters");
+                $(".transport-name").addClass("is-invalid");
+                return false;
+            } else {
+                errorMsg.text("");
+                $(".transport-name").removeClass("is-invalid");
+                return true;
+            }
+        }
+
+        // Apply cleanup immediately on page load
+        cleanTransportName();
+
+        // Apply cleanup and validation while typing
+        $(".transport-name").on("input", function () {
+            cleanTransportName();
+            validateTransportName();
+        });
+
+        
         // Initialize DataTable
         $('#DispatchGoods').DataTable({
             dom: '<"d-flex justify-content-end mb-2"f>rt<"d-flex justify-content-between align-items-center mt-2"ip>',
@@ -139,11 +176,20 @@
             let vehicleType = $(".vehicle-type").val().trim();
             let vehicleNo = $(".vehicle-no").val().trim();
 
-            if (!transportName) {
+
+         
+            if (!$(".transport-name").val().trim()) {
                 $(".transport-name").next(".error-msg").text("Transport Name is required");
                 $(".transport-name").addClass("is-invalid");
                 valid = false;
+            } else {
+                $(".transport-name").next(".error-msg").text("");
+                $(".transport-name").removeClass("is-invalid");
             }
+
+
+         
+
             if (!/^[0-9]{10}$/.test(transportContact)) {
                 $(".transport-contact").next(".error-msg").text("Enter valid 10-digit contact number");
                 $(".transport-contact").addClass("is-invalid");
