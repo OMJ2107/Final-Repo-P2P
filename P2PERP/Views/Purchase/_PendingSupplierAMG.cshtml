@@ -8,6 +8,20 @@
         text-align: center !important;
         vertical-align: middle !important;
     }
+
+
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+
+
 </style>
 
 
@@ -56,8 +70,11 @@
 
 
 <script>
-    // ✅ Toast helper
-    // ✅ Toast helper with progress bar
+
+
+
+
+
     function showToast(message, type = 'warning') {
         const toastId = 'toast-' + Date.now();
         let bgClass = '';
@@ -129,6 +146,7 @@
                         destroy: true,
                         data: data,
                         ordering: false,
+                        processing: false,
                         dom: '<"d-flex justify-content-between align-items-center mt-1 mb-2"Bf>rt<"d-flex justify-content-between mt-2"<"datatable-info"i><"datatable-pagination"p>>',
                         buttons: [
                             {
@@ -299,6 +317,8 @@
                                 extend: 'excelHtml5',
                                 text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                                 title: "Pending Quotations",
+                                messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY'),
+
                                 action: function (e, dt, button, config) {
                                     if ($('#pendingTable tbody input.row-check:checked').length === 0) {
                                         showToast('Please select at least one row to export Excel!', 'warning');
@@ -306,11 +326,25 @@
                                     }
                                     $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                                 },
+                                customize: function (xlsx) {
+                                    // Access the first sheet
+                                    const sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                                    // Find the cell containing the messageTop text (usually in row 2)
+                                    $('row c[r^="A2"] t', sheet).each(function () {
+                                        // Center align text in that cell
+                                        $(this).closest('c').attr('s', '51'); // style 51 = center alignment (built-in style)
+                                    });
+
+                                    // Optional: make the text bold
+                                    $('row c[r^="A2"]', sheet).attr('s', '51');
+                                }
+                                ,
                                 exportOptions: {
                                     rows: function (idx, data, node) {
                                         return $(node).find('.row-check').prop('checked');
                                     },
-                                    columns: ':visible:not(:first-child):not(:last-child)',
+                                    columns: ':visible:not(:first-child):not(:last-child):not(:nth-last-child(2))',
                                     format: {
                                         body: function (data, row, column, node) {
                                             if (column === 1) {
@@ -337,7 +371,7 @@
                                     rows: function (idx, data, node) {
                                         return $(node).find('.row-check').prop('checked');
                                     },
-                                    columns: ':visible:not(:first-child):not(:last-child)',
+                                    columns: ':visible:not(:first-child):not(:last-child):not(:nth-last-child(2))',
                                     format: {
                                         body: function (data, row, column, node) {
                                             if (column === 1) {
@@ -440,9 +474,27 @@
                         }
                     });
 
+                    //$('#selectAll').off('change').on('change', function () {
+                    //    $('#pendingTable tbody input.row-check').prop('checked', $(this).prop('checked'));
+                    //});
+
+
                     $('#selectAll').off('change').on('change', function () {
-                        $('#pendingTable tbody input.row-check').prop('checked', $(this).prop('checked'));
+                        const isChecked = $(this).prop('checked');
+                        $('#pendingTable tbody input.row-check').prop('checked', isChecked);
                     });
+
+                    $('#pendingTable tbody').off('change', 'input.row-check').on('change', 'input.row-check', function () {
+                        const total = $('#pendingTable tbody input.row-check').length;
+                        const checked = $('#pendingTable tbody input.row-check:checked').length;
+
+                        // If all rows selected → check header checkbox, else uncheck it
+                        $('#selectAll').prop('checked', total === checked);
+                    });
+
+
+
+
                 }
             });
         }
@@ -467,7 +519,9 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, proceed!',
-                cancelButtonText: 'Cancel'
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#28a745', // Bootstrap success green
+                cancelButtonColor: '#dc3545', 
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.post(url, { quotationCode: id }, function (res) {
@@ -561,7 +615,7 @@
 
 
 
-
+ 
 
 </script>
 
