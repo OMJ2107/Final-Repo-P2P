@@ -1177,6 +1177,7 @@ namespace P2PERP.Controllers
                         ViewBag.CompanyAddress = row["CompanyAddress"].ToString();
                         ViewBag.BillingAddress = row["BillingAddress"].ToString();
                         ViewBag.GRNCode = row["NewGRNCode"].ToString();
+                        ViewBag.WarehouseName = row["WarehouseName"].ToString();
                     }
                 }
 
@@ -1375,8 +1376,13 @@ namespace P2PERP.Controllers
         {
             try
             {
+                // Get staff code from session
+                var staffcode = Session["StaffCode"] as string;
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
                 if (string.IsNullOrEmpty(GRNCode) || GRNItemCodes == null || !GRNItemCodes.Any())
-                    return Json(new { success = false, message = "GRNCode and items required" });
+                    return Json(new { success = false, message = "GRNCode and items are required." });
 
                 int insertedCount = 0;
 
@@ -1387,7 +1393,9 @@ namespace P2PERP.Controllers
                         GRNCode = GRNCode,
                         GRNItemCode = itemCode
                     };
-                    insertedCount += await bal.AssignQCSSG(objGRN);
+
+                    // Pass staffcode to BAL method
+                    insertedCount += await bal.AssignQCSSG(objGRN, staffcode);
                 }
 
                 return Json(new
@@ -1403,6 +1411,7 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, message = "Error assigning QC: " + ex.Message });
             }
         }
+
 
 
 
