@@ -1027,7 +1027,7 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<ActionResult> CreatePR(PurchaseHeader purchase)
         {
-
+            // 1️⃣ Validate header fields
             var validationMessage = ValidatePurchase(purchase);
 
             if (!string.IsNullOrEmpty(validationMessage))
@@ -1044,11 +1044,29 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, message = validationMessage, field = fieldName });
             }
 
+            // 2️⃣ Validate items
+            if (purchase.Items == null || !purchase.Items.Any())
+            {
+                return Json(new { success = false, message = "Please add at least one item to create PR.", field = "ItemName" });
+            }
+
+            foreach (var item in purchase.Items)
+            {
+                if (string.IsNullOrWhiteSpace(item.ItemCode))
+                    return Json(new { success = false, message = "Item code missing.", field = "ItemName" });
+
+                if (item.RequiredQuantity <= 0)
+                    return Json(new { success = false, message = $"Invalid quantity for item {item.ItemCode}.", field = "Qty" });
+            }
+
+            // 3️⃣ Add metadata and save
             purchase.AddedBy = Session["StaffCode"].ToString();
             await bal.CreatePR(purchase);
 
             return Json(new { success = true });
         }
+
+        // Header validation
         private string ValidatePurchase(PurchaseHeader purchase)
         {
             if (purchase == null)
@@ -1066,9 +1084,9 @@ namespace P2PERP.Controllers
             if (purchase.PriorityId <= 0)
                 return "Please select a valid Priority.";
 
-
             return string.Empty; // means validation passed
         }
+
 
 
         #endregion
