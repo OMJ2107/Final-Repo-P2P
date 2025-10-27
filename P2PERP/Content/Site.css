@@ -32,14 +32,13 @@
     .photo-content .profile-photo {
         bottom: -75px;
         left: 5%;
-        max-width: 150px;
         position: absolute;
     }
 
-.profile-info {
-    padding: 30px 20px;
-    background: #F7FAFC !important;
-}
+        .profile-info {
+            padding: 30px 20px;
+            background: #F7FAFC !important;
+        }
 
     .profile-info h6 {
         color: black !important;
@@ -87,26 +86,6 @@
         color: #28a745; /* optional hover color */
     }
 
-/* Success Toast Custom Style */
-#toast-container > .toast-success {
-    background-color: #ffffff !important; /* white background */
-    color: #28a745 !important; /* green text */
-    border: 1px solid #28a745; /* optional: green border */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* subtle shadow */
-}
-
-    /* Optional: change icon color to match text */
-    #toast-container > .toast-success .toast-message {
-        color: #28a745 !important;
-    }
-
-
-        /* Make icon green */
-        #toast-container > .toast-success .toast-message:before,
-        #toast-container > .toast-success .toast-icon {
-            color: #28a745 !important; /* green icon */
-        }
-
 #calendar {
     max-width: 1100px;
     margin: 0 auto;
@@ -122,13 +101,5 @@
 }
 
 .calendar-icon {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #e0e0e0;
-    transition: all 0.3s ease;
+    font-size:xx-large;
 }
-
-    .calendar-icon:hover {
-        background: white;
-        border-color: #667eea;
-        transform: translateY(-2px);
-    }
