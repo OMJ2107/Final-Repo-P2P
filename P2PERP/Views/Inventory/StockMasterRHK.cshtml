@@ -503,38 +503,45 @@
             tableStartDate = null;
             tableEndDate = null;
             $(this).val('');
+            filterTableByDate();
 
             // Remove the custom filter and redraw
-            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.name || f.name !== 'addedDateFilter');
-            dataTable.draw();
+            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.name || f.name !== 'dateRangeFilter');
+            if (stockMasterDataTable) {
+                stockMasterDataTable.draw();
+            }
         });
     }
-
-
-
 
     function filterTableByDate() {
         if (tableStartDate && tableEndDate) {
             // Remove any previous filters
             $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f =>
-                !f.name || f.name !== 'addedDateFilter'
+                !f.name || f.name !== 'dateRangeFilter'
             );
 
-            const addedDateFilter = function (settings, data, dataIndex) {
+            const dateRangeFilter = function (settings, data, dataIndex) {
                 // Only apply to the main table (reqTable), not to modal tables
                 if (settings.nTable.id !== 'reqTable') {
                     return true; // Don't filter other tables
                 }
 
-                const addedDate = moment(data[3], 'DD/MM/YYYY');
-                if (!addedDate.isValid()) return false;
+                // For Stock Master table, we only have Created Date (column 3)
+                const createdDate = moment(data[3], 'DD/MM/YYYY'); // Column 3 = Created Date
 
-                return addedDate.isSameOrAfter(tableStartDate, 'day') &&
-                    addedDate.isSameOrBefore(tableEndDate, 'day');
+                if (!createdDate.isValid()) return false;
+
+                return createdDate.isSameOrAfter(tableStartDate, 'day') &&
+                    createdDate.isSameOrBefore(tableEndDate, 'day');
             };
 
-            addedDateFilter.name = 'addedDateFilter';
-            $.fn.dataTable.ext.search.push(addedDateFilter);
+            dateRangeFilter.name = 'dateRangeFilter';
+            $.fn.dataTable.ext.search.push(dateRangeFilter);
+        } else {
+            // Remove filter when date range is cleared
+            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f =>
+                !f.name || f.name !== 'dateRangeFilter'
+            );
         }
 
         // Only draw if it's the stock master table
