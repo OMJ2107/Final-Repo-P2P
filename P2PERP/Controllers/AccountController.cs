@@ -244,40 +244,48 @@ namespace P2PERP.Controllers
         {
             try
             {
-                var smtpClient = new System.Net.Mail.SmtpClient("smtp.gmail.com")
-                {
-                    Port = 587,
-                    Credentials = new System.Net.NetworkCredential(
-                        System.Web.Configuration.WebConfigurationManager.AppSettings["MainEmail"],
-                        System.Web.Configuration.WebConfigurationManager.AppSettings["AppPassword"]
-                    ),
-                    EnableSsl = true,
-                };
+                var request = HttpContext.Request;
 
-                var mail = new System.Net.Mail.MailMessage
+                // If email is null, manually parse it from the FormData field
+                if (email == null && request.Form["email"] != null)
                 {
-                    From = new System.Net.Mail.MailAddress(System.Web.Configuration.WebConfigurationManager.AppSettings["MainEmail"]),
-                    Subject = email.Subject,
-                    Body = email.Body,
-                    IsBodyHtml = email.IsBodyHtml
-                };
-
-                // Add recipients
-                email.ToEmails?.ForEach(x => mail.To.Add(x));
-                email.CcEmails?.ForEach(x => mail.CC.Add(x));
-                email.BccEmails?.ForEach(x => mail.Bcc.Add(x));
-
-                // Add attachments (if any)
-                if (email.AttachmentPaths != null)
-                {
-                    foreach (var path in email.AttachmentPaths)
-                    {
-                        if (System.IO.File.Exists(path))
-                            mail.Attachments.Add(new System.Net.Mail.Attachment(path));
-                    }
+                    var emailJson = request.Form["email"];
+                    email = Newtonsoft.Json.JsonConvert.DeserializeObject<Email>(emailJson);
                 }
 
-                smtpClient.Send(mail);
+                using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtpClient.Credentials = new NetworkCredential(
+                        WebConfigurationManager.AppSettings["MainEmail"],
+                        WebConfigurationManager.AppSettings["AppPassword"]
+                    );
+                    smtpClient.EnableSsl = true;
+
+                    using (var mail = new MailMessage())
+                    {
+                        mail.From = new MailAddress(WebConfigurationManager.AppSettings["MainEmail"]);
+                        mail.Subject = email.Subject;
+                        mail.Body = email.Body;
+                        mail.IsBodyHtml = email.IsBodyHtml;
+
+                        email.ToEmails?.ForEach(x => mail.To.Add(x));
+                        email.CcEmails?.ForEach(x => mail.CC.Add(x));
+                        email.BccEmails?.ForEach(x => mail.Bcc.Add(x));
+
+                        // Attach uploaded files directly (no saving)
+                        for (int i = 0; i < request.Files.Count; i++)
+                        {
+                            var file = request.Files[i];
+                            if (file != null && file.ContentLength > 0)
+                            {
+                                var attachment = new Attachment(file.InputStream, file.FileName);
+                                mail.Attachments.Add(attachment);
+                            }
+                        }
+
+                        smtpClient.Send(mail);
+                    }
+                }
 
                 return Json(new { success = true, message = "Email sent successfully." });
             }

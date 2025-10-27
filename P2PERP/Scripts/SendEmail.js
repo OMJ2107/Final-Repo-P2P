@@ -13,8 +13,9 @@
     return $.ajax({
         url: "/Account/SendEmail",
         type: "POST",
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify(emailObj),
+        data: emailObj,
+        processData: false,
+        contentType: false,
         success: function (response) {
             Swal.close();
 
@@ -25,9 +26,7 @@
                     html: `<p>${response.message}</p><p>${swalOptions.html || "Please wait..."}</p>`,
                     showConfirmButton: false,
                     timer: 3000,
-                    willClose: () => {
-                        window.location.href = "/Account/VerifyCode";
-                    }
+                    willClose: swalOptions.willClose
                 });
             } else {
                 Swal.fire("Error", response.message, "error");

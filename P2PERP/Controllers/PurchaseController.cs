@@ -63,6 +63,7 @@ namespace P2PERP.Controllers
         }
 
 
+        [Route("Purchase/SendMail")]
         [HttpGet]
         public ActionResult SendMailHSB()
         {
