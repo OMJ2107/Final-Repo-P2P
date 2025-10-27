@@ -61,6 +61,54 @@ namespace P2PERP.Controllers
             }
             return View();
         }
+
+
+        [HttpGet]
+        public ActionResult SendMailHSB()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult SendMailHSB(HttpPostedFileBase attachment, string toEmail, string subject, string messageBody)
+        {
+            try
+            {
+                string fromEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
+                string password = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"];
+
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(fromEmail);
+                mail.To.Add(toEmail);
+                mail.Subject = subject;
+                mail.Body = messageBody;
+                mail.IsBodyHtml = true;
+
+                // Add attachment if provided
+                if (attachment != null && attachment.ContentLength > 0)
+                {
+                    string fileName = Path.GetFileName(attachment.FileName);
+                    mail.Attachments.Add(new Attachment(attachment.InputStream, fileName));
+                }
+
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com")
+                {
+                    Port = 587,
+                    Credentials = new NetworkCredential(fromEmail, password),
+                    EnableSsl = true
+                };
+
+                smtp.Send(mail);
+                ViewBag.Status = "Email sent successfully!";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Status = "Error: " + ex.Message;
+            }
+
+            return View();
+        }
+
         #endregion
 
         #region Pravin
@@ -1029,7 +1077,7 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<ActionResult> CreatePR(PurchaseHeader purchase)
         {
-
+            // 1️⃣ Validate header fields
             var validationMessage = ValidatePurchase(purchase);
 
             if (!string.IsNullOrEmpty(validationMessage))
@@ -1046,11 +1094,29 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, message = validationMessage, field = fieldName });
             }
 
+            // 2️⃣ Validate items
+            if (purchase.Items == null || !purchase.Items.Any())
+            {
+                return Json(new { success = false, message = "Please add at least one item to create PR.", field = "ItemName" });
+            }
+
+            foreach (var item in purchase.Items)
+            {
+                if (string.IsNullOrWhiteSpace(item.ItemCode))
+                    return Json(new { success = false, message = "Item code missing.", field = "ItemName" });
+
+                if (item.RequiredQuantity <= 0)
+                    return Json(new { success = false, message = $"Invalid quantity for item {item.ItemCode}.", field = "Qty" });
+            }
+
+            // 3️⃣ Add metadata and save
             purchase.AddedBy = Session["StaffCode"].ToString();
             await bal.CreatePR(purchase);
 
             return Json(new { success = true });
         }
+
+        // Header validation
         private string ValidatePurchase(PurchaseHeader purchase)
         {
             if (purchase == null)
@@ -1068,9 +1134,9 @@ namespace P2PERP.Controllers
             if (purchase.PriorityId <= 0)
                 return "Please select a valid Priority.";
 
-
             return string.Empty; // means validation passed
         }
+
 
 
         #endregion

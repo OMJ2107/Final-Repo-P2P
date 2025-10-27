@@ -5637,6 +5637,7 @@
     <Content Include="Views\GRN\_PendingItemsRHK.cshtml" />
     <Content Include="Views\Purchase\_ApprovedPOsPartialVNK.cshtml" />
     <Content Include="Views\Purchase\JustInTimeItemListOK.cshtml" />
+    <Content Include="Views\Shared\SendMailHSB.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
