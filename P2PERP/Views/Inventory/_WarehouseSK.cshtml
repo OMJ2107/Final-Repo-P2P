@@ -9,7 +9,18 @@
     </button>
 
 </div>
+<style>
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
 
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+</style>
 <!-- Responsive wrapper -->
 <div class="table-responsive">
     <table id="warehouseTable" class="table table-bordered table-hover align-middle w-100">
@@ -40,11 +51,12 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <!-- Header -->
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title mb-3 h3 text-white w-100 text-center" id="warehouseModalTitle">Add Warehouse</h5>
-                <button type="button" class="btn-close btn-close-white mb-3 mb-3" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white position-relative py-2">
+                <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="warehouseModalTitle" style="line-height: 1.2;">
+                    Add Warehouse
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-
             <!-- Body -->
             <div class="modal-body">
                 <form id="addWarehouseForm" class="row g-3">
@@ -68,7 +80,7 @@
                                 <label for="WarehouseName">Warehouse Name <span class="text-danger">*</span></label>
                             </div>
                         </div>
-                        <div id="WarehouseNameError" class="text-danger" style="font-size: 0.9rem;"></div>
+                        <span id="WarehouseNameError" class="text-danger" ></span>
 
                     </div>
 
@@ -156,7 +168,7 @@
                     </div>
 
                     <!-- Capacity -->
-                    <div class="col-md-6">
+                    @*<div class="col-md-6">
                         <div class="input-group input-group-merge mb-3">
                             <span class="input-group-text"><i class="ri-archive-line"></i></span>
                             <div class="form-floating form-floating-outline">
@@ -164,15 +176,15 @@
                                 <label for="Capacity">Capacity <span class="text-danger">*</span></label>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                 </form>
             </div>
 
             <!-- Footer -->
             <div class="modal-footer">
                 @*<button type="button" class="btn btn-outline-danger bg-danger text-white px-4" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle me-2"></i>Close
-                </button>*@
+                <i class="bi bi-x-circle me-2"></i>Close
+            </button>*@
                 <button type="submit" form="addWarehouseForm" class="btn btn-success px-4" id="warehouseModalSubmitBtn">
                     <i class="bi bi-check-circle me-2 text-white"></i>Save
                 </button>
@@ -186,10 +198,14 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <!-- Header -->
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title text-white mb-3 h3 w-100 text-center">Warehouse Details</h5>
-                <button type="button" class="btn-close mb-3 btn-close-white h3" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white position-relative py-2">
+                <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="warehouseModalTitle" style="line-height: 1.2;">
+                    Warehouse Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                        data-bs-dismiss="modal"></button>
             </div>
+
 
             <!-- Body -->
             <div class="modal-body">
@@ -261,7 +277,7 @@
                     </div>
 
                     <!-- Capacity -->
-                    <div class="col-md-6">
+                    @*<div class="col-md-6">
                         <div class="input-group input-group-merge mb-3">
                             <span class="input-group-text"><i class="ri-archive-line"></i></span>
                             <div class="form-floating form-floating-outline">
@@ -269,7 +285,7 @@
                                 <label for="vwCapacity">Capacity</label>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
 
                     <!-- Description -->
                     <div class="col-12">
@@ -504,9 +520,9 @@
                             return `
                                 <div class="d-flex justify-content-center gap-1">
                                     <button class="btn btn-sm btn-primary btn-view" data-id="${data}" data-bs-toggle="tooltip" title="View Warehouse">
-                                        <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye-fill"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-warning btn-edit" data-id="${data}" data-bs-toggle="tooltip" title="Edit Warehouse">
+                                    <button class="btn btn-sm btn-secondary btn-edit" data-id="${data}" data-bs-toggle="tooltip" title="Edit Warehouse">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
                                     <button class="btn btn-sm btn-danger btn-delete" data-id="${data}" data-bs-toggle="tooltip" title="Delete Warehouse">
@@ -567,7 +583,7 @@
                     customize: function (win) {
                         $(win.document.body).prepend(
                             '<h2 style="text-align: center; margin-bottom: 10px;">Warehouse List</h2>' +
-                            '<p style="text-align: center; margin-bottom: 20px; color: #666;">Generated on: ' + new Date().toLocaleDateString("en-GB") + '</p>' +
+                            '<p style="text-align: center; margin-bottom: 20px; color: #666;">Generated Date: ' + new Date().toLocaleDateString("en-GB") + '</p>' +
                             '<hr style="margin-bottom: 20px;">'
                         );
 
@@ -630,7 +646,7 @@
                         });
 
                         doc.content.splice(1, 0, {
-                            text: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                            text: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
                             alignment: 'center',
                             margin: [0, 0, 0, 15]
                         });
@@ -655,26 +671,34 @@
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5" data-bs-toggle="tooltip" title="Export Excel"></i>',
                     title: 'Warehouse List',
-                    message: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                    messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
                     exportOptions: {
-                        columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
+                        columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))', // same as before
                         rows: function (idx, data, node) {
                             return selectedWarehouseIds.has(data.WareHouseId);
-                        },
-                        format: {
-                            body: function (data, row, column, node) {
-                                if (column === 1) {
-                                    if (!this.serialCounter) {
-                                        this.serialCounter = 1;
-                                    }
-                                    var serial = this.serialCounter;
-                                    this.serialCounter++;
-                                    return serial.toString();
-                                }
-                                // City column is now excluded, so no need for special handling
-                                return data;
-                            }
                         }
+                    },
+                    customize: function (xlsx) {
+                        let sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // Insert "Sr. No" column at start and make it bold
+                        let serial = 1;
+                        $('row', sheet).each(function () {
+                            let rowIndex = parseInt($(this).attr('r'));
+
+                            if (rowIndex === 3) {
+                                // Header row: Sr. No
+                                $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>`);
+                            } else if (rowIndex > 3) {
+                                // Data rows: Sr. No numbers
+                                $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>${serial}</t></is></c>`);
+                                serial++;
+                            }
+                        });
+
+                        // Keep title (row 1) and generated date (row 2) as-is
+                        $('row[r="1"] c', sheet).attr('s', '51'); // center & bold title
+                        $('row[r="2"] c', sheet).attr('s', '51'); // center & bold date
                     },
                     action: function (e, dt, button, config) {
                         if (selectedWarehouseIds.size === 0) {
@@ -684,12 +708,13 @@
                         $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                     }
                 },
+
                 // --- CSV ---
                 {
                     extend: 'csvHtml5',
                     text: '<i class="bi bi-filetype-csv text-success fs-5" data-bs-toggle="tooltip" title="Export CSV"></i>',
                     title: 'Warehouse List',
-                    message: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                    message: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
                     exportOptions: {
                         columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
                         rows: function (idx, data, node) {
@@ -816,8 +841,8 @@
             if (!dateRange) return true;
 
             var minMax = dateRange.split(' to ');
-            var min = moment(minMax[0], 'YYYY-MM-DD');
-            var max = moment(minMax[1], 'YYYY-MM-DD');
+            var min = moment(minMax[0], 'DD/MM/YYYY');
+            var max = moment(minMax[1], 'DD/MM/YYYY');
 
             // Get the date from table (already formatted as DD/MM/YYYY)
             var tableDate = data[7]; // AddedDate column
@@ -828,14 +853,14 @@
             var dateParts = tableDate.split('/');
             if (dateParts.length !== 3) return false;
 
-            var date = moment(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`, 'YYYY-MM-DD');
+            var date = moment(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`, 'DD/MM/YYYY');
 
             return date.isBetween(min, max, 'day', '[]');
         });
 
         // Apply filter on selection
         $('#warehouseDateRange').on('apply.daterangepicker', function (ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' to ' + picker.endDate.format('YYYY-MM-DD'));
+            $(this).val(picker.startDate.format('DD/MM/YYYY') + ' to ' + picker.endDate.format('DD/MM/YYYY'));
             table.draw();
         });
 
@@ -982,8 +1007,8 @@ $(document).on("input", "[name='WarehouseName']", function () {
             var id = $(this).data("id");
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
-                    confirmButton: "btn btn-danger me-2", 
-                    cancelButton: "btn btn-primary"
+                    confirmButton: "btn btn-primary me-2", 
+                    cancelButton: "btn btn-danger"
                 },
                 buttonsStyling: false
             });
@@ -993,8 +1018,8 @@ $(document).on("input", "[name='WarehouseName']", function () {
                 text: "You won't be able to revert this!",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: "Yes, delete it!",
-                cancelButtonText: "No, cancel!",
+                confirmButtonText: "Yes",
+                cancelButtonText: "cancel",
                 reverseButtons: false,
                 timer: 10000,
                 showCloseButton: true

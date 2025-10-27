@@ -9,7 +9,18 @@
     </button>
 
 </div>
+<style>
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
 
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+</style>
 
 <!-- Responsive wrapper -->
 <div class="table-responsive">
@@ -35,10 +46,14 @@
 <div class="modal fade" id="addSectionModal" tabindex="-1" aria-labelledby="addSectionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title text-white w-100 h3 mb-3 text-center">Add New Section</h5>
-                <button type="button" class="btn-close btn-close-white h3 mb-3" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white position-relative py-2">
+                <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="sectionModalTitle" style="line-height: 1.2;">
+                    Add New Section
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
                 <form id="addSectionForm">
                     <div class="row mb-3">
@@ -55,11 +70,11 @@
                             <div class="input-group input-group-merge mb-1">
                                 <span class="input-group-text"><i class="ri-layout-masonry-line"></i></span>
                                 <div class="form-floating form-floating-outline">
-                                    <input type="text" name="SectionName" class="form-control" required>
+                                    <input type="text" name="SectionName" class="form-control" >
                                     <label for="SectionName">Section Name <span class="text-danger">*</span></label>
                                 </div>
                             </div>
-                            <div id="SectionNameError" class="text-danger" style="font-size: 0.9rem;"></div>
+                            <span id="SectionNameError" class="text-danger" ></span>
                         </div>
 
 
@@ -68,18 +83,19 @@
                                 <div class="input-group input-group-merge mb-3">
                                     <span class="input-group-text"><i class="ri-building-4-line"></i></span>
                                     <div class="form-floating form-floating-outline">
-                                        <select id="WarehouseCodes" name="WarehouseCode" class="form-select" required>
+                                        <select id="WarehouseCodes" name="WarehouseCode" class="form-select" >
                                             <option value="">-- Select Warehouse --</option>
                                         </select>
                                         <label for="WarehouseCodes">Warehouse <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
+                                <span id="addSectionWhError" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group input-group-merge mb-3">
                                     <span class="input-group-text"><i class="ri-file-text-line"></i></span>
                                     <div class="form-floating form-floating-outline">
-                                        <textarea name="Description" class="form-control" style="height: 80px;"></textarea>
+                                        <textarea name="Descriptionk" class="form-control" style="height: 80px;"></textarea>
                                         <label for="Description">Description</label>
                                     </div>
                                 </div>
@@ -88,14 +104,14 @@
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             @*<button type="button" class="btn btn-outline-danger bg-danger text-white px-4" data-bs-dismiss="modal">
-                <i class="bi bi-x-circle me-2"></i>Close
-            </button>*@
+                            <i class="bi bi-x-circle me-2"></i>Close
+                        </button>*@
                             <button type="submit" class="btn btn-success px-4">
                                 <i class="bi bi-check-circle me-2 text-white"></i>Save
                             </button>
                         </div>
-                        </div>
-</form>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -105,10 +121,14 @@
 <div class="modal fade" id="editSectionModal" tabindex="-1" aria-labelledby="editSectionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title text-white h3 w-100 mb-3 text-center">Edit Section</h5>
-                <button type="button" class="btn-close btn-close-white mb-3" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white position-relative py-2">
+                <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="editSectionModalTitle" style="line-height: 1.2;">
+                    Edit Section
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
                 <form id="editSectionForm">
                     <input type="hidden" name="SectionId" id="EditSectionId" />
@@ -141,7 +161,7 @@
                             <div class="input-group input-group-merge mb-3">
                                 <span class="input-group-text"><i class="ri-building-4-line"></i></span>
                                 <div class="form-floating form-floating-outline" readonly>
-                                    <select id="EditWarehouseCode" name="WarehouseCode" class="form-select" required ></select>
+                                    <select id="EditWarehouseCode" name="WarehouseCode" class="form-select" required></select>
                                     <label for="EditWarehouseCode">Warehouse <span class="text-danger">*</span></label>
                                 </div>
                             </div>
@@ -159,9 +179,9 @@
 
                     <div class="d-flex justify-content-end gap-2 mt-4">
                         @*<button type="button" class="btn btn-outline-danger bg-danger px-4" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-2 text-white">Close</i>
-                        </button>*@
-                        <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-x-circle me-2 text-white">Close</i>
+                    </button>*@
+                        <button type="submit" class="btn btn-success px-4">
                             <i class="bi bi-check-circle me-2 text-white"></i>Update
                         </button>
                     </div>
@@ -175,12 +195,14 @@
 <div class="modal fade" id="viewSectionModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="d-flex justify-content-center h3 mb-3 text-center ms-auto text-white">
+            <div class="modal-header bg-primary text-white position-relative py-2">
+                <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="sectionDetailsModalTitle" style="line-height: 1.2;">
                     Section Details
                 </h5>
-                <button type="button" class="btn-close  h3 mb-3 btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
                 <form class="row g-3">
                     <!-- Section Code -->
@@ -282,7 +304,7 @@
 
                         $(win.document.body).prepend(
                             '<h2 style="text-align: center; margin-bottom: 10px;">Section List</h2>' +
-                            '<p style="text-align: center; margin-bottom: 20px; color: #666;">Generated on: ' + new Date().toLocaleDateString("en-GB") + '</p>' +
+                            '<p style="text-align: center; margin-bottom: 20px; color: #666;">Generated Date: ' + new Date().toLocaleDateString("en-GB") + '</p>' +
                             '<hr style="margin-bottom: 20px;">'
                         );
 
@@ -336,7 +358,7 @@
 
                         // Date
                         doc.content.push({
-                            text: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                            text: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
                             style: 'subheader',
                             alignment: 'center',
                             margin: [0, 0, 0, 20]
@@ -428,7 +450,7 @@
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5" data-bs-toggle="tooltip" title="Export Excel"></i>',
                     title: 'Section List',
-                    message: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                    messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
                     exportOptions: {
                         columns: ':visible:not(:first-child):not(:last-child)',
                         rows: function (idx, data, node) {
@@ -436,19 +458,26 @@
                         }
                     },
                     customize: function (xlsx) {
-                        // Add serial numbers dynamically in Excel
                         var sheet = xlsx.xl.worksheets['sheet1.xml'];
                         var rows = $('row', sheet);
-                        let serialNumber = 1;
+                        let serial = 1;
 
-                        // Skip header row (index 0) and update serial numbers
-                        for (var i = 1; i < rows.length; i++) {
-                            var row = rows[i];
-                            var firstCell = $('c:first', row);
-                            if (firstCell.length) {
-                                $('is t', firstCell).text(serialNumber++);
+                        $('row', sheet).each(function () {
+                            let rowIndex = parseInt($(this).attr('r'));
+
+                            if (rowIndex === 3) {
+                                // Header row: Sr. No
+                                $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>`);
+                            } else if (rowIndex > 3) {
+                                // Data rows: Sr. No numbers
+                                $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>${serial}</t></is></c>`);
+                                serial++;
                             }
-                        }
+                        });
+
+                        // Keep title (row 1) and generated date (row 2) as-is
+                        $('row[r="1"] c', sheet).attr('s', '51'); // center & bold title
+                        $('row[r="2"] c', sheet).attr('s', '51'); // center & bold date
                     },
                     action: function (e, dt, button, config) {
                         if (selectedSectionIds.size === 0) {
@@ -464,7 +493,7 @@
                     extend: 'csvHtml5',
                     text: '<i class="bi bi-filetype-csv text-success fs-5" data-bs-toggle="tooltip" title="Export CSV"></i>',
                     title: 'Section List',
-                    message: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                    message: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
                     exportOptions: {
                         columns: ':visible:not(:first-child):not(:last-child)',
                         rows: function (idx, data, node) {
@@ -534,9 +563,9 @@
                         return `
                         <div class="d-flex justify-content-center gap-1">
                             <button class="btn btn-sm btn-primary view-btn" data-id="${row.SectionId}" data-bs-toggle="tooltip" title="View Section">
-                                <i class="bi bi-eye"></i>
+                                <i class="bi bi-eye-fill"></i>
                             </button>
-                            <button class="btn btn-sm btn-warning edit-btn" data-id="${row.SectionId}" data-bs-toggle="tooltip" title="Edit Section">
+                            <button class="btn btn-sm btn-secondary edit-btn" data-id="${row.SectionId}" data-bs-toggle="tooltip" title="Edit Section">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
                             <button class="btn btn-sm btn-danger delete-btn" data-id="${row.SectionId}" data-bs-toggle="tooltip" title="Delete Section">
@@ -619,62 +648,113 @@
         });
 
         // --- Save Section ---
+        // ✅ Validate Section Form
+        function validateSectionForm(formSelector) {
+            let isValid = true;
+
+            const sectionName = $(formSelector + " [name='SectionName']").val().trim();
+            const warehouse = $(formSelector + " #WarehouseCodes").val();
+
+            if (!sectionName) {
+                showFieldError("SectionName", "SectionNameError", "Section Name is required.");
+                isValid = false;
+            }
+            if (!warehouse) {
+                showFieldError("WarehouseCodes", "addSectionWhError", "Please select a Warehouse.");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // ✅ Common Error Helpers (same as your Rack version)
+        function showFieldError(inputId, errorId, message) {
+            const $input = $("#" + inputId).length ? $("#" + inputId) : $(`[name='${inputId}']`);
+            $input.addClass("is-invalid");
+            $("#" + errorId).text(message).removeClass("d-none");
+        }
+
+        function clearFieldError(inputId, errorId) {
+            const $input = $("#" + inputId).length ? $("#" + inputId) : $(`[name='${inputId}']`);
+            $input.removeClass("is-invalid");
+            $("#" + errorId).text("").addClass("d-none");
+        }
+
+        function clearAllErrors(formSelector) {
+            $(formSelector + " .form-control, " + formSelector + " .form-select").removeClass("is-invalid");
+            $(formSelector + " .text-danger").text("").addClass("d-none");
+        }
+
+        // ✅ Live Validation (auto clear error)
+        $(document).on("input change", "[name='SectionName'], #WarehouseCodes", function () {
+            const id = $(this).attr("id") || $(this).attr("name");
+            if ($(this).val().trim()) {
+                switch (id) {
+                    case "SectionName":
+                        clearFieldError("SectionName", "SectionNameError");
+                        break;
+                    case "WarehouseCodes":
+                        clearFieldError("WarehouseCodes", "addSectionWhError");
+                        break;
+                }
+            }
+        });
+
+        // ✅ Add Section Form Submit
         $("#addSectionForm").on("submit", function (e) {
             e.preventDefault();
+            clearAllErrors("#addSectionForm");
 
-            let formData = $(this).serialize();
+            if (!validateSectionForm("#addSectionForm")) {
+                return; // stop submission if validation fails
+            }
 
-            $.post("/Inventory/AddSection", formData, function (res) {
-                if (res.success) {
-                    $("#addSectionModal").modal("hide");
-                    $("#addSectionForm")[0].reset();
-                    $('#sectionTable').DataTable().ajax.reload(null, false);
-                    Swal.fire({
-                        title: "Success",
-                        text: res.message,
-                        icon: "success",
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                } else {
-                    // ✅ Clear previous errors
-                    $("#SectionNameError").html("");
-                    $("[name='SectionName']").removeClass("is-invalid");
+            const formData = {
+                SectionCode: $("#SectionCodeSk").val(),
+                SectionName: $("[name='SectionName']").val(),
+                WarehouseCode: $("#WarehouseCodes").val(),
+                Description: $("[name='Descriptionk']").val()
+            };
 
-                    if (res.field === "SectionName") {
-                        let input = $(`[name=${res.field}]`);
-                        input.addClass("is-invalid");
-                        $("#SectionNameError").html(res.message);
+            $.ajax({
+                url: "/Inventory/AddSection", // ✅ your actual endpoint
+                type: "POST",
+                data: formData,
+                success: function (res) {
+                    if (res.success) {
+                        $("#addSectionModal").modal("hide");
+                        $("#addSectionForm")[0].reset();
+                        $("#sectionTable").DataTable().ajax.reload(null, false);
 
-                        // ✅ Focus + Scroll
-                        input.focus();
-                        $('html, body').animate({
-                            scrollTop: input.offset().top - 100
-                        }, 300);
-
-                        // ✅ Clear error when typing
-                        input.on("input", function () {
-                            $(this).removeClass("is-invalid");
-                            $("#SectionNameError").html("");
+                        Swal.fire({
+                            title: "Success",
+                            text: res.message || "Section saved successfully!",
+                            icon: "success",
+                            timer: 2000,
+                            showConfirmButton: false
                         });
                     } else {
-                        Swal.fire({
-                            title: "Error",
-                            text: res.message,
-                            icon: "error",
-                            confirmButtonText: "OK"
-                        });
+                        handleAddSectionInlineError(res.message);
                     }
+                },
+                error: function () {
+                    showFieldError("SectionName", "SectionNameError", "Server error while saving section.");
                 }
-            }).fail(function () {
-                Swal.fire({
-                    title: "Error",
-                    text: "Error saving section!",
-                    icon: "error",
-                    confirmButtonText: "OK"
-                });
             });
         });
+
+        // ✅ Inline “Already Exists” Error Handler
+        function handleAddSectionInlineError(message) {
+            clearFieldError("SectionName", "SectionNameError");
+            const msg = (message || "").toLowerCase();
+
+            if (msg.includes("already exist") || msg.includes("duplicate") || msg.includes("exists")) {
+                showFieldError("SectionName", "SectionNameError", "Section Name already exists.");
+            } else {
+                showFieldError("SectionName", "SectionNameError", message || "Something went wrong while saving section.");
+            }
+        }
+
 
         // --- Edit Section ---
         $("#sectionTable").on("click", ".edit-btn", function () {
@@ -822,9 +902,9 @@
                 text: "You won't be able to revert this!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
+                confirmButtonColor: '#0d6efd',
+                cancelButtonColor: '#dc3545', 
+                confirmButtonText: 'Yes',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {

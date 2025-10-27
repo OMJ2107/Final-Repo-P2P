@@ -33,10 +33,14 @@
 <div class="modal fade" id="addRackModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title text-white h3 mb-3 w-100 text-center">Add Rack</h5>
-                <button type="button" class="btn-close mb-3 h3 btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white position-relative py-2">
+                <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="addRackModalTitle" style="line-height: 1.2;">
+                    Add Rack
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
                 <form id="addRackForm" class="row g-3">
                     <!-- Rack Code -->
@@ -55,11 +59,11 @@
                         <div class="input-group input-group-merge mb-3">
                             <span class="input-group-text"><i class="ri-archive-drawer-line"></i></span>
                             <div class="form-floating form-floating-outline">
-                                <input type="text" class="form-control" id="addRackName" name="RackName" required>
+                                <input type="text" class="form-control" id="addRackName" name="RackName">
                                 <label for="addRackName">Rack Name <span class="text-danger">*</span></label>
                             </div>
                         </div>
-                        <small class="text-danger" id="addRackNameError"></small>
+                        <span id="addRackNameError" class="text-danger"></span>
 
                     </div>
 
@@ -68,12 +72,13 @@
                         <div class="input-group input-group-merge mb-3">
                             <span class="input-group-text"><i class="ri-building-4-line"></i></span>
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="addWarehouseId" name="WarehouseId" required>
+                                <select class="form-select" id="addWarehouseId" name="WarehouseId">
                                     <option value="">-- Select Warehouse --</option>
                                 </select>
                                 <label for="addWarehouseId">Warehouse <span class="text-danger">*</span></label>
                             </div>
                         </div>
+                        <span id="addRackWhNameError" class="text-danger"></span>
                     </div>
 
                     <!-- Section -->
@@ -81,12 +86,13 @@
                         <div class="input-group input-group-merge mb-3">
                             <span class="input-group-text"><i class="ri-layout-masonry-line"></i></span>
                             <div class="form-floating form-floating-outline">
-                                <select class="form-select" id="addSectionId" name="SectionCode" required>
+                                <select class="form-select" id="addSectionId" name="SectionCode" >
                                     <option value="">-- Select Section --</option>
                                 </select>
                                 <label for="addSectionId">Section <span class="text-danger">*</span></label>
                             </div>
                         </div>
+                        <span id="addRackSectinError" class="text-danger"></span>
                     </div>
 
                     <!-- Description -->
@@ -103,8 +109,8 @@
             </div>
             <div class="modal-footer">
                 @*<button type="button" class="btn btn-outline-danger bg-danger text-white px-4" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-2"></i>Close
-                    </button>*@
+                <i class="bi bi-x-circle me-2"></i>Close
+            </button>*@
                 <button type="submit" form="addRackForm" class="btn btn-success px-4" id="addRackModalSubmitBtn">
                     <i class="bi bi-check-circle me-2 text-white"></i>Save
                 </button>
@@ -117,10 +123,14 @@
 <div class="modal fade" id="editRackModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title text-white mb-3 h3 w-100 text-center">Update Rack</h5>
-                <button type="button" class="btn-close mb-3 h3 btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white position-relative py-2">
+                <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="updateRackModalTitle" style="line-height: 1.2;">
+                    Update Rack
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
                 <form id="editRackForm" class="row g-3">
                     <input type="hidden" id="editRackId" name="RackId" />
@@ -187,9 +197,9 @@
             </div>
             <div class="modal-footer">
                 @*<button type="button" class="btn btn-outline-danger bg-danger text-white px-4" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-2"></i>Close
-                    </button>*@
-                <button type="submit" form="editRackForm" class="btn btn-primary px-4" id="editRackModalSubmitBtn">
+                <i class="bi bi-x-circle me-2"></i>Close
+            </button>*@
+                <button type="submit" form="editRackForm" class="btn btn-success px-4" id="editRackModalSubmitBtn">
                     <i class="bi bi-check-circle me-2 text-white"></i>Update
                 </button>
             </div>
@@ -201,10 +211,14 @@
 <div class="modal fade" id="viewRackModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title text-white mb-3 h3 w-100 text-center">Rack Details</h5>
-                <button type="button" class="btn-close mb-3 h3 btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white position-relative py-2">
+                <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="rackDetailsModalTitle" style="line-height: 1.2;">
+                    Rack Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
                 <form class="row g-3">
                     <!-- Rack Code -->
@@ -288,7 +302,18 @@
         </div>
     </div>
 </div>
+<style>
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
 
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+</style>
 <script>
     toastr.options = {
         closeButton: true,
@@ -308,7 +333,7 @@
         // Function to initialize Rack DataTable + Modals
         // -----------------------------
         window.initRackTab = function ()
-      
+
         {
             if (isRackInitialized) return; // prevent multiple init
             isRackInitialized = true;
@@ -403,9 +428,9 @@
                             return `
                         <div class="d-flex justify-content-center gap-1">
                             <button class="btn btn-sm btn-primary view-rack" data-id="${data}" data-bs-toggle="tooltip" title="View Rack">
-                                <i class="bi bi-eye"></i>
+                                <i class="bi bi-eye-fill"></i>
                             </button>
-                            <button class="btn btn-sm btn-warning edit-rack" data-id="${data}" data-bs-toggle="tooltip" title="Edit Rack">
+                            <button class="btn btn-sm btn-secondary edit-rack" data-id="${data}" data-bs-toggle="tooltip" title="Edit Rack">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
                             <button class="btn btn-sm btn-danger delete-rack" data-id="${data}" data-bs-toggle="tooltip" title="Delete Rack">
@@ -451,7 +476,7 @@
 
                             $(win.document.body).prepend(
                                 '<h2 style="text-align: center; margin-bottom: 10px;">Rack List</h2>' +
-                                '<p style="text-align: center; margin-bottom: 20px; color: #666;">Generated on: ' + new Date().toLocaleDateString("en-GB") + '</p>' +
+                                '<p style="text-align: center; margin-bottom: 20px; color: #666;">Generated Date: ' + new Date().toLocaleDateString("en-GB") + '</p>' +
                                 '<hr style="margin-bottom: 20px;">'
                             );
 
@@ -510,7 +535,7 @@
                                     margin: [0, 0, 0, 10]
                                 },
                                 {
-                                    text: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                                    text: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
                                     alignment: 'center',
                                     fontSize: 10,
                                     color: '#666',
@@ -585,12 +610,33 @@
                         extend: 'excelHtml5',
                         text: '<i class="bi bi-file-earmark-excel text-success fs-5" data-bs-toggle="tooltip" title="Export Excel"></i>',
                         title: 'Rack List',
-                        message: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                        messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
                         exportOptions: {
                             columns: ':visible:not(:first-child):not(:last-child)',
                             rows: function (idx, data, node) {
                                 return selectedRackIds.has(data.RackId.toString());
                             }
+                        },
+                        customize: function (xlsx) {
+                            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            let serial = 1;
+
+                            $('row', sheet).each(function () {
+                                let rowIndex = parseInt($(this).attr('r'));
+
+                                if (rowIndex === 3) {
+                                    // Header row: Sr. No
+                                    $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>`);
+                                } else if (rowIndex > 3) {
+                                    // Data rows: Sr. No numbers
+                                    $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>${serial}</t></is></c>`);
+                                    serial++;
+                                }
+                            });
+
+                            // Keep title (row 1) and generated date (row 2) as-is
+                            $('row[r="1"] c', sheet).attr('s', '51'); // center & bold title
+                            $('row[r="2"] c', sheet).attr('s', '51'); // center & bold date
                         },
                         action: function (e, dt, button, config) {
                             if (selectedRackIds.size === 0) {
@@ -600,11 +646,12 @@
                             $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                         }
                     },
+
                     {
                         extend: 'csvHtml5',
                         text: '<i class="bi bi-filetype-csv text-success fs-5" data-bs-toggle="tooltip" title="Export CSV"></i>',
                         title: 'Rack List',
-                        message: 'Generated on: ' + new Date().toLocaleDateString("en-GB"),
+                        message: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
                         exportOptions: {
                             columns: ':visible:not(:first-child):not(:last-child)',
                             rows: function (idx, data, node) {
@@ -690,8 +737,8 @@
                 if (!dateRange) return true;
 
                 var minMax = dateRange.split(' to ');
-                var min = moment(minMax[0], 'YYYY-MM-DD');
-                var max = moment(minMax[1], 'YYYY-MM-DD');
+                var min = moment(minMax[0], 'DD/MM/YYYY');
+                var max = moment(minMax[1], 'DD/MM/YYYY');
 
                 // Added Date column index = 7 (0-based)
                 var date = moment(data[7], 'DD/MM/YYYY');
@@ -700,7 +747,7 @@
 
             // Apply filter on selection
             $('#rackDateRange').on('apply.daterangepicker', function (ev, picker) {
-                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' to ' + picker.endDate.format('YYYY-MM-DD'));
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' to ' + picker.endDate.format('DD/MM/YYYY'));
                 table.draw();
             });
 
@@ -844,48 +891,145 @@
             $('#editRackName').on('input', function () { clearError('editRackName', 'editRackNameError'); });
 
             //  Save Add Rack
-            $('#addRackForm').on('submit', function (e) {
-                e.preventDefault();
+            // ✅ Rack Form Validation Function
+function validateRackForm(formSelector) {
+    let isValid = true;
 
-                var rackName = $('#addRackName').val().trim();
-                var sectionCode = $('#addSectionId').val();
+    const rackName = $(formSelector + " #addRackName").val().trim();
+    const warehouse = $(formSelector + " #addWarehouseId").val();
+    const section = $(formSelector + " #addSectionId").val();
 
-                clearError('addRackName', 'addRackNameError');
+    if (!rackName) {
+        showFieldError("addRackName", "addRackNameError", "Rack Name is required.");
+        isValid = false;
+    }
+    if (!warehouse) {
+        showFieldError("addWarehouseId", "addRackWhNameError", "Please select a Warehouse.");
+        isValid = false;
+    }
+    if (!section) {
+        showFieldError("addSectionId", "addRackSectinError", "Please select a Section.");
+        isValid = false;
+    }
 
-                if (!rackName) {
-                    showError('addRackName', 'addRackNameError', 'Please enter rack name.');
-                    return;
+    return isValid;
+}
+
+// ✅ Common Error Helpers
+function showFieldError(inputId, errorId, message) {
+    if (inputId) {
+        $("#" + inputId).addClass("is-invalid");
+    }
+    $("#" + errorId).text(message).removeClass("d-none");
+}
+
+function clearFieldError(inputId, errorId) {
+    $("#" + inputId).removeClass("is-invalid");
+    $("#" + errorId).text("").addClass("d-none");
+}
+
+function clearAllErrors(formSelector) {
+    $(formSelector + " .form-control, " + formSelector + " .form-select").removeClass("is-invalid");
+    $(formSelector + " .text-danger").text("").addClass("d-none");
+}
+
+// ✅ Live Validation (clear error when corrected)
+$(document).on("input change", "#addRackName, #addWarehouseId, #addSectionId", function () {
+    const id = $(this).attr("id");
+
+    switch (id) {
+        case "addRackName":
+            if ($(this).val().trim()) clearFieldError("addRackName", "addRackNameError");
+            break;
+        case "addWarehouseId":
+            if ($(this).val()) clearFieldError("addWarehouseId", "addRackWhNameError");
+            break;
+        case "addSectionId":
+            if ($(this).val()) clearFieldError("addSectionId", "addRackSectinError");
+            break;
+    }
+});
+
+// ✅ Add Rack Form Submit
+//  Save Add Rack
+  $('#addRackForm').on('submit', function (e) {
+      e.preventDefault();
+
+      if (!validateRackForm("#addRackForm")) {
+          return; // stop submission if validation fails
+      }
+
+      var formData = {
+
+          RackCode: $('#addRackCode').val(),
+          RackName: $('#addRackName').val(),
+          WarehouseCode: $('#addWarehouseId').val(),
+          SectionCode: $('#addSectionId').val(),
+          Description: $('#addDescription').val()
+      };
+
+      $.ajax({
+          url: "/Inventory/SaveRackSK", // your server endpoint
+          type: "POST",
+          data: formData,
+          success: function (res) {
+              if (res.success) {
+                  $('#addRackModal').modal('hide');
+                  $('#rackTable').DataTable().ajax.reload();
+
+                  Swal.fire({
+                      title: "Success",
+                      text: "Rack saved successfully!",
+                      icon: "success",
+                      timer: 2000,
+                      showConfirmButton: false
+                  });
+              } else {
+                  // Show inline error if Rack already exists
+                  if (res.message && res.message.toLowerCase().includes("already exists")) {
+                      showFieldError("addRackName", "addRackNameError", res.message);
+                  } else {
+                      Swal.fire({
+                          title: "Error",
+                          text: res.message || "Something went wrong",
+                          icon: "error",
+                          timer: 2500,
+                          showConfirmButton: false
+                      });
+                  }
+              }
+          },
+          error: function () {
+              Swal.fire({
+                  title: "Error",
+                  text: "Server error while saving rack.",
+                  icon: "error",
+                  timer: 2500,
+                  showConfirmButton: false
+              });
+          }
+      });
+  });
+// Already
+
+            function handleAddRackInlineError(message) {
+                clearFieldError("addRackName", "addRackNameError");
+
+                const msg = (message || "").toLowerCase();
+
+                // ✅ match any similar text variation
+                if (msg.includes("exist") || msg.includes("duplicate") || msg.includes("rack")) {
+                    showFieldError("addRackName", "addRackNameError", message || "Rack Name already exists.");
+                    $("#addRackName").addClass("is-invalid"); // highlight red
+                } else {
+                    // ✅ fallback: show inline error instead of Swal
+                    showFieldError("addRackName", "addRackNameError", message || "Something went wrong while saving.");
+                    $("#addRackName").addClass("is-invalid");
                 }
+            }
 
-                if (!sectionCode) {
-                    Swal.fire('Validation Error', 'Please select section.', 'warning');
-                    return;
-                }
 
-                // AJAX call
-                var formData = $(this).serialize();
-                $.ajax({
-                    url: '/Inventory/SaveRackSK',
-                    type: 'POST',
-                    data: formData,
-                    success: function (res) {
-                        if (res.success) {
-                            $('#addRackModal').modal('hide');
-                            table.ajax.reload(null, false);
-                            Swal.fire({ title: 'Success', text: res.message, icon: 'success', timer: 2000, showConfirmButton: false });
-                        } else {
-                            if (res.message.toLowerCase().includes('already exists')) {
-                                showError('addRackName', 'addRackNameError', res.message);
-                            } else {
-                                Swal.fire('Error', res.message, 'error');
-                            }
-                        }
-                    },
-                    error: function () {
-                        Swal.fire('Error', 'Server error while saving rack.', 'error');
-                    }
-                });
-            });
+
 
             //  Edit Rack
             $('#editRackForm').on('submit', function (e) {
@@ -935,12 +1079,12 @@
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Yes, delete it!",
-                    cancelButtonText: "No, cancel!",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: " cancel",
                     reverseButtons: false,
                     customClass: {
-                        confirmButton: "btn btn-danger me-2",
-                        cancelButton: "btn btn-primary"
+                        confirmButton: "btn btn-primary me-2",
+                        cancelButton: "btn btn-danger"
                     },
                     buttonsStyling: false
                 }).then((result) => {
@@ -1082,6 +1226,6 @@
            // initRackTab();
         }
         });
-        
-    
+
+
 </script>
