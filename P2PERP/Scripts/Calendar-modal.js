@@ -97,7 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const modalTitle = document.querySelector('#eventModal .modal-title');
         modalTitle.textContent = "Purchase Requisition";
 
-        let isPending = (props.StatusName || "") === 'Pending';
+        let status = (props.StatusName || "").toLowerCase();
+        let isPending = status === "pending" || status === "close";
 
         // Build modal HTML
         let html = `

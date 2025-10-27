@@ -14,14 +14,25 @@
       data-skin="default" data-bs-theme="light"
       data-assets-path="~/Content/assets/">
 <head>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="~/Content/font-family-inter.css" />
+    <link rel="stylesheet" href="~/Content/assets/vendor/fonts/iconify-icons.css" />
 
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="~/Content/assets/vendor/libs/node-waves/node-waves.css" />
+    <link rel="stylesheet" href="~/Content/assets/vendor/libs/pickr/pickr-themes.css" />
+    <link rel="stylesheet" href="~/Content/assets/vendor/css/core.css" />
+    <link rel="stylesheet" href="~/Content/assets/css/demo.css" />
 
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="~/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
-
+    <!-- Custome CSS -->
     <link rel="stylesheet" href="~/Content/Site.css" />
 
     <!-- Vendors CSS -->
-
     <link rel="stylesheet" href="~/Content/dataTables.dataTables.min.css" />
     <link rel="stylesheet" href="~/Content/buttons.dataTables.min.css" />
     <link rel="stylesheet" href="~/Content/bootstrap-icons-1.11.3/package/font/bootstrap-icons.min.css">
@@ -33,8 +44,6 @@
     <!-- jQuery -->
     <script src="~/Scripts/jquery-3.7.1.min.js"></script>
     <script src="~/Scripts/jquery-ui.min.js"></script>
-
-
 
     <!-- DataTables & Export -->
     <script src="~/Scripts/dataTables.min.js"></script>
@@ -66,55 +75,13 @@
     <script src="~/Scripts/fullcalendar@6.1.19_index.global.min.js"></script>
     <script src="~/Scripts/bootstrap5@6.1.19_index.global.min.js"></script>
 
-
-
-
-
-
-
-
-
-
-
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&ampdisplay=swap" rel="stylesheet" />
-
-    <link rel="stylesheet" href="~/Content/assets/vendor/fonts/iconify-icons.css" />
-
-    <!-- Core CSS -->
-    <!-- build:css assets/vendor/css/theme.css -->
-
-    <link rel="stylesheet" href="~/Content/assets/vendor/libs/node-waves/node-waves.css" />
-
-
-
-
-
-
-    <link rel="stylesheet" href="~/Content/assets/vendor/libs/pickr/pickr-themes.css" />
-
-    <link rel="stylesheet" href="~/Content/assets/vendor/css/core.css" />
-    <link rel="stylesheet" href="~/Content/assets/css/demo.css" />
-
-
-    <!-- Vendors CSS -->
-
-    <link rel="stylesheet" href="~/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
-
-
     <!-- Page CSS -->
     <!-- Helpers -->
     <script src="~/Content/assets/vendor/js/helpers.js"></script>
-    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-    <!--? Template customizer: To hide customizer set displayCustomizer value false in config.js. -->
-    @*<script src="~/Content/assets/vendor/js/template-customizer.js"></script>*@
-
-    <!--? Config: Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file. -->
-
     <script src="~/Content/assets/js/config.js"></script>
+
+    <!-- Email Sending JS -->
+    <script src="~/Scripts/SendEmail.js"></script>
 
     <style>
         .toast-success {
@@ -138,28 +105,16 @@
         }
     </style>
 
-
 </head>
-
 <body>
-
-
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
-
 
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar  ">
         <div class="layout-container">
 
-
-
-
-
-
             <!-- Menu -->
-
             <aside id="layout-menu" class="layout-menu menu-vertical menu">
-
                 <div class="app-brand demo ">
                     <a href="index.html" class="app-brand-link gap-xl-0 gap-2">
                         <span class="app-brand-logo demo me-1">
@@ -188,8 +143,6 @@
 
                 <div class="menu-inner-shadow"></div>
 
-
-
                 <ul class="menu-inner py-1">
                     @if (role == "5") // Purchase Requisition User
                     {
@@ -197,7 +150,6 @@
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-layout-text-sidebar me-3 fs-5"></i>
                                 <div class="fw-semibold">Purchase Requisition</div>
-                                <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                             </a>
                             <ul class="menu-sub slide-transition">
                                 <li class="menu-item @(currentAction == "CreatePRADDItemPSM" ? "active" : "")">
@@ -242,7 +194,6 @@
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-speedometer me-3 fs-5"></i>
                                 <div class="fw-semibold">Manager Dashboard</div>
-                                <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                             </a>
                             <ul class="menu-sub slide-transition">
                                 <li class="menu-item @(ViewContext.RouteData.Values["action"].ToString() == "UserDashboardPRK" ? "active" : "")">
@@ -281,7 +232,6 @@
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-bar-chart-line me-3 fs-5"></i>
                                 <div class="fw-semibold">Reports</div>
-                                <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                             </a>
                             <ul class="menu-sub slide-transition">
                                 <li class="menu-item @(currentAction == "PurchaseRequestTableAT" ? "active" : "")">
@@ -312,7 +262,6 @@
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-cart4 me-3 fs-5"></i>
                                 <div class="fw-semibold">PO User Dashboard</div>
-                                <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                             </a>
                             <ul class="menu-sub slide-transition">
                                 <li class="menu-item @(currentAction == "SelectedQuotationListShowOK" ? "active" : "")">
@@ -346,7 +295,6 @@
                                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                                     <i class="menu-icon tf-icons bi bi-gear"></i>
                                     <div class="fw-semibold">Master Data</div>
-                                    <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                                 </a>
                                 <ul class="menu-sub">
                                     <li class="menu-item @(currentAction == "CategorySSG" ? "active" : "")">
@@ -371,7 +319,6 @@
                                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                                     <i class="menu-icon tf-icons bi bi-arrow-left-right"></i>
                                     <div class="fw-semibold">Transaction</div>
-                                    <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                                 </a>
                                 <ul class="menu-sub">
                                     <li class="menu-item @(currentAction == "ReceiveMaterialDRB" ? "active" : "")">
@@ -406,7 +353,6 @@
                                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                                     <i class="menu-icon tf-icons bi bi-bar-chart"></i>
                                     <div class="fw-semibold">Stock Planning</div>
-                                    <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                                 </a>
                                 <ul class="menu-sub">
                                     @if (role == "4")
@@ -467,7 +413,6 @@
                                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                                     <i class="menu-icon tf-icons bi bi-bar-chart-line"></i>
                                     <div class="fw-semibold">Reports</div>
-                                    <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                                 </a>
                                 <ul class="menu-sub">
                                     <li class="menu-item @(currentAction == "CurrentStockReportAMG" ? "active" : "")">
@@ -506,7 +451,6 @@
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-arrow-left-right me-3 fs-5"></i>
                                 <div class="fw-semibold">Transaction</div>
-                                <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                             </a>
                             <ul class="menu-sub slide-transition">
                                 <li class="menu-item @(currentAction == "GRNSSG" ? "active" : "")">
@@ -527,7 +471,6 @@
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-bar-chart-line"></i>
                                 <div class="fw-semibold">Reports</div>
-                                <i class="menu-arrow bi bi-chevron-down ms-auto transition-arrow"></i>
                             </a>
                             <ul class="menu-sub">
                                 <li class="menu-item @(currentAction == "ApprovedPOReportPSM" ? "active" : "")">
@@ -577,7 +520,6 @@
                     }
                 </ul>
 
-
             </aside>
 
             <div class="menu-mobile-toggler d-xl-none rounded-1">
@@ -590,27 +532,14 @@
             <!-- Layout container -->
             <div class="layout-page">
 
-
-
-
-
                 <!-- Navbar -->
-
                 <nav class="layout-navbar container-xxl navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme" id="layout-navbar">
-
-
-
-
-
                     <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0   d-xl-none ">
                         <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
                             <i class="icon-base ri ri-menu-line icon-md"></i>
                         </a>
                     </div>
-
-
                     <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
-
                         <!-- Search -->
                         <div class="navbar-nav align-items-center">
                             <div class="nav-item navbar-search-wrapper mb-0">
@@ -619,21 +548,10 @@
                                 </a>
                             </div>
                         </div>
-
                         <!-- /Search -->
-
-
-
-
-
                         <ul class="navbar-nav flex-row align-items-center ms-md-auto">
-
-
-
-
-
                             <!-- Style Switcher -->
-                            <li class="nav-item dropdown me-sm-2 me-xl-0">
+                            <li class="nav-item dropdown mt-2">
                                 <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill" id="nav-theme" href="javascript:void(0);" data-bs-toggle="dropdown">
                                     <i class="icon-base ri ri-sun-line icon-22px theme-icon-active"></i>
                                     <span class="d-none ms-2" id="nav-theme-text">Toggle theme</span>
@@ -666,22 +584,22 @@
                             </li>
                             <!-- /Email -->
                             <!-- Calendar -->
-                            <li class="nav-item me-3 me-xl-2">
-                                <a class="text-black btn btn-icon btn-light rounded-pill waves-effect position-relative calendar-icon" href="@Url.Action("Calender", currentController)">
-                                    <i class="bi bi-calendar-event"></i>
+                            <li class="nav-item me-3 me-xl-2 ms-3 ms-xl-2">
+                                <a class="text-black position-relative calendar-icon" href="@Url.Action("Calender", currentController)">
+                                    <i class="ri-calendar-event-line icon-md"></i>
                                 </a>
                             </li>
                             <!--/ Calendar -->
                             <!-- Notification -->
-                            <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
-                                <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-light rounded-pill waves-effect position-relative notification-btn"
+                            <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 mt-2 me-xl-2">
+                                <a class="nav-link dropdown-toggle hide-arrow waves-effect position-relative notification-btn"
                                    href="javascript:void(0);"
                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="position-relative">
                                         <i class="icon-base ri ri-notification-2-line icon-md"></i>
                                         <span id="notificationBadge"
                                               class="badge bg-danger rounded-pill position-absolute notification-badge"
-                                              style="top: -5px; right: -5px; min-width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center;">
+                                              style="top: -7px; right: -5px; min-width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center;">
                                             0
                                         </span>
                                     </span>
@@ -721,7 +639,7 @@
                                    href="javascript:void(0);"
                                    data-bs-toggle="dropdown">
                                     <div class="avatar avatar-online position-relative">
-                                        <img src="~/Content/images/avatars/1.png" alt="" id="layout-profile-photo" class="rounded-circle border border-3 border-white shadow-sm" />
+                                        <img src="~/Content/images/avatars/1.png" alt="" id="layout-profile-photo" class="rounded-circle shadow-sm" />
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end p-3 user-dropdown">
@@ -729,7 +647,7 @@
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 me-3">
                                                 <div class="avatar avatar-online">
-                                                    <img src="~/Content/images/avatars/1.png" id="layout-another-photo" alt="" class="w-px-40 h-auto rounded-circle" />
+                                                    <img src="~/Content/images/avatars/1.png" id="layout-another-photo" alt="" class="w-px-40 rounded-circle" height="50" />
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
@@ -779,12 +697,9 @@
                                 </ul>
                             </li>
                             <!--/ User -->
-
                         </ul>
                     </div>
-
                 </nav>
-
                 <!-- / Navbar -->
                 <!-- Content wrapper -->
                 <div class="content-wrapper">
@@ -802,22 +717,15 @@
                                 </div>
                                 <div class="d-none d-lg-inline-block">
                                     <a href="https://themeselection.com/item/category/admin-templates/" target="_blank" class="footer-link me-4">Admin Templates</a>
-
                                     <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
-
                                     <a href="https://themeselection.com/item/category/bootstrap-templates/" target="_blank" class="footer-link me-4">Bootstrap Dashboard</a>
                                     <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/" target="_blank" class="footer-link me-4">Documentation</a>
-
-
                                     <a href="https://themeselection.com/support/" target="_blank" class="footer-link d-none d-sm-inline-block">Support</a>
-
                                 </div>
                             </div>
                         </div>
                     </footer>
                     <!-- / Footer -->
-
-
                     <div class="content-backdrop fade"></div>
                 </div>
                 <!-- Content wrapper -->
@@ -825,11 +733,8 @@
             <!-- / Layout page -->
         </div>
 
-
-
         <!-- Overlay -->
         <div class="layout-overlay layout-menu-toggle"></div>
-
 
         <!-- Drag Target Area To SlideIn Menu On Small Screens -->
         <div class="drag-target"></div>
@@ -841,145 +746,149 @@
 
         <div class="loader"></div>
 
-
     </div>
 
     <script>
-
-
-        fetchNotifications();
-        setInterval(fetchNotifications, 5000);
-
-        async function fetchNotifications() {
-            try {
-                // Check session via AJAX or hidden value
-                const sessionValid = await $.ajax({
-                    url: '/Account/CheckSession',
-                    type: 'GET'
-                });
-
-                if (!sessionValid.success) {
-                    // Session expired → redirect to logout
+        $(document).ready(function () {
+            // Load User Info with loader
+            $.ajax({
+                url: '@Url.Action("GetUserInfo", "Account")',
+                method: 'GET',
+                success: function (res) {
+                    if (res.success) {
+                        UserInfo = res;
+                        var defaultPhoto = '@Url.Content("~/Content/images/avatars/1.png")';
+                        $('#layout-username').text(res.userName);
+                        $('#layout-department').text(res.department);
+                        $('#layout-role').text(res.role);
+                        $('#layout-profile-photo').attr('src', res.profilePhoto || defaultPhoto);
+                        $('#layout-another-photo').attr('src', res.profilePhoto || defaultPhoto);
+                    } else {
+                        window.location.href = '/Account/Logout';
+                    }
+                },
+                error: function () {
                     window.location.href = '/Account/Logout';
-                    return;
                 }
+            });
 
-                const notifications = await $.ajax({
-                    url: '/Account/GetNotifications',
-                    type: 'GET'
-                });
+            fetchNotifications();
+            setInterval(fetchNotifications, 5000);
 
-                const $list = $('#notificationItems');
-                $list.empty();
-                updateNotificationBadge(notifications.length);
-
-                if (notifications.length > 0) {
-                    notifications.forEach(n => {
-                        const item = `
-                             <li class="list-group-item list-group-item-action dropdown-notifications-item waves-effect d-flex justify-content-between align-items-center">
-                                 <span>${n.NotificationMessage}</span>
-                                 <button class="btn btn-sm btn-link text-decoration-none mark-read" data-id="${n.NotificationId}"><i class="bi bi-check2-all"></i></button>
-                             </li>`;
-                        $list.append(item);
+            async function fetchNotifications() {
+                try {
+                    // Check session via AJAX or hidden value
+                    const sessionValid = await $.ajax({
+                        url: '/Account/CheckSession',
+                        type: 'GET'
                     });
+
+                    if (!sessionValid.success) {
+                        // Session expired → redirect to logout
+                        window.location.href = '/Account/Logout';
+                        return;
+                    }
+
+                    const notifications = await $.ajax({
+                        url: '/Account/GetNotifications',
+                        type: 'GET'
+                    });
+
+                    const $list = $('#notificationItems');
+                    $list.empty();
+                    updateNotificationBadge(notifications.length);
+
+                    if (notifications.length > 0) {
+                        notifications.forEach(n => {
+                            const item = `
+                                <li class="list-group-item list-group-item-action dropdown-notifications-item waves-effect d-flex justify-content-between align-items-center">
+                                    <span>${n.NotificationMessage}</span>
+                                    <button class="btn btn-sm btn-link text-decoration-none mark-read" data-id="${n.NotificationId}"><i class="bi bi-check2-all"></i></button>
+                                </li>`;
+                            $list.append(item);
+                        });
+                    } else {
+                        $list.html('<li class="list-group-item text-center">No new notifications</li>');
+                    }
+                } catch (err) { console.error(err); }
+            }
+
+            function updateNotificationBadge(count) {
+                const badge = $("#notificationBadge");
+                const countBadge = $("#notificationCount");
+
+                if (count > 0) {
+                    badge.text(count).show();
+                    countBadge.text(count);
                 } else {
-                    $list.html('<li class="list-group-item text-center">No new notifications</li>');
+                    badge.hide();
+                    countBadge.text('0');
                 }
-            } catch (err) { console.error(err); }
-        }
-
-        function updateNotificationBadge(count) {
-            const badge = $("#notificationBadge");
-            const countBadge = $("#notificationCount");
-
-            if (count > 0) {
-                badge.text(count).show();
-                countBadge.text(count);
-            } else {
-                badge.hide();
-                countBadge.text('0');
-            }
-        }
-
-        $(document).on('click', '.mark-read', async function () {
-            const id = $(this).data('id');
-            showLoader('Updating notification...');
-            await $.post('/Account/MarkAsRead', { id: id });
-            hideLoader();
-            fetchNotifications();
-        });
-
-        $('#btnMarkAllRead').click(async function () {
-            showLoader('Marking all as read...');
-            await $.post('/Account/MarkAllAsRead');
-            hideLoader();
-            fetchNotifications();
-        });
-
-        $('#btnViewAllNotifications').click(async function () {
-            showLoader('Loading all notifications...');
-            $('#dynamicNotificationsModal').remove(); // remove existing
-
-            const modalHtml = `
-                 <div class="modal fade" id="dynamicNotificationsModal" tabindex="-1" aria-hidden="true">
-                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                         <div class="modal-content">
-                             <div class="modal-header bg-primary">
-                                 <h5 class="modal-title fw-semibold text-white text-center w-100 pb-4">All Notifications</h5>
-                                 <button type="button" class="btn btn-close btn-close-white position-absolute top-0 end-0 m-3 fs-4" data-bs-dismiss="modal" aria-label="Close"></button>
-                             </div>
-                             <div class="modal-body">
-                                 <ul id="allNotificationsList" class="list-group list-group-flush"></ul>
-                             </div>
-                             <div class="modal-footer">
-                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                 <button id="btnModalMarkAllRead" class="btn btn-primary">Mark all as read</button>
-                             </div>
-                         </div>
-                     </div>
-                 </div>`;
-
-            $('body').append(modalHtml);
-
-            // Load all notifications
-            const allNotifications = await $.ajax({ url: '/Account/GetAllNotifications', type: 'GET' });
-            const $allList = $('#allNotificationsList');
-            $allList.empty();
-
-            if (allNotifications.length > 0) {
-                allNotifications.forEach(n => {
-                    const readClass = n.IsRead ? 'text-muted' : 'fw-bold';
-                    const item = `<li class="list-group-item ${readClass}">
-                         <span>${n.NotificationMessage}</span>
-                     </li>`;
-                    $allList.append(item);
-                });
-            } else {
-                $allList.html('<li class="list-group-item text-center">No notifications found</li>');
             }
 
-            const modal = new bootstrap.Modal(document.getElementById('dynamicNotificationsModal'));
-            modal.show();
-            hideLoader();
+            $(document).on('click', '.mark-read', async function () {
+                const id = $(this).data('id');
+                await $.post('/Account/MarkAsRead', { id: id });
+                fetchNotifications();
+            });
 
-            // Modal Mark all as read
-            $('#btnModalMarkAllRead').click(async function () {
-                showLoader('Marking all as read...');
+            $('#btnMarkAllRead').click(async function () {
                 await $.post('/Account/MarkAllAsRead');
                 fetchNotifications();
-                modal.hide();
-                hideLoader();
+            });
+
+            $('#btnViewAllNotifications').click(async function () {
+                $('#dynamicNotificationsModal').remove(); // remove existing
+
+                const modalHtml = `
+                    <div class="modal fade" id="dynamicNotificationsModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary">
+                                    <h5 class="modal-title fw-semibold text-white text-center w-100 pb-4">All Notifications</h5>
+                                    <button type="button" class="btn btn-close btn-close-white position-absolute top-0 end-0 m-3 fs-4" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <ul id="allNotificationsList" class="list-group list-group-flush"></ul>
+                                </div>
+                                <div class="modal-footer">
+                                    <button id="btnModalMarkAllRead" class="btn btn-primary">Mark all as read</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                $('body').append(modalHtml);
+
+                // Load all notifications
+                const allNotifications = await $.ajax({ url: '/Account/GetAllNotifications', type: 'GET' });
+                const $allList = $('#allNotificationsList');
+                $allList.empty();
+
+                if (allNotifications.length > 0) {
+                    allNotifications.forEach(n => {
+                        const readClass = n.IsRead ? 'text-muted' : 'fw-bold';
+                        const item = `<li class="list-group-item ${readClass}">
+                            <span>${n.NotificationMessage}</span>
+                        </li>`;
+                        $allList.append(item);
+                    });
+                } else {
+                    $allList.html('<li class="list-group-item text-center">No notifications found</li>');
+                }
+
+                const modal = new bootstrap.Modal(document.getElementById('dynamicNotificationsModal'));
+                modal.show();
+
+                // Modal Mark all as read
+                $('#btnModalMarkAllRead').click(async function () {
+                    await $.post('/Account/MarkAllAsRead');
+                    fetchNotifications();
+                    modal.hide();
+                });
             });
         });
-
-
-
     </script>
-
-
-
-
-
 
     <script>
         // Modal overlay effect fix
@@ -1003,30 +912,12 @@
     <script src="~/Content/assets/vendor/libs/popper/popper.js"></script>
     <script src="~/Content/assets/vendor/js/bootstrap.js"></script>
     <script src="~/Content/assets/vendor/libs/node-waves/node-waves.js"></script>
-
-
-
     <script src="~/Content/assets/vendor/libs/pickr/pickr.js"></script>
-
-
-
     <script src="~/Content/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-
-
     <script src="~/Content/assets/vendor/libs/hammer/hammer.js"></script>
-
     @*<script src="~/Content/assets/vendor/libs/i18n/i18n.js"></script>*@
-
-
     <script src="~/Content/assets/vendor/js/menu.js"></script>
-    <!-- Main JS -->
-
     <script src="~/Content/assets/js/main.js"></script>
- 
-
-
-
 </body>
 </html>
-
 <!-- beautify ignore:end -->
