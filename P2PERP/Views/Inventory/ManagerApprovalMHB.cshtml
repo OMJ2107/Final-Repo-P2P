@@ -203,7 +203,7 @@
                     </div>
 
                     <!-- Date Range -->
-                    <div class="row mb-3 text-center">
+                    <div class="row mb-3 ">
                         <div class="col-md-6">
                             <label>From Date:<span class="required-star">*</span></label>
                             <input type="date" class="form-control" id="editFromDate" />
@@ -291,6 +291,9 @@
         opacity: 1 !important;
         background: none !important;
     }
+        button.dt-button.processing:after {
+            content: none !important;
+        }
 </style>
 
 <script>
