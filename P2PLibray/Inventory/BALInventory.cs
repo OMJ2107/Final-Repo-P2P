@@ -2477,7 +2477,7 @@ namespace P2PLibray.Inventory
                         ItemCode = row["ItemCode"].ToString(),
                         ReorderQuantity = row["ReorderQuantity"].ToString(),
                         minQuantity = row["minQuantity"].ToString(),
-                        MaxQuantity = Convert.ToInt32(row["MaxQuantity"]),
+                        //MaxQuantity = Convert.ToInt32(row["MaxQuantity"]),
                         CurrentItems = Convert.ToInt32(row["CurrentItems"]),
                         StockStatus = row["StockStatus"].ToString()
                     };
