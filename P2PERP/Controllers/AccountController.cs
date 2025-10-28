@@ -239,19 +239,18 @@ namespace P2PERP.Controllers
         /// - success = true, message = "Email sent successfully." if the email was sent successfully.
         /// - success = false, message = error details if sending failed.
         /// </returns>
+        [Route("Account/SendEmail")]
         [HttpPost]
-        public JsonResult SendEmail(Email email)
+        [ValidateInput(false)]
+        public JsonResult SendEmail()
         {
             try
             {
                 var request = HttpContext.Request;
 
-                // If email is null, manually parse it from the FormData field
-                if (email == null && request.Form["email"] != null)
-                {
-                    var emailJson = request.Form["email"];
-                    email = Newtonsoft.Json.JsonConvert.DeserializeObject<Email>(emailJson);
-                }
+                // Read and deserialize email JSON manually
+                var emailJson = request.Form["email"];
+                var email = JsonConvert.DeserializeObject<Email>(emailJson);
 
                 using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
                 {

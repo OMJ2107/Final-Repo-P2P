@@ -1,4 +1,4 @@
-﻿function sendEmailAjax(emailObj, swalOptions) {
+﻿function sendEmailAjax(formData, swalOptions) {
     // Step 1: Show loading Swal using the options provided
     Swal.fire({
         title: swalOptions.title || "Sending...",
@@ -10,15 +10,14 @@
     });
 
     // Step 2: Send email via AJAX
-    return $.ajax({
+    $.ajax({
         url: "/Account/SendEmail",
         type: "POST",
-        data: emailObj,
+        data: formData,
         processData: false,
         contentType: false,
         success: function (response) {
             Swal.close();
-
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
@@ -33,6 +32,7 @@
             }
         },
         error: function () {
+            debugger;
             Swal.close();
             Swal.fire("Error", "Something went wrong while sending the email.", "error");
         }
