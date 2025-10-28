@@ -1,83 +1,109 @@
 ﻿@model P2PLibray.Inventory.InventoryMHB
 
-<div class="card p-3 bg-light">
-    <form id="raiseOrderForm" method="post" action="/Inventory/SubmitPRMHB">
-        <div class="row mb-2">
-            <div class="col">
-                <label>Item Name</label>
-                <input type="text" class="form-control" value="@Model.ItemName" readonly />
+    <div class="card p-3 bg-light">
+        <form id="raiseOrderForm" method="post" action="/Inventory/SubmitPRMHB">
+            <div class="row mb-2">
+                <div class="col">
+                    <label>Item Name</label>
+                    <input type="text" class="form-control bg-light" value="@Model.ItemName" readonly />
+                </div>
+                <div class="col">
+                    <label>Item Code</label>
+                    <input type="text" name="ItemCode" class="form-control bg-light" value="@Model.ItemCode" readonly />
+                </div>
             </div>
-            <div class="col">
-                <label>Item Code</label>
-                <input type="text" name="ItemCode" class="form-control" value="@Model.ItemCode" readonly />
+
+            <div class="row mb-2">
+                <div class="col">
+                    <label>Quantity <span class="required-star">*</span></label>
+                    <input type="number" id="Quantity" name="Quantity" class="form-control"
+                           placeholder="Order Quantity upto @Model.ReorderQuantity"
+                           min="1"
+                           max="@Model.ReorderQuantity"
+                           required />
+                    <small class="text-danger d-none" id="qtyError"></small>
+                </div>
+                <div class="col">
+                    <label>UOM</label>
+                    <input type="text" class="form-control bg-light" value="@Model.UOMName" readonly />
+                </div>
             </div>
-        </div>
 
-        <div class="row mb-2">
-            <div class="col">
-                <label>Quantity *</label>
-                <input type="number" id="Quantity" name="Quantity" class="form-control"
-                       placeholder="Order Quantity upto @Model.ReorderQuantity"
-                       min="1"
-                       max="@Model.ReorderQuantity"
-                       required />
-                <small class="text-danger d-none" id="qtyError"></small>
+            <div class="row mb-2">
+                <div class="col">
+                    <label>Description</label>
+                    <textarea name="Description" class="form-control bg-light" readonly>@Model.Description</textarea>
+                </div>
+                <div class="col">
+                    <label for="RequiredDate">Required Date <span class="required-star">*</span></label>
+                    <input type="date" id="RequiredDate" name="RequiredDate"
+                           class="form-control" required
+                           min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                </div>
             </div>
-            <div class="col">
-                <label>UOM</label>
-                <input type="text" class="form-control" value="@Model.UOMName" readonly />
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">Submit for PR</button>
             </div>
-        </div>
+        </form>
+    </div>
 
-        <div class="row mb-2">
-            <div class="col">
-                <label>Description</label>
-                <textarea name="Description" class="form-control" readonly>@Model.Description</textarea>
-            </div>
-            <div class="col">
-                <label for="RequiredDate">Required Date *</label>
-                <input type="date" id="RequiredDate" name="RequiredDate"
-                       class="form-control" required
-                       min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-            </div>
-        </div>
+    <style>
+        .required-star {
+            color: red;
+            font-size: 1em;
+            font-weight: bold;
+            vertical-align: middle;
+            position: relative;
+            top: -4px;
+        }
 
-        <div class="text-end">
-            <button type="submit" class="btn btn-success">Submit for PR</button>
-        </div>
-    </form>
-</div>
+    </style>
+    @section Scripts {
+        <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const qtyInput = document.getElementById("Quantity");
+        const qtyError = document.getElementById("qtyError");
+        const form = document.getElementById("raiseOrderForm");
+        const qtyCol = qtyInput.closest(".col"); // parent div of input
+        const maxQty = parseFloat("@Model.ReorderQuantity");
 
-@section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const qtyInput = document.getElementById("Quantity");
-            const qtyError = document.getElementById("qtyError");
-            const form = document.getElementById("raiseOrderForm");
+        // 🧾 Form submit validation
+        form.addEventListener("submit", function (e) {
+            const qty = parseFloat(qtyInput.value);
 
-            const maxQty = parseFloat("@Model.ReorderQuantity");
-
-            form.addEventListener("submit", function (e) {
-                const qty = parseFloat(qtyInput.value);
-
-                if (isNaN(qty) || qty < 1 || qty > maxQty) {
-                    e.preventDefault();
-                    qtyError.textContent = `Quantity must be between 1 and ${maxQty}.`;
-                    qtyError.classList.remove("d-none");
-                    qtyInput.classList.add("is-invalid");
-                } else {
-                    qtyError.classList.add("d-none");
-                    qtyInput.classList.remove("is-invalid");
-                }
-            });
-
-            qtyInput.addEventListener("input", function () {
-                const qty = parseFloat(qtyInput.value);
-                if (qty >= 1 && qty <= maxQty) {
-                    qtyError.classList.add("d-none");
-                    qtyInput.classList.remove("is-invalid");
-                }
-            });
+            if (isNaN(qty) || qty < 1 || qty > maxQty) {
+                e.preventDefault();
+                showQtyError(`⚠️ Quantity must be between 1 and ${maxQty}.`);
+            } else {
+                hideQtyError();
+            }
         });
-    </script>
-}
+
+        // 🧠 Live typing validation
+        qtyInput.addEventListener("input", function () {
+            const qty = parseFloat(qtyInput.value);
+
+            if (!isNaN(qty) && qty >= 1 && qty <= maxQty) {
+                hideQtyError();
+            } else {
+                showQtyError(`⚠️ Quantity must be between 1 and ${maxQty}.`);
+            }
+        });
+
+        function showQtyError(msg) {
+            qtyError.textContent = msg;
+            qtyError.classList.remove("d-none");
+            qtyCol.classList.add("error-border");
+        }
+
+        function hideQtyError() {
+            qtyError.textContent = "";
+            qtyError.classList.add("d-none");
+            qtyCol.classList.remove("error-border");
+        }
+    });
+        </script>
+    }
+
+

@@ -1,4 +1,13 @@
-﻿<style>
+﻿
+
+@{
+    ViewBag.Title = "Quality Check Reports";
+}
+
+
+
+
+<style>
     body {
         background: #f8f9fa;
     }
@@ -129,10 +138,21 @@
         top: 50%;
         transform: translateY(-50%);
     }
+
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
 </style>
 
 <!-- ✅ Combined Charts Container -->
-<div class="col-12 d-flex">
+<div class="container m-3 col-12 d-flex">
     <div class="chart-card w-100">
 
         <!-- 🔹 Header with Date Picker -->
@@ -235,6 +255,7 @@
                     </div>
                 </div>
                 <!-- Centered Chart: Confirm vs Non-Confirm vs Pending -->
+                
                 <div class="text-center">
                     <h6 class="text-center mb-3">Quality Status Distribution</h6>
                     <div class="legend-container">
@@ -261,6 +282,7 @@
 </div>
 
 <!-- ✅ Tabs Section -->
+<div class="container m-4">
 <div class="tab-section">
     <ul class="nav nav-pills" id="stockTabs" role="tablist">
         <li class="nav-item" role="presentation">
@@ -275,6 +297,7 @@
         </li>
     </ul>
 </div>
+    </div>
 
 <div class="tab-content mt-3">
     <div class="tab-pane fade show active" id="current" role="tabpanel">
@@ -299,34 +322,34 @@
         let endDate = null;
         let currentModalTitle = "";
 
-        // ✅ UPDATED: Date Range Picker with DD-MM-YYYY format
+        //  UPDATED: Date Range Picker with DD-MM-YYYY format
         $('#qualityDateRange').daterangepicker({
             autoUpdateInput: false,
             alwaysShowCalendars: false,
             locale: {
                 cancelLabel: 'Clear',
-                format: 'DD-MM-YYYY',
+                format: 'DD/MM/YYYY',
                 applyLabel: 'Apply',
                 customRangeLabel: 'Custom Range'
             },
             ranges: {
                 'Today': [moment(), moment()],
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                
+
                 'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
                 'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
                 'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
             }
         }, function (start, end, label) {
             // This function is called when the date range is applied
-            console.log('New date range selected: ' + start.format('DD-MM-YYYY') + ' to ' + end.format('DD-MM-YYYY'));
+            console.log('New date range selected: ' + start.format('DD/MM/YYYY') + ' to ' + end.format('DD/MM/YYYY'));
 
             // Update the input field with the selected range
-            $('#qualityDateRange').val(start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY'));
+            $('#qualityDateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
 
             // Store the dates
-            startDate = start.format('YYYY-MM-DD');
-            endDate = end.format('YYYY-MM-DD');
+            startDate = start.format('YYYY/MM/DD');
+            endDate = end.format('YYYY/MM/DD');
 
             // Reload the chart with the new date range
             loadQualityChart(startDate, endDate);
@@ -351,9 +374,9 @@
 
         // Fixed color mapping for statuses
         const statusColorMap = {
-            'Confirmed': '#87CEEB',      // skyblue
-            'Non-Confirmed': '#00008B',  // darkblue
-            'Pending': '#FFA500'         // orange
+            'Confirmed': '#87CEEB',      
+            'Non-Confirmed': '#00008B',  
+            'Pending': '#FFA500'        
         };
 
         // Load Quality Chart - UPDATED WITH PROPER DATE FILTERING
@@ -592,8 +615,8 @@
                     $tbody.empty();
 
                     if (items.length > 0) {
-                        console.log(`✅ Loaded ${items.length} ${statusName} items`);
-                        
+                        console.log(` Loaded ${items.length} ${statusName} items`);
+
                         items.forEach((item, index) => {
                             let row = '';
                             if (colCount === 6) {
@@ -622,7 +645,7 @@
                             $tbody.append(row);
                         });
                     } else {
-                        console.log(`❌ No ${statusName} items found for selected date range`);
+                        console.log(` No ${statusName} items found for selected date range`);
                         $tbody.append(`<tr><td colspan="${colCount}" class="text-center text-muted">No ${statusName} records found for selected date range</td></tr>`);
                     }
 
@@ -677,17 +700,17 @@
 
             console.log(`Table: ${tableId}, Total: ${totalRows}, Checked: ${checkedRows}`);
 
-            // Clear indeterminate state first
+           
             $selectAll.prop('indeterminate', false);
 
             if (checkedRows === 0) {
-                // No rows selected
+             
                 $selectAll.prop('checked', false);
             } else if (checkedRows === totalRows) {
-                // All rows selected
+                
                 $selectAll.prop('checked', true);
             } else {
-                // Some rows selected - select all should be unchecked
+                
                 $selectAll.prop('checked', false);
             }
         }
@@ -721,6 +744,7 @@
         }
 
         // Common table buttons configuration
+
         function getTableButtons(title, tableId, columnCount) {
             return [
                 {
@@ -746,9 +770,20 @@
                         }
                     },
                     customize: function (win) {
-                        $(win.document.body).find('h1').css('text-align', 'center');
-                        $(win.document.body).find('h1').css('font-size', '18px');
-                        $(win.document.body).find('h1').css('margin-bottom', '20px');
+                        // Remove the default title
+                        $(win.document.body).find('h1').remove();
+
+                        // Create custom header with title and generated date
+                        $(win.document.body).prepend(
+                            '<div style="text-align:center; margin-bottom:30px;">' +
+                            '<h1 style="font-size:18px; margin-bottom:10px; font-weight:bold;">' + currentModalTitle + '</h1>' +
+                            '<div style="font-size:12px; color:#666;">Generated Date: ' + moment().format("DD/MM/YYYY ") + '</div>' +
+                            '</div>'
+                        );
+
+                        // Style the table
+                        $(win.document.body).find('table').css('font-size', '11px');
+                        $(win.document.body).find('table').css('width', '100%');
                     },
                     action: function (e, dt, button, config) {
                         const selected = $(`${tableId} input.row-select:checked`).length;
@@ -763,7 +798,9 @@
                     extend: 'pdf',
                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                     title: currentModalTitle,
-                    filename: currentModalTitle.replace(/\s+/g, '_'),
+                    filename: function () {
+                        return currentModalTitle.replace(/\s+/g, '_') + '_' + moment().format("DD-MM-YYYY");
+                    },
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -791,7 +828,7 @@
                         $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                     },
                     customize: function (doc) {
-                        doc.pageMargins = [40, 60, 40, 40];
+                        doc.pageMargins = [40, 80, 40, 40]; // Increased top margin for date
                         doc.styles.title = {
                             fontSize: 16,
                             bold: true,
@@ -799,12 +836,15 @@
                             margin: [0, 0, 0, 10]
                         };
 
+                        // Remove the default title and add custom title with date
+                        doc.content[0].text = currentModalTitle;
                         doc.content.splice(1, 0, {
-                            text: `Generated on: ${moment().format("DD-MM-YYYY")}`,
+                            text: 'Generated on: ' + moment().format("DD-MM-YYYY HH:mm"),
                             alignment: 'center',
-                            margin: [0, 0, 0, 10],
+                            margin: [0, 0, 0, 15],
                             fontSize: 10,
-                            italics: true
+                            italics: true,
+                            color: '#666666'
                         });
 
                         const table = doc.content.find(n => n.table);
@@ -848,7 +888,10 @@
                     extend: 'excel',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     title: currentModalTitle,
-                    filename: currentModalTitle.replace(/\s+/g, '_'),
+                    messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
+                    filename: function () {
+                        return currentModalTitle.replace(/\s+/g, '_') + '_' + moment().format("DD_MM_YYYY");
+                    },
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -867,6 +910,36 @@
                             }
                         }
                     },
+                    customize: function (xlsx) {
+                        let sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // Insert "Sr. No" column at start and make it bold
+                        let serial = 1;
+                        $('row', sheet).each(function () {
+                            let rowIndex = parseInt($(this).attr('r'));
+
+                            if (rowIndex === 1) {
+                                // Title row - center align and bold
+                                $(this).find('c').attr('s', '51');
+                            } else if (rowIndex === 2) {
+                                // Generated date row - center align and bold
+                                $(this).find('c').attr('s', '51');
+                            } else if (rowIndex === 3) {
+                                // Header row: Add Sr. No column
+                                $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>`);
+                                // Make all header cells bold and centered
+                                $(this).find('c').attr('s', '2');
+                            } else if (rowIndex > 3) {
+                                // Data rows: Add serial numbers
+                                $(this).find('c:first').before(`<c t="inlineStr"><is><t>${serial}</t></is></c>`);
+                                serial++;
+                            }
+                        });
+
+                        // Center align title and date rows
+                        $('row[r="1"] c', sheet).attr('s', '51');
+                        $('row[r="2"] c', sheet).attr('s', '51');
+                    },
                     action: function (e, dt, button, config) {
                         const selected = $(`${tableId} input.row-select:checked`).length;
                         if (selected === 0) {
@@ -880,7 +953,9 @@
                     extend: 'csv',
                     text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
                     title: currentModalTitle,
-                    filename: currentModalTitle.replace(/\s+/g, '_'),
+                    filename: function () {
+                        return currentModalTitle.replace(/\s+/g, '_') + '_' + moment().format("DD-MM-YYYY");
+                    },
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -909,6 +984,9 @@
                     }
                 }
             ];
+
+
+
         }
 
         //  Initialize all checkbox handlers on document ready
