@@ -50,6 +50,7 @@ namespace P2PERP.Controllers
         }
 
 
+        [Route("Quality/SendMail")]
         [HttpGet]
         public ActionResult SendMailHSB()
         {

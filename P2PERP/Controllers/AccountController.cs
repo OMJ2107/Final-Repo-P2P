@@ -239,45 +239,52 @@ namespace P2PERP.Controllers
         /// - success = true, message = "Email sent successfully." if the email was sent successfully.
         /// - success = false, message = error details if sending failed.
         /// </returns>
+        [Route("Account/SendEmail")]
         [HttpPost]
-        public JsonResult SendEmail(Email email)
+        [ValidateInput(false)]
+        public JsonResult SendEmail()
         {
             try
             {
-                var smtpClient = new System.Net.Mail.SmtpClient("smtp.gmail.com")
-                {
-                    Port = 587,
-                    Credentials = new System.Net.NetworkCredential(
-                        System.Web.Configuration.WebConfigurationManager.AppSettings["MainEmail"],
-                        System.Web.Configuration.WebConfigurationManager.AppSettings["AppPassword"]
-                    ),
-                    EnableSsl = true,
-                };
+                var request = HttpContext.Request;
 
-                var mail = new System.Net.Mail.MailMessage
-                {
-                    From = new System.Net.Mail.MailAddress(System.Web.Configuration.WebConfigurationManager.AppSettings["MainEmail"]),
-                    Subject = email.Subject,
-                    Body = email.Body,
-                    IsBodyHtml = email.IsBodyHtml
-                };
+                // Read and deserialize email JSON manually
+                var emailJson = request.Form["email"];
+                var email = JsonConvert.DeserializeObject<Email>(emailJson);
 
-                // Add recipients
-                email.ToEmails?.ForEach(x => mail.To.Add(x));
-                email.CcEmails?.ForEach(x => mail.CC.Add(x));
-                email.BccEmails?.ForEach(x => mail.Bcc.Add(x));
-
-                // Add attachments (if any)
-                if (email.AttachmentPaths != null)
+                using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
                 {
-                    foreach (var path in email.AttachmentPaths)
+                    smtpClient.Credentials = new NetworkCredential(
+                        WebConfigurationManager.AppSettings["MainEmail"],
+                        WebConfigurationManager.AppSettings["AppPassword"]
+                    );
+                    smtpClient.EnableSsl = true;
+
+                    using (var mail = new MailMessage())
                     {
-                        if (System.IO.File.Exists(path))
-                            mail.Attachments.Add(new System.Net.Mail.Attachment(path));
+                        mail.From = new MailAddress(WebConfigurationManager.AppSettings["MainEmail"]);
+                        mail.Subject = email.Subject;
+                        mail.Body = email.Body;
+                        mail.IsBodyHtml = email.IsBodyHtml;
+
+                        email.ToEmails?.ForEach(x => mail.To.Add(x));
+                        email.CcEmails?.ForEach(x => mail.CC.Add(x));
+                        email.BccEmails?.ForEach(x => mail.Bcc.Add(x));
+
+                        // Attach uploaded files directly (no saving)
+                        for (int i = 0; i < request.Files.Count; i++)
+                        {
+                            var file = request.Files[i];
+                            if (file != null && file.ContentLength > 0)
+                            {
+                                var attachment = new Attachment(file.InputStream, file.FileName);
+                                mail.Attachments.Add(attachment);
+                            }
+                        }
+
+                        smtpClient.Send(mail);
                     }
                 }
-
-                smtpClient.Send(mail);
 
                 return Json(new { success = true, message = "Email sent successfully." });
             }

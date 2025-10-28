@@ -64,6 +64,7 @@ namespace P2PERP.Controllers
         }
 
 
+        [Route("Inventory/SendMail")]
         [HttpGet]
         public ActionResult SendMailHSB()
         {
