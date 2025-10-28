@@ -444,9 +444,9 @@
                 text: '<i class="bi bi-printer-fill text-dark fs-5" data-bs-toggle="tooltip" title="Print"></i>',
                 title: '',
                 exportOptions: baseConfig,
-                customize: function(win) {
+                customize: function (win) {
                     let serialNumber = 1;
-                    $(win.document.body).find('table tbody tr').each(function() {
+                    $(win.document.body).find('table tbody tr').each(function () {
                         $(this).find('td:first').text(serialNumber++);
                     });
 
@@ -462,6 +462,13 @@
 
                     $(win.document.body).find('th')
                         .css('background-color', 'black').css('color', 'white').css('font-weight', 'bold');
+                },
+                action: function (e, dt, button, config) {
+                    if (selectedSectionIds.size === 0) {
+                        toastr.warning("Please select at least one section before printing.", "No Selection");
+                        return;
+                    }
+                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
                 }
             };
         }
@@ -472,7 +479,7 @@
                 text: '<i class="bi bi-file-earmark-pdf text-danger fs-5" data-bs-toggle="tooltip" title="Export PDF"></i>',
                 title: '',
                 exportOptions: baseConfig,
-                customize: function(doc) {
+                customize: function (doc) {
                     doc.content = [];
                     doc.content.push(
                         { text: 'SECTION LIST', style: 'header', alignment: 'center', margin: [0, 0, 0, 10] },
@@ -480,7 +487,7 @@
                     );
 
                     let selectedRows = [];
-                    table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                    table.rows().every(function (rowIdx, tableLoop, rowLoop) {
                         let rowData = this.data();
                         if (selectedSectionIds.has(rowData.SectionId)) {
                             selectedRows.push(rowData);
@@ -508,11 +515,17 @@
                     });
 
                     doc.content.push({
-                        table: { widths: ['10%', '20%', '25%', '25%', '20%'], body: tableData },
+                        table: {
+                            widths: ['15%', '20%', '25%', '25%', '15%'],
+                            body: tableData
+                        },
                         layout: {
-                            hLineWidth: (i, node) => 1, vLineWidth: (i, node) => 1,
-                            hLineColor: (i, node) => '#000000', vLineColor: (i, node) => '#000000',
-                            paddingTop: (i, node) => 5, paddingBottom: (i, node) => 5
+                            hLineWidth: (i, node) => 1,
+                            vLineWidth: (i, node) => 1,
+                            hLineColor: (i, node) => '#000000',
+                            vLineColor: (i, node) => '#000000',
+                            paddingTop: (i, node) => 5,
+                            paddingBottom: (i, node) => 5
                         }
                     });
 
@@ -524,6 +537,13 @@
                     };
 
                     doc.defaultStyle = { fontSize: 9, alignment: 'center' };
+                },
+                action: function (e, dt, button, config) {
+                    if (selectedSectionIds.size === 0) {
+                        toastr.warning("Please select at least one section before exporting.", "No Selection");
+                        return;
+                    }
+                    $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                 }
             };
         }
@@ -535,11 +555,11 @@
                 title: 'Section List',
                 messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
                 exportOptions: baseConfig,
-                customize: function(xlsx) {
+                customize: function (xlsx) {
                     const sheet = xlsx.xl.worksheets['sheet1.xml'];
                     let serial = 1;
 
-                    $('row', sheet).each(function() {
+                    $('row', sheet).each(function () {
                         const rowIndex = parseInt($(this).attr('r'));
                         if (rowIndex === 3) {
                             $(this).find('c:first').before('<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>');
@@ -550,6 +570,13 @@
                     });
 
                     $('row[r="1"] c, row[r="2"] c', sheet).attr('s', '51');
+                },
+                action: function (e, dt, button, config) {
+                    if (selectedSectionIds.size === 0) {
+                        toastr.warning("Please select at least one section before exporting Excel.", "No Selection");
+                        return;
+                    }
+                    $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                 }
             };
         }
@@ -558,9 +585,41 @@
             return {
                 extend: 'csvHtml5',
                 text: '<i class="bi bi-filetype-csv text-success fs-5" data-bs-toggle="tooltip" title="Export CSV"></i>',
+                filename: 'Section List',
                 title: 'Section List',
                 message: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
-                exportOptions: baseConfig
+                exportOptions: {
+                    columns: ':visible:not(:first-child):not(:nth-child(2)):not(:last-child)',
+                    rows: function (idx, data, node) {
+                        return selectedSectionIds.has(data.SectionId);
+                    }
+                },
+                customize: function (csv) {
+                    // Add serial numbers starting from 1
+                    let lines = csv.split('\n');
+                    let newCsv = '';
+
+                    // Add header with "Sr No"
+                    if (lines.length > 0) {
+                        newCsv = '"Sr No",' + lines[0] + '\n';
+                    }
+
+                    // Add data rows with serial numbers
+                    for (let i = 1; i < lines.length; i++) {
+                        if (lines[i].trim()) {
+                            newCsv += '"' + i + '",' + lines[i] + '\n';
+                        }
+                    }
+
+                    return newCsv;
+                },
+                action: function (e, dt, button, config) {
+                    if (selectedSectionIds.size === 0) {
+                        toastr.warning("Please select at least one section before exporting CSV.", "No Selection");
+                        return;
+                    }
+                    $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                }
             };
         }
 
