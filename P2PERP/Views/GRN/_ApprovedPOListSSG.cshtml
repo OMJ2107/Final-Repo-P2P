@@ -74,7 +74,7 @@ toastr.options = {
     timeOut: "3000"
 };
 
-function showExportWarning(msg="Please select at least one row before exporting.") { toastr.warning(msg,"Warning"); }
+function showExportWarning(msg="Please select at least one row before exporting.") { toastr.warning(msg); }
 function showExportSuccess(msg="Export completed.") { toastr.success(msg,"Success"); }
 
 $(document).ready(function () {
