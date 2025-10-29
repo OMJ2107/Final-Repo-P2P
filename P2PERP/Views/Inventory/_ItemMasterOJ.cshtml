@@ -331,7 +331,6 @@
                                                 <th>Sr.No</th>
                                                 <th>Quality Parameters</th>
                                                 <th>Parameters</th>
-                                                @*<th>Parameters</th>*@
                                                 <th>UOM</th>
                                                 <th>Action</th>
                                             </tr>
@@ -397,7 +396,7 @@
 
                 <!-- 🔹 Table -->
                 <div id="recordList">
-                    <table id="table" class="display table table-striped table-bordered">
+                    <table id="table" class="display table table-striped table-bordered tblrl">
                         <thead class="table-dark">
                             <tr>
                                 <th>Select Item</th>
@@ -414,7 +413,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="table"></tbody>
+                        <tbody id="table" ></tbody>
                     </table>
                 </div>
 
@@ -765,7 +764,7 @@
                             {
                                 extend: 'excelHtml5',
                                 text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
-                                title: " ",
+                                title: 'Item Master List',
                                 messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY'),
 
                                 action: function (e, dt, button, config) {
@@ -780,97 +779,53 @@
                                     rows: function (idx, data, node) {
                                         return $(node).find('.row-checkbox').prop('checked');
                                     },
-                                    columns: ':visible:not(:first-child):not(:last-child)'
-                                },
-                                customize: function (xlsx) {
-                                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                                    var $sheet = $(sheet);
-                                    var $sheetData = $sheet.find('sheetData');
 
-                                    // 🔹 Get current date
-                                    var now = new Date();
-                                    var day = String(now.getDate()).padStart(2, '0');
-                                    var month = String(now.getMonth() + 1).padStart(2, '0');
-                                    var year = now.getFullYear();
-                                    var formattedDate = `${day}/${month}/${year}`;
+                                    columns: ':visible:not(:first-child):not(:last-child):not(:nth-last-child(2))',
 
-                                    // 🔹 Store all existing rows first
-                                    var existingRows = [];
-                                    $sheetData.find('row').each(function () {
-                                        existingRows.push({
-                                            $row: $(this),
-                                            oldNum: parseInt($(this).attr('r'), 10)
-                                        });
-                                    });
+                                    // 🩵 Fix #1: remove HTML  |  Fix #2: renumber serials
+                                    format: {
+                                        body: function (data, row, column, node) {
+                                            // --- remove any HTML tags safely ---
+                                            var text = $('<div>').html(data).text();
 
-                                    // 🔹 Clear and rebuild sheet data
-                                    $sheetData.empty();
-
-                                    // 🔹 Add Title row
-                                    var titleRow = '<row r="1"><c t="inlineStr" r="A1"><is><t>Inventory List</t></is></c></row>';
-                                    $sheetData.append(titleRow);
-
-                                    // 🔹 Add Date row  
-                                    var dateRow = '<row r="2"><c t="inlineStr" r="A2"><is><t>Generated Date: ' + formattedDate + '</t></is></c></row>';
-                                    $sheetData.append(dateRow);
-
-                                    // 🔹 Add existing rows with new numbers
-                                    var serial = 1;
-                                    existingRows.forEach(function (item, index) {
-                                        var $row = item.$row;
-                                        var newRowNum = index + 3; // Start from row 3
-
-                                        $row.attr('r', newRowNum);
-                                        $row.find('c').each(function () {
-                                            var $c = $(this);
-                                            var col = $c.attr('r').replace(/[0-9]/g, '');
-                                            $c.attr('r', col + newRowNum);
-
-                                            // Update serial number for data rows
-                                            if (newRowNum >= 4 && col === 'A') {
-                                                $c.attr('t', 'n');
-                                                var $v = $c.find('v');
-                                                if ($v.length) {
-                                                    $v.text(serial);
-                                                } else {
-                                                    $c.append('<v>' + serial + '</v>');
-                                                }
+                                            // --- detect and generate serial number column (if this is Sr.No column) ---
+                                            // Adjust column index to match your Sr.No column (0-based after exclusions)
+                                            if (column === 0) {
+                                                // We'll fill this later in customize()
+                                                return text || ''; // keep cell but overwrite later
                                             }
-                                        });
 
-                                        $sheetData.append($row);
+                                            return text;
+                                        }
+                                    }
+                                },
 
-                                        // Increment serial for data rows only
-                                        if (newRowNum >= 4) {
-                                            serial++;
+                                customize: function (xlsx) {
+                                    const sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                                    // center the Generated Date row
+                                    $('row c[r^="A2"]', sheet).attr('s', '51');
+
+                                    // 🩵 Fix #2 continued: renumber serials 1→N after export
+                                    let rowIndex = 0;
+                                    $('sheetData row', sheet).each(function () {
+                                        const r = parseInt($(this).attr('r'), 10);
+
+                                        // skip title + date + header rows (usually 1,2,3)
+                                        if (r > 3) {
+                                            const firstCell = $(this).find('c').first();
+                                            if (firstCell.length) {
+                                                firstCell.attr('t', 'n'); // numeric
+                                                firstCell.find('v').remove();
+                                                firstCell.append(`<v>${++rowIndex}</v>`);
+                                            }
                                         }
                                     });
-
-                                    // 🔹 Merge cells for title and date
-                                    var $mergeCells = $sheet.find('mergeCells');
-                                    if ($mergeCells.length === 0) {
-                                        $sheetData.after('<mergeCells count="2"><mergeCell ref="A1:H1"/><mergeCell ref="A2:H2"/></mergeCells>');
-                                    } else {
-                                        var count = parseInt($mergeCells.attr('count') || '0', 10);
-                                        $mergeCells.attr('count', count + 2);
-                                        $mergeCells.append('<mergeCell ref="A1:H1"/><mergeCell ref="A2:H2"/>');
-                                    }
-
-                                    // 🔹 Center-align title and date
-                                    var stylesXml = xlsx.xl['styles.xml'];
-                                    var $styles = $(stylesXml);
-                                    var $cellXfs = $styles.find('cellXfs');
-                                    var xfXml = '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">' +
-                                        '<alignment horizontal="center" vertical="center"/>' +
-                                        '</xf>';
-                                    $cellXfs.append(xfXml);
-                                    var centerStyleIndex = $cellXfs.children().length - 1;
-
-                                    // Apply center style
-                                    $sheet.find('c[r="A1"]').attr('s', centerStyleIndex);
-                                    $sheet.find('c[r="A2"]').attr('s', centerStyleIndex);
                                 }
                             },
+
+
+
 
 
                             {
@@ -1099,7 +1054,7 @@
 
             $("#itemCode").prop("disabled", false);
             $("#plancode").prop("readonly", false);
-            $("#hsnCode").prop("readonly", false);
+            $("#hsnCode").prop("disabled", false);
 
             // Reset sections visibility
             $('#inspectionfrm').hide();
@@ -1277,7 +1232,9 @@
 
         $("#createitem").on("click", function () {
 
-            $("#itemName , #description , #itemMake , #hsnCode ,#itemCategory ,#uom ").prop("disabled", false);
+            $("#itemName , #description , #itemMake , #itemCategory ,#uom ").prop("disabled", false);
+
+            $("#hsnCode").prop("disabled", true);
 
             // Overlay behavior
             $('#itemModal').off('show.bs.modal').on('show.bs.modal', function () {
@@ -1372,6 +1329,15 @@
                 e.preventDefault();
             }
         });
+
+        $('#qua').on('input', function () {
+            // Remove any character that is not a letter, number, or space
+            let cleanValue = $(this).val().replace(/[^a-zA-Z0-9\s]/g, '');
+            if ($(this).val() !== cleanValue) {
+                $(this).val(cleanValue);
+            }
+        });
+
 
         // ✅ Minimum Quantity Validation
         $('#minQuantity').on('input', function () {
@@ -1476,22 +1442,62 @@
 
             let isValid = true;
 
-            // Loop through each field and check value
-            requiredFields.forEach(function (selector) {
-                let field = $(selector);
-                let value = field.val().trim();
+            $('.text-danger').hide();
+            $('.form-control, .form-select').removeClass('is-invalid');
 
-                if (value === '') {
-                    field.addClass('is-invalid'); // Red border
+            // Validation rules for each required field
+            const fields = [
+                { id: '#itemName', message: 'Please enter the item name.', error: '#itemError' },
+                { id: '#costPerUnit', message: 'Please enter the cost per unit.', error: '#costError' },
+                { id: '#minQuantity', message: 'Please enter the minimum quantity.', error: '#minError' },
+                { id: '#itemCategory', message: 'Please select an item category.' },
+                { id: '#hsnCode', message: 'Please enter the HSN code.' },
+                { id: '#reorderQuantity', message: 'Please enter the reorder quantity.', error: '#reorderError' },
+                { id: '#description', message: 'Please enter a description.' },
+                { id: '#itemStatus', message: 'Please select an item status.' },
+                { id: '#itemMake', message: 'Please select an item make.' },
+                { id: '#uom', message: 'Please select the UOM.' },
+                { id: '#ExpiryDays', message: 'Please enter expiry days.', error: '#expiryError' },
+                { id: '#qualityCheck', message: 'Please select if quality check is required.' }
+            ];
+
+            // Loop through all fields
+            fields.forEach(f => {
+                let field = $(f.id);
+                let value = field.val()?.trim();
+
+                if (!value) {
                     isValid = false;
+                    field.addClass('is-invalid');
+
+                    if (f.error) {
+                        $(f.error).text(f.message).show(); // Show specific message under input
+                    } else {
+                        // For dropdowns or fields without <small> error placeholders
+                        if (field.next('.text-danger').length === 0) {
+                            field.after(`<small class="text-danger">${f.message}</small>`);
+                        } else {
+                            field.next('.text-danger').text(f.message).show();
+                        }
+                    }
                 } else {
-                    field.removeClass('is-invalid'); // Remove red border if filled
+                    field.removeClass('is-invalid');
+                    if (f.error) $(f.error).hide();
+                    else field.next('.text-danger').hide();
                 }
+
+                $('input, select, textarea').on('input change', function () {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.text-danger').hide();
+                });
+
             });
 
             if (!isValid) {
-                return; // Stops the AJAX call
+                return; // Stop form submission if invalid
             }
+
+           
 
            
 
@@ -1819,6 +1825,43 @@
     //adding parameters to the list
     $("#addpara").on("click", function (e) {
         e.preventDefault();
+
+        const fields = [
+            { id: '#plancode', message: 'Please enter the Plan Code.' },
+            { id: '#itemCode', message: 'Please enter the Item Code.' },
+            { id: '#inspetype', message: 'Please select the Inspection Type.' },
+            { id: '#quantiti', message: 'Please select the Quantity Parameter.' },
+            { id: '#quality', message: 'Please select the Quality Parameter.' },
+            { id: '#qua', message: 'Please enter the Quality value.' },
+            { id: '#plantype', message: 'Please select the Plan Type.' },
+            { id: '#pdescription', message: 'Please enter the Plan Description.' },
+            { id: '#uompara', message: 'Please select the Unit of Measure (UOM).' }
+        ];
+
+        let isValid = true;
+
+        // 🔹 Clear previous errors
+        $('.error-text').remove();
+        fields.forEach(f => $(f.id).removeClass('is-invalid'));
+
+        $('input, select, textarea').on('input change', function () {
+            $(this).removeClass('is-invalid');
+            $(this).next('.error-text').remove();
+        });
+
+
+        // 🔹 Validate fields one by one
+        fields.forEach(f => {
+            const val = $(f.id).val()?.trim() || '';
+            if (val === '') {
+                $(f.id).addClass('is-invalid');
+                $(f.id).after(`<small class="error-text text-danger">${f.message}</small>`);
+                isValid = false;
+            }
+        });
+
+        // ❌ Stop here if any invalid
+        if (!isValid) return;
 
         var paramData = {
             PlanCode: $("#plancode").val(),
