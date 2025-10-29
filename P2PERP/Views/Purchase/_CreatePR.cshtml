@@ -16,16 +16,16 @@
 
             <!-- Industry Type -->
             <div class="col-md-4">
-                <label for="IndustryType" class="form-label">Industry Type: <span class="text-danger">*</span></label>
-                <select id="IndustryType" class="form-control IndustryType">
-                    <option value="">Select Industry Type</option>
+                <label for="IndustryType" class="form-label">Category Type: <span class="text-danger">*</span></label>
+                <select id="IndustryType" class="form-select IndustryType">
+                    <option value="">Select Category Type</option>
                 </select>
             </div>
 
             <!-- Item Name -->
             <div class="col-md-4">
                 <label for="ItemName" class="form-label">Item Name: <span class="text-danger">*</span></label>
-                <select id="ItemName" class="form-control ItemName">
+                <select id="ItemName" class="form-select ItemName">
                     <option value="">Select Item</option>
                 </select>
             </div>
@@ -38,7 +38,7 @@
 
             <!-- Description -->
             <div class="col-md-4">
-                <label for="Description" class="form-label">Description:</label>
+                <label for="Description" class="form-label">Item Description:</label>
                 <textarea id="Description" class="form-control Description" rows="2" readonly></textarea>
             </div>
 
@@ -63,7 +63,7 @@
             <!-- Priority -->
             <div class="col-md-4">
                 <label for="priority" class="form-label">Priority Name: <span class="text-danger">*</span></label>
-                <select id="priority" class="form-control priority">
+                <select id="priority" class="form-select priority">
                     <option value="">Select Priority</option>
                 </select>
             </div>
@@ -135,7 +135,7 @@
         $.getJSON('/Purchase/GetIndustryTypeSP', function (data)
         {
             var ddl = $('#IndustryType');
-            ddl.empty().append('<option value="">-- Select Industry Type --</option>');
+            ddl.empty().append('<option value="">-- Select Category Type --</option>');
             $.each(data, function (i, item)
             {
                 ddl.append($('<option>').val(item.Value).text(item.Text));
@@ -162,7 +162,7 @@
                 success: function (res)
                 {
                     var select = $(".ItemName");
-                    select.empty().append('<option value="">Select Item</option>');
+                    select.empty().append('<option value="">-- Select Item --</option>');
                     $.each(res.data, function (i, item)
                     {
                         select.append($('<option/>')
@@ -179,14 +179,54 @@
         loadItems();
 
         // ---------- On Change Events ----------
-        $('#IndustryType').change(function ()
-        {
+        $('#IndustryType').change(function () {
             var categoryId = $(this).val();
+
+
+            if ($("#ItemTable tbody tr").length > 0) {
+
+
+                $(this).val($(this).data("previous"));
+
+
+                $('#industryAlert').remove();
+
+
+                $(this).addClass('is-invalid');
+
+                $(this).after(`
+            <div id="industryAlert" class="alert alert-danger mt-2 py-2" role="alert">
+                 Please remove all added items before changing Category Type!
+            </div>
+        `);
+
+                setTimeout(function () {
+                    $('#industryAlert').fadeOut('slow', function () {
+                        $(this).remove();
+                    });
+                    $('#IndustryType').removeClass('is-invalid');
+                }, 3000);
+
+                return;
+            }
+
+            
+            $(this).removeClass('is-invalid');
+            $('#industryAlert').remove();
+
+
+            $(this).data("previous", categoryId);
+
+
             if (categoryId) {
                 loadItems(categoryId);
-                //$(this).prop('disabled', true);
+            } else {
+                $(".ItemName").empty().append('<option value="">Select Item</option>');
             }
         });
+
+
+
 
         $(".ItemName").on("change", function ()
         {
@@ -379,17 +419,17 @@
             $('#ToDate').val(minDate.toISOString().split('T')[0]);
 
             // Display in DD/MM/YYYY
-            const day = String(minDate.getDate()).padStart(2, '0');
-            const month = String(minDate.getMonth() + 1).padStart(2, '0');
-            const year = minDate.getFullYear();
-            $('#ToDateDisplay').text(`Selected Date: ${day}/${month}/${year}`);
+            //const day = String(minDate.getDate()).padStart(2, '0');
+            //const month = String(minDate.getMonth() + 1).padStart(2, '0');
+            //const year = minDate.getFullYear();
+            //$('#ToDateDisplay').text(`Selected Date: ${day}/${month}/${year}`);
         });
 
         // Show selected date in DD/MM/YYYY
-        $('#ToDate').on('change', function () {
-            const [y, m, d] = this.value.split('-');
-            $('#ToDateDisplay').text(`Selected Date: ${d}/${m}/${y}`);
-        });
+        //$('#ToDate').on('change', function () {
+        //    const [y, m, d] = this.value.split('-');
+        //    $('#ToDateDisplay').text(`Selected Date: ${d}/${m}/${y}`);
+        //});
 
 
         // ---------- Submit Form ----------
