@@ -521,9 +521,9 @@
                         // 📝 Populate Header Details
                         // ------------------------------
                         $("#QuotationNo").val(header.QuotationID);
-                        $("#QuotationDate").val(header.QuotationDateString);
+                      //  $("#QuotationDate").val(header.QuotationDateString);
                         $("#ApprovedBy").val(header.ApprovedBy);
-                        $("#ApprovedDate").val(header.OriginalApprovedDate);
+                       // $("#ApprovedDate").val(header.OriginalApprovedDate);
                         $("#VendorName").val(header.VendorName);
                         $("#CompanyName").val(header.CompanyName);
                         $("#CompanyAddress").val(header.CompanyAddress);
@@ -533,7 +533,21 @@
                         $("#IFSCcode").val(header.IFSCCode);
                         $("#SwiftCode").val(header.SwiftCode);
                         $("#DeliveryAddress").val(header.DeliveryAddress);
-                        $("#transportationCharges").text(header.ShippingCharges);
+                         $("#transportationCharges").text(header.ShippingCharges);
+
+
+                         if (header.QuotationDateString) {
+                             console.log(header.QuotationDateString);
+                             $("#QuotationDate").val(moment(header.QuotationDateString, "YYYY-MM-DD").format("DD/MM/YYYY"));
+                         }
+
+                         //// Convert QuotationDateString to dd/mm/yyyy
+                         if (header.OriginalApprovedDate) {
+                             $("#ApprovedDate").val(moment(header.OriginalApprovedDate, "YYYY-MM-DD").format("DD/MM/YYYY"));
+                         }
+                         //if (row.VendorDeliveryDateString) {
+                         //    $("#vendordeliverydate").val(moment(row.VendorDeliveryDateString, ["YYYY-MM-DD", "YYYY-MM-DDTHH:mm:ss"]).format("DD/MM/YYYY"));
+                         //}
 
                         // ------------------------------
                         // 👨‍💼 Accountant Dropdown
@@ -646,9 +660,16 @@
                     // 📝 Populate Header Details
                     // ------------------------------
                     $("#QuotationNo").val(header.QuotationID);
-                    $("#QuotationDate").val(header.QuotationDateString);
+                    // $("#QuotationDate").val(header.QuotationDateString);
+                    if (header.QuotationDateString) {
+                        console.log(header.QuotationDateString);
+                        $("#QuotationDate").val(moment(header.QuotationDateString, "YYYY-MM-DD").format("DD/MM/YYYY"));
+                    }
                     $("#ApprovedBy").val(header.ApprovedBy);
-                    $("#ApprovedDate").val(header.OriginalApprovedDate);
+                    // $("#ApprovedDate").val(header.OriginalApprovedDate);
+                    if (header.OriginalApprovedDate) {
+                        $("#ApprovedDate").val(moment(header.OriginalApprovedDate, "YYYY-MM-DD").format("DD/MM/YYYY"));
+                    }
                     $("#VendorName").val(header.VendorName);
                     $("#CompanyName").val(header.CompanyName);
                     $("#CompanyAddress").val(header.CompanyAddress);
