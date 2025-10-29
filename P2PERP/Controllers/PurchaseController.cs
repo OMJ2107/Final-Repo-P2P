@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -1800,7 +1801,7 @@ namespace P2PERP.Controllers
                 var headerFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.BOLD, BaseColor.WHITE);
                 var normalFont = new iTextSharp.text.Font(bf, 9);
 
-                // ===== Title & Date Box =====
+                // ===== Title & Date Box ======
                 PdfPTable headerTable = new PdfPTable(2);
                 headerTable.WidthPercentage = 100;
                 headerTable.SetWidths(new float[] { 70f, 30f });
@@ -1813,7 +1814,11 @@ namespace P2PERP.Controllers
                 PdfPTable rightBox = new PdfPTable(1);
                 rightBox.WidthPercentage = 100;
 
-                PdfPCell dateCell = new PdfPCell(new Phrase($"DATE : {po.AddedDate:dd/MM/yyyy}", boldFont));
+                PdfPCell dateCell = new PdfPCell(new Phrase(
+                  $"DATE : {po.AddedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}",
+                  boldFont
+              ));
+
                 dateCell.BackgroundColor = new BaseColor(200, 230, 250);
                 dateCell.Border = iTextRectangle.NO_BORDER;
                 rightBox.AddCell(dateCell);
