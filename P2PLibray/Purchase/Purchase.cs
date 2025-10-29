@@ -145,6 +145,8 @@ namespace P2PLibray.Purchase
         public decimal GST { get; set; }
         public string UOMName { get; set; }
         public string Description { get; set; }
+        //public decimal ShippingCharges { get; set; }
+
 
 
 
@@ -232,6 +234,9 @@ namespace P2PLibray.Purchase
         public decimal CostPerUnit { get; set; }
         public decimal Discount { get; set; }
         public decimal GSTPct { get; set; }
+        public decimal ShippingCharges { get; set; }
+
+
     }
 
 
@@ -380,6 +385,11 @@ namespace P2PLibray.Purchase
     
         public int HasUnregisteredVendors { get; set; }
 
+        public int AnyVendor { get; set; }
+
+
+
+
 
         #endregion vaibhavi
 
@@ -504,8 +514,13 @@ namespace P2PLibray.Purchase
         public long WarehousePhone { get; set; }
         public string WarehouseEmail { get; set; }
         public List<string> POItems { get; set; } = new List<string>();
+
+        public List<string> Itemslst { get; set; } = new List<string>();
         public decimal GrandTotal { get; set; }
         public decimal SubAmount { get; set; }
+        public int RequestTypeId { get; set; }
+        public int JITQuantity { get; set; }
+
         #endregion
 
         #region Sandesh

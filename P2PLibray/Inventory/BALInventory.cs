@@ -1009,12 +1009,11 @@ namespace P2PLibray.Inventory
                         ItemCode = dr["ItemCode"].ToString(),
                         ItemName = dr["ItemName"].ToString(),
                         CurrentQty = Convert.ToInt32(dr["TotalQty"]),
-                        AddedDate = dr["AddedDate"] != DBNull.Value ? Convert.ToDateTime(dr["AddedDate"]).ToString("dd-MM-yyyy") : string.Empty,
-                        ExpiryDate = dr["ExpiryDate"] != DBNull.Value ? Convert.ToDateTime(dr["ExpiryDate"]).ToString("dd-MM-yyyy") : string.Empty,
+                        AddedDate = dr["AddedDate"] != DBNull.Value ? Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy") : string.Empty,
+                        ExpiryDate = dr["ExpiryDate"] != DBNull.Value ? Convert.ToDateTime(dr["ExpiryDate"]).ToString("dd/MM/yyyy") : string.Empty,
                         BinName = dr["BinList"].ToString(),
                         BinCode = dr["BinCodeList"].ToString()
                     });
-
                 }
             }
 
@@ -1066,7 +1065,7 @@ namespace P2PLibray.Inventory
                         ItemName = dr["ItemName"].ToString(),
                         ItemCount = Convert.ToInt32(dr["TotalItems"]),
                         Date = dr["AddedDate"] != DBNull.Value
-                        ? Convert.ToDateTime(dr["AddedDate"]).ToString("dd-MM-yyyy")
+                        ? Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy")
                         : string.Empty,
                         Status = dr["StatusName"].ToString()
                     });
@@ -1101,12 +1100,12 @@ namespace P2PLibray.Inventory
         /// </summary>
         /// <param name="id">The unique identifier of the requirement to view</param>
         /// <returns>DataSet containing detailed requirement information</returns>
-        public async Task<DataSet> ViewReqMasterRHK(int id)
+        public async Task<DataSet> ViewReqMasterRHK()
         {
             // Create parameter dictionary for stored procedure
             Dictionary<string, string> para = new Dictionary<string, string>();
             para.Add("@Flag", "ViewRequirementMasterRHK"); // Flag for detailed view operation
-            para.Add("@Id", id.ToString()); // Specific requirement ID to retrieve
+          
 
             // Execute stored procedure and return results
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", para);
@@ -1423,10 +1422,10 @@ namespace P2PLibray.Inventory
                 object result = await obj.ExecuteStoredProcedureReturnObject("InventoryProcedure", parameters);
                 int newId = result != null ? Convert.ToInt32(result) : 0;
 
-                return newId > 0
-                    ? (true, "Warehouse added successfully.", newId)
-                    : (false, "Warehouse could not be added.", 0);
-            }
+				return newId > 0
+	? (true, "Warehouse added successfully.", newId)
+	: (false, "Warehouse name already exists.", 0);
+			}
             catch (Exception ex)
             {
                 return (false, $"Error: {ex.Message}", 0);
@@ -1434,37 +1433,56 @@ namespace P2PLibray.Inventory
         }
 
 
-        /// <summary>
-        /// Update Warehouse 
-        /// </summary>
-        /// <param name="Update warehouse"></param>
-        /// <returns></returns>
-        //  Update Warehouse
-        public async Task<bool> UpdateWarehouseAsyncSK(InventorySK warehouse)
-        {
-            var parameters = new Dictionary<string, string>
-        {
-            { "@Flag", "UpdateWarehouseSK" },
-            { "@WareHouseId", warehouse.WareHouseId.ToString() },
-            { "@WarehouseName", warehouse.WarehouseName },
-            { "@Address", warehouse.Address },
-            { "@CityId", warehouse.CityId.ToString() },
-            { "@Phone", warehouse.Phone ?? string.Empty },
-            { "@Email", warehouse.Email ?? string.Empty },
-            { "@Description", warehouse.Description ?? string.Empty },
-            { "@Capacity", warehouse.Capacity.ToString() }
-        };
+		/// <summary>
+		/// Update Warehouse 
+		/// </summary>
+		/// <param name="Update warehouse"></param>
+		/// <returns></returns>
+		//  Update Warehouse
+		public async Task<(bool Success, string Message)> UpdateWarehouseAsyncSK(InventorySK warehouse)
+		{
+			try
+			{
+				var parameters = new Dictionary<string, string>
+		{
+			{ "@Flag", "UpdateWarehouseSK" },
+			{ "@WareHouseId", warehouse.WareHouseId.ToString() },
+			{ "@WarehouseName", warehouse.WarehouseName },
+			{ "@Address", warehouse.Address ?? "" },
+			{ "@CityId", warehouse.CityId.ToString() },
+			{ "@Phone", warehouse.Phone ?? "" },
+			{ "@Email", warehouse.Email ?? "" },
+			{ "@Description", warehouse.Description ?? "" },
+			{ "@Capacity", warehouse.Capacity.ToString() },
+			{ "@StateCode", warehouse.StateCode ?? "" },
+			{ "@CountryCode", warehouse.CountryCode ?? "" }
+		};
 
-            await obj.ExecuteStoredProcedure("InventoryProcedure", parameters);
-            return true;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name=" delete warehouseId"></param>
-        /// <returns></returns>
-        // Delete Warehouse
-        public async Task DeleteWarehouseAsyncSK(int warehouseId)
+				DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
+
+				if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+				{
+					string result = ds.Tables[0].Rows[0]["Result"].ToString();
+					string message = ds.Tables[0].Rows[0]["Message"].ToString();
+
+					return (result == "1", message);
+				}
+
+				return (false, "Failed to update warehouse.");
+			}
+			catch (Exception ex)
+			{
+				return (false, ex.Message);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name=" delete warehouseId"></param>
+		/// <returns></returns>
+		// Delete Warehouse
+		public async Task DeleteWarehouseAsyncSK(int warehouseId)
         {
             var parameters = new Dictionary<string, string>
 {
@@ -1681,45 +1699,46 @@ namespace P2PLibray.Inventory
         }
 
 
-        /// <summary>
-        /// Save RACK AND UPDATE 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
+		/// <summary>
+		/// Save RACK AND UPDATE 
+		/// </summary>
+		/// <param name="model"></param>
+		/// <returns></returns>
 
-        //  Save Rack (Insert/Update)
-        public async Task<(bool Success, string Message)> SaveRackAsyncSK(InventorySK model)
-        {
-            var parameters = new Dictionary<string, string>
-{
-    { "@Flag", "SaveRackSK" },
-    { "@RackId", model.RackId.ToString() },
-    { "@RackCode", model.RackCode ?? "" },
-    { "@RackName", model.RackName ?? "" },
-    { "@SectionCode", model.SectionCode ?? "" },
-    { "@WareHouseCode", model.WarehouseCode ?? "" },
-    { "@Description", model.Description ?? "" },
-    { "@AddedBy",model.AddedBy ?? "" },
-            {"@AddedDate", model.AddedDate.ToString("yyyy-MM-dd")  }
-};
+		//  Save Rack (Insert/Update)
+		public async Task<(bool Success, string Message)> SaveRackAsyncSK(InventorySK model)
+		{
+			var parameters = new Dictionary<string, string>
+	{
+		{ "@Flag", "SaveRackSK" },
+		{ "@RackId", model.RackId.ToString() },
+		{ "@RackCode", model.RackCode ?? "" },
+		{ "@RackName", model.RackName ?? "" },
+		{ "@SectionCode", model.SectionCode ?? "" },
+		{ "@WareHouseCode", model.WarehouseCode ?? "" },
+		{ "@Description", model.Description ?? "" },
+		{ "@AddedBy", model.AddedBy ?? "" },
+		{ "@AddedDate", model.AddedDate.ToString("yyyy-MM-dd") }
+	};
 
-            DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
+			DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
 
-            if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-            {
-                var row = ds.Tables[0].Rows[0];
-                return (true, row["Message"].ToString());
-            }
+			if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+			{
+				var row = ds.Tables[0].Rows[0];
+				return (Convert.ToBoolean(row["Success"]), row["Message"].ToString());
+			}
 
-            return (false, "Something went wrong while saving rack.");
-        }
-        /// <summary>
-        /// Update Rack 
-        /// </summary>
-        /// <param name="rackId"></param>
-        /// <returns></returns>
-        //   View Rack By ID
-        public async Task<Inventory> GetRackByIdAsyncSK(int rackId)
+			return (false, "Something went wrong while saving rack.");
+		}
+
+		/// <summary>
+		/// Update Rack 
+		/// </summary>
+		/// <param name="rackId"></param>
+		/// <returns></returns>
+		//   View Rack By ID
+		public async Task<Inventory> GetRackByIdAsyncSK(int rackId)
         {
             var parameters = new Dictionary<string, string>
 {
@@ -1905,44 +1924,46 @@ namespace P2PLibray.Inventory
             return racks;
         }
 
-        /// <summary>
-        /// Save Row 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        //  Save Row (Insert/Update)
-        public async Task<(bool Success, string Message)> SaveRowAsyncSK(InventorySK model)
-        {
-            var parameters = new Dictionary<string, string>
-{
-    { "@Flag", "SaveRowSK" },
-    { "@RowId", model.RowId.ToString() },
-    { "@RowCode", model.RowCode ?? "" },
-    { "@RowName", model.RowName ?? "" },
-    { "@RackCode", model.RackCode ?? "" },
+		/// <summary>
+		/// Save Row 
+		/// </summary>
+		/// <param name="model"></param>
+		/// <returns></returns>
+		//  Save Row (Insert/Update)
+		public async Task<(bool Success, string Message)> SaveRowAsyncSK(InventorySK model)
+		{
+			var parameters = new Dictionary<string, string>
+	{
+		{ "@Flag", "SaveRowSK" },
+		{ "@RowId", model.RowId.ToString() },
+		{ "@RowCode", model.RowCode ?? "" },
+		{ "@RowName", model.RowName ?? "" },
+		{ "@RackCode", model.RackCode ?? "" },
+		{ "@Description", model.Description ?? "" },
+		{ "@AddedBy", model.AddedBy ?? "" },
+		{ "@AddedDate", model.AddedDate.ToString("yyyy-MM-dd")  }
+	};
 
-    { "@Description", model.Description ?? "" },
-    { "@AddedBy", model.AddedBy ?? "" },
-     {"@AddedDate", model.AddedDate.ToString("yyyy-MM-dd")  }
-};
+			DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
 
-            DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
+			if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+			{
+				var row = ds.Tables[0].Rows[0];
+				bool success = row["Success"] != DBNull.Value && Convert.ToBoolean(row["Success"]);
+				string message = row["Message"].ToString();
+				return (success, message);
+			}
 
-            if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-            {
-                var row = ds.Tables[0].Rows[0];
-                return (true, row["Message"].ToString());
-            }
+			return (false, "Something went wrong while saving row.");
+		}
 
-            return (false, "Something went wrong while saving row.");
-        }
-        /// <summary>
-        /// View RoW 
-        /// </summary>
-        /// <param name="rowId"></param>
-        /// <returns></returns>
-        // List View Row 
-        public async Task<Inventory> GetRowByIdAsyncSK(int rowId)
+		/// <summary>
+		/// View RoW 
+		/// </summary>
+		/// <param name="rowId"></param>
+		/// <returns></returns>
+		// List View Row 
+		public async Task<Inventory> GetRowByIdAsyncSK(int rowId)
         {
             var parameters = new Dictionary<string, string>
 {
@@ -2112,46 +2133,49 @@ namespace P2PLibray.Inventory
 
             return items;
         }
-        /// <summary>
-        /// Save BIn
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        // SAVE Bin
-        public async Task<(bool Success, string Message)> SaveBinAsyncSK(InventorySK model)
-        {
-            var parameters = new Dictionary<string, string>
-{
-    { "@Flag", "SaveBinSK" },
-    { "@BinId", model.BinId.ToString() },
-    { "@BinCode", model.BinCode ?? "" },
-    { "@BinName", model.BinName ?? "" },
-    { "@ItemCode", model.ItemCode.ToString() },
-    { "@MaxQuantity", model.MaxQuantity.ToString() },
-    { "@RowCode", model.RowCode.ToString() },
-    { "@Description", model.Descriptions ?? "" },
-    { "@AddedBy", model.AddedBy ?? "" },
-     {"@AddedDate", model.AddedDate.ToString("yyyy-MM-dd")  }
-};
+		/// <summary>
+		/// Save BIn
+		/// </summary>
+		/// <param name="model"></param>
+		/// <returns></returns>
+		// SAVE Bin
+		public async Task<(bool Success, string Message)> SaveBinAsyncSK(InventorySK model)
+		{
+			var parameters = new Dictionary<string, string>
+	{
+		{ "@Flag", "SaveBinSK" },
+		{ "@BinId", model.BinId.ToString() },
+		{ "@BinCode", model.BinCode ?? "" },
+		{ "@BinName", model.BinName ?? "" },
+		{ "@ItemCode", model.ItemCode?.ToString() ?? "" },
+		{ "@MaxQuantity", model.MaxQuantity?.ToString() ?? "0" },
+		{ "@RowCode", model.RowCode?.ToString() ?? "0" },
+		{ "@Description", model.Description ?? "" },
+		{ "@AddedBy", model.AddedBy ?? "" },
+		{ "@AddedDate", model.AddedDate.ToString("yyyy-MM-dd") }
+	};
 
-            DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
+			DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
 
-            if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-            {
-                var row = ds.Tables[0].Rows[0];
-                return (true, row["Message"].ToString());
-            }
+			if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+			{
+				var row = ds.Tables[0].Rows[0];
+				bool isSuccess = row.Table.Columns.Contains("Success") && Convert.ToBoolean(row["Success"]);
+				string message = row["Message"].ToString();
 
-            return (false, "Something went wrong while saving Bin.");
-        }
+				return (isSuccess, message);
+			}
 
-        /// <summary>
-        /// View Bin Using ID
-        /// </summary>
-        /// <param name="binId"></param>
-        /// <returns></returns>
-        //  View Bin
-        public async Task<Inventory> GetBinByIdAsyncSK(int binId)
+			return (false, "Something went wrong while saving Bin.");
+		}
+
+		/// <summary>
+		/// View Bin Using ID
+		/// </summary>
+		/// <param name="binId"></param>
+		/// <returns></returns>
+		//  View Bin
+		public async Task<Inventory> GetBinByIdAsyncSK(int binId)
         {
             var parameters = new Dictionary<string, string>
 {
@@ -2312,50 +2336,52 @@ namespace P2PLibray.Inventory
                 return string.Empty;
             }
         }
-        /// <summary>
-        /// Save Section
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        // Save Section
-        public async Task<bool> AddSectionAsyncSK(InventorySK model)
-        {
-            try
-            {
-                var parameters = new Dictionary<string, string>
-    {
-        { "@Flag", "InsertSectionSK" },
-        { "@SectionCode", model.SectionCode },
-        { "@SectionName", model.SectionName },
-        { "@WarehouseCode", model.WarehouseCode },
-        { "@Description", model.Description }
-    };
+		/// <summary>
+		/// Save Section
+		/// </summary>
+		/// <param name="model"></param>
+		/// <returns></returns>
+		// Save Section
+		public async Task<(bool Success, string Message)> AddSectionAsyncSK(InventorySK model)
+		{
+			try
+			{
+				var parameters = new Dictionary<string, string>
+		{
+			{ "@Flag", "InsertSectionSK" },
+			{ "@SectionCode", model.SectionCode },
+			{ "@SectionName", model.SectionName },
+			{ "@WarehouseCode", model.WarehouseCode },
+			{ "@Description", model.Description }
+		};
 
-                DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
+				DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
 
-                if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    string result = ds.Tables[0].Rows[0]["Result"].ToString();
-                    return result == "1";
-                }
+				if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+				{
+					string result = ds.Tables[0].Rows[0]["Result"].ToString();
+					string message = ds.Tables[0].Rows[0]["Message"].ToString();
 
-                return false;
-            }
-            catch (Exception)
-            {
+					return (result == "1", message);
+				}
 
-                return false;
-            }
-        }
+				return (false, "Failed to save section.");
+			}
+			catch (Exception ex)
+			{
+				return (false, ex.Message);
+			}
+		}
 
-        /// <summary>
-        /// View Section Using Id 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
 
-        ///  View Section
-        public async Task<Inventory> GetSectionByIdAsyncSK(int id)
+		/// <summary>
+		/// View Section Using Id 
+		/// </summary>
+		/// <param name="model"></param>
+		/// <returns></returns>
+
+		///  View Section
+		public async Task<Inventory> GetSectionByIdAsyncSK(int id)
         {
             try
             {
@@ -2388,44 +2414,54 @@ namespace P2PLibray.Inventory
             }
         }
 
-        /// <summary>
-        /// Update Section
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        // Update 
-        public async Task<bool> UpdateSectionAsyncSK(InventorySK model)
-        {
-            try
-            {
-                var parameters = new Dictionary<string, string>
-    {
-        { "@Flag", "UpdateSectionSK" },
-        { "@SectionId", model.SectionId.ToString() },
-        { "@SectionCode", model.SectionCode },
-        { "@SectionName", model.SectionName },
-        { "@WarehouseCode", model.WarehouseCode },
-        { "@Description", model.Description }
-    };
+		/// <summary>
+		/// Update Section
+		/// </summary>
+		/// <param name="model"></param>
+		/// <returns></returns>
+		// Update 
+		public async Task<(bool Success, string Message)> UpdateSectionAsyncSK(InventorySK model)
+		{
+			try
+			{
+				var parameters = new Dictionary<string, string>
+		{
+			{ "@Flag", "UpdateSectionSK" },
+			{ "@SectionId", model.SectionId.ToString() },
+			{ "@SectionCode", model.SectionCode },
+			{ "@SectionName", model.SectionName },
+			{ "@WarehouseCode", model.WarehouseCode },
+			{ "@Description", model.Description }
+		};
 
-                await obj.ExecuteStoredProcedure("InventoryProcedure", parameters);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+				DataSet ds = await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", parameters);
+
+				if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+				{
+					string result = ds.Tables[0].Rows[0]["Result"].ToString();
+					string message = ds.Tables[0].Rows[0]["Message"].ToString();
+
+					return (result == "1", message);
+				}
+
+				return (false, "Failed to update section.");
+			}
+			catch (Exception ex)
+			{
+				return (false, ex.Message);
+			}
+		}
 
 
-        /// <summary>
-        /// Delete Section Using By ID
-        /// </summary>
-        /// <param name="sectionId"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        //  Delete Section
-        public async Task<bool> DeleteSectionAsyncSK(int sectionId)
+
+		/// <summary>
+		/// Delete Section Using By ID
+		/// </summary>
+		/// <param name="sectionId"></param>
+		/// <returns></returns>
+		/// <exception cref="Exception"></exception>
+		//  Delete Section
+		public async Task<bool> DeleteSectionAsyncSK(int sectionId)
         {
             try
             {
@@ -2454,7 +2490,7 @@ namespace P2PLibray.Inventory
 
         #endregion
 
-        #region Mayur
+            #region Mayur
         /// <summary>
         /// Retrieves stock planning data for MHB by executing the 'StockAnalysisMHB' flag.
         /// </summary>
@@ -2478,14 +2514,14 @@ namespace P2PLibray.Inventory
                         ItemCode = row["ItemCode"].ToString(),
                         ReorderQuantity = row["ReorderQuantity"].ToString(),
                         minQuantity = row["minQuantity"].ToString(),
-                        MaxQuantity = Convert.ToInt32(row["MaxQuantity"]),
+                        //MaxQuantity = Convert.ToInt32(row["MaxQuantity"]),
                         CurrentItems = Convert.ToInt32(row["CurrentItems"]),
                         StockStatus = row["StockStatus"].ToString()
                     };
                     lst.Add(SHR);
                 }
             }
-
+            
             return lst;
         }
 
@@ -2504,11 +2540,211 @@ namespace P2PLibray.Inventory
             InventoryMHB itm = new InventoryMHB();
 
             for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             {
                 itm.ItemId = ds.Tables[0].Rows[i]["ItemId"].ToString();
                 itm.ItemName = ds.Tables[0].Rows[i]["ItemName"].ToString();
                 itm.ItemCode = ds.Tables[0].Rows[i]["ItemCode"].ToString();
                 itm.Description = ds.Tables[0].Rows[i]["Description"].ToString();
+                itm.ReorderQuantity = ds.Tables[0].Rows[i]["ReorderQuantity"].ToString();
             }
 
             for (int i = 0; i < ds.Tables[1].Rows.Count; i++)
@@ -2758,7 +2994,7 @@ namespace P2PLibray.Inventory
             {
                 //Itemmater
                 InventoryOJ items = new InventoryOJ();
-                items.ItemIdOJ =Convert.ToInt32(da["ItemId"]);
+                items.ItemIdOJ = Convert.ToInt32(da["ItemId"]);
                 items.ItemCode = da["ItemCode"].ToString();
                 items.ItemName = da["ItemName"].ToString();
                 items.UOMId = Convert.ToInt32(da["UOMId"]);
@@ -3097,6 +3333,7 @@ namespace P2PLibray.Inventory
             }
         }
 
+
         /// <summary>
         /// Generates the next sequential QualityCode (e.g., IQ001, IQ002).
         /// </summary>
@@ -3143,7 +3380,7 @@ namespace P2PLibray.Inventory
                 DataTable dt = ds.Tables[0];
                 string lastCode = dt.Rows[0]["PlanCode"].ToString();
 
-                int number = int.Parse(lastCode.Substring(5));
+                int number = int.Parse(lastCode.Substring(3));
                 string nextCode = "PLN" + (number + 1).ToString("D3");
 
                 return nextCode;
@@ -3284,17 +3521,12 @@ namespace P2PLibray.Inventory
                 Dictionary<string, object> Edititem = new Dictionary<string, object>();
                 Edititem.Add("@Flag", "UpdateItemOJ");
                 Edititem.Add("@ItemId", n.ItemIdOJ);
-                Edititem.Add("@ItemName", n.ItemName);
-                Edititem.Add("@ItemCategoryId", n.ItemCategoryId);
                 Edititem.Add("@ItemStatusId", n.ItemStatusId);
                 Edititem.Add("@Date", DateTime.Now);
-                Edititem.Add("@UOMId", n.UOMId);
-                Edititem.Add("@Description", n.Description);
                 Edititem.Add("@UnitRates", n.UnitRates);
                 Edititem.Add("@RecorderQ", n.RecorderQuantity);
                 Edititem.Add("@minQ", n.MinQuantity);
-                Edititem.Add("@itemby", n.ItemMakeId);
-                Edititem.Add("@Addedby", "STF002");
+                Edititem.Add("@Addedby", n.StaffCode ?? "");
                 Edititem.Add("@ExpiryDays", n.ExpiryDays);
                 Edititem.Add("@IsQuality", n.ISQualityBit);
 
@@ -3360,7 +3592,6 @@ namespace P2PLibray.Inventory
             param.Add("@TaxRateId", i.TaxRateId.ToString());
             await obj.ExecuteStoredProcedure("InventoryProcedure", param);
         }
-
         /// <summary>
         /// Updates an existing item category in the database.
         /// Calls InventoryProcedure with flag = "UpdateCategorySSG".

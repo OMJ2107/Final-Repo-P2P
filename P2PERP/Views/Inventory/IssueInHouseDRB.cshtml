@@ -55,7 +55,7 @@
 <div class="container mt-4">
     <!-- Header -->
     <div class="card-header bg-primary text-white d-flex justify-content-center align-items-center rounded-top p-3">
-        <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-arrow-left-right me-2"></i>Transfer In-House</h5>
+        <h3 class="modal-title fw-bold text-white mb-0">Transfer In-House</h3>
     </div>
 
     <!-- Main Card -->
@@ -73,7 +73,7 @@
                         <input type="date" id="IssueDate" class="form-control form-control-lg bg-light text-dark shadow-sm" value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly />
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-primary">Department</label>
+                        <label class="form-label fw-bold text-primary">Department<span class="text-danger">*</span></label>
                         <select class="form-select form-select-lg dept-select shadow-sm" id="Department">
                             <option selected>Select Department</option>
                         </select>
@@ -83,19 +83,19 @@
                 <!-- Second Row - Three Columns -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-primary">Employee Name</label>
+                        <label class="form-label fw-bold text-primary">Employee Name<span class="text-danger">*</span></label>
                         <select class="form-select form-select-lg emp-select shadow-sm" id="Employee">
                             <option selected>Select Employee</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-primary">Item Name</label>
+                        <label class="form-label fw-bold text-primary">Item Name<span class="text-danger">*</span></label>
                         <select class="form-select form-select-lg item-select shadow-sm" id="ItemName">
                             <option selected>Select Item</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-primary">Bin Name</label>
+                        <label class="form-label fw-bold text-primary">Bin Name<span class="text-danger">*</span></label>
                         <select class="form-select form-select-lg item-bin shadow-sm" id="BinName">
                             <option selected>Select Bin</option>
                         </select>
@@ -122,14 +122,20 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-primary">Quantity</label>
-                        <input type="number" id="Quantity" class="form-control form-control-lg bg-light text-dark shadow-sm" min="1" />
+                        <input type="number"
+                               id="Quantity"
+                               class="form-control form-control-lg bg-light text-dark shadow-sm"
+                               min="1"
+                               placeholder="Enter quantity" />
+                        <small id="QuantityError" class="text-danger d-none">Quantity must be greater than 0.</small>
                     </div>
+
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-primary">Unit Price</label>
                         <input type="number" id="PricePerUnit" class="form-control form-control-lg bg-light text-dark shadow-sm" readonly />
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
-                        <button type="button" id="btnAddItem" class="btn btn-success btn-lg w-100 shadow-sm">
+                        <button type="button" id="btnAddItem" class="btn btn-success btn-lg w-50 shadow-sm">
                             <i class="bi bi-plus-circle me-2"></i> Add Item
                         </button>
                     </div>
@@ -165,23 +171,25 @@
         <div class="container-fluid px-4 mt-4">
             <div class="row justify-content-end">
                 <div class="col-md-4">
-                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded shadow-sm">
+
+                    <div class="d-flex justify-content-between align-items-center p-1 bg-light rounded shadow-sm">
                         <label class="fw-bold text-primary mb-0 fs-5">Total Amount:</label>
-                        <input type="text" id="TotalAmount" class="form-control w-auto text-center fw-bold fs-5 bg-success text-white border-0" value="0.00" readonly />
+                        <input type="text" id="TotalAmount" class="form-control w-50 text-center fw-bold fs-5 bg-success text-white border-0" value="0.00" readonly />
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Submit Button -->
-        <div class="container-fluid px-4 mt-4 mb-4">
-            <div class="d-flex justify-content-center">
-                <button type="button" id="btnSubmitIssuedItems" class="btn btn-warning btn-lg px-5 shadow-sm">
-                    <i class="bi bi-check2-circle me-2"></i> Issue Transfer
-                </button>
-            </div>
+    <!-- Submit Button -->
+    <div class="container-fluid px-4 mt-4 mb-4">
+        <div class="d-flex justify-content-center">
+            <button type="button" id="btnSubmitIssuedItems" class="btn btn-warning btn-lg px-5 shadow-sm">
+                <i class="bi bi-check2-circle me-2"></i> Issue Item 
+            </button>
         </div>
     </div>
+
 </div>
 
 
@@ -275,7 +283,7 @@
         });
 
         // Load Bins by Items
-        // 🔹 Global stock tracker
+        //  Global stock tracker
         let binStockMap = {};  // { BinCode: remainingQty }
 
         $(".item-select").change(function () {
@@ -338,6 +346,17 @@
             let binName = $bin.data("binname");
             let currentItems = $bin.data("currentitems") || 0;
 
+            //  Quantity Validation (Zero or Negative)
+            if (isNaN(qty) || qty <= 0) {
+                Swal.fire("Invalid Quantity", "Quantity must be greater than 0!", "error");
+                $("#Quantity").addClass("is-invalid");
+                $("#QuantityError").removeClass("d-none");
+                return; // stop further execution
+            } else {
+                $("#Quantity").removeClass("is-invalid");
+                $("#QuantityError").addClass("d-none");
+            }
+
             // 🔹 Validation
             if (!code || !qty || !price || !binCode) {
                 Swal.fire("Warning", "Select item, bin, and enter valid quantity!", "warning");
@@ -360,7 +379,7 @@
             <td>₹${amount}</td>
             <td>${binName}</td>   <!-- show Bin column -->
             <td class="text-center">
-                <button type="button" class="btn btn-sm btn-danger btn-delete">Delete</button>
+                <button type="button" class="btn btn-sm btn-danger btn-delete"><i class="bi bi-trash"></i></button>
             </td>
         </tr>
     `);
@@ -430,7 +449,10 @@
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "Yes, delete it",
-                cancelButtonText: "Cancel"
+                cancelButtonText: "Cancel",
+                customClass: {
+                    cancelButton: 'btn btn-danger'    
+                },
             }).then((result) => {
                 if (result.isConfirmed) {
                     row.remove();
@@ -473,6 +495,9 @@
             });
 
             // validation
+
+           
+
             if (!header.StaffCode || items.length === 0) {
                 Swal.fire({
                     icon: "warning",
@@ -538,5 +563,23 @@
             $(this).val(maxQty); // reset to max
         }
     });
+
+    //Show error msg when quantity is zero or  negative
+    $(document).ready(function () {
+        $("#Quantity").on("input", function () {
+            let qty = parseFloat($(this).val());
+            let $error = $("#QuantityError");
+
+            // Show error only if value is entered and it's 0 or negative
+            if ($(this).val() !== "" && (isNaN(qty) || qty <= 0)) {
+                $error.removeClass("d-none");        // show error message
+                $(this).addClass("is-invalid");      // red border
+            } else {
+                $error.addClass("d-none");           // hide error message
+                $(this).removeClass("is-invalid");   // remove red border
+            }
+        });
+    });
+
 
 </script>

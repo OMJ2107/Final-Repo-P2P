@@ -22,7 +22,7 @@
 
             <!-- Header -->
             <div class="text-center mb-3">
-                <h2 class="text-primary fw-bold">Approved Purchase Requisition</h2>
+                <h3 class="text-primary fw-bold">Approved Purchase Requisition</h3>
             </div>
 
             <!-- Date Range Picker -->
@@ -44,6 +44,7 @@
                             <th>Sr No</th>
                             <th>PR Code</th>
                             <th>Added Date</th>
+                            <th>EXPECTED DATE</th>
                             <th>Approved Date</th>
                             <th>Priority</th>
                             <th>Action</th>
@@ -61,7 +62,7 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white justify-content-center">
-                <h5 class="modal-title fw-bold mb-0 text-white">Approved Purchase Requisition Items</h5>
+                <h5 class="modal-title fw-bold mb-4 text-white">Approved Purchase Requisition Items</h5>
                 <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="prModalBody"></div>
@@ -133,6 +134,16 @@
     .dataTables_paginate {
         float: right !important;
     }
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
 </style>
 
 <script>
@@ -149,7 +160,7 @@
         }
 
         let table;
-        function exportColumns(idx) { return idx !== 0 && idx !== 6; }
+        function exportColumns(idx) { return idx !== 0 && idx !== 7; }
 
         function loadApprovedPR() {
             table = $('#approvedPRTable').DataTable({
@@ -163,6 +174,7 @@
                     { data: null, orderable: false, className: 'text-center', render: (d, t, r, meta) => meta.row + 1 },
                     { data: 'PRCode', className: 'text-center' },
                     { data: 'AddedDate', className: 'text-center', render: d => d ? moment(d).format('DD/MM/YYYY') : '', type: 'date', defaultContent: '' },
+                    { data: 'RequiredDate', render: d => d ? moment(d).format('DD/MM/YYYY') : '' },
                     { data: 'ApprovedRejectedDate', className: 'text-center', render: d => d ? moment(d).format('DD/MM/YYYY') : '', type: 'date', defaultContent: '' },
                     {
                         data: 'Priority', defaultContent: '', render: function (data) {
@@ -214,7 +226,7 @@
                             $(win.document.body).prepend(`
             <div style="text-align:center; margin-bottom:10px;">
                 <h2 style="margin:0;">Approved Purchase Requisition</h2>
-                <div style="font-size:12px;">Generated on: ${generatedDate}</div>
+                <div style="font-size:12px;">Generated Date: ${generatedDate}</div>
             </div>
         `);
 
@@ -265,7 +277,7 @@
                             },
                             format: {
                                 body: function (data, rowIdx, colIdx) {
-                                    if (colIdx === 3 || colIdx === 6) return moment(data).format('DD/MM/YYYY');
+                                    //if (colIdx === 1 || colIdx === 7) return moment(data).format('DD/MM/YYYY');
                                     if (colIdx === 0) return rowIdx + 1;
                                     if (typeof data === 'string') return data.replace(/<\/?[^>]+(>|$)/g, "").trim();
                                     return data;
@@ -278,7 +290,7 @@
                                 doc.content[0].fontSize = 14;
                                 var exportDate = new Date().toLocaleDateString('en-GB');
                                 doc.content.splice(1, 0, {
-                                    text: 'Export Date: ' + exportDate,
+                                    text: 'Generated Date: ' + exportDate,
                                     alignment: 'center',
                                     margin: [0, 0, 0, 8],
                                     fontSize: 10
@@ -302,7 +314,7 @@
                                     hLineColor: () => '#dddddd',
                                     vLineColor: () => '#dddddd',
                                     paddingLeft: () => 30,
-                                    paddingRight: () => 30,
+                                    paddingRight: () => 20,
                                     paddingTop: () => 4,
                                     paddingBottom: () => 4
                                 };
@@ -338,13 +350,60 @@
                             format: {
                                 body: function (data, rowIdx, colIdx) {
                                     if (colIdx === 1) return ++window.__excelSrCounter;
-                                    if (colIdx === 3 || colIdx === 4) return moment(data).format('DD/MM/YYYY');
                                     if (typeof data === 'string') return data.replace(/<\/?[^>]+(>|$)/g, "").trim();
                                     return data;
                                 }
                             }
+                        },
+                        customize: function (xlsx) {
+                            const sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            const now = new Date();
+                            const formattedDate = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+
+                            const newRowNumber = 2;
+
+                            // Create "Generated On" row
+                            const dateRow = `
+            <row r="${newRowNumber}">
+                <c t="inlineStr" r="A${newRowNumber}">
+                    <is><t>Generated On: ${formattedDate}</t></is>
+                </c>
+            </row>`;
+
+                            // Shift existing rows down by +1
+                            $('row', sheet).each(function () {
+                                const r = parseInt($(this).attr('r'));
+                                if (r >= newRowNumber) $(this).attr('r', r + 1);
+                            });
+                            $('c', sheet).each(function () {
+                                const cellRef = $(this).attr('r');
+                                const col = cellRef.replace(/[0-9]/g, '');
+                                const row = parseInt(cellRef.replace(/[A-Z]/g, ''));
+                                if (row >= newRowNumber) $(this).attr('r', col + (row + 1));
+                            });
+
+                            // Add the new date row right after the title
+                            $('row[r="1"]', sheet).after(dateRow);
+
+                            // ✅ Merge across all columns
+                            const totalCols = $('row c', sheet).last().attr('r').replace(/[0-9]/g, '');
+                            let mergeCells = $('mergeCells', sheet);
+                            if (mergeCells.length === 0) {
+                                $('worksheet', sheet).prepend(`<mergeCells count="1"><mergeCell ref="A${newRowNumber}:${totalCols}${newRowNumber}"/></mergeCells>`);
+                            } else {
+                                const count = parseInt(mergeCells.attr('count')) + 1;
+                                mergeCells.attr('count', count);
+                                mergeCells.append(`<mergeCell ref="A${newRowNumber}:${totalCols}${newRowNumber}"/>`);
+                            }
+
+                            // ✅ Center align the merged cell
+                            const styles = xlsx.xl['styles.xml'];
+                            const styleIndex = $('cellXfs xf', styles).length;
+                            $('cellXfs', styles).append('<xf xfId="0" applyAlignment="1"><alignment horizontal="center"/></xf>');
+                            $(`c[r="A${newRowNumber}"]`, sheet).attr('s', styleIndex);
                         }
                     },
+
 
                     // ✅ CSV
                     {
@@ -366,10 +425,17 @@
                             },
                             format: {
                                 body: function (data, rowIdx, colIdx) {
-                                    if (colIdx === 0) return rowIdx + 1;
-                                    if (colIdx === 3 || colIdx === 4) return moment(data).format('DD/MM/YYYY');
-                                    if (typeof data === 'string') return data.replace(/<\/?[^>]+(>|$)/g, "").trim();
-                                    return data;
+                                    // Remove HTML tags and trim
+                                    if (typeof data === 'string') data = data.replace(/<[^>]*>/g, '').trim();
+
+                                    // Serial number column
+                                    if (colIdx === 0 || colIdx === 1) {
+                                        // Initialize counter once
+                                        if (typeof this.srnoCounter === 'undefined') this.srnoCounter = 0;
+                                        return ++this.srnoCounter;
+                                    }
+
+                                    return data; // fallback
                                 }
                             }
                         }
@@ -408,11 +474,10 @@
                     locale: { cancelLabel: 'Clear', applyLabel: 'Apply' },
                     ranges: {
                         'Today': [moment(), moment()],
-                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                         'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                        'This Month': [moment().startOf('month'), moment().endOf('month')],
-                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                        'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
+                        'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
+                        'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
                     }
                 }, function (start, end) {
                     $('#PRdatepicker').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));

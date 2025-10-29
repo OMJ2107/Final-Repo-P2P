@@ -5,9 +5,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.IO;
 
 namespace P2PERP.Controllers
 {
@@ -98,7 +101,6 @@ namespace P2PERP.Controllers
                     ReturnGoodsClass ReturnGoods = new ReturnGoodsClass
                     {
                         GRNCode = dr["GRNCode"].ToString(),
-                        StatusName = dr["StatusName"].ToString(),
                         AddedDate = Convert.ToDateTime(dr["AddedDate"]).ToString("yyyy-MM-dd"),
                         FullName = dr["FullName"].ToString()
                     };
@@ -204,6 +206,54 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
+
+        [Route("GRN/SendMail")]
+        [HttpGet]
+        public ActionResult SendMailHSB()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult SendMailHSB(HttpPostedFileBase attachment, string toEmail, string subject, string messageBody)
+        {
+            try
+            {
+                string fromEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
+                string password = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"];
+
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(fromEmail);
+                mail.To.Add(toEmail);
+                mail.Subject = subject;
+                mail.Body = messageBody;
+                mail.IsBodyHtml = true;
+
+                // Add attachment if provided
+                if (attachment != null && attachment.ContentLength > 0)
+                {
+                    string fileName = Path.GetFileName(attachment.FileName);
+                    mail.Attachments.Add(new Attachment(attachment.InputStream, fileName));
+                }
+
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com")
+                {
+                    Port = 587,
+                    Credentials = new NetworkCredential(fromEmail, password),
+                    EnableSsl = true
+                };
+
+                smtp.Send(mail);
+                ViewBag.Status = "Email sent successfully!";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Status = "Error: " + ex.Message;
+            }
+
+            return View();
+        }
+
         #endregion
 
         #region Pravin
@@ -920,7 +970,9 @@ namespace P2PERP.Controllers
                     POCode = dr["POCode"].ToString(),
                     ItemCode = dr["ItemCode"].ToString(),
                     ItemName = dr["ItemName"].ToString(),
-                    Quantity = Convert.ToInt32(dr["Quantity"]),
+                    OrderQuantity = Convert.ToInt32(dr["OrderedQty"]),
+                    RecievedQuantity = Convert.ToInt32(dr["ReceivedQty"]),
+                    PendingQuantity = Convert.ToInt32(dr["PendingQty"]),
                     ExpectedDate = Convert.ToDateTime(dr["VendorDeliveryDate"]),
                     OrderedBy = dr["AddedBy"].ToString(),
                 });
@@ -1176,6 +1228,7 @@ namespace P2PERP.Controllers
                         ViewBag.CompanyAddress = row["CompanyAddress"].ToString();
                         ViewBag.BillingAddress = row["BillingAddress"].ToString();
                         ViewBag.GRNCode = row["NewGRNCode"].ToString();
+                        ViewBag.WarehouseName = row["WarehouseName"].ToString();
                     }
                 }
 
@@ -1374,8 +1427,13 @@ namespace P2PERP.Controllers
         {
             try
             {
+                // Get staff code from session
+                var staffcode = Session["StaffCode"] as string;
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
                 if (string.IsNullOrEmpty(GRNCode) || GRNItemCodes == null || !GRNItemCodes.Any())
-                    return Json(new { success = false, message = "GRNCode and items required" });
+                    return Json(new { success = false, message = "GRNCode and items are required." });
 
                 int insertedCount = 0;
 
@@ -1386,7 +1444,9 @@ namespace P2PERP.Controllers
                         GRNCode = GRNCode,
                         GRNItemCode = itemCode
                     };
-                    insertedCount += await bal.AssignQCSSG(objGRN);
+
+                    // Pass staffcode to BAL method
+                    insertedCount += await bal.AssignQCSSG(objGRN, staffcode);
                 }
 
                 return Json(new
@@ -1402,6 +1462,7 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, message = "Error assigning QC: " + ex.Message });
             }
         }
+
 
 
 
