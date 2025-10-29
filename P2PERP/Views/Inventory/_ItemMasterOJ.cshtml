@@ -1,5 +1,3 @@
-﻿
-
 
 
 <!DOCTYPE html>
@@ -331,6 +329,8 @@
                                                 <th>Sr.No</th>
                                                 <th>Quality Parameters</th>
                                                 <th>Parameters</th>
+                                                @*<th>Parameters</th>*@
+
                                                 <th>UOM</th>
                                                 <th>Action</th>
                                             </tr>
@@ -821,6 +821,73 @@
                                             }
                                         }
                                     });
+
+                                    // 🔹 Clear and rebuild sheet data
+                                    $sheetData.empty();
+
+                                    // 🔹 Add Title row
+                                    var titleRow = '<row r="1"><c t="inlineStr" r="A1"><is><t>Inventory List</t></is></c></row>';
+                                    $sheetData.append(titleRow);
+
+                                    // 🔹 Add Date row  
+                                    var dateRow = '<row r="2"><c t="inlineStr" r="A2"><is><t>Generated Date: ' + formattedDate + '</t></is></c></row>';
+                                    $sheetData.append(dateRow);
+
+                                    // 🔹 Add existing rows with new numbers
+                                    var serial = 1;
+                                    existingRows.forEach(function (item, index) {
+                                        var $row = item.$row;
+                                        var newRowNum = index + 3; // Start from row 3
+
+                                        $row.attr('r', newRowNum);
+                                        $row.find('c').each(function () {
+                                            var $c = $(this);
+                                            var col = $c.attr('r').replace(/[0-9]/g, '');
+                                            $c.attr('r', col + newRowNum);
+
+                                            // Update serial number for data rows
+                                            if (newRowNum >= 4 && col === 'A') {
+                                                $c.attr('t', 'n');
+                                                var $v = $c.find('v');
+                                                if ($v.length) {
+                                                    $v.text(serial);
+                                                } else {
+                                                    $c.append('<v>' + serial + '</v>');
+                                                }
+                                            }
+                                        });
+
+                                        $sheetData.append($row);
+
+                                        // Increment serial for data rows only
+                                        if (newRowNum >= 4) {
+                                            serial++;
+                                        }
+                                    });
+
+                                    // 🔹 Merge cells for title and date
+                                    var $mergeCells = $sheet.find('mergeCells');
+                                    if ($mergeCells.length === 0) {
+                                        $sheetData.after('<mergeCells count="2"><mergeCell ref="A1:H1"/><mergeCell ref="A2:H2"/></mergeCells>');
+                                    } else {
+                                        var count = parseInt($mergeCells.attr('count') || '0', 10);
+                                        $mergeCells.attr('count', count + 2);
+                                        $mergeCells.append('<mergeCell ref="A1:H1"/><mergeCell ref="A2:H2"/>');
+                                    }
+
+                                    // 🔹 Center-align title and date
+                                    var stylesXml = xlsx.xl['styles.xml'];
+                                    var $styles = $(stylesXml);
+                                    var $cellXfs = $styles.find('cellXfs');
+                                    var xfXml = '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">' +
+                                        '<alignment horizontal="center" vertical="center"/>' +
+                                        '</xf>';
+                                    $cellXfs.append(xfXml);
+                                    var centerStyleIndex = $cellXfs.children().length - 1;
+
+                                    // Apply center style
+                                    $sheet.find('c[r="A1"]').attr('s', centerStyleIndex);
+                                    $sheet.find('c[r="A2"]').attr('s', centerStyleIndex);
                                 }
                             },
 
