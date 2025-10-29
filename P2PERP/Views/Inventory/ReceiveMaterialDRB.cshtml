@@ -27,6 +27,7 @@
                                 <th>Sr No</th>
                                 <th>GRNNO</th>
                                 <th>GRNDate</th>
+                                @*<th>GRNstatus</th>*@
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -285,7 +286,7 @@
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     title: null,
                     sheetName: 'GRN Details',
-                    filename: 'GRN Details',                            
+                    filename: 'GRN Details',
                     exportOptions: {
                         columns: [1, 2, 3],
                         rows: function (idx, data, node) {
@@ -323,9 +324,9 @@
                         );
 
                         // ===== Define merge range =====
-                        // Merge across 3 columns 
+                        // Merge across 3 columns
                         var mergeAcross = 3; // total export columns
-                        var lastColLetter = String.fromCharCode(64 + mergeAcross); 
+                        var lastColLetter = String.fromCharCode(64 + mergeAcross);
 
                         // Add merge cells section if not exists
                         if ($('mergeCells', sheet).length === 0) {
@@ -476,8 +477,28 @@
                     orderable: false,
                 },
                 { data: "GRNCode", title: "GRN Code" },
-                
-               
+                {
+                    data: "AddedDate",
+                    title: "GRN Date",
+                    render: function (data, type, row) {
+                        if (!data) return "";
+                        return data.replace(/-/g, "/");
+                    },
+                    className: "text-center align-middle"
+                },
+                //{ data: "StatusName", title: "GRNstatus" },
+                {
+                    data: "StatusName",
+                    title: "Action",
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row) {
+                        return `
+            <button type="button" class="btn btn-success btn-InStock square-pill d-inline-flex align-items-center px-2 py-1 shadow-InStock" data-bs-toggle="tooltip" title="In Stock">
+                <i class="bi bi-box-seam fs-6"></i>
+            </button>`;
+                    }
+                }
             ],
             ordering: false,
             language: { emptyTable: "No approved POs available" },

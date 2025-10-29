@@ -50,6 +50,7 @@ namespace P2PERP.Controllers
         }
 
 
+        [Route("Quality/SendMail")]
         [HttpGet]
         public ActionResult SendMailHSB()
         {
@@ -520,7 +521,7 @@ namespace P2PERP.Controllers
             return View();
         }
 
-        
+
 
         // Fetch Confirmed and Non-Confirmed counts
         [HttpGet]
@@ -531,28 +532,34 @@ namespace P2PERP.Controllers
             // Return JSON result
             return Json(result, JsonRequestBehavior.AllowGet);
         }
-       
+
 
         // Fetch Confirmed items List
         [HttpGet]
-        public async Task<JsonResult> GetConfirmedListNAM()
+        public async Task<JsonResult> GetConfirmedListNAM(DateTime? startDate, DateTime? endDate)
         {
             // Call BAL to get confirmed GRN list
-            var list = await bal.GetConfirmedListNAM();
+            var list = await bal.GetConfirmedListNAM(startDate, endDate);
             // Return JSON result
             return Json(list, JsonRequestBehavior.AllowGet);
         }
         // Fetch NonConfirmed GRN List
         [HttpGet]
-        public async Task<JsonResult> GetNonConfirmedListNAM()
+        public async Task<JsonResult> GetNonConfirmedListNAM(DateTime? startDate, DateTime? endDate)
         {
             // Call BAL to get Nonconfirmed items  list
-            var list = await bal.GetNonConfirmedListNAM();
+            var list = await bal.GetNonConfirmedListNAM(startDate, endDate);
             // Return JSON result
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+
+
+
+        public async Task<JsonResult> GetPendingListNAM(DateTime? startDate, DateTime? endDate)
+        {
+            var result = await bal.GetPendingListNAM(startDate, endDate);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
         #endregion
-
-
     }
 }

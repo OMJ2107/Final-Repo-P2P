@@ -1019,7 +1019,8 @@ namespace P2PLibray.Purchase
                     VendorCompanyName = row.Table.Columns.Contains("VendorCompanyName") ? row["VendorCompanyName"]?.ToString() : null,
                     VendorContact = row.Table.Columns.Contains("VendorContact") ? row["VendorContact"]?.ToString() : null,
                     VendorAddress = row.Table.Columns.Contains("VendorAddress") ? row["VendorAddress"]?.ToString() : null,
-                    InvoiceToCompanyName = row.Table.Columns.Contains("InvoiceToCompanyName") ? row["InvoiceToCompanyName"]?.ToString() : null
+                    InvoiceToCompanyName = row.Table.Columns.Contains("InvoiceToCompanyName") ? row["InvoiceToCompanyName"]?.ToString() : null,
+
                 };
 
                 return h;
@@ -1060,7 +1061,9 @@ namespace P2PLibray.Purchase
                         Quantity = row.Table.Columns.Contains("Quantity") && row["Quantity"] != DBNull.Value ? Convert.ToDecimal(row["Quantity"]) : 0m,
                         CostPerUnit = row.Table.Columns.Contains("CostPerUnit") && row["CostPerUnit"] != DBNull.Value ? Convert.ToDecimal(row["CostPerUnit"]) : 0m,
                         Discount = row.Table.Columns.Contains("Discount") && row["Discount"] != DBNull.Value ? Convert.ToDecimal(row["Discount"]) : 0m,
-                        GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m
+                        GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m,
+                        ShippingCharges = row.Table.Columns.Contains("ShippingCharges") && row["ShippingCharges"] != DBNull.Value ? Convert.ToDecimal(row["ShippingCharges"]) : 0m
+
                     });
                 }
             }
@@ -1092,6 +1095,9 @@ namespace P2PLibray.Purchase
                 return false;
             }
         }
+
+
+
 
         /// <summary>
         /// Rejects the purchase order by its PO code.
@@ -1130,7 +1136,7 @@ namespace P2PLibray.Purchase
         {
             var dic = new Dictionary<string, string>
             {
-                { "@Flag", "SendForApprovalNAM" },
+                { "@Flag", "SendforApprovalPONAM" },
                 { "@POCode", poCode }
             };
 
@@ -1445,10 +1451,10 @@ namespace P2PLibray.Purchase
             Dictionary<string, string> prParam = new Dictionary<string, string>();
             prParam.Add("@Flag", "NewPRSP");
             prParam.Add("@PRCode", purchase.PRCode);
-            prParam.Add("@RequiredDate", purchase.RequiredDate.ToString("yyyy-MM-dd HH:mm:ss"));
+            prParam.Add("@RequiredDate", purchase.RequiredDate.ToString("yyyy-MM-dd"));
             prParam.Add("@StatusId", purchase.Status.ToString());
             prParam.Add("@AddedBy", purchase.AddedBy);
-            prParam.Add("@AddedDate", DateTime.Now.ToString());
+            prParam.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
             prParam.Add("@PriorityId", purchase.PriorityId.ToString());
 
             await obj.ExecuteStoredProcedure("PurchaseProcedure", prParam);
