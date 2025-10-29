@@ -66,8 +66,9 @@ toastr.options = {
     timeOut: "3000"
 };
 
-function showExportWarning(msg="Please select at least one row before exporting.") { toastr.warning(msg,"Warning"); }
-function showExportSuccess(msg="Export completed.") { toastr.success(msg,"Success"); }
+function showExportWarning(msg="Please select at least one row before exporting.") { toastr.warning(msg); }
+    function showExportSuccess(msg = "Export completed.") { toastr.success(msg, "Success"); }
+
 
 $(document).ready(function () {
     let selectedCategories = new Set();
@@ -75,6 +76,7 @@ $(document).ready(function () {
 
     // Initialize DataTable
     let table = $('#categoryTable').DataTable({
+        ordering: false,
         ajax: {
             url: '@Url.Action("GetAllCategoriesSSG","Inventory")',
             type: 'GET',
