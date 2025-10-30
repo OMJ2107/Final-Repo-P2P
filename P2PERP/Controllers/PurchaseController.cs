@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -61,6 +62,55 @@ namespace P2PERP.Controllers
             }
             return View();
         }
+
+
+        [Route("Purchase/SendMail")]
+        [HttpGet]
+        public ActionResult SendMailHSB()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult SendMailHSB(HttpPostedFileBase attachment, string toEmail, string subject, string messageBody)
+        {
+            try
+            {
+                string fromEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
+                string password = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"];
+
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(fromEmail);
+                mail.To.Add(toEmail);
+                mail.Subject = subject;
+                mail.Body = messageBody;
+                mail.IsBodyHtml = true;
+
+                // Add attachment if provided
+                if (attachment != null && attachment.ContentLength > 0)
+                {
+                    string fileName = Path.GetFileName(attachment.FileName);
+                    mail.Attachments.Add(new Attachment(attachment.InputStream, fileName));
+                }
+
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com")
+                {
+                    Port = 587,
+                    Credentials = new NetworkCredential(fromEmail, password),
+                    EnableSsl = true
+                };
+
+                smtp.Send(mail);
+                ViewBag.Status = "Email sent successfully!";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Status = "Error: " + ex.Message;
+            }
+
+            return View();
+        }
+
         #endregion
 
         #region Pravin
@@ -1525,7 +1575,8 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<JsonResult> ApproveVendorOK(int VendorId)
         {
-            bool isSave = await bal.ApproveVendorOK(VendorId);
+            string staffcode = Session["StaffCode"].ToString();
+            bool isSave = await bal.ApproveVendorOK(VendorId, staffcode);
             if (isSave)
             {
                 var message = "Vendor Approved successfully!";
@@ -1846,29 +1897,73 @@ namespace P2PERP.Controllers
         /// </summary>
 
         [HttpPost]
-        public async Task<ActionResult> SavePOOK(Purchase model, string POItems)
+        public async Task<ActionResult> SavePOOK(Purchase model, string POItems,string Itemslst)
         {
-            try
+            HttpCookie cookie = Request.Cookies["POMode"];
+            if(cookie!=null)
             {
-                string staffcode = Session["StaffCode"].ToString();
-                model.StaffCode = staffcode;
-                bool issaved = await bal.SavePOOK(model);
-                if (issaved)
+                try
                 {
-                    var message = "Purchase Order Save Succesfully!";
-                    return Json(new { success = true, message });
-                }
-                else
-                {
-                    var message = "Purchase Order Not  Save Succesfully!, please try again!";
-                    return Json(new { success = false, message });
-                }
+                    Session["JITPOSave"] = "OK";
+                    string staffcode = Session["StaffCode"].ToString();
+                    model.StaffCode = staffcode;
+                    bool issaved = await bal.SaveJITPOOK(model);
+                    if (issaved)
+                    {
+                        string POCode = string.Empty;
+                        SqlDataReader rd=await bal.FetchMaxPoCodeToAttachmentok();
+                        if(rd.Read())
+                        {
+                            POCode = rd["MaxPOCode"].ToString();
+                            rd.Close();
+                        }
+                       
+                        // ✅ Generate PDF
+                        byte[] pdfBytes = await GeneratePOPDFAttachment(POCode);
 
+                        // ✅ Send Email 
+                        await SendPOEmailAsync(POCode, pdfBytes);
+
+                        var message = "Purchase Order Save Succesfully!";
+                        return Json(new { success = true, message, sessionValue = Session["JITPOSave"] });
+                    }
+                    else
+                    {
+                        var message = "Purchase Order Not  Save Succesfully!, please try again!";
+                        return Json(new { success = false, message });
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                    return Json(new { success = false, message = ex.Message });
+                }
             }
-            catch (Exception ex)
+            else
             {
+                try
+                {
+                    string staffcode = Session["StaffCode"].ToString();
+                    model.StaffCode = staffcode;
+                    bool issaved = await bal.SavePOOK(model);
+                    if (issaved)
+                    {
+                        var message = "Purchase Order Save Succesfully!";
+                        return Json(new { success = true, message });
+                    }
+                    else
+                    {
+                        var message = "Purchase Order Not  Save Succesfully!, please try again!";
+                        return Json(new { success = false, message });
+                    }
 
-                return Json(new { success = false, message = ex.Message });
+                }
+                catch (Exception ex)
+                {
+
+                    return Json(new { success = false, message = ex.Message });
+                }
             }
         }
 
@@ -1974,13 +2069,6 @@ namespace P2PERP.Controllers
 
         }
 
-        //private void AddDataCell(PdfPTable table, string text, iTextFont font, int alignment = Element.ALIGN_LEFT)
-        //{
-        //    PdfPCell cell = new PdfPCell(new Phrase(text, font));
-        //    cell.HorizontalAlignment = alignment;
-        //    cell.Padding = 5;
-        //    table.AddCell(cell);
-        //}
         public byte[] GeneratePurchaseOrderPDF(Purchase po, List<Purchase> poItems)
         {
             using (MemoryStream ms = new MemoryStream())
@@ -2000,7 +2088,7 @@ namespace P2PERP.Controllers
                 var headerFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.BOLD, BaseColor.WHITE);
                 var normalFont = new iTextSharp.text.Font(bf, 9);
 
-                // ===== Title & Date Box =====
+                // ===== Title & Date Box ======
                 PdfPTable headerTable = new PdfPTable(2);
                 headerTable.WidthPercentage = 100;
                 headerTable.SetWidths(new float[] { 70f, 30f });
@@ -2013,7 +2101,11 @@ namespace P2PERP.Controllers
                 PdfPTable rightBox = new PdfPTable(1);
                 rightBox.WidthPercentage = 100;
 
-                PdfPCell dateCell = new PdfPCell(new Phrase($"DATE : {po.AddedDate:dd/MM/yyyy}", boldFont));
+                PdfPCell dateCell = new PdfPCell(new Phrase(
+                  $"DATE : {po.AddedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}",
+                  boldFont
+              ));
+
                 dateCell.BackgroundColor = new BaseColor(200, 230, 250);
                 dateCell.Border = iTextRectangle.NO_BORDER;
                 rightBox.AddCell(dateCell);
@@ -2198,12 +2290,12 @@ namespace P2PERP.Controllers
                 {
                     Purchase header = new Purchase();
 
-                    //header.QuotationID = ds.Tables[0].Rows[i]["QuotationNo"].ToString();
-                    // header.QuotationDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["QuotationDate"]);
-                    // header.QuotationDateString = header.QuotationDate.ToString("yyyy-MM-dd");
-                    //header.ApprovedBy = ds.Tables[0].Rows[i]["ApprovedBy"].ToString();
-                    // header.ApprovedDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["ApprovedDate"]);
-                    // header.OriginalApprovedDate = header.ApprovedDate.ToString("yyyy-MM-dd");
+                    header.QuotationID = ds.Tables[0].Rows[i]["QuotationNo"].ToString();
+                    header.QuotationDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["QuotationDate"]);
+                    header.QuotationDateString = header.QuotationDate.ToString("yyyy-MM-dd");
+                    header.ApprovedBy = ds.Tables[0].Rows[i]["ApprovedBy"].ToString();
+                    header.ApprovedDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["ApprovedDate"]);
+                    header.OriginalApprovedDate = header.ApprovedDate.ToString("yyyy-MM-dd");
                     header.VendorName = ds.Tables[0].Rows[i]["VenderName"].ToString();
                     header.CompanyName = ds.Tables[0].Rows[i]["CompanyName"].ToString();
                     header.CompanyAddress = ds.Tables[0].Rows[i]["CompanyAddress"].ToString();
@@ -2215,7 +2307,7 @@ namespace P2PERP.Controllers
                     header.DeliveryAddress = ds.Tables[0].Rows[i]["DeliveryAddress"].ToString();
                     header.ShippingCharges = Convert.ToDecimal(ds.Tables[0].Rows[i]["TransportationCharges"].ToString());
                     //header.TotalAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["TotalAmount"]);
-                    header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
+                  //  header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
 
                     lstHeader.Add(header);
                 }
@@ -2225,16 +2317,45 @@ namespace P2PERP.Controllers
                 System.Diagnostics.Debug.WriteLine("Error in PO Details loop: " + exx.Message);
             }
 
-            // 2️⃣ Accountant Staff
-            List<Purchase> lstStaff = new List<Purchase>();
+            // 4️⃣ RFQ / Items
+            List<Purchase> lstRFQItems = new List<Purchase>();
             try
             {
                 for (int i = 0; i < ds.Tables[1].Rows.Count; i++)
                 {
+                    var item = new Purchase
+                    {
+                        SRNO = Convert.ToInt32(ds.Tables[1].Rows[i]["SRNO"]),
+                        RegisterQuotationItemCode = ds.Tables[1].Rows[i]["RegisterQuotationItemCode"].ToString(),
+                        ItemCode = ds.Tables[1].Rows[i]["ItemCode"].ToString(),
+                        ItemName = ds.Tables[1].Rows[i]["ItemName"].ToString(),
+                        Description = ds.Tables[1].Rows[i]["Description"].ToString(),
+                        Quantity = Convert.ToInt32(ds.Tables[1].Rows[i]["Quantity"]),
+                        UOM = ds.Tables[1].Rows[i]["UOMName"].ToString(),
+                        CostPerUnit = Convert.ToDecimal(ds.Tables[1].Rows[i]["CostPerUnit"]),
+                        Discount = ds.Tables[1].Rows[i]["Discount"].ToString(),
+                        GST = ds.Tables[1].Rows[i]["GST"].ToString(),
+                        Amount = Convert.ToDecimal(ds.Tables[1].Rows[i]["NetAmount"])
+                    };
+                    lstRFQItems.Add(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in TermsConditions loop: " + ex.Message);
+                //throw ex;
+            }
+
+            // 2️⃣ Accountant Staff
+            List<Purchase> lstStaff = new List<Purchase>();
+            try
+            {
+                for (int i = 0; i < ds.Tables[2].Rows.Count; i++)
+                {
                     var staff = new Purchase
                     {
-                        StaffCode = ds.Tables[1].Rows[i]["StaffCode"].ToString(),
-                        AccountEmail = ds.Tables[1].Rows[i]["EmailAddress"].ToString()
+                        StaffCode = ds.Tables[2].Rows[i]["StaffCode"].ToString(),
+                        AccountEmail = ds.Tables[2].Rows[i]["EmailAddress"].ToString()
                     };
                     lstStaff.Add(staff);
                 }
@@ -2248,12 +2369,12 @@ namespace P2PERP.Controllers
             List<Purchase> lstTerms = new List<Purchase>();
             try
             {
-                for (int i = 0; i < ds.Tables[2].Rows.Count; i++)
+                for (int i = 0; i < ds.Tables[3].Rows.Count; i++)
                 {
                     var term = new Purchase
                     {
-                        TermConditionId = Convert.ToInt32(ds.Tables[2].Rows[i]["TermConditionId"]),
-                        TermConditionName = ds.Tables[2].Rows[i]["TermConditionName"].ToString()
+                        TermConditionId = Convert.ToInt32(ds.Tables[3].Rows[i]["TermConditionId"]),
+                        TermConditionName = ds.Tables[3].Rows[i]["TermConditionName"].ToString()
                     };
                     lstTerms.Add(term);
                 }
@@ -2263,34 +2384,7 @@ namespace P2PERP.Controllers
                 System.Diagnostics.Debug.WriteLine("Error in TermsConditions loop: " + exterm.Message);
             }
 
-            // 4️⃣ RFQ / Items
-            List<Purchase> lstRFQItems = new List<Purchase>();
-            try
-            {
-                for (int i = 0; i < ds.Tables[3].Rows.Count; i++)
-                {
-                    var item = new Purchase
-                    {
-                        SRNO = Convert.ToInt32(ds.Tables[3].Rows[i]["SRNO"]),
-                        //RegisterQuotationItemCode = ds.Tables[3].Rows[i]["RegisterQuotationItemCode"].ToString(),
-                        ItemCode = ds.Tables[3].Rows[i]["ItemCode"].ToString(),
-                        ItemName = ds.Tables[3].Rows[i]["ItemName"].ToString(),
-                        Description = ds.Tables[3].Rows[i]["Description"].ToString(),
-                        Quantity = Convert.ToInt32(ds.Tables[3].Rows[i]["Quantity"]),
-                        UOM = ds.Tables[3].Rows[i]["UOMName"].ToString(),
-                        CostPerUnit = Convert.ToDecimal(ds.Tables[3].Rows[i]["CostPerUnit"]),
-                        Discount = ds.Tables[3].Rows[i]["Discount"].ToString(),
-                        GST = ds.Tables[3].Rows[i]["GST"].ToString(),
-                        Amount = Convert.ToDecimal(ds.Tables[3].Rows[i]["Amount"])
-                    };
-                    lstRFQItems.Add(item);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Error in TermsConditions loop: " + ex.Message);
-                //throw ex;
-            }
+            
             // Combine into one JSON object
             var jsonData = new
             {
@@ -2302,6 +2396,94 @@ namespace P2PERP.Controllers
 
             return Json(jsonData, JsonRequestBehavior.AllowGet);
         }
+
+       // PO Email with PDF Attachment Logic
+        public async Task<byte[]> GeneratePOPDFAttachment(string POCode)
+        {
+            DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(POCode);
+
+            Purchase po = new Purchase();
+            List<Purchase> poItems = new List<Purchase>();
+
+            // Company & Vendor Details
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                var row = ds.Tables[0].Rows[0];
+                po.CompanyName = row["CompanyName"].ToString();
+                po.CompanyAddress = row["CompanyAddress"].ToString();
+                po.CompanyMobileNo = Convert.ToInt64(row["CompanyPhone"]);
+                po.CompanyEmail = row["CompanyEmail"].ToString();
+                po.Website = row["Website"].ToString();
+                po.POCode = row["POCode"].ToString();
+                po.AddedDate = Convert.ToDateTime(row["AddedDate"]);
+                po.ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]);
+                po.VendorName = row["VenderName"].ToString();
+                po.Address = row["VendorAddress"].ToString();
+                po.MobileNo = Convert.ToInt64(row["VendorPhone"]);
+                po.Email = row["VendorEmail"].ToString();  // vendor email
+                po.WarehouseName = row["WarehouseName"].ToString();
+                po.WarehouseAddress = row["WarehouseAddress"].ToString();
+                po.WarehousePhone = Convert.ToInt64(row["WarehousePhone"]);
+                po.WarehouseEmail = row["WarehouseEmail"].ToString();
+                po.SubAmount = Convert.ToDecimal(row["SubAmount"]);
+                po.GrandTotal = Convert.ToDecimal(row["GrandTotal"]);
+            }
+
+            foreach (DataRow dr in ds.Tables[1].Rows)
+            {
+                poItems.Add(new Purchase
+                {
+                    ItemCode = dr["ItemCode"].ToString(),
+                    ItemName = dr["ItemName"].ToString(),
+                    Quantity = Convert.ToInt32(dr["Quantity"]),
+                    Description = dr["Description"].ToString(),
+                    CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                    Discount = dr["Discount"].ToString(),
+                    GST = dr["GST"].ToString(),
+                    Amount = Convert.ToDecimal(dr["Amount"])
+                });
+            }
+
+            return GeneratePurchaseOrderPDF(po, poItems);
+        }
+        public async Task SendPOEmailAsync(string POCode, byte[] pdfBytes)
+        {
+            try
+            {
+                // Fetch PO details again for vendor email
+                DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(POCode);
+                if (ds.Tables[0].Rows.Count == 0) return;
+
+                string vendorEmail = ds.Tables[0].Rows[0]["VendorEmail"].ToString();
+                string vendorName = ds.Tables[0].Rows[0]["VenderName"].ToString();
+
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
+                    //mail.To.Add(vendorEmail);
+                    mail.To.Add("kumbharomkar765@gmail.com"); // Test email
+                    mail.Subject = $"Purchase Order - {POCode}";
+                    mail.Body = $"Dear {vendorName},\n\nPlease find attached the Purchase Order #{POCode}.\n\nThank you.\n\nRegards,\nYour Company";
+                    mail.IsBodyHtml = false;
+
+                    // Attach PDF
+                    mail.Attachments.Add(new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{POCode}.pdf", "application/pdf"));
+
+                    using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                    {
+                        smtp.Credentials = new NetworkCredential("sandeshjatti5329@gmail.com", "pbji sngj tkgz ylow");
+                        smtp.EnableSsl = true;
+                        await smtp.SendMailAsync(mail);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log exception or handle it silently
+                Console.WriteLine("Email Error: " + ex.Message);
+            }
+        }
+
         #endregion
 
         #region prathamesh
@@ -2410,11 +2592,7 @@ namespace P2PERP.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for approved PR
-        public ActionResult ShowApprovePRPartialPRK()
-        {
-            return PartialView("_ShowApprovePRPartialPRK");
-        }
+      
 
         // Rejected PR main view
         public ActionResult ShowRejectedPRPRK()
@@ -2486,11 +2664,7 @@ namespace P2PERP.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for pending PR
-        public ActionResult ShowPendingPRPartialPRK()
-        {
-            return PartialView("_ShowPendingPRPartialPRK");
-        }
+      
 
         // Approved PR items partial (by PRCode)
         public ActionResult ShowApporvePRItemPRK(string prCode)
@@ -2544,86 +2718,128 @@ namespace P2PERP.Controllers
 
         //Manager Dashboard 
 
+        // Partial view for approved PR
+
+        public async Task<ActionResult> ShowApprovPRDashPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowApprovedPRDashPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ShowApprovePRPartialPRK(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowApprovePRPartialPRK");
+        }
+
+
+
+
+        // Partial view for pending PR
+
+        public async Task<ActionResult> ShowPendingPRDashPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowPendingPRDashPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ShowPendingPRPartialPRK(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowPendingPRPartialPRK");
+        }
 
 
         // Requested RFQ
-        public async Task<ActionResult> ShowRequestedRFQPRK()
+        public async Task<ActionResult> ShowRequestedRFQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowRequestedRFQPRK();
+            var data = await bal.ShowRequestedRFQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Requested RFQ
-        public ActionResult ShowReuestedRFQPartialPRK()
+        public ActionResult ShowReuestedRFQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd"); 
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowReuestedRFQPartialPRK");
         }
 
         //Pending RFQ
-        public async Task<ActionResult> ShowPendingRFQPRK()
+        public async Task<ActionResult> ShowPendingRFQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowPendingRFQPRK();
+            var data = await bal.ShowPendingRFQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Pending RFQ
-        public ActionResult ShowPendingRFQPartialPRK()
+        public ActionResult ShowPendingRFQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingRFQPartialPRK");
         }
 
         // Approve RQ
-        public async Task<ActionResult> ShowApproveRQPRK()
+        public async Task<ActionResult> ShowApproveRQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowApproveRQPRK();
+            var data = await bal.ShowApproveRQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         //   // Partial view for Approve RQ
-        public ActionResult ShowApproveRQPartialPRK()
+        public ActionResult ShowApproveRQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowApproveRQPartialPRK");
         }
 
         //Pending RQ
-        public async Task<ActionResult> ShowPendingRQPRK()
+        public async Task<ActionResult> ShowPendingRQPRK(DateTime startDate, DateTime endDate)
         {
 
-            var data = await bal.ShowPendingRQPRK();
+            var data = await bal.ShowPendingRQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for Pending RQ
-        public ActionResult ShowPendingRQPartialPRK()
+        // Partial view for Pending RQ 
+        public ActionResult ShowPendingRQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingRQPartialPRK");
         }
 
 
 
         //Approve PO
-        public async Task<ActionResult> ShowApprovePOPRK()
+        public async Task<ActionResult> ShowApprovePOPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowApprovePOPRK();
+            var data = await bal.ShowApprovePOPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Approve PO
-        public ActionResult ShowApprovePOPartialPRK()
+        public ActionResult ShowApprovePOPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowApprovePOPartialPRK");
         }
 
         //Pending PO
-        public async Task<ActionResult> ShowPendingPOPRK()
+        public async Task<ActionResult> ShowPendingPOPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowPendingPOPRK();
+            var data = await bal.ShowPendingPOPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Approve PO
-        public ActionResult ShowPendingPOPartialPRK()
+        public ActionResult ShowPendingPOPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingPOPartialPRK");
         }
     

@@ -55,7 +55,7 @@
 <div class="container mt-4">
     <!-- Header -->
     <div class="card-header bg-primary text-white d-flex justify-content-center align-items-center rounded-top p-3">
-        <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-arrow-left-right me-2"></i>Transfer In-House</h5>
+        <h3 class="modal-title fw-bold text-white mb-0">Transfer In-House</h3>
     </div>
 
     <!-- Main Card -->
@@ -75,9 +75,11 @@
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-primary">Department<span class="text-danger">*</span></label>
                         <select class="form-select form-select-lg dept-select shadow-sm" id="Department">
-                            <option selected>Select Department</option>
+                            <option value="">Select Department</option>
                         </select>
+                        <div id="deptError" class="text-danger mt-1 small" style="display:none;"></div>
                     </div>
+
                 </div>
 
                 <!-- Second Row - Three Columns -->
@@ -85,20 +87,27 @@
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-primary">Employee Name<span class="text-danger">*</span></label>
                         <select class="form-select form-select-lg emp-select shadow-sm" id="Employee">
-                            <option selected>Select Employee</option>
+                            <option value="">Select Employee</option>
                         </select>
+                        <div id="empError" class="text-danger mt-1 small" style="display:none;"></div>
                     </div>
+
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-primary">Item Name<span class="text-danger">*</span></label>
                         <select class="form-select form-select-lg item-select shadow-sm" id="ItemName">
-                            <option selected>Select Item</option>
+                            <option selected value="">Select Item</option>
                         </select>
+                        <!-- 🔹 Error message for Item -->
+                        <small id="ItemNameError" class="text-danger d-none">Please select an item.</small>
                     </div>
+
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-primary">Bin Name<span class="text-danger">*</span></label>
                         <select class="form-select form-select-lg item-bin shadow-sm" id="BinName">
-                            <option selected>Select Bin</option>
+                            <option selected value="">Select Bin</option>
                         </select>
+                        <!-- 🔹 Error message for Bin -->
+                        <small id="BinNameError" class="text-danger d-none">Please select a bin.</small>
                     </div>
                 </div>
 
@@ -122,8 +131,14 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-primary">Quantity</label>
-                        <input type="number" id="Quantity" class="form-control form-control-lg bg-light text-dark shadow-sm" min="1" />
+                        <input type="number"
+                               id="Quantity"
+                               class="form-control form-control-lg  text-dark shadow-sm"
+                               min="1"
+                               placeholder="Enter quantity" />
+                        <small id="QuantityError" class="text-danger d-none">Quantity must be greater than 0.</small>
                     </div>
+
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-primary">Unit Price</label>
                         <input type="number" id="PricePerUnit" class="form-control form-control-lg bg-light text-dark shadow-sm" readonly />
@@ -179,7 +194,7 @@
     <div class="container-fluid px-4 mt-4 mb-4">
         <div class="d-flex justify-content-center">
             <button type="button" id="btnSubmitIssuedItems" class="btn btn-warning btn-lg px-5 shadow-sm">
-                <i class="bi bi-check2-circle me-2"></i> Item Issued
+                <i class="bi bi-check2-circle me-2"></i> Issue Item 
             </button>
         </div>
     </div>
@@ -277,7 +292,7 @@
         });
 
         // Load Bins by Items
-        // 🔹 Global stock tracker
+        //  Global stock tracker
         let binStockMap = {};  // { BinCode: remainingQty }
 
         $(".item-select").change(function () {
@@ -324,72 +339,176 @@
         });
 
 
+    //Add Item Button
+        $(document).ready(function () {
 
-        // Add item to table
-        $("#btnAddItem").click(function () {
-            let code = $("#ItemCode").val();
-            let name = $("#ItemName option:selected").text();
-            let cat = $("#ItemCategory").val();
-            let uom = $("#UOM").val();
-            let qty = parseInt($("#Quantity").val());
-            let price = parseFloat($("#PricePerUnit").val()) || 0;
-            let amount = (qty * price).toFixed(2);
+            // Global bin stock map (assumes you declare/initialize it elsewhere if needed)
+            window.binStockMap = window.binStockMap || {};
 
-            let $bin = $("#BinName option:selected");
-            let binCode = $bin.val();
-            let binName = $bin.data("binname");
-            let currentItems = $bin.data("currentitems") || 0;
+            // Add item to table (delegated so it works even if the button is re-rendered)
+            $(document).on("click", "#btnAddItem", function (e) {
+               
 
-            // 🔹 Validation
-            if (!code || !qty || !price || !binCode) {
-                Swal.fire("Warning", "Select item, bin, and enter valid quantity!", "warning");
-                return;
+                let code = $("#ItemCode").val();
+                let name = $("#ItemName option:selected").text();
+                let cat = $("#ItemCategory").val();
+                let uom = $("#UOM").val();
+                let qty = parseInt($("#Quantity").val());
+                let price = parseFloat($("#PricePerUnit").val()) || 0;
+                let amount = (qty * price).toFixed(2);
+
+                let $bin = $("#BinName option:selected");
+                let binCode = $bin.val();
+                let binName = $bin.data("binname");
+                let currentItems = $bin.data("currentitems") || 0;
+
+                // 🔹 Item Dropdown Validation
+                if (!$("#ItemName").val()) {
+                    $("#ItemName").addClass("is-invalid");
+                    $("#ItemNameError").removeClass("d-none").text("Please select an item.");
+                    return;
+                } else {
+                    $("#ItemName").removeClass("is-invalid");
+                    $("#ItemNameError").addClass("d-none");
+                }
+
+                // 🔹 Bin Dropdown Validation
+                if (!$("#BinName").val()) {
+                    $("#BinName").addClass("is-invalid");
+                    $("#BinNameError").removeClass("d-none").text("Please select a bin.");
+                    return;
+                } else {
+                    $("#BinName").removeClass("is-invalid");
+                    $("#BinNameError").addClass("d-none");
+                }
+
+                // 🔹 Quantity Validation (Zero or Negative)
+                if (isNaN(qty) || qty <= 0) {
+                    $("#Quantity").addClass("is-invalid");
+                    $("#QuantityError").removeClass("d-none").text("Quantity must be greater than 0!");
+                    return;
+                } else {
+                    $("#Quantity").removeClass("is-invalid");
+                    $("#QuantityError").addClass("d-none");
+                }
+
+                // 🔹 Basic Validation (keep your original logic)
+                if (!code || !qty || !price || !binCode) {
+                    $("#QuantityError").removeClass("d-none").text("Select item, bin, and enter valid quantity!");
+                    return;
+                }
+
+                // 🔹 Stock Limit Validation
+                if (qty > currentItems) {
+                    $("#QuantityError").removeClass("d-none").text("Quantity exceeds available stock in selected bin!");
+                    return;
+                }
+
+                //  All validations passed
+                $("#ItemNameError, #BinNameError, #QuantityError").addClass("d-none");
+                $("#ItemName, #BinName, #Quantity").removeClass("is-invalid");
+
+                //  Add row to Issued Items Table (your original markup)
+                $("#issuedItemsTable tbody").append(`
+            <tr data-bincode="${binCode}">
+                <td>${code}</td>
+                <td>${name}</td>
+                <td>${cat}</td>
+                <td>${uom}</td>
+                <td>${qty}</td>
+                <td>${price}</td>
+                <td>₹${amount}</td>
+                <td>${binName}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-danger btn-delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `);
+
+                // 🔹 Deduct stock from dropdown + global map
+                let newQty = currentItems - qty;
+                binStockMap[binCode] = newQty; // update global tracker
+
+                if (newQty > 0) {
+                    // update option text and data
+                    $bin.data("currentitems", newQty);
+                    // If option element is not the selected one (some browsers), update it by selector:
+                    $("#BinName option[value='" + binCode + "']").data("currentitems", newQty).text(binName + " (Available: " + newQty + ")");
+                } else {
+                    // remove the option safely
+                    $("#BinName option[value='" + binCode + "']").remove();
+                }
+
+                // 🔹 Update total amount (call your function if exists)
+                if (typeof updateTotal === "function") {
+                    updateTotal();
+                }
+
+                // 🔹 Reset form fields - also trigger change so Select2 or other plugins update UI
+                $("#ItemName").val("").trigger("change");
+                $("#BinName").val("").trigger("change");
+                $("#ItemCode").val("");
+                $("#ItemCategory").val("");
+                $("#UOM").val("");
+                $("#Quantity").val("");
+                $("#PricePerUnit").val("");
+
+                // Optional: put focus back to ItemName for quick add
+                $("#ItemName").focus();
+            });
+
+
+            // Real-time validation 
+            $(document).on("change input", "#ItemName", function () {
+                // If value becomes valid, hide error
+                if ($(this).val()) {
+                    $(this).removeClass("is-invalid");
+                    $("#ItemNameError").addClass("d-none");
+                }
+            });
+
+            $(document).on("change input", "#BinName", function () {
+                if ($(this).val()) {
+                    $(this).removeClass("is-invalid");
+                    $("#BinNameError").addClass("d-none");
+                }
+            });
+
+            $(document).on("input", "#Quantity", function () {
+                let qty = parseInt($(this).val());
+                if (!isNaN(qty) && qty > 0) {
+                    $(this).removeClass("is-invalid");
+                    $("#QuantityError").addClass("d-none");
+                }
+            });
+
+           
+            // Select2 compatibility (if you use Select2)
+            if ($.fn.select2) {
+                // hide error when select2 selection occurs
+                $(document).on("select2:select", "#ItemName", function () {
+                    $(this).removeClass("is-invalid");
+                    $("#ItemNameError").addClass("d-none");
+                });
+                $(document).on("select2:select", "#BinName", function () {
+                    $(this).removeClass("is-invalid");
+                    $("#BinNameError").addClass("d-none");
+                });
+
+            
             }
-            if (qty > currentItems) {
-                Swal.fire("Error", "Quantity exceeds available stock in selected bin!", "error");
-                return;
-            }
 
-            // 🔹 Add row to Issued Items Table
-            $("#issuedItemsTable tbody").append(`
-        <tr  data-bincode="${binCode}">
-            <td>${code}</td>
-            <td>${name}</td>
-            <td>${cat}</td>
-            <td>${uom}</td>
-            <td>${qty}</td>
-            <td>${price}</td>
-            <td>₹${amount}</td>
-            <td>${binName}</td>   <!-- show Bin column -->
-            <td class="text-center">
-                <button type="button" class="btn btn-sm btn-danger btn-delete"><i class="bi bi-trash"></i></button>
-            </td>
-        </tr>
-    `);
+            // Optional: Delete row handler (delegated)
+            $(document).on("click", ".btn-delete", function () {
+                // If you need to return stock to bin, handle it here.
+                $(this).closest("tr").remove();
+                if (typeof updateTotal === "function") updateTotal();
+            });
 
-            // 🔹 Deduct stock from dropdown + global map
-            let newQty = currentItems - qty;
-            binStockMap[binCode] = newQty; // update global tracker
-
-            if (newQty > 0) {
-                $bin.data("currentitems", newQty);
-                $bin.text(binName + " (Available: " + newQty + ")");
-            } else {
-                $bin.remove(); // remove from dropdown if stock exhausted
-            }
-
-            // 🔹 Update total amount
-            updateTotal();
-
-            // 🔹 Reset form fields
-            $("#ItemName").val("");
-            $("#BinName").val("");
-            $("#ItemCode").val("");
-            $("#ItemCategory").val("");
-            $("#UOM").val("");
-            $("#Quantity").val("");
-            $("#PricePerUnit").val("");
         });
+
 
         // Render quantity based on Bin change
         $(document).on("change", ".item-bin", function () {
@@ -420,11 +539,41 @@
 
 
 
-        // Delete row (with SweetAlert confirm)
-        $("#issuedItemsTable").on("click", ".btn-delete", function () {
+        // Delete row (with SweetAlert confirm) — robust + debug
+        $("#issuedItemsTable").on("click", ".btn-delete", function (e) {
+            // Stop form submit / other handlers from interfering
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            // Find the row
             let row = $(this).closest("tr");
-            let qty = parseInt(row.find("td:eq(4)").text());
-            let binName = row.find("td:eq(7)").text();
+            if (!row || row.length === 0) {
+                console.error("Delete: couldn't find the row.");
+                return;
+            }
+
+            // Safely read quantity (fallback to 0)
+            let qtyText = row.find("td:eq(4)").text() || row.find("td").eq(4).text();
+            let qty = parseInt(qtyText.toString().trim(), 10);
+            if (isNaN(qty)) {
+                console.warn("Delete: quantity parse failed, defaulting to 0. qtyText:", qtyText);
+                qty = 0;
+            }
+
+            // Safely read binName (trimmed)
+            let binName = (row.find("td:eq(7)").text() || row.find("td").eq(7).text() || "").toString().trim();
+
+            // Debug info to console
+            console.log("Delete clicked — qty:", qty, "binName:", binName, "row:", row);
+
+            // Check Swal is available and has fire
+            if (typeof Swal === "undefined" || typeof Swal.fire !== "function") {
+                console.error("SweetAlert2 (Swal.fire) not found. Make sure SweetAlert2 script is loaded.");
+                // Fallback: simple confirm
+                if (!confirm("Are you sure you want to delete this item?")) return;
+                performDelete();
+                return;
+            }
 
             Swal.fire({
                 title: "Are you sure?",
@@ -432,101 +581,157 @@
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "Yes, delete it",
-                cancelButtonText: "Cancel"
+                cancelButtonText: "Cancel",
+                customClass: {
+                    cancelButton: 'btn btn-danger'
+                },
             }).then((result) => {
-                if (result.isConfirmed) {
+                if (result && result.isConfirmed) {
+                    performDelete();
+                } else {
+                    console.log("Delete cancelled by user.");
+                }
+            });
+
+            // performDelete is a local function so row/qty/binName closure is used safely
+            function performDelete() {
+                // Optional: smooth fade out then remove
+                row.fadeOut(200, function () {
                     row.remove();
-                    updateTotal();
+                    // update totals if function exists
+                    try {
+                        if (typeof updateTotal === "function") {
+                            updateTotal();
+                        } else {
+                            console.warn("updateTotal() not found.");
+                        }
+                    } catch (err) {
+                        console.error("Error calling updateTotal():", err);
+                    }
 
                     // Restore Bin stock
                     $("#BinName option").each(function () {
-                        if ($(this).data("binname") === binName) {
-                            let restored = ($(this).data("currentitems") || 0) + qty;
-                            $(this).data("currentitems", restored);
-                            $(this).text(binName + " (Available: " + restored + ")");
+                        try {
+                            if ($(this).data("binname") === binName) {
+                                let restored = (parseInt($(this).data("currentitems"), 10) || 0) + qty;
+                                $(this).data("currentitems", restored);
+                                $(this).text(binName + " (Available: " + restored + ")");
+                            }
+                        } catch (err) {
+                            console.error("Error restoring bin option:", err, this);
                         }
-
                     });
-                }
-            });
-        });
-
-
-        // Submit issued items (without confirmation popup)
-        $("#btnSubmitIssuedItems").click(function () {
-            let header = {
-                IssueCode: $("#IssueCode").val(),
-                IssueDate: $("#IssueDate").val(),
-                //BinCode: $("#BinName").val(),
-                StaffCode: $("#Employee").val()
-            };
-
-            let items = [];
-            $("#issuedItemsTable tbody tr").each(function () {
-                let row = $(this).find("td");
-                items.push({
-                    IssueCode: header.IssueCode,
-                    BinCode: $(this).data("bincode"),
-                    ItemCode: $(row[0]).text(),
-                    Quantity: $(row[4]).text(),
-                    UnitPrice: $(row[5]).text(),
-                    Amount: $(row[6]).text()
                 });
-            });
-
-            // validation
-            if (!header.StaffCode || items.length === 0) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Please select employee and add at least one item!",
-                    showConfirmButton: true,
-                    timer: 2000
-                });
-                return;
             }
+        });
 
-            // directly save (no confirmation)
-            $.ajax({
-                url: "/Inventory/SaveIssueHeaderDRB",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(header),
-                success: function () {
-                    $.ajax({
-                        url: "/Inventory/SaveIssueDetailsDRB",
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify(items),
-                        success: function () {
-                            Swal.fire({
-                                icon: "success",
-                                title: "Items Issued Successfully!",
-                                showConfirmButton: false,
-                                timer: 2000
-                            });
-                            $("#issuedItemsTable tbody").empty();
-                            $("#TotalAmount").val("0.00");
-                        },
-                        error: function () {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error occurred while saving issued items.",
-                                showConfirmButton: false,
-                                timer: 2000
-                            });
-                        }
-                    });
-                },
-                error: function () {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error occurred while saving issue header.",
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
+
+        // Real-time validation setup
+        $(document).ready(function () {
+
+            // Hide errors when user selects valid department or employee
+            $("#Department").change(function () {
+                if ($(this).val()) {
+                    $("#deptError").hide().text("");
                 }
             });
+
+            $("#Employee").change(function () {
+                if ($(this).val()) {
+                    $("#empError").hide().text("");
+                }
+            });
+
+            // Submit issued items
+            $("#btnSubmitIssuedItems").click(function (e) {
+                e.preventDefault();
+
+                // Clear previous validation messages
+                $("#deptError").hide().text("");
+                $("#empError").hide().text("");
+                $("#itemError").remove();
+
+                let header = {
+                    IssueCode: $("#IssueCode").val(),
+                    IssueDate: $("#IssueDate").val(),
+                    StaffCode: $("#Employee").val(),
+                    Department: $("#Department").val()
+                };
+
+                let items = [];
+                $("#issuedItemsTable tbody tr").each(function () {
+                    let row = $(this).find("td");
+                    items.push({
+                        IssueCode: header.IssueCode,
+                        BinCode: $(this).data("bincode"),
+                        ItemCode: $(row[0]).text(),
+                        Quantity: $(row[4]).text(),
+                        UnitPrice: $(row[5]).text(),
+                        Amount: $(row[6]).text()
+                    });
+                });
+
+                //  Validation flags
+                let isValid = true;
+
+                // Department validation (below dropdown)
+                if (!header.Department) {
+                    $("#deptError")
+                        .text("Please select a department.")
+                        .show();
+                    isValid = false;
+                }
+
+                // Employee validation (below dropdown)
+                if (!header.StaffCode) {
+                    $("#empError")
+                        .text("Please select an employee.")
+                        .show();
+                    isValid = false;
+                }
+
+               
+
+                // Stop if invalid
+                if (!isValid) return;
+
+                //  Save Issue Header
+                $.ajax({
+                    url: "/Inventory/SaveIssueHeaderDRB",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(header),
+                    success: function () {
+                        //  Save Issue Details
+                        $.ajax({
+                            url: "/Inventory/SaveIssueDetailsDRB",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify(items),
+                            success: function () {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Items Issued Successfully!",
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+
+                                // Reset form & table
+                                $("#issuedItemsTable tbody").empty();
+                                $("#TotalAmount").val("0.00");
+                                $("#Department").val("");
+                                $("#Employee").val("");
+                                $("#deptError, #empError, #itemError").hide().text("");
+                            }
+                        });
+                    }
+                });
+            });
+
+
         });
+
+
 
     });
 
@@ -540,5 +745,23 @@
             $(this).val(maxQty); // reset to max
         }
     });
+
+    //Show error msg when quantity is zero or  negative
+    $(document).ready(function () {
+        $("#Quantity").on("input", function () {
+            let qty = parseFloat($(this).val());
+            let $error = $("#QuantityError");
+
+            // Show error only if value is entered and it's 0 or negative
+            if ($(this).val() !== "" && (isNaN(qty) || qty <= 0)) {
+                $error.removeClass("d-none");        // show error message
+                $(this).addClass("is-invalid");      // red border
+            } else {
+                $error.addClass("d-none");           // hide error message
+                $(this).removeClass("is-invalid");   // remove red border
+            }
+        });
+    });
+
 
 </script>
