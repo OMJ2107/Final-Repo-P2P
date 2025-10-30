@@ -135,10 +135,6 @@
 
 
 
-
-
-
-
         <!-- Modal -->
         <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -432,12 +428,6 @@
 <script>
     $(document).ready(function () {
 
-
-
-
-
-
-
         $(document).on("click", ".btnview", function () {
             var id = $(this).data("id");
             var itemCode = $(this).data("code");
@@ -531,6 +521,7 @@
                 }
             });
         });
+      
 
 
 
@@ -692,7 +683,7 @@
                             {
                                 extend: 'pdfHtml5',
                                 text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
-                                title: " ",
+                                title: "",
                                 action: function (e, dt, button, config) {
                                     if ($('.row-checkbox:checked').length === 0) {
                                         showExportToast();
@@ -707,60 +698,67 @@
                                     columns: ':visible:not(:first-child):not(:last-child)'
                                 },
                                 customize: function (doc) {
-                                    // Reset serial no
-                                    doc.content[1].table.body.forEach((row, i) => {
-                                        if (i > 0) row[0].text = i;
+                                    // ✅ Find the table
+                                    var tableNode = doc.content.find(obj => obj.table);
+                                    if (!tableNode) return;
+                                    var table = tableNode.table;
+
+                                    // ✅ Reset serial number
+                                    table.body.forEach((row, i) => {
+                                        if (i > 0 && row[0] && row[0].text !== undefined) {
+                                            row[0].text = i;
+                                        }
                                     });
 
-                                    // Apply background color to header
-                                    var headerRow = doc.content[1].table.body[0];
-                                    headerRow.forEach(function (cell) {
+                                    // ✅ Header styling
+                                    var headerRow = table.body[0];
+                                    headerRow.forEach(cell => {
                                         cell.fillColor = '#000000';
                                         cell.color = '#ffffff';
                                         cell.bold = true;
                                         cell.alignment = 'center';
                                     });
 
-                                    // ✅ Add title and date above the table
-                                    var title = "Inventory List";
-                                    var date = "Generated Date: " + moment().format("DD/MM/YYYY");
+                                    // ✅ Add Title and Date above the table
                                     doc.content.unshift(
-                                        { text: title, style: 'header', alignment: 'center', margin: [0, 0, 0, 2] },
-                                        { text: date, style: 'subheader', alignment: 'center', margin: [0, 0, 0, 10] }
+                                        { text: 'Inventory List', style: 'header', alignment: 'center', margin: [0, 0, 0, 2] },
+                                        { text: 'Generated Date: ' + moment().format('DD/MM/YYYY'), style: 'subheader', alignment: 'center', margin: [0, 0, 0, 10] }
                                     );
 
-                                    // ✅ Safely add borders and grid lines
-                                    if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
-                                        var table = doc.content[1].table;
-                                        var body = table.body;
+                                    // ✅ Apply full grid with visible borders
+                                    table.layout = {
+                                        // Always draw both horizontal and vertical lines
+                                        hLineWidth: function (i, node) { return 1; },
+                                        vLineWidth: function (i, node) { return 1; },
+                                        hLineColor: function (i, node) { return '#000000'; },
+                                        vLineColor: function (i, node) { return '#000000'; },
+                                        // ✅ Padding for better spacing
+                                        paddingLeft: function (i, node) { return 6; },
+                                        paddingRight: function (i, node) { return 6; },
+                                        paddingTop: function (i, node) { return 4; },
+                                        paddingBottom: function (i, node) { return 4; },
+                                        // ✅ Ensure all lines are drawn, even internal ones
+                                        drawHorizontalLine: function (i, node) { return true; },
+                                        drawVerticalLine: function (i, node) { return true; }
+                                    };
 
-                                        // Apply borders to all cells
-                                        for (var i = 0; i < body.length; i++) {
-                                            for (var j = 0; j < body[i].length; j++) {
-                                                body[i][j].border = [true, true, true, true];
-                                            }
+                                    // ✅ Optional zebra background (light gray)
+                                    table.body.forEach((row, i) => {
+                                        if (i > 0 && i % 2 === 0) {
+                                            row.forEach(cell => { cell.fillColor = '#f2f2f2'; });
                                         }
+                                    });
 
-                                        // ✅ Add clean grid-style lines between all rows and columns
-                                        table.layout = {
-                                            hLineWidth: function (i, node) { return 0.5; },
-                                            vLineWidth: function (i, node) { return 0.5; },
-                                            hLineColor: function (i, node) { return '#000000'; },
-                                            vLineColor: function (i, node) { return '#000000'; },
-                                            paddingLeft: function (i, node) { return 4; },
-                                            paddingRight: function (i, node) { return 4; },
-                                            paddingTop: function (i, node) { return 3; },
-                                            paddingBottom: function (i, node) { return 3; },
-                                            // ✅ Make sure there are vertical lines between all columns
-                                            fillColor: function (rowIndex, node, columnIndex) { return null; }
-                                        };
-                                    }
-
-                                    // Styles
+                                    // ✅ Font styling
                                     doc.styles.header = { fontSize: 16, bold: true };
                                     doc.styles.subheader = { fontSize: 12, italics: true };
                                 }
+
+
                             },
+
+
+
                             {
                                 extend: 'excelHtml5',
                                 text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
@@ -897,7 +895,7 @@
 
                             {
                                 extend: 'csvHtml5',
-                                text: '<i class="bi bi-filetype-csv text-dark fs-5"></i>',
+                                text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
                                 title: "Inventory List",
                                 action: function (e, dt, button, config) {
                                     const selectedRows = [];
@@ -995,6 +993,10 @@
             });
         });
 
+
+       
+
+
         //datepicker
         $('#itemdatefilter').daterangepicker({
             autoUpdateInput: false,
@@ -1043,6 +1045,8 @@
             $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => f.name !== 'dateFilter');
             $('#table').DataTable().draw();
         });
+
+
 
 
 
@@ -1101,36 +1105,37 @@
         });
 
 
-        // function for close button
+       
         $('#itemModal').on('hidden.bs.modal', function () {
-            // Reset all values
-            $('#itemForm')[0].reset();
+            const $form = $('#itemForm');
 
-            // Clear extra fields
-            $('#itemIdOJ, #itemqualityid, #itemStatus, #itemCategory, #itemMake, #uom, #qualityCheck').val('');
+            // 🔹 Remove errors
+            $form.find('.error-text, .text-danger').remove();
+            $form.find('input, select, textarea').removeClass('is-invalid');
+
+            // 🔹 Reset form fields
+            $form[0].reset();
+
+            // 🔹 Reset dropdowns
+            $form.find('#itemIdOJ, #itemqualityid, #itemStatus, #itemCategory, #itemMake, #uom, #qualityCheck').val('');
+
+            // 🔹 Clear dynamic table (if any)
             $("#paralist").empty();
 
-            $("#itemForm input, #itemForm textarea, #itemForm select").removeClass("is-invalid");
+            // 🔹 Enable fields
+            $form.find('input, textarea').prop('readonly', false);
+            $form.find('select').prop('disabled', false);
 
+            // 🔹 Reset special read-only fields
+            $("#itemCode, #hsnCode, #plancode").prop('readonly', false);
 
-
-            // Reset readonly/disabled states
-            $("#itemForm input, #itemForm textarea").prop("readonly", false);
-            $("#itemForm select, #itemForm input[type='checkbox'], #itemForm input[type='radio']")
-                .prop("disabled", false);
-
-            $("#itemCode").prop("disabled", false);
-            $("#plancode").prop("readonly", false);
-            $("#hsnCode").prop("disabled", false);
-
-            // Reset sections visibility
+            // 🔹 Reset visibility & labels
             $('#inspectionfrm').hide();
             $('#itemaster').show();
-
-            // Reset labels/buttons if needed
             $("#itemModalLabel").text("");
             $("#subitem").text("");
         });
+
 
 
         // getting status for item master form
@@ -1292,16 +1297,57 @@
 
             $("#QP").val(finalValue);
         });
-
-
-
+        
 
 
         $("#createitem").on("click", function () {
 
-            $("#itemName , #description , #itemMake , #itemCategory ,#uom ").prop("disabled", false);
 
-            $("#hsnCode").prop("disabled", true);
+
+
+
+            $('#itemForm .text-danger').hide();
+            $('#itemForm .form-control, #itemForm .form-select').removeClass('is-invalid');
+            $('#itemForm .error-text').remove();
+            $('#itemForm input, #itemForm select').removeClass('is-invalid');
+
+            // Real-time correction (scoped only to form)
+            $('#itemForm input, #itemForm select')
+                .off('input.removeError change.removeError')
+                .on('input.removeError change.removeError', function () {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.error-text').remove();
+                });
+
+
+
+            $(" #itemName, #description, #itemMake, #itemCategory, #uom")
+                .prop("disabled", false)
+                .css({
+                    color: "",                // reset to default
+                    backgroundColor: "",      // reset background
+                    opacity: "",              // reset opacity
+                    cursor: ""                // reset cursor
+                });
+            //$("#hsnCode").prop("disabled", true);
+            $("#hsnCode").prop("disabled", true).css({
+                color: "#000",            // black text
+                backgroundColor: "#e9ecef", // light gray background like Bootstrap disabled
+                opacity: 1                // prevent fading
+            });
+
+            $("#itemCode").prop("disabled", true).css({
+                color: "#000",            // black text
+                backgroundColor: "#e9ecef", // light gray background like Bootstrap disabled
+                opacity: 1 
+            });
+            $("#plancode").prop("disabled", true).css({
+                color: "#000",            // black text
+                backgroundColor: "#e9ecef", // light gray background like Bootstrap disabled
+                opacity: 1 
+            });
+
+           
 
             // Overlay behavior
             $('#itemModal').off('show.bs.modal').on('show.bs.modal', function () {
@@ -1475,96 +1521,145 @@
 
 
 
-        let isValid = true;
+        
 
-        // ✅ List of specific fields to validate
-        let requiredFields = [
-            '#itemName',
-            '#costPerUnit',
-            '#minQuantity',
-            '#itemCategory',
-            '#reorderQuantity',
-            '#description',
-            '#itemStatus',
-            '#itemMake',
-            '#uom',
-            '#ExpiryDays',
-            '#qualityCheck'
-        ];
+      
+        function validateItemForm() {
+            let isValid = true;
+            const $form = $('#itemForm');
 
-        // ✅ Remove red border when user types or changes value
-        requiredFields.forEach(function (selector) {
-            $(document).on('input change', selector, function () {
-                if ($(this).val().trim() !== '') {
-                    $(this).removeClass('is-invalid');
+            // 🔹 Clear old errors inside the form
+            $form.find('.text-danger').hide();
+            $form.find('.form-control, .form-select').removeClass('is-invalid');
+
+            // 🔹 Basic required field checks
+            const fields = [
+                { id: '#itemName', message: 'Please enter the item name.' },
+                { id: '#costPerUnit', message: 'Please enter the cost per unit.' },
+                { id: '#minQuantity', message: 'Please enter the minimum quantity.' },
+                { id: '#itemCategory', message: 'Please select an item category.' },
+                { id: '#hsnCode', message: 'Please enter the HSN code.' },
+                { id: '#reorderQuantity', message: 'Please enter the reorder quantity.' },
+                { id: '#description', message: 'Please enter a description.' },
+                { id: '#itemStatus', message: 'Please select an item status.' },
+                { id: '#itemMake', message: 'Please select an item make.' },
+                { id: '#uom', message: 'Please select the UOM.' },
+                { id: '#ExpiryDays', message: 'Please enter expiry days.' },
+                { id: '#qualityCheck', message: 'Please select if quality check is required.' }
+            ];
+
+            fields.forEach(f => {
+                const $field = $form.find(f.id);
+                const value = $field.val()?.trim();
+
+                if (!value) {
+                    isValid = false;
+                    $field.addClass('is-invalid');
+                    if ($field.next('.text-danger').length === 0) {
+                        $field.after(`<small class="text-danger">${f.message}</small>`);
+                    } else {
+                        $field.next('.text-danger').text(f.message).show();
+                    }
+                } else {
+                    $field.removeClass('is-invalid');
+                    $field.next('.text-danger').hide();
                 }
             });
-        });
 
+            // 🔹 Numeric / logical validations
+            const minQuantity = parseFloat($('#minQuantity').val()) || 0;
+            const reorderQuantity = parseFloat($('#reorderQuantity').val()) || 0;
+            const costPerUnit = parseFloat($('#costPerUnit').val()) || 0;
+            const expiryDays = parseInt($('#ExpiryDays').val()) || 0;
+
+            // Min Quantity > 0
+            if (minQuantity <= 0) {
+                isValid = false;
+                $('#minQuantity').addClass('is-invalid');
+                if ($('#minQuantity').next('.text-danger').length === 0)
+                    $('#minQuantity').after('<small class="text-danger">Minimum Quantity must be greater than 0.</small>');
+                else
+                    $('#minQuantity').next('.text-danger').text('Minimum Quantity must be greater than 0.').show();
+            }
+
+            // Reorder Quantity > 0 and > Min Quantity
+            if (reorderQuantity < 0) {
+                isValid = false;
+                $('#reorderQuantity').addClass('is-invalid');
+                if ($('#reorderQuantity').next('.text-danger').length === 0)
+                    $('#reorderQuantity').after('<small class="text-danger">Reorder Quantity cannot be negative.</small>');
+                else
+                    $('#reorderQuantity').next('.text-danger').text('Reorder Quantity cannot be negative.').show();
+
+            } else if (reorderQuantity < minQuantity && minQuantity > 0) {
+                isValid = false;
+                $('#reorderQuantity').addClass('is-invalid');
+                if ($('#reorderQuantity').next('.text-danger').length === 0)
+                    $('#reorderQuantity').after('<small class="text-danger">Reorder Quantity must be greater than or equal to Minimum Quantity.</small>');
+                else
+                    $('#reorderQuantity').next('.text-danger').text('Reorder Quantity must be greater than or equal to Minimum Quantity.').show();
+
+            } else if (reorderQuantity === 0) {
+                isValid = false;
+                $('#reorderQuantity').addClass('is-invalid');
+                if ($('#reorderQuantity').next('.text-danger').length === 0)
+                    $('#reorderQuantity').after('<small class="text-danger">Reorder Quantity must be greater than 0.</small>');
+                else
+                    $('#reorderQuantity').next('.text-danger').text('Reorder Quantity must be greater than 0.').show();
+
+            } else {
+                $('#reorderQuantity').removeClass('is-invalid');
+                $('#reorderQuantity').next('.text-danger').hide();
+            }
+
+
+            // Cost per Unit > 0
+            if (costPerUnit <= 0) {
+                isValid = false;
+                $('#costPerUnit').addClass('is-invalid');
+                if ($('#costPerUnit').next('.text-danger').length === 0)
+                    $('#costPerUnit').after('<small class="text-danger">Cost Per Unit must be greater than 0.</small>');
+                else
+                    $('#costPerUnit').next('.text-danger').text('Cost Per Unit must be greater than 0.').show();
+            }
+
+            // Expiry Days > 0
+            if (expiryDays <= 0) {
+                isValid = false;
+                $('#ExpiryDays').addClass('is-invalid');
+                if ($('#ExpiryDays').next('.text-danger').length === 0)
+                    $('#ExpiryDays').after('<small class="text-danger">Expiry Days must be greater than 0.</small>');
+                else
+                    $('#ExpiryDays').next('.text-danger').text('Expiry Days must be greater than 0.').show();
+            }
+
+            // 🔹 Real-time error removal
+            $form.find('input, select, textarea')
+                .off('input.changeAll change.changeAll')
+                .on('input.changeAll change.changeAll', function () {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.text-danger').hide();
+                });
+
+            return isValid;
+        }
+
+
+
+     
 
 
         // saving item form
         $('#itemForm').on('submit', function (e) {
             e.preventDefault();
 
-            let isValid = true;
 
-            $('.text-danger').hide();
-            $('.form-control, .form-select').removeClass('is-invalid');
 
-            // Validation rules for each required field
-            const fields = [
-                { id: '#itemName', message: 'Please enter the item name.', error: '#itemError' },
-                { id: '#costPerUnit', message: 'Please enter the cost per unit.', error: '#costError' },
-                { id: '#minQuantity', message: 'Please enter the minimum quantity.', error: '#minError' },
-                { id: '#itemCategory', message: 'Please select an item category.' },
-                { id: '#hsnCode', message: 'Please enter the HSN code.' },
-                { id: '#reorderQuantity', message: 'Please enter the reorder quantity.', error: '#reorderError' },
-                { id: '#description', message: 'Please enter a description.' },
-                { id: '#itemStatus', message: 'Please select an item status.' },
-                { id: '#itemMake', message: 'Please select an item make.' },
-                { id: '#uom', message: 'Please select the UOM.' },
-                { id: '#ExpiryDays', message: 'Please enter expiry days.', error: '#expiryError' },
-                { id: '#qualityCheck', message: 'Please select if quality check is required.' }
-            ];
 
-            // Loop through all fields
-            fields.forEach(f => {
-                let field = $(f.id);
-                let value = field.val()?.trim();
 
-                if (!value) {
-                    isValid = false;
-                    field.addClass('is-invalid');
-
-                    if (f.error) {
-                        $(f.error).text(f.message).show(); // Show specific message under input
-                    } else {
-                        // For dropdowns or fields without <small> error placeholders
-                        if (field.next('.text-danger').length === 0) {
-                            field.after(`<small class="text-danger">${f.message}</small>`);
-                        } else {
-                            field.next('.text-danger').text(f.message).show();
-                        }
-                    }
-                } else {
-                    field.removeClass('is-invalid');
-                    if (f.error) $(f.error).hide();
-                    else field.next('.text-danger').hide();
-                }
-
-                $('input, select, textarea').on('input change', function () {
-                    $(this).removeClass('is-invalid');
-                    $(this).next('.text-danger').hide();
-                });
-
-            });
-
-            if (!isValid) {
-                return; // Stop form submission if invalid
+            if (!validateItemForm()) {
+                return; // stop here if invalid
             }
-
-           
 
            
 
@@ -1638,6 +1733,8 @@
             });
 
 
+
+
         });
         // checking quality of item form
         $("#qualityCheck").on("change", function () {
@@ -1678,6 +1775,13 @@
         });
         // button for updating item form
         $(document).on("click", ".btnedit", function () {
+          
+
+            // Real-time correction
+            $('input, select').off('input.removeError change.removeError').on('input.removeError change.removeError', function () {
+                $(this).removeClass('is-invalid');
+                $(this).next('.error-text').remove();
+            });
             $("#viewItemModal").modal('hide');
 
 
@@ -1728,8 +1832,14 @@
                         if (data.isqua == 1) $("#inspectionfrm").show();
                         else $("#inspectionfrm").hide();
 
-                        $("#itemName , #description , #itemMake , #hsnCode ,#itemCategory ,#uom ").prop("disabled", true);
-
+                        $("#itemCode, #itemName, #description, #itemMake, #hsnCode, #itemCategory, #uom")
+                            .prop("disabled", true)
+                            .css({
+                                color: "#000",            // keep text dark
+                                backgroundColor: "#e9ecef", // Bootstrap-style disabled background
+                                opacity: 1,               // prevent faded look
+                                cursor: "not-allowed"
+                            });
                       
                     } else {
                         alert(data.message);
@@ -1740,6 +1850,15 @@
             // Wait until modal is fully visible to initialize DataTable
             $('#itemModal').one('shown.bs.modal', function () {
                 // Destroy previous table if exists
+
+                $('.error-text').remove();
+                $('input, select').removeClass('is-invalid');
+
+                // Real-time correction
+                $('input, select').off('input.removeError change.removeError').on('input.removeError change.removeError', function () {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.error-text').remove();
+                });
 
                 if ($("#itemModalLabel").text().trim() === "Update Item Plan") {
                     $(".ic").hide();
@@ -1889,46 +2008,71 @@
         }
 
     })
-    //adding parameters to the list
+ 
     $("#addpara").on("click", function (e) {
         e.preventDefault();
 
         const fields = [
-            { id: '#plancode', message: 'Please enter the Plan Code.' },
-            { id: '#itemCode', message: 'Please enter the Item Code.' },
-            { id: '#inspetype', message: 'Please select the Inspection Type.' },
-            { id: '#quantiti', message: 'Please select the Quantity Parameter.' },
-            { id: '#quality', message: 'Please select the Quality Parameter.' },
-            { id: '#qua', message: 'Please enter the Quality value.' },
             { id: '#plantype', message: 'Please select the Plan Type.' },
             { id: '#pdescription', message: 'Please enter the Plan Description.' },
+            { id: '#inspetype', message: 'Please select the Inspection Type.' },
+            // Quantitative & Qualitative will be handled conditionally below
+            { id: '#qua', message: 'Please enter the Parameter value.' },
             { id: '#uompara', message: 'Please select the Unit of Measure (UOM).' }
         ];
 
         let isValid = true;
 
-        // 🔹 Clear previous errors
+        // Remove old errors
         $('.error-text').remove();
-        fields.forEach(f => $(f.id).removeClass('is-invalid'));
+        $('input, select').removeClass('is-invalid');
 
-        $('input, select, textarea').on('input change', function () {
+        // Real-time correction
+        $('input, select').off('input.removeError change.removeError').on('input.removeError change.removeError', function () {
             $(this).removeClass('is-invalid');
             $(this).next('.error-text').remove();
         });
 
-
-        // 🔹 Validate fields one by one
+        // Basic field validation
         fields.forEach(f => {
-            const val = $(f.id).val()?.trim() || '';
-            if (val === '') {
-                $(f.id).addClass('is-invalid');
-                $(f.id).after(`<small class="error-text text-danger">${f.message}</small>`);
+            const $field = $(f.id);
+            const val = ($field.val() || '').trim();
+            if (val === '' || val === '--Select--' || val === '--Select UOM--') {
+                $field.addClass('is-invalid');
+                if (!$field.next('.error-text').length)
+                    $field.after(`<small class="error-text text-danger">${f.message}</small>`);
                 isValid = false;
             }
         });
 
-        // ❌ Stop here if any invalid
-        if (!isValid) return;
+        // 🧠 Conditional validation: Either Quantitative OR Qualitative required
+        const inspType = $("#inspetype").val();
+        const quantVal = ($("#quantiti").val() || '').trim();
+        const qualVal = ($("#quality").val() || '').trim();
+
+        // If inspection type produces quantitative dropdown
+        if ($("#quantiti").is(":visible") && (quantVal === '' || quantVal === '--Select--')) {
+            $("#quantiti").addClass('is-invalid');
+            if (!$("#quantiti").next('.error-text').length)
+                $("#quantiti").after('<small class="error-text text-danger">Please select the Quantitative Parameter.</small>');
+            isValid = false;
+        }
+
+        // If inspection type produces qualitative dropdown
+        if ($("#quality").is(":visible") && (qualVal === '' || qualVal === '--Select--')) {
+            $("#quality").addClass('is-invalid');
+            if (!$("#quality").next('.error-text').length)
+                $("#quality").after('<small class="error-text text-danger">Please select the Qualitative Parameter.</small>');
+            isValid = false;
+        }
+
+        // Stop if invalid
+        if (!isValid) {
+            console.log("❌ Validation failed — please fill required fields");
+            return;
+        }
+
+        console.log("✅ Validation passed — proceeding to AJAX");
 
         var paramData = {
             PlanCode: $("#plancode").val(),
@@ -1952,15 +2096,12 @@
                 console.log("Insert response:", response);
 
                 if (response.success) {
-                    // update hidden fields
                     $("#plancode").val(response.planCode);
                     $("#itemCode").val(response.itemCode);
                     $("#pdescription").val("");
 
-                    // reload parameter list **once**
                     loadParameterList(response.planCode);
 
-                    // clear form fields
                     $("#inspetype").val("");
                     $("#quantiti").val("");
                     $("#quality").val("");
@@ -1976,6 +2117,8 @@
             }
         });
     });
+
+
 
     // loading parameters from the in parameters list
 
@@ -2049,9 +2192,6 @@
             }
         });
     }
-
-
-
 
 </script>
 
