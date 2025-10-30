@@ -316,10 +316,12 @@
                             var sheet = xlsx.xl.worksheets['sheet1.xml'];
                             var $sheet = $(sheet);
 
+                            // Count number of columns in sheet
                             var colCount = $('row:first c', sheet).length;
-                            if (colCount === 0) colCount = 6;
+                            if (colCount === 0) colCount = 6; // fallback
                             var lastCol = String.fromCharCode(64 + colCount);
 
+                            // Move existing data down by 2 rows
                             $sheet.find('sheetData row').each(function () {
                                 var r = parseInt($(this).attr('r'));
                                 $(this).attr('r', r + 2);
@@ -331,9 +333,11 @@
                                 });
                             });
 
+                            // Title and date text
                             var title = 'Quotations List';
                             var generatedDate = 'Generated Date: ' + moment().format('DD/MM/YYYY');
 
+                            // Add new title and date rows
                             var titleRow = `
 <row r="1">
     <c t="inlineStr" r="A1" s="55">
@@ -349,6 +353,7 @@
 
                             $sheet.find('sheetData').prepend(titleRow + dateRow);
 
+                            // Merge cells for title and date (centered horizontally)
                             var mergeCells = $sheet.find('mergeCells');
                             if (mergeCells.length === 0) {
                                 mergeCells = $('<mergeCells count="0"></mergeCells>');
@@ -359,6 +364,7 @@
                             mergeCells.append(`<mergeCell ref="A2:${lastCol}2"/>`);
                             mergeCells.attr('count', mergeCells.find('mergeCell').length);
 
+                            // Add centered alignment styles
                             var styles = xlsx.xl['styles.xml'];
                             var $styles = $(styles);
                             var cellXfs = $styles.find('cellXfs');
@@ -366,6 +372,7 @@
                             var newStyleIndex1 = count;
                             var newStyleIndex2 = count + 1;
 
+                            // Add two centered alignment styles
                             cellXfs.append(`date
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
     <alignment horizontal="center" vertical="center"/>
@@ -376,13 +383,14 @@
 </xf>`);
                             cellXfs.attr('count', count + 2);
 
+                            // Apply the new styles to A1 and A2
                             $sheet.find('c[r="A1"]').attr('s', newStyleIndex1);
                             $sheet.find('c[r="A2"]').attr('s', newStyleIndex2);
                         }
                     },
 
                   
-                    //  CSV
+                    // ✅ CSV Export for Quotation Table
                     {
                         extend: 'csvHtml5',
                         title: '',
@@ -394,50 +402,61 @@
                             'title': 'Export to CSV'
                         },
                         action: function (e, dt, button, config) {
+                            // ✅ Require at least one selected row
                             if ($('#quotationTable .row-select:checked').length === 0) {
                                 showToast("Please select at least one Quotation to export!", "warning");
                                 return;
                             }
 
+                            // ✅ Reset serial number before export
                             window.__srnoCounter = 0;
 
+                            // ✅ Trigger default CSV export
                             $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
                             dt.processing(false);
                         },
                         exportOptions: {
+                            // ✅ Export only checked rows
                             rows: function (idx, data, node) {
                                 return $(node).find('.row-select').prop('checked');
                             },
+                            // ✅ Exclude checkbox and action columns
                             columns: function (idx) {
                                 return idx !== 0 && idx !== 6;
                             },
                             format: {
                                 body: (function () {
                                     return function (data, rowIdx, colIdx) {
+                                        // Clean HTML tags
                                         data = typeof data === 'string' ? data.replace(/<[^>]*>/g, '').trim() : data;
 
+                                        // ✅ Serial Number column
                                         if (colIdx === 1) {
                                             if (!window.__srnoCounter) window.__srnoCounter = 0;
                                             return ++window.__srnoCounter;
                                         }
 
+                                        // ✅ Vendor Delivery Date (assumed column index 5)
                                         if (colIdx === 5) {
                                             const m = moment(data, ["DD/MM/YYYY", "YYYY-MM-DD", "DD-MM-YYYY"], true);
                                             if (m.isValid()) {
-                                                return m.format("DD/MM/YYYY"); 
+                                                return m.format("DD/MM/YYYY"); // unified format
                                             }
                                             return data;
                                         }
 
+                                        // ✅ Default return
                                         return data;
                                     };
                                 })()
                             }
                         },
+                        // ✅ Filename with date stamp
                         filename: function () {
                             return 'Quotations_' + new Date().toISOString().slice(0, 10).replace(/-/g, "");
                         },
                         customize: function (csv) {
+                            // Optional: add padding/spaces to improve visual alignment
                             const spaces = '          ';
                             return spaces + '\n' + csv;
                         }

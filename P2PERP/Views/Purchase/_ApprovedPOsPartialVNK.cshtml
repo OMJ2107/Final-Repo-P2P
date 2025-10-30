@@ -165,7 +165,7 @@
                     },
 
                   
-                    // Excel 
+                    // ✅ Excel Export for Approved PO Table
                     {
                         extend: 'excelHtml5',
                         title: '',
@@ -178,6 +178,7 @@
                             'title': 'Export to Excel'
                         },
                         action: function (e, dt, button, config) {
+                            // ✅ Require at least one PO selected
                             if ($('#tblApproved .row-select:checked').length === 0) {
                                 showToast("Please select at least one PO to export Excel", "warning");
                                 return;
@@ -186,6 +187,7 @@
                             $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                         },
                         exportOptions: {
+                            // ✅ Export only checked rows
                             rows: (idx, d, node) => $(node).find('.row-select').prop('checked'),
                             columns: exportColumns,
                             format: {
@@ -200,16 +202,19 @@
                             }
                         },
 
+                        // ✅ Custom Excel Formatting (Title + Date at Center)
                         customize: function (xlsx) {
                             const sheet = xlsx.xl.worksheets['sheet1.xml'];
                             const $sheet = $(sheet);
 
+                            // Count number of columns in first row
                             let colCount = $('row:first c', sheet).length;
-                            if (colCount === 0) colCount = 5; 
+                            if (colCount === 0) colCount = 5; // fallback
 
                             const title = 'Approved Purchase Orders';
                             const generatedDate = 'Export Date: ' + moment().format('DD/MM/YYYY');
 
+                            // 🔹 Shift existing rows down by 2
                             $sheet.find('sheetData row').each(function () {
                                 const r = parseInt($(this).attr('r'));
                                 $(this).attr('r', r + 2);
@@ -221,6 +226,7 @@
                                 });
                             });
 
+                            // 🔹 Create Title & Date Rows
                             const titleRow = `
 <row r="1">
     <c t="inlineStr" r="A1" s="55"><is><t>${title}</t></is></c>
@@ -232,6 +238,7 @@
 
                             $sheet.find('sheetData').prepend(titleRow + dateRow);
 
+                            // 🔹 Merge title and date cells (A1:LastCol1, A2:LastCol2)
                             let mergeCells = $sheet.find('mergeCells');
                             if (mergeCells.length === 0) {
                                 mergeCells = $('<mergeCells count="0"></mergeCells>');
@@ -243,13 +250,15 @@
                             mergeCells.append(`<mergeCell ref="A2:${lastCol}2"/>`);
                             mergeCells.attr('count', mergeCells.find('mergeCell').length);
 
+                            // 🔹 Add custom styles for center alignment
                             const styles = xlsx.xl['styles.xml'];
                             const $styles = $(styles);
                             const cellXfs = $styles.find('cellXfs');
                             const count = parseInt(cellXfs.attr('count'));
-                            const newStyleIndex1 = count;      
-                            const newStyleIndex2 = count + 1;  
+                            const newStyleIndex1 = count;      // for title
+                            const newStyleIndex2 = count + 1;  // for date
 
+                            // Add center alignment styles
                             cellXfs.append(`
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
     <alignment horizontal="center" vertical="center"/>
@@ -260,13 +269,14 @@
 </xf>`);
                             cellXfs.attr('count', count + 2);
 
+                            // Apply new style indices to our custom rows
                             $sheet.find('c[r="A1"]').attr('s', newStyleIndex1);
                             $sheet.find('c[r="A2"]').attr('s', newStyleIndex2);
                         }
                     }
                     ,
               
-                    // CSV
+                    // ✅ CSV Export for Approved PO Table
                     {
                         extend: 'csvHtml5',
                         text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
@@ -277,52 +287,60 @@
                             'title': 'Export to CSV'
                         },
                         action: function (e, dt, button, config) {
+                            // ✅ Require at least one checkbox selection
                             if ($('#tblApproved .row-select:checked').length === 0) {
                                 showToast("Please select at least one PO to export!", "warning");
                                 return;
                             }
 
+                            // Reset serial counter
                             window.__srnoCounter = 0;
 
+                            // Call default export action
                             $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                            dt.processing(false); 
+                            dt.processing(false); // remove spinner if any
                         },
                         exportOptions: {
                             rows: function (idx, data, node) {
-                                return $(node).find('.row-select').prop('checked'); 
+                                return $(node).find('.row-select').prop('checked'); // ✅ only checked rows
                             },
-                            columns: exportColumns, 
+                            columns: exportColumns, // use your defined export column list
                             format: {
                                 body: (function () {
                                     let counter = 0;
                                     return function (data, row, column, node) {
+                                        // Clean HTML tags
                                         data = typeof data === 'string' ? data.replace(/<[^>]*>/g, '').trim() : data;
 
+                                        // ✅ Serial number column
                                         if (column === 1) {
                                             if (!window.__srnoCounter) window.__srnoCounter = 0;
                                             return ++window.__srnoCounter;
                                         }
 
-                                       
+                                        // ✅ Date formatting (e.g., PO Date column)
+                                        // Adjust 'column === 2' if your date column is at another index
                                         if (column === 2) {
                                             const m = moment(data, ["DD-MM-YYYY", "YYYY-MM-DD", "DD/MM/YYYY"], true);
                                             if (m.isValid()) {
-                                                return m.format("DD/MM/YYYY"); 
+                                                return m.format("DD/MM/YYYY"); // unified format
                                             }
                                             return data;
                                         }
 
+                                        // ✅ Default fallback for other columns
                                         return data;
                                     };
                                 })()
                             }
                         },
-                        title: null, 
+                        title: null, // disable default title row
                         filename: function () {
                             return 'ApprovedPO_List_' + new Date().toISOString().slice(0, 10).replace(/-/g, "");
                         },
                         customize: function (csv) {
-                            const spaces = '          '; 
+                            // Optional: add slight spacing or header alignment
+                            const spaces = '          '; // 10 spaces
                             return spaces + '\n' + csv;
                         }
                     }
@@ -345,6 +363,7 @@
 
         if (!$.fn.DataTable.isDataTable('#tblApproved')) loadApprovedPOsVNK();
 
+        // Checkbox logic
         $(document).on("change", "#selectAll", () => $(".row-select").prop("checked", $("#selectAll").prop("checked")));
         $(document).on("change", ".row-select", () => $("#selectAll").prop("checked", $(".row-select:checked").length == $(".row-select").length));
 
