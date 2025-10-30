@@ -180,12 +180,11 @@
             `);
                     });
 
-                    // ✅ Update totals
                     $("#ftSubTotal").text("₹ " + subTotal.toFixed(2));
                     const shipping = Number($("#ftShipping").text().replace("₹", "").trim() || 0);
                     $("#ftGrand").text("₹ " + (subTotal + shipping).toFixed(2));
 
-                    // ✅ Reinitialize DataTable AFTER adding rows
+                    //  Reinitialize DataTable AFTER adding rows
                     $('#grid').DataTable({
 
 

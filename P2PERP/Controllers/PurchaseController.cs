@@ -586,14 +586,106 @@ namespace P2PERP.Controllers
         }
 
         // Approve purchase order
-        [HttpGet]
+        [HttpPost]
         public async Task<JsonResult> ApprovePONAM(string poCode)
         {
-            // Call BLL to approve PO
-            var result = await bal.ApprovePONAM(poCode);
+            try
+            {
 
-            // Return success result
-            return Json(new { success = result }, JsonRequestBehavior.AllowGet);
+                await bal.ApprovePONAM(poCode);
+
+
+                DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
+
+                if (ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return Json(new { success = false, message = "No PO details found." });
+
+                Purchase po = new Purchase();
+                List<Purchase> poItems = new List<Purchase>();
+
+                var row = ds.Tables[0].Rows[0];
+                po.CompanyName = row["CompanyName"].ToString();
+                po.CompanyAddress = row["CompanyAddress"].ToString();
+                po.CompanyMobileNo = Convert.ToInt64(row["CompanyPhone"]);
+                po.CompanyEmail = row["CompanyEmail"].ToString();
+                po.Website = row["Website"].ToString();
+                po.POCode = row["POCode"].ToString();
+                po.AddedDate = Convert.ToDateTime(row["AddedDate"]);
+                po.ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]);
+                po.VendorName = row["VenderName"].ToString();
+                po.Address = row["VendorAddress"].ToString();
+                po.MobileNo = Convert.ToInt64(row["VendorPhone"]);
+                po.Email = row["VendorEmail"].ToString(); // Vendor email (to send PDF)
+                po.WarehouseName = row["WarehouseName"].ToString();
+                po.WarehouseAddress = row["WarehouseAddress"].ToString();
+                po.WarehousePhone = Convert.ToInt64(row["WarehousePhone"]);
+                po.WarehouseEmail = row["WarehouseEmail"].ToString();
+                po.SubAmount = Convert.ToDecimal(row["SubAmount"]);
+                po.GrandTotal = Convert.ToDecimal(row["GrandTotal"]);
+
+                foreach (DataRow dr in ds.Tables[1].Rows)
+                {
+                    poItems.Add(new Purchase
+                    {
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        Quantity = Convert.ToInt32(dr["Quantity"]),
+                        Description = dr["Description"].ToString(),
+                        CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                        Discount = dr["Discount"].ToString(),
+                        GST = dr["GST"].ToString(),
+                        Amount = Convert.ToDecimal(dr["Amount"])
+                    });
+                }
+
+
+                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems);
+
+
+                await SendPurchaseOrderEmailAsync(po, pdfBytes);
+
+
+                return Json(new { success = true, message = "PO approved and email sent successfully." }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        //send pdf code Amg
+        private async Task SendPurchaseOrderEmailAsync(Purchase po, byte[] pdfBytes)
+        {
+            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
+            string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
+
+            string subject = $"Purchase Order {po.POCode} Approved";
+            string body = $@"
+    <p>Dear {po.VendorName},</p>
+    <p> kindly find attached purchase order for your immediate refernce.In return of this mail,
+         kindaly share your acceptance of the po ,and We are pleased to inform you that Purchase Order:<strong>{po.POCode}</strong> has been approved.</p>
+    <p>Please find the attached Purchase Order PDF for your reference.</p>
+    <br/>
+    <p> Best Regards,<br/>{po.CompanyName}</p>
+";
+
+            using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            })
+            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com"))
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            })
+            {
+                var attachment = new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{po.POCode}.pdf", "application/pdf");
+                message.Attachments.Add(attachment);
+
+                await smtp.SendMailAsync(message);
+            }
         }
 
         // Reject purchase order
@@ -610,16 +702,159 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<JsonResult> SendForApprovalNAM(string poCode)
         {
-            // Call BLL to send PO for approval
-            var result = await bal.SendForApprovalNAM(poCode);
-            // Return result and message
-            return Json(new
+            try
             {
-                success = result,
-                message = result ? $"PO {poCode} sent for higher approval." : "Failed to send PO for approval."
-            }, JsonRequestBehavior.AllowGet);
+
+                await bal.SendForApprovalNAM(poCode);
+
+
+                DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
+
+                if (ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return Json(new { success = false, message = "No PO details found." });
+
+                Purchase po = new Purchase();
+                List<Purchase> poItems = new List<Purchase>();
+
+                var row = ds.Tables[0].Rows[0];
+                po.CompanyName = row["CompanyName"].ToString();
+                po.CompanyAddress = row["CompanyAddress"].ToString();
+                po.CompanyMobileNo = Convert.ToInt64(row["CompanyPhone"]);
+                po.CompanyEmail = row["CompanyEmail"].ToString();
+                po.Website = row["Website"].ToString();
+                po.POCode = row["POCode"].ToString();
+                po.AddedDate = Convert.ToDateTime(row["AddedDate"]);
+                po.ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]);
+                po.VendorName = row["VenderName"].ToString();
+                po.Address = row["VendorAddress"].ToString();
+                po.MobileNo = Convert.ToInt64(row["VendorPhone"]);
+                po.Email = row["VendorEmail"].ToString(); // Vendor email (to send PDF)
+                po.WarehouseName = row["WarehouseName"].ToString();
+                po.WarehouseAddress = row["WarehouseAddress"].ToString();
+                po.WarehousePhone = Convert.ToInt64(row["WarehousePhone"]);
+                po.WarehouseEmail = row["WarehouseEmail"].ToString();
+                po.SubAmount = Convert.ToDecimal(row["SubAmount"]);
+                po.GrandTotal = Convert.ToDecimal(row["GrandTotal"]);
+
+                foreach (DataRow dr in ds.Tables[1].Rows)
+                {
+                    poItems.Add(new Purchase
+                    {
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        Quantity = Convert.ToInt32(dr["Quantity"]),
+                        Description = dr["Description"].ToString(),
+                        CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                        Discount = dr["Discount"].ToString(),
+                        GST = dr["GST"].ToString(),
+                        Amount = Convert.ToDecimal(dr["Amount"])
+                    });
+                }
+
+
+                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems);
+
+
+                await SendForApprovalEmailAsync(po, pdfBytes);
+
+
+                return Json(new { success = true, message = "PO approved and email sent successfully." }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
+        private async Task SendForApprovalEmailAsync(Purchase po, byte[] pdfBytes)
+        {
+            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
+            string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
+
+            string subject = $"Purchase Order Approval Required — PO No: {po.POCode}";
+
+            string body = $@"
+        <p>Dear Admin,</p>
+
+        <p>
+            A new Purchase Order (<strong>PO No: {po.POCode}</strong>) amounting to 
+            <strong>₹ {po.Amount:N2}</strong> has been created and requires your approval 
+            since it exceeds the ₹5,00,000 limit.
+        </p>
+
+        <p>
+            Kindly review the attached Purchase Order for your consideration and approval.
+        </p>
+
+        <p>
+            Please review the details and approve or reject the PO at your earliest convenience.
+        </p>
+
+        <p>
+            In case of any queries, feel free to reach out.
+        </p>
+
+        <br/>
+        <p>
+            Best regards,<br/>
+           
+            
+        </p>
+    ";
+
+            using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            })
+            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com")) // <-- Replace with admin email
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            })
+            {
+                var attachment = new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{po.POCode}.pdf", "application/pdf");
+                message.Attachments.Add(attachment);
+
+                await smtp.SendMailAsync(message);
+            }
+        }
+
+
+
+
+
+        //    // Call BLL to send PO for approval
+        //    var emailBody = $"PO {poCode} is sent for your approval.Please approve";
+        //    var result = await bal.SendForApprovalNAM(poCode);
+        //    SendEmailForApprovalNAM("mullanurjaha02@gmail.com", "admin approval", emailBody);
+        //    // Return result and message
+        //    return Json(new
+        //    {
+        //        success = result,
+        //        message = result ? $"PO {poCode} sent for higher approval." : "Failed to send PO for approval."
+        //    }, JsonRequestBehavior.AllowGet);
+        //}
+
+        //private void SendEmailForApprovalNAM(string toEmail, string subject, string body)
+        //{
+        //    var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "admin approval");
+        //    string fromPassword = "pbji sngj tkgz ylow";
+
+        //    using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+        //    {
+        //        EnableSsl = true,
+        //        Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+        //    })
+        //    using (var message = new MailMessage(fromAddress, new MailAddress(toEmail))
+        //    {
+        //        Subject = subject,
+        //        Body = body
+        //    })
+        //        smtp.Send(message);
+
+        //}
 
 
         #endregion Vaibhavi

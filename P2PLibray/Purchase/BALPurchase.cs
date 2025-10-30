@@ -995,10 +995,10 @@ namespace P2PLibray.Purchase
         public async Task<POHeaderNAM> GetPOHeaderNAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-            {
-                { "@Flag", "GetPOHeaderNAM" },
-                { "@POCode", poCode }
-            };
+     {
+         { "@Flag", "GetPOHeaderNAM" },
+         { "@POCode", poCode }
+     };
 
             var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -1018,7 +1018,8 @@ namespace P2PLibray.Purchase
                     VendorCompanyName = row.Table.Columns.Contains("VendorCompanyName") ? row["VendorCompanyName"]?.ToString() : null,
                     VendorContact = row.Table.Columns.Contains("VendorContact") ? row["VendorContact"]?.ToString() : null,
                     VendorAddress = row.Table.Columns.Contains("VendorAddress") ? row["VendorAddress"]?.ToString() : null,
-                    InvoiceToCompanyName = row.Table.Columns.Contains("InvoiceToCompanyName") ? row["InvoiceToCompanyName"]?.ToString() : null
+                    InvoiceToCompanyName = row.Table.Columns.Contains("InvoiceToCompanyName") ? row["InvoiceToCompanyName"]?.ToString() : null,
+
                 };
 
                 return h;
@@ -1036,10 +1037,10 @@ namespace P2PLibray.Purchase
         public async Task<List<POItemNAM>> GetPOItemsNAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-            {
-                { "@Flag", "GetPOItemsNAM" },
-                { "@POCode", poCode }
-            };
+     {
+         { "@Flag", "GetPOItemsNAM" },
+         { "@POCode", poCode }
+     };
 
             var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
             var list = new List<POItemNAM>();
@@ -1059,7 +1060,9 @@ namespace P2PLibray.Purchase
                         Quantity = row.Table.Columns.Contains("Quantity") && row["Quantity"] != DBNull.Value ? Convert.ToDecimal(row["Quantity"]) : 0m,
                         CostPerUnit = row.Table.Columns.Contains("CostPerUnit") && row["CostPerUnit"] != DBNull.Value ? Convert.ToDecimal(row["CostPerUnit"]) : 0m,
                         Discount = row.Table.Columns.Contains("Discount") && row["Discount"] != DBNull.Value ? Convert.ToDecimal(row["Discount"]) : 0m,
-                        GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m
+                        GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m,
+                        ShippingCharges = row.Table.Columns.Contains("ShippingCharges") && row["ShippingCharges"] != DBNull.Value ? Convert.ToDecimal(row["ShippingCharges"]) : 0m
+
                     });
                 }
             }
@@ -1076,10 +1079,10 @@ namespace P2PLibray.Purchase
         public async Task<bool> ApprovePONAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-            {
-                { "@Flag", "ApprovePoNAM" },
-                { "@POCode", poCode }
-            };
+     {
+         { "@Flag", "ApprovePoNAM" },
+         { "@POCode", poCode }
+     };
 
             try
             {
@@ -1092,6 +1095,9 @@ namespace P2PLibray.Purchase
             }
         }
 
+
+
+
         /// <summary>
         /// Rejects the purchase order by its PO code.
         /// </summary>
@@ -1102,10 +1108,10 @@ namespace P2PLibray.Purchase
         public async Task<bool> RejectPONAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-            {
-                { "@Flag", "RejectPoNAM" },
-                { "@POCode", poCode }
-            };
+     {
+         { "@Flag", "RejectPoNAM" },
+         { "@POCode", poCode }
+     };
 
             try
             {
@@ -1128,10 +1134,10 @@ namespace P2PLibray.Purchase
         public async Task<bool> SendForApprovalNAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-            {
-                { "@Flag", "SendForApprovalNAM" },
-                { "@POCode", poCode }
-            };
+     {
+         { "@Flag", "SendforApprovalPONAM" },
+         { "@POCode", poCode }
+     };
 
             try
             {
