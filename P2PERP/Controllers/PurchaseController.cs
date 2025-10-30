@@ -1575,7 +1575,8 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<JsonResult> ApproveVendorOK(int VendorId)
         {
-            bool isSave = await bal.ApproveVendorOK(VendorId);
+            string staffcode = Session["StaffCode"].ToString();
+            bool isSave = await bal.ApproveVendorOK(VendorId, staffcode);
             if (isSave)
             {
                 var message = "Vendor Approved successfully!";

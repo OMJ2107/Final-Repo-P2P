@@ -1852,14 +1852,17 @@ namespace P2PLibray.Purchase
         /// <param name="VendorId">The ID of the vendor to approve</param>
         /// <returns>Boolean indicating success or failure of the approval operation</returns>
 
-        public async Task<bool> ApproveVendorOK(int VendorId)
+        public async Task<bool> ApproveVendorOK(int VendorId,string staffcode)
         {
             try
             {
                 Dictionary<string, string> para = new Dictionary<string, string>();
                 para.Add("@Flag", "ApproveVendorOK");
                 para.Add("@VendorId", VendorId.ToString());
+                para.Add("@StaffCode", staffcode);
+                para.Add("@ApprovedRejectedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 await obj.ExecuteStoredProcedure("PurchaseProcedure", para);
+                
                 return true;
             }
             catch (Exception ex)
