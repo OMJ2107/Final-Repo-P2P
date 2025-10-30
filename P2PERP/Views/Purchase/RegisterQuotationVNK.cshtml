@@ -106,11 +106,6 @@
         #gridError {
             display: none;
         }
-
-        .swal2-actions {
-            gap: 12px !important; 
-        }
-
     </style>
 </head>
 <body>
@@ -195,7 +190,6 @@
                             </div>
                         </div>
 
-                        @*Table*@
                         <div class="mb-3">
                             <table id="grid" class="table table-striped table-hover table-bordered align-middle">
                                 <thead class="table-dark">
@@ -389,7 +383,15 @@ $(document).ready(function(){
             Items:gridItems.map(x=>({ItemCode:x.itemCode, Quantity:x.qty, CostPerUnit:x.cpu, Discount:x.disc}))
         };
 
-       
+        //// Call your existing AJAX save logic here...
+        //const rq = {
+        //    RFQCode: $("#rfqCode").val(),
+        //    PRCode: $("#prCode").val(),
+        //    VendorCode: $("#vendorCode").val(),
+        //    VendorDeliveryDateVK: $("#vendorDeliveryDate").val(),
+        //    ShippingCharges: Number($("#shipping").val() || 0),
+        //    Items: gridItems.map(x => ({ ItemCode: x.itemCode, Quantity: x.qty, CostPerUnit: x.cpu, Discount: x.disc }))
+        //};
 
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: { confirmButton: "btn btn-success", cancelButton: "btn btn-danger" },
@@ -424,11 +426,14 @@ $(document).ready(function(){
                             });
 
                             setTimeout(() => {
+                                // Check how many vendors are left (excluding the default "--Select Vendor--")
                                 const remainingVendors = $("#vendorCode option").length - 1;
 
                                 if (remainingVendors <= 1) {
+                                    // Only one vendor existed — redirect after saving
                                     window.location.href = "/Purchase/ShowAllRFQsVNK";
                                 } else {
+                                    // Otherwise, just reload the current page
                                     location.reload();
                                 }
                             }, 1500);
@@ -469,10 +474,10 @@ $(document).ready(function(){
     });
     $("#qty").on("keypress", function (e) {
         const key = e.which || e.keyCode;
-        if (key < 48 || key > 57) return; 
+        if (key < 48 || key > 57) return; // Allow only digits
         const current = $(this).val() + String.fromCharCode(key);
         const max = Number($(this).attr("max") || 0);
-        if (Number(current) > max) e.preventDefault(); 
+        if (Number(current) > max) e.preventDefault(); // Stop typing beyond max
     });
 
 

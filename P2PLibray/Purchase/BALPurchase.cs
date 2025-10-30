@@ -996,10 +996,10 @@ namespace P2PLibray.Purchase
         public async Task<POHeaderNAM> GetPOHeaderNAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-     {
-         { "@Flag", "GetPOHeaderNAM" },
-         { "@POCode", poCode }
-     };
+            {
+                { "@Flag", "GetPOHeaderNAM" },
+                { "@POCode", poCode }
+            };
 
             var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -1038,10 +1038,10 @@ namespace P2PLibray.Purchase
         public async Task<List<POItemNAM>> GetPOItemsNAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-     {
-         { "@Flag", "GetPOItemsNAM" },
-         { "@POCode", poCode }
-     };
+            {
+                { "@Flag", "GetPOItemsNAM" },
+                { "@POCode", poCode }
+            };
 
             var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
             var list = new List<POItemNAM>();
@@ -1080,10 +1080,10 @@ namespace P2PLibray.Purchase
         public async Task<bool> ApprovePONAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-     {
-         { "@Flag", "ApprovePoNAM" },
-         { "@POCode", poCode }
-     };
+            {
+                { "@Flag", "ApprovePoNAM" },
+                { "@POCode", poCode }
+            };
 
             try
             {
@@ -1109,10 +1109,10 @@ namespace P2PLibray.Purchase
         public async Task<bool> RejectPONAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-     {
-         { "@Flag", "RejectPoNAM" },
-         { "@POCode", poCode }
-     };
+            {
+                { "@Flag", "RejectPoNAM" },
+                { "@POCode", poCode }
+            };
 
             try
             {
@@ -1135,10 +1135,10 @@ namespace P2PLibray.Purchase
         public async Task<bool> SendForApprovalNAM(string poCode)
         {
             var dic = new Dictionary<string, string>
-     {
-         { "@Flag", "SendforApprovalPONAM" },
-         { "@POCode", poCode }
-     };
+            {
+                { "@Flag", "SendforApprovalPONAM" },
+                { "@POCode", poCode }
+            };
 
             try
             {

@@ -154,8 +154,10 @@
                 $("#companyName").val(h.InvoiceToCompanyName || '');
                 $("#deliveryAddress").val(h.DeliveryAddress || '');
                 if (h.TermConditionName) {
+                    // Split terms by comma and clean up spaces
                     const termsArray = h.TermConditionName.split(',').map(t => t.trim()).filter(t => t);
 
+                    // Create an unordered list with serial numbers
                     let ulHtml = '<ul class="mb-0 ps-3">';
                     termsArray.forEach((term, i) => {
                         ulHtml += `<li><strong>${i + 1}.</strong> ${term}</li>`;
