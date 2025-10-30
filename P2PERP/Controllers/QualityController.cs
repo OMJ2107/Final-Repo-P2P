@@ -560,6 +560,8 @@ namespace P2PERP.Controllers
             var result = await bal.GetPendingListNAM(startDate, endDate);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+
         #endregion
+
     }
 }

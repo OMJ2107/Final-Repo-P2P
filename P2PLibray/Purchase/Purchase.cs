@@ -274,6 +274,7 @@ namespace P2PLibray.Purchase
     public class POItemNAM
     {
         public string POItemCode { get; set; }
+        public decimal ShippingCharges { get; set; }
         public string POCode { get; set; }
         public string RegisterQuotationItemCode { get; set; }
         public string ItemCode { get; set; }
