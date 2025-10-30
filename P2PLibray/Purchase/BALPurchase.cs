@@ -1826,7 +1826,7 @@ namespace P2PLibray.Purchase
         }
 
         /// <summary>
-        /// Approves a pending vendor by their ID.
+        /// Approves a pending vendor by their ID..
         /// </summary>
         /// <param name="VendorId">The ID of the vendor to approve</param>
         /// <returns>Boolean indicating success or failure of the approval operation</returns>

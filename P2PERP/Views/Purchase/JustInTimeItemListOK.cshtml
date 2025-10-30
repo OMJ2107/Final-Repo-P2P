@@ -975,38 +975,6 @@
                 });
         });
         // Handle Create PO button click
-        //$(document).on("click", ".btn-create-po", function () {
-        //    let selectedItemCodes = [];
-
-        //    // Use DataTable API to get checked rows
-        //    $("#tblJITItems tbody input.row-select:checked").each(function () {
-        //        let rowData = tblJITItems.row($(this).closest("tr")).data();
-
-        //        //if (rowData && rowData.ItemCode) {
-        //        //    selectedItemCodes.push(rowData.ItemCode);
-        //        //}
-        //        if (rowData && rowData.ItemCode && rowData.StockRequirementId) {
-        //            selectedItems.push({
-        //                ItemCode: rowData.ItemCode,
-        //                StockReqirementId: rowData.StockReqirementId
-        //            });
-        //        }
-        //    });
-
-        //    if (selectedItemCodes.length === 0) {
-        //        alert("Please select at least one item to create PO.");
-        //        return;
-        //    }
-
-        //    console.log("✅ Selected Item Codes:", selectedItemCodes.join(","));
-        //    // Set cookie for JIT PO mode
-        //    document.cookie = "POMode=JIT; path=/; max-age=" + 20 * 60;
-        //    // ✅ Store in localStorage
-        //    localStorage.setItem("SelectedJITItems", JSON.stringify(selectedItemCodes));
-
-        //    window.location.href = '/Purchase/CreatePOOK';
-
-        //});
         $(document).on("click", ".btn-create-po", function () {
             let selectedItems = [];
 
@@ -1025,15 +993,6 @@
 
             console.log("Selected items:", selectedItems);
 
-            //if (selectedItems.length === 0) {
-            //    alert("Please select at least one item to create PO.");
-            //    return;
-            //}
-            //// ⚠️ More than one item selected
-            //if (selectedItems.length > 1) {
-            //    alert("Please select only one item to create PO.");
-            //    return;
-            //}
             // ✅ Toast configuration
             toastr.options = {
                 closeButton: true,
