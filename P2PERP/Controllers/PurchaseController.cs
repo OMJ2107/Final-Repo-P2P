@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -61,6 +62,55 @@ namespace P2PERP.Controllers
             }
             return View();
         }
+
+
+        [Route("Purchase/SendMail")]
+        [HttpGet]
+        public ActionResult SendMailHSB()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult SendMailHSB(HttpPostedFileBase attachment, string toEmail, string subject, string messageBody)
+        {
+            try
+            {
+                string fromEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
+                string password = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"];
+
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(fromEmail);
+                mail.To.Add(toEmail);
+                mail.Subject = subject;
+                mail.Body = messageBody;
+                mail.IsBodyHtml = true;
+
+                // Add attachment if provided
+                if (attachment != null && attachment.ContentLength > 0)
+                {
+                    string fileName = Path.GetFileName(attachment.FileName);
+                    mail.Attachments.Add(new Attachment(attachment.InputStream, fileName));
+                }
+
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com")
+                {
+                    Port = 587,
+                    Credentials = new NetworkCredential(fromEmail, password),
+                    EnableSsl = true
+                };
+
+                smtp.Send(mail);
+                ViewBag.Status = "Email sent successfully!";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Status = "Error: " + ex.Message;
+            }
+
+            return View();
+        }
+
         #endregion
 
         #region Pravin
@@ -407,7 +457,8 @@ namespace P2PERP.Controllers
                 ItemCode = x.ItemCode,
                 ItemName = x.ItemName,
                 UOMName = x.UOMName,
-                Description = x.Description
+                Description = x.Description,
+                quantity = x.Quantity
             });
 
             return Json(result, JsonRequestBehavior.AllowGet);
@@ -511,6 +562,12 @@ namespace P2PERP.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult ApprovedPOsPartialVNK()
+        {
+            return PartialView("_ApprovedPOsPartialVNK"); // returns the partial view
+        }
+
+
 
         //nur
 
@@ -579,14 +636,106 @@ namespace P2PERP.Controllers
         }
 
         // Approve purchase order
-        [HttpGet]
+        [HttpPost]
         public async Task<JsonResult> ApprovePONAM(string poCode)
         {
-            // Call BLL to approve PO
-            var result = await bal.ApprovePONAM(poCode);
+            try
+            {
 
-            // Return success result
-            return Json(new { success = result }, JsonRequestBehavior.AllowGet);
+                await bal.ApprovePONAM(poCode);
+
+
+                DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
+
+                if (ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return Json(new { success = false, message = "No PO details found." });
+
+                Purchase po = new Purchase();
+                List<Purchase> poItems = new List<Purchase>();
+
+                var row = ds.Tables[0].Rows[0];
+                po.CompanyName = row["CompanyName"].ToString();
+                po.CompanyAddress = row["CompanyAddress"].ToString();
+                po.CompanyMobileNo = Convert.ToInt64(row["CompanyPhone"]);
+                po.CompanyEmail = row["CompanyEmail"].ToString();
+                po.Website = row["Website"].ToString();
+                po.POCode = row["POCode"].ToString();
+                po.AddedDate = Convert.ToDateTime(row["AddedDate"]);
+                po.ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]);
+                po.VendorName = row["VenderName"].ToString();
+                po.Address = row["VendorAddress"].ToString();
+                po.MobileNo = Convert.ToInt64(row["VendorPhone"]);
+                po.Email = row["VendorEmail"].ToString(); // Vendor email (to send PDF)
+                po.WarehouseName = row["WarehouseName"].ToString();
+                po.WarehouseAddress = row["WarehouseAddress"].ToString();
+                po.WarehousePhone = Convert.ToInt64(row["WarehousePhone"]);
+                po.WarehouseEmail = row["WarehouseEmail"].ToString();
+                po.SubAmount = Convert.ToDecimal(row["SubAmount"]);
+                po.GrandTotal = Convert.ToDecimal(row["GrandTotal"]);
+
+                foreach (DataRow dr in ds.Tables[1].Rows)
+                {
+                    poItems.Add(new Purchase
+                    {
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        Quantity = Convert.ToInt32(dr["Quantity"]),
+                        Description = dr["Description"].ToString(),
+                        CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                        Discount = dr["Discount"].ToString(),
+                        GST = dr["GST"].ToString(),
+                        Amount = Convert.ToDecimal(dr["Amount"])
+                    });
+                }
+
+
+                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems);
+
+
+                await SendPurchaseOrderEmailAsync(po, pdfBytes);
+
+
+                return Json(new { success = true, message = "PO approved and email sent successfully." }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        //send pdf code Amg
+        private async Task SendPurchaseOrderEmailAsync(Purchase po, byte[] pdfBytes)
+        {
+            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
+            string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
+
+            string subject = $"Purchase Order {po.POCode} Approved";
+            string body = $@"
+    <p>Dear {po.VendorName},</p>
+    <p> kindly find attached purchase order for your immediate refernce.In return of this mail,
+         kindaly share your acceptance of the po ,and We are pleased to inform you that Purchase Order:<strong>{po.POCode}</strong> has been approved.</p>
+    <p>Please find the attached Purchase Order PDF for your reference.</p>
+    <br/>
+    <p> Best Regards,<br/>{po.CompanyName}</p>
+";
+
+            using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            })
+            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com"))
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            })
+            {
+                var attachment = new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{po.POCode}.pdf", "application/pdf");
+                message.Attachments.Add(attachment);
+
+                await smtp.SendMailAsync(message);
+            }
         }
 
         // Reject purchase order
@@ -603,16 +752,159 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<JsonResult> SendForApprovalNAM(string poCode)
         {
-            // Call BLL to send PO for approval
-            var result = await bal.SendForApprovalNAM(poCode);
-            // Return result and message
-            return Json(new
+            try
             {
-                success = result,
-                message = result ? $"PO {poCode} sent for higher approval." : "Failed to send PO for approval."
-            }, JsonRequestBehavior.AllowGet);
+
+                await bal.SendForApprovalNAM(poCode);
+
+
+                DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
+
+                if (ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return Json(new { success = false, message = "No PO details found." });
+
+                Purchase po = new Purchase();
+                List<Purchase> poItems = new List<Purchase>();
+
+                var row = ds.Tables[0].Rows[0];
+                po.CompanyName = row["CompanyName"].ToString();
+                po.CompanyAddress = row["CompanyAddress"].ToString();
+                po.CompanyMobileNo = Convert.ToInt64(row["CompanyPhone"]);
+                po.CompanyEmail = row["CompanyEmail"].ToString();
+                po.Website = row["Website"].ToString();
+                po.POCode = row["POCode"].ToString();
+                po.AddedDate = Convert.ToDateTime(row["AddedDate"]);
+                po.ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]);
+                po.VendorName = row["VenderName"].ToString();
+                po.Address = row["VendorAddress"].ToString();
+                po.MobileNo = Convert.ToInt64(row["VendorPhone"]);
+                po.Email = row["VendorEmail"].ToString(); // Vendor email (to send PDF)
+                po.WarehouseName = row["WarehouseName"].ToString();
+                po.WarehouseAddress = row["WarehouseAddress"].ToString();
+                po.WarehousePhone = Convert.ToInt64(row["WarehousePhone"]);
+                po.WarehouseEmail = row["WarehouseEmail"].ToString();
+                po.SubAmount = Convert.ToDecimal(row["SubAmount"]);
+                po.GrandTotal = Convert.ToDecimal(row["GrandTotal"]);
+
+                foreach (DataRow dr in ds.Tables[1].Rows)
+                {
+                    poItems.Add(new Purchase
+                    {
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        Quantity = Convert.ToInt32(dr["Quantity"]),
+                        Description = dr["Description"].ToString(),
+                        CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                        Discount = dr["Discount"].ToString(),
+                        GST = dr["GST"].ToString(),
+                        Amount = Convert.ToDecimal(dr["Amount"])
+                    });
+                }
+
+
+                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems);
+
+
+                await SendForApprovalEmailAsync(po, pdfBytes);
+
+
+                return Json(new { success = true, message = "PO approved and email sent successfully." }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
+        private async Task SendForApprovalEmailAsync(Purchase po, byte[] pdfBytes)
+        {
+            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
+            string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
+
+            string subject = $"Purchase Order Approval Required — PO No: {po.POCode}";
+
+            string body = $@"
+        <p>Dear Admin,</p>
+
+        <p>
+            A new Purchase Order (<strong>PO No: {po.POCode}</strong>) amounting to 
+            <strong>₹ {po.Amount:N2}</strong> has been created and requires your approval 
+            since it exceeds the ₹5,00,000 limit.
+        </p>
+
+        <p>
+            Kindly review the attached Purchase Order for your consideration and approval.
+        </p>
+
+        <p>
+            Please review the details and approve or reject the PO at your earliest convenience.
+        </p>
+
+        <p>
+            In case of any queries, feel free to reach out.
+        </p>
+
+        <br/>
+        <p>
+            Best regards,<br/>
+           
+            
+        </p>
+    ";
+
+            using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            })
+            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com")) // <-- Replace with admin email
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            })
+            {
+                var attachment = new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{po.POCode}.pdf", "application/pdf");
+                message.Attachments.Add(attachment);
+
+                await smtp.SendMailAsync(message);
+            }
+        }
+
+
+
+
+
+        //    // Call BLL to send PO for approval
+        //    var emailBody = $"PO {poCode} is sent for your approval.Please approve";
+        //    var result = await bal.SendForApprovalNAM(poCode);
+        //    SendEmailForApprovalNAM("mullanurjaha02@gmail.com", "admin approval", emailBody);
+        //    // Return result and message
+        //    return Json(new
+        //    {
+        //        success = result,
+        //        message = result ? $"PO {poCode} sent for higher approval." : "Failed to send PO for approval."
+        //    }, JsonRequestBehavior.AllowGet);
+        //}
+
+        //private void SendEmailForApprovalNAM(string toEmail, string subject, string body)
+        //{
+        //    var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "admin approval");
+        //    string fromPassword = "pbji sngj tkgz ylow";
+
+        //    using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+        //    {
+        //        EnableSsl = true,
+        //        Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+        //    })
+        //    using (var message = new MailMessage(fromAddress, new MailAddress(toEmail))
+        //    {
+        //        Subject = subject,
+        //        Body = body
+        //    })
+        //        smtp.Send(message);
+
+        //}
 
 
         #endregion Vaibhavi
@@ -1016,34 +1308,65 @@ namespace P2PERP.Controllers
                 return View();
             }
 
-            /// <summary>
-            /// Creates a new Purchase Requisition (PR) via AJAX form submission.
-            /// </summary>
-            [HttpPost]
-            public async Task<JsonResult> CreatePR(PurchaseHeader purchase)
-            {
-                try
-                {
-                    purchase.AddedBy = Session["StaffCode"].ToString();
-                    await bal.CreatePR(purchase);
-                    return Json(new { success = true });
-                }
-                catch (Exception ex)
-                {
-                    return Json(new { sucess = false, message = ex.Message });
-                }
+        /// <summary>
+        /// Creates a new Purchase Requisition (PR) via AJAX form submission.
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult> CreatePR(PurchaseHeader purchase)
+        {
 
+            var validationMessage = ValidatePurchase(purchase);
+
+            if (!string.IsNullOrEmpty(validationMessage))
+            {
+                // Determine which field caused the error
+                string fieldName = "";
+                if (string.IsNullOrWhiteSpace(purchase.PRCode))
+                    fieldName = "PRCode";
+                else if (purchase.RequiredDate == DateTime.MinValue || purchase.RequiredDate < DateTime.Today)
+                    fieldName = "ToDate";
+                else if (purchase.PriorityId <= 0)
+                    fieldName = "priority";
+
+                return Json(new { success = false, message = validationMessage, field = fieldName });
             }
 
-    #endregion
+            purchase.AddedBy = Session["StaffCode"].ToString();
+            await bal.CreatePR(purchase);
 
-    #region Omkar
-    /*################################################# Vendor Management ###################################################*/
+            return Json(new { success = true });
+        }
+        private string ValidatePurchase(PurchaseHeader purchase)
+        {
+            if (purchase == null)
+                return "Invalid data submitted.";
 
-    /// <summary>
-    /// Displays the vendor management view page.
-    /// </summary>
-    [HttpGet]
+            if (string.IsNullOrWhiteSpace(purchase.PRCode))
+                return "PR Code is required.";
+
+            if (purchase.RequiredDate == DateTime.MinValue)
+                return "Required Date is required.";
+
+            if (purchase.RequiredDate < DateTime.Today)
+                return "Required Date cannot be in the past.";
+
+            if (purchase.PriorityId <= 0)
+                return "Please select a valid Priority.";
+
+
+            return string.Empty; // means validation passed
+        }
+
+
+        #endregion
+
+        #region Omkar
+        /*################################################# Vendor Management ###################################################*/
+
+        /// <summary>
+        /// Displays the vendor management view page.
+        /// </summary>
+        [HttpGet]
         public ActionResult VenderManagementOK()
         {
             return View();
@@ -1252,7 +1575,8 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<JsonResult> ApproveVendorOK(int VendorId)
         {
-            bool isSave = await bal.ApproveVendorOK(VendorId);
+            string staffcode = Session["StaffCode"].ToString();
+            bool isSave = await bal.ApproveVendorOK(VendorId, staffcode);
             if (isSave)
             {
                 var message = "Vendor Approved successfully!";
@@ -1414,9 +1738,18 @@ namespace P2PERP.Controllers
         /// <returns>View for creating purchase order</returns>
         /// </summary>
 
-        public ActionResult CreatePOOK(string quotationID)
+
+        //string quotationID
+        public ActionResult CreatePOOK()
         {
-            Session["quotationID"] = quotationID;
+            HttpCookie cookie = Request.Cookies["SelectedQuotationID"];
+            string quotationId = null;
+
+            if (cookie != null)
+            {
+                quotationId = cookie.Value;
+            }
+            Session["quotationID"] = quotationId;
             return View();
         }
 
@@ -1564,29 +1897,73 @@ namespace P2PERP.Controllers
         /// </summary>
 
         [HttpPost]
-        public async Task<ActionResult> SavePOOK(Purchase model, string POItems)
+        public async Task<ActionResult> SavePOOK(Purchase model, string POItems,string Itemslst)
         {
-            try
+            HttpCookie cookie = Request.Cookies["POMode"];
+            if(cookie!=null)
             {
-                string staffcode = Session["StaffCode"].ToString();
-                model.StaffCode = staffcode;
-                bool issaved = await bal.SavePOOK(model);
-                if (issaved)
+                try
                 {
-                    var message = "Purchase Order Save Succesfully!";
-                    return Json(new { success = true, message });
-                }
-                else
-                {
-                    var message = "Purchase Order Not  Save Succesfully!, please try again!";
-                    return Json(new { success = false, message });
-                }
+                    Session["JITPOSave"] = "OK";
+                    string staffcode = Session["StaffCode"].ToString();
+                    model.StaffCode = staffcode;
+                    bool issaved = await bal.SaveJITPOOK(model);
+                    if (issaved)
+                    {
+                        string POCode = string.Empty;
+                        SqlDataReader rd=await bal.FetchMaxPoCodeToAttachmentok();
+                        if(rd.Read())
+                        {
+                            POCode = rd["MaxPOCode"].ToString();
+                            rd.Close();
+                        }
+                       
+                        // ✅ Generate PDF
+                        byte[] pdfBytes = await GeneratePOPDFAttachment(POCode);
 
+                        // ✅ Send Email 
+                        await SendPOEmailAsync(POCode, pdfBytes);
+
+                        var message = "Purchase Order Save Succesfully!";
+                        return Json(new { success = true, message, sessionValue = Session["JITPOSave"] });
+                    }
+                    else
+                    {
+                        var message = "Purchase Order Not  Save Succesfully!, please try again!";
+                        return Json(new { success = false, message });
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                    return Json(new { success = false, message = ex.Message });
+                }
             }
-            catch (Exception ex)
+            else
             {
+                try
+                {
+                    string staffcode = Session["StaffCode"].ToString();
+                    model.StaffCode = staffcode;
+                    bool issaved = await bal.SavePOOK(model);
+                    if (issaved)
+                    {
+                        var message = "Purchase Order Save Succesfully!";
+                        return Json(new { success = true, message });
+                    }
+                    else
+                    {
+                        var message = "Purchase Order Not  Save Succesfully!, please try again!";
+                        return Json(new { success = false, message });
+                    }
 
-                return Json(new { success = false, message = ex.Message });
+                }
+                catch (Exception ex)
+                {
+
+                    return Json(new { success = false, message = ex.Message });
+                }
             }
         }
 
@@ -1692,13 +2069,6 @@ namespace P2PERP.Controllers
 
         }
 
-        //private void AddDataCell(PdfPTable table, string text, iTextFont font, int alignment = Element.ALIGN_LEFT)
-        //{
-        //    PdfPCell cell = new PdfPCell(new Phrase(text, font));
-        //    cell.HorizontalAlignment = alignment;
-        //    cell.Padding = 5;
-        //    table.AddCell(cell);
-        //}
         public byte[] GeneratePurchaseOrderPDF(Purchase po, List<Purchase> poItems)
         {
             using (MemoryStream ms = new MemoryStream())
@@ -1718,7 +2088,7 @@ namespace P2PERP.Controllers
                 var headerFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.BOLD, BaseColor.WHITE);
                 var normalFont = new iTextSharp.text.Font(bf, 9);
 
-                // ===== Title & Date Box =====
+                // ===== Title & Date Box ======
                 PdfPTable headerTable = new PdfPTable(2);
                 headerTable.WidthPercentage = 100;
                 headerTable.SetWidths(new float[] { 70f, 30f });
@@ -1731,7 +2101,11 @@ namespace P2PERP.Controllers
                 PdfPTable rightBox = new PdfPTable(1);
                 rightBox.WidthPercentage = 100;
 
-                PdfPCell dateCell = new PdfPCell(new Phrase($"DATE : {po.AddedDate:dd/MM/yyyy}", boldFont));
+                PdfPCell dateCell = new PdfPCell(new Phrase(
+                  $"DATE : {po.AddedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}",
+                  boldFont
+              ));
+
                 dateCell.BackgroundColor = new BaseColor(200, 230, 250);
                 dateCell.Border = iTextRectangle.NO_BORDER;
                 rightBox.AddCell(dateCell);
@@ -1801,7 +2175,7 @@ namespace P2PERP.Controllers
                     AddDataCell(table, item.Quantity.ToString(), normalFont, Element.ALIGN_CENTER);
                     AddDataCell(table, $"\u20B9{item.CostPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
                     AddDataCell(table, item.Discount, normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, $"\u20B9{item.GST:N2}", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, item.GST, normalFont, Element.ALIGN_RIGHT);
                     AddDataCell(table, $"\u20B9{item.Amount:N2}", normalFont, Element.ALIGN_RIGHT);
                 }
 
@@ -1865,6 +2239,251 @@ namespace P2PERP.Controllers
             };
             table.AddCell(cell);
         }
+
+        //Just in time Item list to create the PO
+        [HttpGet]
+        public ActionResult JustInTimeItemListOK()
+        {
+            return View();
+
+        }
+        public async Task<JsonResult> FetchJustInTimeItemListOK()
+        {
+            DataSet ds = new DataSet();
+            ds = await bal.FetchAllJITItemsOK();
+
+            //List<string> itm = new List<string>();
+            //itm.Add("ITM001");
+            //ds =await bal.FetchSelectedJITItemDetailstOK(itm);
+            List<Purchase> lstItem = new List<Purchase>();
+            try
+            {
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    Purchase p = new Purchase();
+                    p.SRNO = Convert.ToInt32(ds.Tables[0].Rows[i]["SRNO"].ToString());
+                    p.ItemName = ds.Tables[0].Rows[i]["ItemName"].ToString();
+                    p.ItemCode = ds.Tables[0].Rows[i]["ItemCode"].ToString();
+                    p.Quantity = Convert.ToInt32(ds.Tables[0].Rows[i]["Quantity"].ToString());
+                    p.AddedBy = ds.Tables[0].Rows[i]["FullName"].ToString();
+                    p.AddedDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["AddedDate"].ToString());
+                    p.RequiredDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["RequiredDate"].ToString());
+                    lstItem.Add(p);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in TermsConditions loop: " + ex.Message);
+            }
+            return Json(new { data = lstItem }, JsonRequestBehavior.AllowGet);
+
+        }
+        public async Task<JsonResult> FetchJITItemPODetailsOk(List<string> items)
+        {
+            DataSet ds = await bal.FetchSelectedJITItemDetailstOK(items);
+            // 1️⃣ Quotation Header
+            List<Purchase> lstHeader = new List<Purchase>();
+            try
+            {
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    Purchase header = new Purchase();
+
+                    header.QuotationID = ds.Tables[0].Rows[i]["QuotationNo"].ToString();
+                    header.QuotationDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["QuotationDate"]);
+                    header.QuotationDateString = header.QuotationDate.ToString("yyyy-MM-dd");
+                    header.ApprovedBy = ds.Tables[0].Rows[i]["ApprovedBy"].ToString();
+                    header.ApprovedDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["ApprovedDate"]);
+                    header.OriginalApprovedDate = header.ApprovedDate.ToString("yyyy-MM-dd");
+                    header.VendorName = ds.Tables[0].Rows[i]["VenderName"].ToString();
+                    header.CompanyName = ds.Tables[0].Rows[i]["CompanyName"].ToString();
+                    header.CompanyAddress = ds.Tables[0].Rows[i]["CompanyAddress"].ToString();
+                    header.MobileNo = Convert.ToInt64(ds.Tables[0].Rows[i]["VendorContactNo"].ToString());
+                    header.Email = ds.Tables[0].Rows[i]["VendorEmail"].ToString();
+                    header.AccountNumber = Convert.ToInt64(ds.Tables[0].Rows[i]["VendorAccountNo"].ToString());
+                    header.IFSCCode = ds.Tables[0].Rows[i]["IFSCCode"].ToString();
+                    header.SwiftCode = ds.Tables[0].Rows[i]["SwiftCode"].ToString();
+                    header.DeliveryAddress = ds.Tables[0].Rows[i]["DeliveryAddress"].ToString();
+                    header.ShippingCharges = Convert.ToDecimal(ds.Tables[0].Rows[i]["TransportationCharges"].ToString());
+                    //header.TotalAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["TotalAmount"]);
+                  //  header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
+
+                    lstHeader.Add(header);
+                }
+            }
+            catch (Exception exx)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in PO Details loop: " + exx.Message);
+            }
+
+            // 4️⃣ RFQ / Items
+            List<Purchase> lstRFQItems = new List<Purchase>();
+            try
+            {
+                for (int i = 0; i < ds.Tables[1].Rows.Count; i++)
+                {
+                    var item = new Purchase
+                    {
+                        SRNO = Convert.ToInt32(ds.Tables[1].Rows[i]["SRNO"]),
+                        RegisterQuotationItemCode = ds.Tables[1].Rows[i]["RegisterQuotationItemCode"].ToString(),
+                        ItemCode = ds.Tables[1].Rows[i]["ItemCode"].ToString(),
+                        ItemName = ds.Tables[1].Rows[i]["ItemName"].ToString(),
+                        Description = ds.Tables[1].Rows[i]["Description"].ToString(),
+                        Quantity = Convert.ToInt32(ds.Tables[1].Rows[i]["Quantity"]),
+                        UOM = ds.Tables[1].Rows[i]["UOMName"].ToString(),
+                        CostPerUnit = Convert.ToDecimal(ds.Tables[1].Rows[i]["CostPerUnit"]),
+                        Discount = ds.Tables[1].Rows[i]["Discount"].ToString(),
+                        GST = ds.Tables[1].Rows[i]["GST"].ToString(),
+                        Amount = Convert.ToDecimal(ds.Tables[1].Rows[i]["NetAmount"])
+                    };
+                    lstRFQItems.Add(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in TermsConditions loop: " + ex.Message);
+                //throw ex;
+            }
+
+            // 2️⃣ Accountant Staff
+            List<Purchase> lstStaff = new List<Purchase>();
+            try
+            {
+                for (int i = 0; i < ds.Tables[2].Rows.Count; i++)
+                {
+                    var staff = new Purchase
+                    {
+                        StaffCode = ds.Tables[2].Rows[i]["StaffCode"].ToString(),
+                        AccountEmail = ds.Tables[2].Rows[i]["EmailAddress"].ToString()
+                    };
+                    lstStaff.Add(staff);
+                }
+            }
+            catch (Exception exstaff)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in Accountent Fetch loop: " + exstaff.Message);
+            }
+
+            // 3️⃣ Terms & Conditions
+            List<Purchase> lstTerms = new List<Purchase>();
+            try
+            {
+                for (int i = 0; i < ds.Tables[3].Rows.Count; i++)
+                {
+                    var term = new Purchase
+                    {
+                        TermConditionId = Convert.ToInt32(ds.Tables[3].Rows[i]["TermConditionId"]),
+                        TermConditionName = ds.Tables[3].Rows[i]["TermConditionName"].ToString()
+                    };
+                    lstTerms.Add(term);
+                }
+            }
+            catch (Exception exterm)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in TermsConditions loop: " + exterm.Message);
+            }
+
+            
+            // Combine into one JSON object
+            var jsonData = new
+            {
+                QuotationHeader = lstHeader,
+                AccountantStaff = lstStaff,
+                TermsConditions = lstTerms,
+                Items = lstRFQItems
+            };
+
+            return Json(jsonData, JsonRequestBehavior.AllowGet);
+        }
+
+       // PO Email with PDF Attachment Logic
+        public async Task<byte[]> GeneratePOPDFAttachment(string POCode)
+        {
+            DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(POCode);
+
+            Purchase po = new Purchase();
+            List<Purchase> poItems = new List<Purchase>();
+
+            // Company & Vendor Details
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                var row = ds.Tables[0].Rows[0];
+                po.CompanyName = row["CompanyName"].ToString();
+                po.CompanyAddress = row["CompanyAddress"].ToString();
+                po.CompanyMobileNo = Convert.ToInt64(row["CompanyPhone"]);
+                po.CompanyEmail = row["CompanyEmail"].ToString();
+                po.Website = row["Website"].ToString();
+                po.POCode = row["POCode"].ToString();
+                po.AddedDate = Convert.ToDateTime(row["AddedDate"]);
+                po.ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]);
+                po.VendorName = row["VenderName"].ToString();
+                po.Address = row["VendorAddress"].ToString();
+                po.MobileNo = Convert.ToInt64(row["VendorPhone"]);
+                po.Email = row["VendorEmail"].ToString();  // vendor email
+                po.WarehouseName = row["WarehouseName"].ToString();
+                po.WarehouseAddress = row["WarehouseAddress"].ToString();
+                po.WarehousePhone = Convert.ToInt64(row["WarehousePhone"]);
+                po.WarehouseEmail = row["WarehouseEmail"].ToString();
+                po.SubAmount = Convert.ToDecimal(row["SubAmount"]);
+                po.GrandTotal = Convert.ToDecimal(row["GrandTotal"]);
+            }
+
+            foreach (DataRow dr in ds.Tables[1].Rows)
+            {
+                poItems.Add(new Purchase
+                {
+                    ItemCode = dr["ItemCode"].ToString(),
+                    ItemName = dr["ItemName"].ToString(),
+                    Quantity = Convert.ToInt32(dr["Quantity"]),
+                    Description = dr["Description"].ToString(),
+                    CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                    Discount = dr["Discount"].ToString(),
+                    GST = dr["GST"].ToString(),
+                    Amount = Convert.ToDecimal(dr["Amount"])
+                });
+            }
+
+            return GeneratePurchaseOrderPDF(po, poItems);
+        }
+        public async Task SendPOEmailAsync(string POCode, byte[] pdfBytes)
+        {
+            try
+            {
+                // Fetch PO details again for vendor email
+                DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(POCode);
+                if (ds.Tables[0].Rows.Count == 0) return;
+
+                string vendorEmail = ds.Tables[0].Rows[0]["VendorEmail"].ToString();
+                string vendorName = ds.Tables[0].Rows[0]["VenderName"].ToString();
+
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
+                    //mail.To.Add(vendorEmail);
+                    mail.To.Add("kumbharomkar765@gmail.com"); // Test email
+                    mail.Subject = $"Purchase Order - {POCode}";
+                    mail.Body = $"Dear {vendorName},\n\nPlease find attached the Purchase Order #{POCode}.\n\nThank you.\n\nRegards,\nYour Company";
+                    mail.IsBodyHtml = false;
+
+                    // Attach PDF
+                    mail.Attachments.Add(new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{POCode}.pdf", "application/pdf"));
+
+                    using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                    {
+                        smtp.Credentials = new NetworkCredential("sandeshjatti5329@gmail.com", "pbji sngj tkgz ylow");
+                        smtp.EnableSsl = true;
+                        await smtp.SendMailAsync(mail);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log exception or handle it silently
+                Console.WriteLine("Email Error: " + ex.Message);
+            }
+        }
+
         #endregion
 
         #region prathamesh
@@ -1877,7 +2496,7 @@ namespace P2PERP.Controllers
             {
                 case 5: return RedirectToAction("CreatePRADDItemPSM");
                 case 6: return RedirectToAction("QuotationSJ");
-                case 7: return RedirectToAction("RegisterQuotationVNK");
+                case 7: return RedirectToAction("ShowAllRFQsVNK");
                 case 8: return view();
                 case 9: return RedirectToAction("SelectedQuotationListShowOK");
             }
@@ -1973,11 +2592,7 @@ namespace P2PERP.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for approved PR
-        public ActionResult ShowApprovePRPartialPRK()
-        {
-            return PartialView("_ShowApprovePRPartialPRK");
-        }
+      
 
         // Rejected PR main view
         public ActionResult ShowRejectedPRPRK()
@@ -2049,11 +2664,7 @@ namespace P2PERP.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for pending PR
-        public ActionResult ShowPendingPRPartialPRK()
-        {
-            return PartialView("_ShowPendingPRPartialPRK");
-        }
+      
 
         // Approved PR items partial (by PRCode)
         public ActionResult ShowApporvePRItemPRK(string prCode)
@@ -2107,86 +2718,128 @@ namespace P2PERP.Controllers
 
         //Manager Dashboard 
 
+        // Partial view for approved PR
+
+        public async Task<ActionResult> ShowApprovPRDashPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowApprovedPRDashPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ShowApprovePRPartialPRK(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowApprovePRPartialPRK");
+        }
+
+
+
+
+        // Partial view for pending PR
+
+        public async Task<ActionResult> ShowPendingPRDashPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowPendingPRDashPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ShowPendingPRPartialPRK(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowPendingPRPartialPRK");
+        }
 
 
         // Requested RFQ
-        public async Task<ActionResult> ShowRequestedRFQPRK()
+        public async Task<ActionResult> ShowRequestedRFQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowRequestedRFQPRK();
+            var data = await bal.ShowRequestedRFQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Requested RFQ
-        public ActionResult ShowReuestedRFQPartialPRK()
+        public ActionResult ShowReuestedRFQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd"); 
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowReuestedRFQPartialPRK");
         }
 
         //Pending RFQ
-        public async Task<ActionResult> ShowPendingRFQPRK()
+        public async Task<ActionResult> ShowPendingRFQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowPendingRFQPRK();
+            var data = await bal.ShowPendingRFQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Pending RFQ
-        public ActionResult ShowPendingRFQPartialPRK()
+        public ActionResult ShowPendingRFQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingRFQPartialPRK");
         }
 
         // Approve RQ
-        public async Task<ActionResult> ShowApproveRQPRK()
+        public async Task<ActionResult> ShowApproveRQPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowApproveRQPRK();
+            var data = await bal.ShowApproveRQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         //   // Partial view for Approve RQ
-        public ActionResult ShowApproveRQPartialPRK()
+        public ActionResult ShowApproveRQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowApproveRQPartialPRK");
         }
 
         //Pending RQ
-        public async Task<ActionResult> ShowPendingRQPRK()
+        public async Task<ActionResult> ShowPendingRQPRK(DateTime startDate, DateTime endDate)
         {
 
-            var data = await bal.ShowPendingRQPRK();
+            var data = await bal.ShowPendingRQPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        // Partial view for Pending RQ
-        public ActionResult ShowPendingRQPartialPRK()
+        // Partial view for Pending RQ 
+        public ActionResult ShowPendingRQPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingRQPartialPRK");
         }
 
 
 
         //Approve PO
-        public async Task<ActionResult> ShowApprovePOPRK()
+        public async Task<ActionResult> ShowApprovePOPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowApprovePOPRK();
+            var data = await bal.ShowApprovePOPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Approve PO
-        public ActionResult ShowApprovePOPartialPRK()
+        public ActionResult ShowApprovePOPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowApprovePOPartialPRK");
         }
 
         //Pending PO
-        public async Task<ActionResult> ShowPendingPOPRK()
+        public async Task<ActionResult> ShowPendingPOPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowPendingPOPRK();
+            var data = await bal.ShowPendingPOPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for Approve PO
-        public ActionResult ShowPendingPOPartialPRK()
+        public ActionResult ShowPendingPOPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingPOPartialPRK");
         }
     
@@ -2307,16 +2960,30 @@ namespace P2PERP.Controllers
             return Json(new { data = list }, JsonRequestBehavior.AllowGet);
         }
 
-        // for save the new RFQ's
         [HttpPost]
-        public async Task<JsonResult> SaveRFQSJ(Purchase model)
+        public async Task<JsonResult> SaveRFQSJ()
         {
             try
             {
-                if (!ModelState.IsValid)
+                Request.InputStream.Seek(0, SeekOrigin.Begin);
+                string jsonData = new StreamReader(Request.InputStream).ReadToEnd();
+
+                // Allow dd/MM/yyyy parsing
+                var settings = new JsonSerializerSettings
+                {
+                    Culture = new System.Globalization.CultureInfo("en-GB"),
+                    DateFormatHandling = DateFormatHandling.IsoDateFormat
+                };
+
+                var model = JsonConvert.DeserializeObject<Purchase>(jsonData, settings);
+
+                if (!TryValidateModel(model))
                     return Json(new { success = false, error = "Invalid model state" });
 
-                int result = await bal.SaveRFQSJ(model);
+                string staffCode = Session["StaffCode"]?.ToString() ?? "";
+                string date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                int result = await bal.SaveRFQSJ(model, staffCode, date);
                 return Json(new { success = result > 0 });
             }
             catch (Exception ex)
@@ -2324,6 +2991,9 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, error = ex.Message });
             }
         }
+
+
+
 
 
         // For all RFQ's
@@ -2342,7 +3012,7 @@ namespace P2PERP.Controllers
                         SrNo = dr["SrNo"].ToString(),
                         PRCode = dr["PRCode"].ToString(),
                         RFQCode = dr["RFQCode"]?.ToString(),
-                        RequiredDate = dr["ExpectedDate"]?.ToString(),
+                        RequiredDate = dr["ExpectedDate"].ToString(),
                         Description = dr["Description"]?.ToString(),
                         Status = dr["StatusName"]?.ToString()
                     });
@@ -2458,6 +3128,7 @@ namespace P2PERP.Controllers
         {
             try
             {
+                // 🔹 Step 1: Read JSON body
                 string json;
                 using (var reader = new StreamReader(Request.InputStream))
                 {
@@ -2473,9 +3144,10 @@ namespace P2PERP.Controllers
                 if (request.Vendors == null || request.Vendors.Count == 0)
                     return Json(new { success = false, message = "No vendors selected." });
 
+                // 🔹 Step 2: Get RFQ details
                 DataSet ds = await bal.GetRFQDetailsSJ(request.RFQCode);
                 if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
-                    return Json(new { success = false, message = "RFQ not found" });
+                    return Json(new { success = false, message = "RFQ not found." });
 
                 DataRow firstRow = ds.Tables[0].Rows[0];
                 var header = new Purchase
@@ -2487,34 +3159,38 @@ namespace P2PERP.Controllers
                     MobileNo = Convert.ToInt64(firstRow["ContactNo"]?.ToString()),
                     RequiredDate = Convert.ToDateTime(firstRow["RequiredDate"]?.ToString()),
                     Address = firstRow["Address"]?.ToString(),
-                    Description = firstRow["Description1"]?.ToString()
+                    Description = firstRow["Description1"]?.ToString(),
+                    Vendors = request.Vendors
                 };
 
-                var items = new List<Purchase>();
-                foreach (DataRow dr in ds.Tables[0].Rows)
+                // 🔹 Step 3: Generate RFQ PDF once
+                string pdfPath = GenerateRFQPdfSJ(header, ds.Tables[0].AsEnumerable().Select(dr => new Purchase
                 {
-                    items.Add(new Purchase
-                    {
-                        ItemName = dr["ItemName"]?.ToString(),
-                        Description = dr["Description"]?.ToString(),
-                        RequiredQuantity =Convert.ToDecimal(dr["RequiredQuantity"]),
-                        UOMNamee = dr["UOMName"]?.ToString()
-                    });
-                }
+                    ItemName = dr["ItemName"]?.ToString(),
+                    Description = dr["Description"]?.ToString(),
+                    RequiredQuantity = Convert.ToDecimal(dr["RequiredQuantity"]),
+                    UOMNamee = dr["UOMName"]?.ToString()
+                }).ToList());
 
-                string pdfPath = GenerateRFQPdfSJ(header, items);
+                if (string.IsNullOrEmpty(pdfPath) || !System.IO.File.Exists(pdfPath))
+                    return Json(new { success = false, message = "Failed to generate RFQ PDF." });
 
-                header.Vendors = request.Vendors;
-                int savedCount = await bal.SaveRFQVendorsSJ(header);
+                // 🔹 Step 4: Save RFQ-vendor mapping
+                string staffCode = Session["StaffCode"]?.ToString() ?? "";
+                string addedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                int savedCount = await bal.SaveRFQVendorsSJ(header, staffCode, addedDate);
                 if (savedCount == 0)
                     return Json(new { success = false, message = "Failed to save RFQ-Vendor mapping." });
 
+                // 🔹 Step 5: Fetch vendor details
                 string vendorIdsCsv = string.Join(",", request.Vendors);
                 DataSet vendorDs = await bal.GetVendorsByIdsSJ(vendorIdsCsv);
 
                 if (vendorDs == null || vendorDs.Tables.Count == 0 || vendorDs.Tables[0].Rows.Count == 0)
                     return Json(new { success = false, message = "No vendor details found." });
 
+                // 🔹 Step 6: Send email with attachment to each vendor
                 foreach (DataRow dr in vendorDs.Tables[0].Rows)
                 {
                     var vendor = new Purchase
@@ -2533,20 +3209,46 @@ namespace P2PERP.Controllers
                     try
                     {
                         string subject = $"RFQ {request.RFQCode} from {request.PRCode}";
-                        string body = $"Dear {vendor.VendorName},\n\nPlease find attached the RFQ document.\n\nRegards,\nProcurement Team";
+                        string body = $@"Dear {vendor.VendorName},
 
-                        SendEmailWithAttachmentSJ(vendor.Email, subject, body, pdfPath);
+We are pleased to invite you to submit a quotation for the attached Request for Quotation (RFQ) document, under reference number {request.RFQCode}, pertaining to Purchase Requisition {request.PRCode}.
+
+The RFQ includes detailed item descriptions, quantities, and terms. Kindly review the document carefully and provide your best quotation by the stated due date.
+
+Your timely response will be highly appreciated.
+
+Should you require any additional information or clarification, please do not hesitate to contact our procurement team.
+
+Sincerely,
+Procurement Team
+[Gayasoft Technology]";
+
+
+                        // 🔹 Make a temp copy for each vendor (avoids file lock issues)
+                        string tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.pdf");
+                        System.IO.File.Copy(pdfPath, tempFile, true);
+
+                        // Send mail
+                        SendEmailWithAttachmentSJ(vendor.Email, subject, body, tempFile);
+
+                        // Clean up temp copy
+                        System.IO.File.Delete(tempFile);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Failed to send email to {vendor.Email}: {ex.Message}");
+                        Console.WriteLine($"❌ Failed to send email to {vendor.Email}: {ex.Message}");
                     }
                 }
+
+                // 🔹 Step 7: Delete original PDF after all emails sent
+                if (System.IO.File.Exists(pdfPath))
+                    System.IO.File.Delete(pdfPath);
 
                 return Json(new { success = true, message = "RFQ sent successfully to selected vendors!" });
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"❌ SendRFQToVendorsSJ() Error: {ex.Message}");
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
@@ -2660,11 +3362,11 @@ namespace P2PERP.Controllers
             return filePath;
         }
 
-        //Send Email with vendors
+
         private void SendEmailWithAttachmentSJ(string toEmail, string subject, string body, string attachmentPath)
         {
             var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
-            string fromPassword = "pbji sngj tkgz ylow";
+            string fromPassword = "pbji sngj tkgz ylow"; // ⚠️ Move this to config or environment variable
 
             using (var smtp = new SmtpClient("smtp.gmail.com", 587)
             {
@@ -2685,9 +3387,6 @@ namespace P2PERP.Controllers
 
                 smtp.Send(message);
             }
-
-            if (!string.IsNullOrEmpty(attachmentPath) && System.IO.File.Exists(attachmentPath))
-                System.IO.File.Delete(attachmentPath);
         }
 
 
@@ -2805,6 +3504,9 @@ namespace P2PERP.Controllers
             {
                 int VendorMaxId = 0;
                 int VendorcompanyMaxId = 0;
+                string staffCode = Session["StaffCode"]?.ToString();
+                string date = DateTime.Now.ToString();
+
                 DataSet ds = await bal.FetchVendorandVendorCompantMaxIdSJ();
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
@@ -2814,28 +3516,31 @@ namespace P2PERP.Controllers
                 {
                     VendorcompanyMaxId = Convert.ToInt32(ds.Tables[1].Rows[i]["VendorCompanyMaxId"].ToString());
                 }
+
                 string VendorCode = "VEN" + (VendorMaxId + 1).ToString("D3");
                 string VendorCompanyCode = "VCC" + (VendorcompanyMaxId + 1).ToString("D3");
+
                 p.VendorCode = VendorCode;
                 p.VendorCompanyCode = VendorCompanyCode;
+                p.StaffCode = staffCode;   // ✅ assign here
+
                 bool issaved = await bal.SaveVendorSJ(p);
+
                 if (issaved)
                 {
-                    var message = "Vendor saved successfully!";
-                    return Json(new { success = true, message });
+                    return Json(new { success = true, message = "Vendor saved successfully!" });
                 }
                 else
                 {
-                    var message = "Vendor not saved, please try again!";
-                    return Json(new { success = false, message });
+                    return Json(new { success = false, message = "Vendor not saved, please try again!" });
                 }
             }
             catch (Exception ex)
             {
-
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
         #endregion
     }
 }

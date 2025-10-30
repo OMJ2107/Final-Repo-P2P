@@ -579,6 +579,25 @@ namespace P2PLibray.GRN
             return dt;
         }
 
+
+        /// <summary>
+        /// Returns count of approved QC items (StatusId = 14) in date range.
+        /// Calls GRNProcedure with Flag = 'ApproveCountRHK'.
+        /// </summary>
+        public async Task<DataTable> PendingCountRHK(DateTime? startDate, DateTime? endDate)
+        {
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("@Flag", "PendingCountRHK");
+            parameters.Add("@StartDate", startDate.HasValue ? startDate.Value.ToString("yyyy-MM-dd") : null);
+            parameters.Add("@EndDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd") : null);
+
+            DataTable dt = new DataTable();
+            using (SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("GRNProcedure", parameters))
+            {
+                dt.Load(dr);
+            }
+            return dt;
+        }
         /// <summary>
         /// Returns count of items assigned for QC in date range.
         /// Calls GRNProcedure with Flag = 'QCAssignedCountRHK'.
@@ -757,7 +776,7 @@ namespace P2PLibray.GRN
         public async Task<DataTable> PendingItemsRHK(DateTime? startDate, DateTime? endDate)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
-            parameters.Add("@Flag", "QCAssignedItemsRHK");
+            parameters.Add("@Flag", "PendingItemsRHK");
             parameters.Add("@StartDate", startDate.HasValue ? startDate.Value.ToString("yyyy-MM-dd") : null);
             parameters.Add("@EndDate", endDate.HasValue ? endDate.Value.ToString("yyyy-MM-dd") : null);
             DataTable dt = new DataTable();
@@ -977,13 +996,16 @@ namespace P2PLibray.GRN
         /// </summary>
         /// <param name="objGRN">GRN object containing GRN code and added by details.</param>
         /// <returns>Number of inserted QC records.</returns>
-        public async Task<int> AssignQCSSG(GRN objGRN)
+        public async Task<int> AssignQCSSG(GRN objGRN, string staffcode)
         {
             try
             {
                 Dictionary<string, string> param = new Dictionary<string, string>();
-                param.Add("@Flag", "AssignQC");
+                param.Add("@Flag", "AssignQCSSG");
                 param.Add("@GRNCode", objGRN.GRNCode);
+                param.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                param.Add("@AddedBy", staffcode);
+
 
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("GRNProcedure", param);
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
