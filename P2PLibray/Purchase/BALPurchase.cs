@@ -1991,15 +1991,17 @@ namespace P2PLibray.Purchase
         /// <summary>
         /// Fetch item details for selected JIT items
         /// </summary>
-        public async Task<DataSet> FetchSelectedJITItemDetailstOK(List<string> itemCodes)
+        public async Task<DataSet> FetchSelectedJITItemDetailstOK(string itemCode, int stockRequirementId)
         {
             Dictionary<string, string> para = new Dictionary<string, string>();
-            string csvItemCodes = string.Join(",", itemCodes);
             para.Add("@Flag", "FetchJITDetaistoPOOK");
-            para.Add("@ItemCodes", csvItemCodes);
+            para.Add("@ItemCode", itemCode);
+            para.Add("@StockRequirementId", stockRequirementId.ToString());
+
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
             return ds;
         }
+
 
 
 
@@ -2101,7 +2103,8 @@ namespace P2PLibray.Purchase
                     Dictionary<string, string> para = new Dictionary<string, string>
             {
                 { "@Flag", "UpdateItemRequirementStatusOK" }, // New flag
-                { "@ItemCode", itemCode }
+                { "@ItemCode", itemCode },
+                {@"StockrequirementId",model.StockReqirementId.ToString()}
             };
 
                     await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);

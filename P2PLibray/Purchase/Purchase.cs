@@ -59,6 +59,12 @@ namespace P2PLibray.Purchase
         }
 
     #endregion
+    public class JITItem
+    {
+        public string ItemCode { get; set; }
+        public int StockRequirementId { get; set; }
+    }
+
 
     #region Akash
     public class PurchaseAMG
@@ -403,6 +409,7 @@ namespace P2PLibray.Purchase
         #region Omkar
         public int SRNO { get; set; }
         //Vendor tbl start
+        public int StockReqirementId { get; set; }
         public int VendorId { get; set; }
         public string VendorCode { get; set; }
        // public string VendorName { get; set; }

@@ -1621,6 +1621,10 @@ namespace P2PERP.Controllers
                     Session["JITPOSave"] = "OK";
                     string staffcode = Session["StaffCode"].ToString();
                     model.StaffCode = staffcode;
+                    if (TempData["StockReqirementId"] != null)
+                    {
+                        model.StockReqirementId = Convert.ToInt32(TempData["StockReqirementId"]);
+                    }
                     bool issaved = await bal.SaveJITPOOK(model);
                     if (issaved)
                     {
@@ -1881,34 +1885,100 @@ namespace P2PERP.Controllers
                 AddHeaderCell(table, "GST", boldFont, new BaseColor(135, 206, 235));
                 AddHeaderCell(table, "TOTAL", boldFont, new BaseColor(135, 206, 235));
 
+                //foreach (var item in poItems)
+                //{
+                //    AddDataCell(table, item.ItemCode, normalFont);
+                //    AddDataCell(table, item.ItemName, normalFont);
+                //    AddDataCell(table, item.Description, normalFont);
+                //    AddDataCell(table, item.Quantity.ToString(), normalFont, Element.ALIGN_CENTER);
+                //    AddDataCell(table, $"\u20B9{item.CostPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
+                //    AddDataCell(table, item.Discount, normalFont, Element.ALIGN_RIGHT);
+                //    AddDataCell(table, item.GST, normalFont, Element.ALIGN_RIGHT);
+                //    AddDataCell(table, $"\u20B9{item.Amount:N2}", normalFont, Element.ALIGN_RIGHT);
+                //}
+
+                //doc.Add(table);
+                //doc.Add(new Paragraph(" "));
+
+                //// ===== Comment & Totals =====
+                //PdfPTable bottomTable = new PdfPTable(2) { WidthPercentage = 100 };
+                //bottomTable.SetWidths(new float[] { 60f, 40f });
+
+                //PdfPCell commentCell = new PdfPCell(new Phrase("COMMENT OR SPECIAL INSTRUCTION", boldFont)) { FixedHeight = 50f };
+                //bottomTable.AddCell(commentCell);
+
+                //PdfPTable totalsTable = new PdfPTable(2) { WidthPercentage = 100 };
+                //totalsTable.AddCell(new PdfPCell(new Phrase("SUBTOTAL", boldFont)) { Border = 0 });
+                //totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.SubAmount:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+                //totalsTable.AddCell(new PdfPCell(new Phrase("SHIPPING", boldFont)) { Border = 0 });
+                //totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.ShippingCharges:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+                //totalsTable.AddCell(new PdfPCell(new Phrase("GRAND TOTAL", boldFont))
+                //{
+                //    Border = 0,
+                //    BackgroundColor = new BaseColor(135, 206, 235),
+                //    Padding = 5
+                //});
+                //totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.GrandTotal:N2}", boldFont))
+                //{
+                //    Border = 0,
+                //    BackgroundColor = new BaseColor(135, 206, 235),
+                //    HorizontalAlignment = Element.ALIGN_RIGHT,
+                //    Padding = 5
+                //});
+                // ===== Calculations =====
+                double subTotal = 0, totalGST = 0;
+
                 foreach (var item in poItems)
                 {
+                    // Handle nulls and conversions safely
+                    double quantity = (po.RequestTypeId == 9) ? item.JITQuantity : item.Quantity;
+                    double costPerUnit = Convert.ToDouble(item.CostPerUnit);
+                    double discountPercent = double.TryParse(item.Discount?.Replace("%", ""), out double d) ? d : 0;
+                    double gstPercent = double.TryParse(item.GST?.Replace("%", ""), out double g) ? g : 0;
+
+                    // Calculate amounts
+                    double amountBeforeDiscount = quantity * costPerUnit;
+                    double discountAmount = amountBeforeDiscount * (discountPercent / 100);
+                    double taxableAmount = amountBeforeDiscount - discountAmount;
+                    double gstAmount = taxableAmount * (gstPercent / 100);
+                    double totalAmount = taxableAmount + gstAmount;
+
+                    subTotal +=Convert.ToDouble(item.Amount);
+                    //totalGST += subTotal+;
+
+                    // Add data row
                     AddDataCell(table, item.ItemCode, normalFont);
                     AddDataCell(table, item.ItemName, normalFont);
                     AddDataCell(table, item.Description, normalFont);
-                    AddDataCell(table, item.Quantity.ToString(), normalFont, Element.ALIGN_CENTER);
-                    AddDataCell(table, $"\u20B9{item.CostPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, item.Discount, normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, item.GST, normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, $"\u20B9{item.Amount:N2}", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, quantity.ToString("N2"), normalFont, Element.ALIGN_CENTER);
+                    AddDataCell(table, $"\u20B9{costPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, $"{discountPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, $"{gstPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, $"\u20B9{totalAmount:N2}", normalFont, Element.ALIGN_RIGHT);
                 }
 
                 doc.Add(table);
                 doc.Add(new Paragraph(" "));
 
-                // ===== Comment & Totals =====
-                PdfPTable bottomTable = new PdfPTable(2) { WidthPercentage = 100 };
-                bottomTable.SetWidths(new float[] { 60f, 40f });
+                // ===== Totals Section =====
+                double shipping = Convert.ToDouble(po.ShippingCharges);
+                double grandTotal = subTotal+ shipping;
 
-                PdfPCell commentCell = new PdfPCell(new Phrase("COMMENT OR SPECIAL INSTRUCTION", boldFont)) { FixedHeight = 50f };
-                bottomTable.AddCell(commentCell);
-
-                PdfPTable totalsTable = new PdfPTable(2) { WidthPercentage = 100 };
+                PdfPTable totalsTable = new PdfPTable(2)
+                {
+                    WidthPercentage = 40,
+                    HorizontalAlignment = Element.ALIGN_RIGHT
+                };
                 totalsTable.AddCell(new PdfPCell(new Phrase("SUBTOTAL", boldFont)) { Border = 0 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.SubAmount:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{subTotal:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+                //totalsTable.AddCell(new PdfPCell(new Phrase("GST", boldFont)) { Border = 0 });
+                //totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{totalGST:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
 
                 totalsTable.AddCell(new PdfPCell(new Phrase("SHIPPING", boldFont)) { Border = 0 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.ShippingCharges:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{shipping:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
 
                 totalsTable.AddCell(new PdfPCell(new Phrase("GRAND TOTAL", boldFont))
                 {
@@ -1916,7 +1986,7 @@ namespace P2PERP.Controllers
                     BackgroundColor = new BaseColor(135, 206, 235),
                     Padding = 5
                 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.GrandTotal:N2}", boldFont))
+                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{grandTotal:N2}", boldFont))
                 {
                     Border = 0,
                     BackgroundColor = new BaseColor(135, 206, 235),
@@ -1924,13 +1994,159 @@ namespace P2PERP.Controllers
                     Padding = 5
                 });
 
-                bottomTable.AddCell(new PdfPCell(totalsTable) { Border = 0 });
-                doc.Add(bottomTable);
+                //bottomTable.AddCell(new PdfPCell(totalsTable) { Border = 0 });
+                //doc.Add(bottomTable);
+                doc.Add(totalsTable);
+
+
 
                 doc.Close();
                 return ms.ToArray();
             }
         }
+        //public byte[] GeneratePurchaseOrderPDF(Purchase po, List<Purchase> poItems)
+        //{
+        //    using (MemoryStream ms = new MemoryStream())
+        //    {
+        //        Document doc = new Document(PageSize.A4, 25, 25, 30, 30);
+        //        PdfWriter.GetInstance(doc, ms);
+        //        doc.Open();
+
+        //        // ===== Font Setup =====
+        //        string fontsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arialuni.ttf");
+        //        if (!File.Exists(fontsPath))
+        //            fontsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf");
+
+        //        BaseFont bf = BaseFont.CreateFont(fontsPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        //        var titleFont = new iTextSharp.text.Font(bf, 20, iTextSharp.text.Font.BOLD);
+        //        var boldFont = new iTextSharp.text.Font(bf, 11, iTextSharp.text.Font.BOLD);
+        //        var normalFont = new iTextSharp.text.Font(bf, 9);
+
+        //        // ===== Header =====
+        //        PdfPTable headerTable = new PdfPTable(2);
+        //        headerTable.WidthPercentage = 100;
+        //        headerTable.SetWidths(new float[] { 70f, 30f });
+
+        //        PdfPCell titleCell = new PdfPCell(new Phrase("PURCHASE ORDER", titleFont))
+        //        { Border = iTextRectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
+        //        headerTable.AddCell(titleCell);
+
+        //        PdfPTable rightBox = new PdfPTable(1) { WidthPercentage = 100 };
+        //        PdfPCell dateCell = new PdfPCell(new Phrase($"DATE : {po.AddedDate:dd/MM/yyyy}", boldFont))
+        //        { BackgroundColor = new BaseColor(200, 230, 250), Border = iTextRectangle.NO_BORDER };
+        //        rightBox.AddCell(dateCell);
+
+        //        PdfPCell poCell = new PdfPCell(new Phrase($"PO# : {po.POCode}", boldFont))
+        //        { BackgroundColor = new BaseColor(200, 230, 250), Border = iTextRectangle.NO_BORDER };
+        //        rightBox.AddCell(poCell);
+
+        //        PdfPCell rightWrapper = new PdfPCell(rightBox) { Border = iTextRectangle.NO_BORDER };
+        //        headerTable.AddCell(rightWrapper);
+        //        doc.Add(headerTable);
+        //        doc.Add(new Paragraph(" "));
+
+        //        // ===== Vendor & Ship To =====
+        //        PdfPTable infoTable = new PdfPTable(2) { WidthPercentage = 100 };
+        //        infoTable.SetWidths(new float[] { 50f, 50f });
+        //        AddHeaderCell(infoTable, "VENDOR INFORMATION", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(infoTable, "SHIP TO", boldFont, new BaseColor(135, 206, 235));
+
+        //        PdfPCell vendorCell = new PdfPCell(new Phrase(
+        //            $"{po.VendorName}\n{po.Address}\nPhone: {po.MobileNo}\nEmail: {po.Email}", normalFont))
+        //        { Padding = 5 };
+        //        infoTable.AddCell(vendorCell);
+
+        //        PdfPCell shipCell = new PdfPCell(new Phrase(
+        //            $"{po.WarehouseName}\n{po.WarehouseAddress}\nPhone: {po.WarehousePhone}\nEmail: {po.WarehouseEmail}", normalFont))
+        //        { Padding = 5 };
+        //        infoTable.AddCell(shipCell);
+        //        doc.Add(infoTable);
+        //        doc.Add(new Paragraph(" "));
+
+        //        // ===== Items Table =====
+        //        PdfPTable table = new PdfPTable(8) { WidthPercentage = 100 };
+        //        table.SetWidths(new float[] { 10f, 15f, 20f, 10f, 10f, 10f, 10f, 15f });
+        //        AddHeaderCell(table, "ITEM", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "ITEMNAME", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "DESCRIPTION", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "QTY", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "UNIT PRICE", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "DISCOUNT", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "GST%", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "TOTAL", boldFont, new BaseColor(135, 206, 235));
+
+        //        // ===== Calculations =====
+        //        double subTotal = 0, totalGST = 0;
+
+        //        foreach (var item in poItems)
+        //        {
+        //            // Determine quantity based on RequestTypeId (JIT vs Non-JIT)
+        //            double quantity = (po.RequestTypeId == null || po.RequestTypeId == 9)
+        //                ? item.JITQuantity
+        //                : item.Quantity;
+
+        //            double costPerUnit =Convert.ToDouble(item.CostPerUnit);
+        //            double discountPercent = string.IsNullOrEmpty(item.Discount) ? 0 : Convert.ToDouble(item.Discount);
+        //            double gstPercent = string.IsNullOrEmpty(item.GST) ? 0 : Convert.ToDouble(item.GST);
+
+        //            // Compute totals
+        //            double amountBeforeDiscount = quantity * costPerUnit;
+        //            double discountAmount = amountBeforeDiscount * (discountPercent / 100);
+        //            double taxableAmount = amountBeforeDiscount - discountAmount;
+        //            double gstAmount = taxableAmount * (gstPercent / 100);
+        //            double totalAmount = taxableAmount + gstAmount;
+
+        //            // Add to running totals
+        //            subTotal += taxableAmount;
+        //            totalGST += gstAmount;
+
+        //            // Add row to table
+        //            AddDataCell(table, item.ItemCode, normalFont);
+        //            AddDataCell(table, item.ItemName, normalFont);
+        //            AddDataCell(table, item.Description, normalFont);
+        //            AddDataCell(table, quantity.ToString("N2"), normalFont, Element.ALIGN_CENTER);
+        //            AddDataCell(table, $"\u20B9{costPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
+        //            AddDataCell(table, $"{discountPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
+        //            AddDataCell(table, $"{gstPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
+        //            AddDataCell(table, $"\u20B9{totalAmount:N2}", normalFont, Element.ALIGN_RIGHT);
+        //        }
+
+        //        doc.Add(table);
+        //        doc.Add(new Paragraph(" "));
+
+        //        // ===== Totals Section =====
+        //        double grandTotal = subTotal + totalGST +Convert.ToDouble(po.ShippingCharges);
+
+        //        PdfPTable totalsTable = new PdfPTable(2) { WidthPercentage = 40, HorizontalAlignment = Element.ALIGN_RIGHT };
+        //        totalsTable.AddCell(new PdfPCell(new Phrase("SUBTOTAL", boldFont)) { Border = 0 });
+        //        totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{subTotal:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+        //        totalsTable.AddCell(new PdfPCell(new Phrase("GST", boldFont)) { Border = 0 });
+        //        totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{totalGST:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+        //        totalsTable.AddCell(new PdfPCell(new Phrase("SHIPPING", boldFont)) { Border = 0 });
+        //        totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.ShippingCharges:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+        //        totalsTable.AddCell(new PdfPCell(new Phrase("GRAND TOTAL", boldFont))
+        //        {
+        //            Border = 0,
+        //            BackgroundColor = new BaseColor(135, 206, 235),
+        //            Padding = 5
+        //        });
+        //        totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{grandTotal:N2}", boldFont))
+        //        {
+        //            Border = 0,
+        //            BackgroundColor = new BaseColor(135, 206, 235),
+        //            HorizontalAlignment = Element.ALIGN_RIGHT,
+        //            Padding = 5
+        //        });
+
+        //        doc.Add(totalsTable);
+        //        doc.Close();
+
+        //        return ms.ToArray();
+        //    }
+        //}
 
         // ===== Helper Methods =====
         private void AddHeaderCell(PdfPTable table, string text, iTextSharp.text.Font font, BaseColor bgColor)
@@ -1982,6 +2198,7 @@ namespace P2PERP.Controllers
                     p.AddedBy = ds.Tables[0].Rows[i]["FullName"].ToString();
                     p.AddedDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["AddedDate"].ToString());
                     p.RequiredDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["RequiredDate"].ToString());
+                    p.StockReqirementId = Convert.ToInt32(ds.Tables[0].Rows[i]["StockReqirementId"].ToString());
                     lstItem.Add(p);
                 }
 
@@ -1993,9 +2210,15 @@ namespace P2PERP.Controllers
             return Json(new { data = lstItem }, JsonRequestBehavior.AllowGet);
 
         }
-        public async Task<JsonResult> FetchJITItemPODetailsOk(List<string> items)
+        //public async Task<JsonResult> FetchJITItemPODetailsOk(List<string> items)
+        public async Task<JsonResult> FetchJITItemPODetailsOk(string itemCode, int stockRequirementId)
         {
-            DataSet ds = await bal.FetchSelectedJITItemDetailstOK(items);
+            //Purchase p = new Purchase();
+            //p.StockReqirementId = stockRequirementId;
+            TempData["StockReqirementId"] = stockRequirementId;
+            TempData.Keep("StockReqirementId"); //
+            // DataSet ds = await bal.FetchSelectedJITItemDetailstOK(items);
+            DataSet ds = await bal.FetchSelectedJITItemDetailstOK(itemCode, stockRequirementId);
             // 1️⃣ Quotation Header
             List<Purchase> lstHeader = new List<Purchase>();
             try
@@ -2049,7 +2272,7 @@ namespace P2PERP.Controllers
                         CostPerUnit = Convert.ToDecimal(ds.Tables[1].Rows[i]["CostPerUnit"]),
                         Discount = ds.Tables[1].Rows[i]["Discount"].ToString(),
                         GST = ds.Tables[1].Rows[i]["GST"].ToString(),
-                        Amount = Convert.ToDecimal(ds.Tables[1].Rows[i]["NetAmount"])
+                        Amount = Convert.ToDecimal(ds.Tables[1].Rows[i]["ItemNetAmount"])
                     };
                     lstRFQItems.Add(item);
                 }

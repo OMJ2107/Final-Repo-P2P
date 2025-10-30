@@ -501,10 +501,16 @@
                 // CallJITPOMethod();
                 console.log("Call JIT PO");
                 const itemCodes = JSON.parse(localStorage.getItem("SelectedJITItems") || "[]");
+                console.log("ITEM DETAILS", itemCodes[0].ItemCode, itemCodes[0].StockReqirementId);
+                const firstItem = itemCodes[0]; // just take one for now
                  $.ajax({
                     url: '@Url.Action("FetchJITItemPODetailsOk", "Purchase")',
                     type: "POST",
-                     data: JSON.stringify({ items: itemCodes }),
+                     // data: JSON.stringify({ items: itemCodes }),
+                     data: JSON.stringify({
+                         itemCode: firstItem.ItemCode,
+                         stockRequirementId: firstItem.StockReqirementId
+                     }),    
                     contentType: "application/json; charset=utf-8",
                      success: function (response) {
                         console.log(response);
@@ -533,7 +539,7 @@
                         $("#IFSCcode").val(header.IFSCCode);
                         $("#SwiftCode").val(header.SwiftCode);
                         $("#DeliveryAddress").val(header.DeliveryAddress);
-                         $("#transportationCharges").text(header.ShippingCharges);
+                         $("#transportationCharges").text('₹' +header.ShippingCharges);
 
 
                          if (header.QuotationDateString) {
@@ -680,8 +686,8 @@
                     $("#SwiftCode").val(header.SwiftCode);
                     $("#DeliveryAddress").val(header.DeliveryAddress);
                     $("#TotalAmount").val(header.TotalAmount);
-                    $("#transportationCharges").text(header.ShippingCharges);
-                    $("#grandTotal").text(header.TotalAmount);
+                    $("#transportationCharges").text('₹' +header.ShippingCharges);
+                    $("#grandTotal").text('₹' +header.TotalAmount);
                     $("#subTotal").text('₹' + (header.SubAmount).toFixed(2));
 
                     // ------------------------------
