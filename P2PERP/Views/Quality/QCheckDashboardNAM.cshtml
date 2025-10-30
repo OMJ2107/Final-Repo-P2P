@@ -393,40 +393,47 @@
         loadDashboardData(); // initial load
         initDateRangePicker();
 
-        // Open datepicker on calendar button click
-        $('#calendarTrigger').on('click', function () {
-            $('#reportrange').data('daterangepicker').show();
+        let startDateGlobal = null;
+        let endDateGlobal = null;
+        $(document).ready(function () {
+            $.fn.dataTable.ext.errMode = 'none';
+            loadDashboardData(); // initial load
+            initDateRangePicker();
+
+            // Open datepicker on calendar button click
+            $('#calendarTrigger').on('click', function () {
+                $('#reportrange').data('daterangepicker').show();
+            });
         });
-    });
 
-    // Toast Notification
-    function showToast(message, type = 'warning') {
-        // Map to Bootstrap contextual colors
-        let icon = '';
-        let progressColor = '';
+        // Toast Notification
+        function showToast(message, type = 'warning') {
+            // Map to Bootstrap contextual colors
+            let icon = '';
+            let progressColor = '';
 
-        switch (type) {
-            case 'success':
-                icon = '<i class="bi bi-check-circle-fill me-2"></i>';
-                progressColor = 'bg-light';
-                break;
-            case 'warning':
-                icon = '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
-                progressColor = 'bg-dark';
-                break;
-            case 'info':
-                icon = '<i class="bi bi-info-circle-fill me-2"></i>';
-                progressColor = 'bg-light';
-                break;
-            default: // error
-                icon = '<i class="bi bi-x-circle-fill me-2"></i>';
-                progressColor = 'bg-light';
-        }
+            switch (type) {
+                case 'success':
+                    icon = '<i class="bi bi-check-circle-fill me-2"></i>';
+                    progressColor = 'bg-light';
+                    break;
+                case 'warning':
+                    icon = '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
+                    progressColor = 'bg-dark';
+                    break;
+                case 'info':
+                    icon = '<i class="bi bi-info-circle-fill me-2"></i>';
+                    progressColor = 'bg-light';
+                    break;
+                default: // error
+                    icon = '<i class="bi bi-x-circle-fill me-2"></i>';
+                    progressColor = 'bg-light';
+            }
 
-        const toastId = `toast-${Date.now()}`;
+            const toastId = `toast-${Date.now()}`;
 
-        // ✅ Toast HTML with white text for all
-        const toastHTML = `
+            // ✅ Toast HTML with white text for all
+            const toastHTML = `
 <div id="${toastId}" class="toast align-items-center bg-${type} border-0 mb-2 shadow-lg"
                                  role="alert" aria-live="assertive" aria-atomic="true"
                                  data-bs-delay="3000" data-bs-animation="true">
@@ -443,38 +450,31 @@
 
 </div>`;
 
-        const $toast = $(toastHTML);
-        $('#toastContainer').prepend($toast); // newestOnTop
+            const $toast = $(toastHTML);
+            $('#toastContainer').prepend($toast); // newestOnTop
 
-        // ✅ Initialize bootstrap toast
-        const toast = new bootstrap.Toast($toast[0], { delay: 3000 });
-        toast.show();
+            // ✅ Initialize bootstrap toast
+            const toast = new bootstrap.Toast($toast[0], { delay: 3000 });
+            toast.show();
 
-        // ✅ Animate progress bar
-        $toast.find('.progress-bar')
-            .css({
-                width: "100%",
-                float: "right",
-                backgroundColor: "black"
-            })
-            .animate(
-                { width: "0%" },
-                { duration: 3000, easing: "linear" }
-            );
+            // ✅ Animate progress bar
+            $toast.find('.progress-bar')
+                .css({
+                    width: "100%",
+                    float: "right",
+                    backgroundColor: "black"
+                })
+                .animate(
+                    { width: "0%" },
+                    { duration: 3000, easing: "linear" }
+                );
 
 
 
-        // ✅ Auto-remove
-        $toast.on('hidden.bs.toast', function () {
-            $(this).remove();
-        });
-    }
-
-    // === Dashboard Data ===
-    function loadDashboardData(startDate = null, endDate = null) {
-        let requestData = {};
-        if (startDate && endDate) {
-            requestData = { startDate: startDate, endDate: endDate };
+            // ✅ Auto-remove
+            $toast.on('hidden.bs.toast', function () {
+                $(this).remove();
+            });
         }
         $.ajax({
             url: '/Quality/GetConfirmCountNAM',
@@ -865,8 +865,9 @@
 
         $.get('/Quality/GetNonConfirmedListNAM', requestData,
 
-            d => {
+            $.get('/Quality/GetPendingListNAM', requestData, d => {
                 var r = '';
+                console.log(d);
                 if (d && d.length) {
                     $.each(d, (i, x) => {
                         r += `<tr>
@@ -879,27 +880,33 @@
                                         <td>${moment(x.AddedDate).format('DD/MM/YYYY')}</td>
             </tr>`;
                     });
+                } else {
+                    r = '<tr><td colspan="7" class="text-center">No Records</td></tr>';
                 }
-                else r = '<tr><td colspan="6" class="text-center">No Records</td></tr>';
-                $('#NonconfirmListTable').html(r);
-                if ($.fn.DataTable.isDataTable('#NonconfirmTable')) $('#NonconfirmTable').DataTable().destroy();
-                let t = $('#NonconfirmTable').DataTable({
+
+                $('#PendingListTable').html(r);
+
+                if ($.fn.DataTable.isDataTable('#PendingTable')) $('#PendingTable').DataTable().destroy();
+
+                let t = $('#PendingTable').DataTable({
+
+
+
                     dom: '<"dt-toolbar"<"dt-left"B><"dt-search"f>>rt<"bottom d-flex justify-content-between align-items-center"ip>>',
                     ordering: false,
 
                     buttons: [
-                        // Print button
                         {
                             extend: 'print',
+                            title: '',
                             text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
                             titleAttr: 'Print Selected',
                             action: function (e, dt, button, config) {
-                                if ($('#NonconfirmTable .Nonconfirm-row-select:checked').length === 0) {
+                                if ($('#PendingTable .Pending-row-select:checked').length === 0) {
                                     showToast("Please select at least one row to print!", "warning");
                                     return;
                                 }
                                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                                dt.processing(false); // ✅ force remove buffering spinner
                             },
                             exportOptions: {
                                 // ✅ include Added Date column (remove :not(:last-child))
@@ -958,11 +965,12 @@
 
                         {
                             extend: 'pdfHtml5',
+                            title: 'Pending List',
                             text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                             titleAttr: 'Export PDF',
                             action: function (e, dt, button, config) {
-                                if ($('#NonconfirmTable .Nonconfirm-row-select:checked').length === 0) {
-                                    showToast("Please select at least one row to export!", "warning");
+                                if ($('#PendingTable .Pending-row-select:checked').length === 0) {
+                                    showToast("Please select at least one record to export PDF", "warning");
                                     return;
                                 }
                                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
@@ -1018,17 +1026,21 @@
                                     paddingRight: () => 6
                                 };
                             }
-                        },
+                        }
+                        ,
+
 
 
 
                         {
                             extend: 'excelHtml5',
+                            title: '',
+                            filename: 'Pending_List',
                             text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
-                            titleAttr: 'Export to Excel',
+                            titleAttr: 'Export Excel',
                             action: function (e, dt, button, config) {
-                                if ($('#NonconfirmTable .Nonconfirm-row-select:checked').length === 0) {
-                                    showToast("Please select at least one row to export!", "warning");
+                                if ($('#PendingTable .Pending-row-select:checked').length === 0) {
+                                    showToast("Please select at least one record to export Excel", "warning");
                                     return;
                                 }
                                 window.__excelSrCounter = 0; // reset Sr. No counter
@@ -1104,10 +1116,10 @@
                         {
                             extend: 'csvHtml5',
                             text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
-                            titleAttr: 'Export to CSV',
+                            titleAttr: 'Export CSV',
                             action: function (e, dt, button, config) {
-                                if ($('#NonconfirmTable .Nonconfirm-row-select:checked').length === 0) {
-                                    showToast("Please select at least one row to export!", "warning");
+                                if ($('#PendingTable .Pending-row-select:checked').length === 0) {
+                                    showToast("Please select at least one row to export CSV", "warning");
                                     return;
                                 }
                                 window.__srnoCounter = 0; // reset Sr. No counter
@@ -1115,10 +1127,9 @@
                                 dt.processing(false); // remove spinner
                             },
                             exportOptions: {
-                                rows: function (idx, data, node) {
-                                    return $(node).find('.Nonconfirm-row-select').prop('checked');
-                                },
-                                columns: ':visible',
+                                // ✅ Include Added Date column (remove :not(:last-child))
+                                columns: ':visible:not(:first-child)',
+                                rows: (idx, d, node) => $(node).find('.Pending-row-select').prop('checked'),
                                 format: {
                                     body: (function () {
                                         let counter = 0;
@@ -1170,7 +1181,23 @@
 
     }
 
+            $('#selectAllPending').on('click', function () {
+                var checked = this.checked;
+                $('#PendingTable .Pending-row-select').prop('checked', checked);
+            });
+            // Uncheck "Select All" if any single checkbox is unchecked
+            $('#PendingTable').on('change', '.Pending-row-select', function () {
+                // If any unchecked → uncheck header checkbox
+                if (!this.checked) {
+                    $('#selectAllPending').prop('checked', false);
+                } else {
+                    // If all checked → check header checkbox automatically
+                    const allChecked = $('.Pending-row-select:checked').length === $('.Pending-row-select').length;
+                    $('#selectAllPending').prop('checked', allChecked);
+                }
+            });
 
+        }
 
     // Load Confirm List
     function loadConfirmList(startDate = null, endDate) {
@@ -1332,7 +1359,7 @@
                             filename: function () {
                                 return 'Confirm_List_' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
                             }
-                        },
+                        ],
 
 
                         // Excel
@@ -1447,6 +1474,16 @@
 
                 $("#confirmModal").modal("show");
 
+            // If any row checkbox is unchecked, uncheck the header checkbox
+            $('#confirmTable').on('change', '.confirm-row-select', function () {
+                if (!this.checked) {
+                    $('#selectAllConfirm').prop('checked', false);
+                } else {
+                    // If all checkboxes are checked, check the header checkbox
+                    var allChecked = $('#confirmTable .confirm-row-select').length ===
+                        $('#confirmTable .confirm-row-select:checked').length;
+                    $('#selectAllConfirm').prop('checked', allChecked);
+                }
             });
         $('#selectAllConfirm').on('click', function () {
             var checked = this.checked;
@@ -1472,6 +1509,18 @@
 
     }
 
+        }
+
+
+        // Date Range Picker for Dashboard
+        function initDateRangePicker() {
+            var start = moment().subtract(29, 'days');
+            var end = moment();
+            function cb(start, end) {
+                $('#reportrange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                startDateGlobal = start.format("YYYY-MM-DD");
+                endDateGlobal = end.format("YYYY-MM-DD");
+                loadDashboardData(start.format("YYYY-MM-DD"), end.format("YYYY-MM-DD"));
 
     // Date Range Picker for Dashboard
     function initDateRangePicker() {
