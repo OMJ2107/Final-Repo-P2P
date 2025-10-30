@@ -1177,6 +1177,8 @@ namespace P2PERP.Controllers
                         ViewBag.BillingAddress = row["BillingAddress"].ToString();
                         ViewBag.GRNCode = row["NewGRNCode"].ToString();
                         ViewBag.WarehouseName = row["WarehouseName"].ToString();
+                        ViewBag.WareHouseId = row["WareHouseId"].ToString();
+
                     }
                 }
 
