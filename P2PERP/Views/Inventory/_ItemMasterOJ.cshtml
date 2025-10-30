@@ -1254,9 +1254,33 @@
 
 
 
-            $("#itemName , #description , #itemMake , #itemCategory ,#uom ").prop("disabled", false);
+            $(" #itemName, #description, #itemMake, #itemCategory, #uom")
+                .prop("disabled", false)
+                .css({
+                    color: "",                // reset to default
+                    backgroundColor: "",      // reset background
+                    opacity: "",              // reset opacity
+                    cursor: ""                // reset cursor
+                });
+            //$("#hsnCode").prop("disabled", true);
+            $("#hsnCode").prop("disabled", true).css({
+                color: "#000",            // black text
+                backgroundColor: "#e9ecef", // light gray background like Bootstrap disabled
+                opacity: 1                // prevent fading
+            });
 
-            $("#hsnCode").prop("disabled", true);
+            $("#itemCode").prop("disabled", true).css({
+                color: "#000",            // black text
+                backgroundColor: "#e9ecef", // light gray background like Bootstrap disabled
+                opacity: 1 
+            });
+            $("#plancode").prop("disabled", true).css({
+                color: "#000",            // black text
+                backgroundColor: "#e9ecef", // light gray background like Bootstrap disabled
+                opacity: 1 
+            });
+
+           
 
             // Overlay behavior
             $('#itemModal').off('show.bs.modal').on('show.bs.modal', function () {
@@ -1741,8 +1765,14 @@
                         if (data.isqua == 1) $("#inspectionfrm").show();
                         else $("#inspectionfrm").hide();
 
-                        $("#itemName , #description , #itemMake , #hsnCode ,#itemCategory ,#uom ").prop("disabled", true);
-
+                        $("#itemCode, #itemName, #description, #itemMake, #hsnCode, #itemCategory, #uom")
+                            .prop("disabled", true)
+                            .css({
+                                color: "#000",            // keep text dark
+                                backgroundColor: "#e9ecef", // Bootstrap-style disabled background
+                                opacity: 1,               // prevent faded look
+                                cursor: "not-allowed"
+                            });
                       
                     } else {
                         alert(data.message);
