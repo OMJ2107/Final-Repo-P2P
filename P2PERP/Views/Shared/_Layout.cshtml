@@ -84,27 +84,107 @@
     <script src="~/Scripts/SendEmail.js"></script>
 
     <style>
+        /* Enhanced Toast Styles */
         .toast-success {
-            background-color: #51A351 !important; /* green */
+            background-color: #28a745 !important;
             color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
         }
 
         .toast-error {
-            background-color: #BD362F !important; /* red */
+            background-color: #dc3545 !important;
             color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
         }
 
         .toast-info {
-            background-color: #2F96B4 !important;
+            background-color: #17a2b8 !important;
             color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
         }
 
         .toast-warning {
-            background-color: #F89406 !important;
-            color: white !important;
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
         }
-    </style>
 
+        /* Enhanced Navbar */
+        .navbar-detached {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            margin: 12px;
+/*            padding: 0.5rem 1rem;*/
+            padding:0px 20px 0px 20px !important;
+            background: linear-gradient(180deg, #60a5fa 0%, #a78bfa 100%);
+        }
+
+        /* Enhanced Sidebar */
+        .layout-menu {
+            background: linear-gradient(180deg, #60a5fa 0%, #a78bfa 100%);
+        }
+
+       
+
+        /* Enhanced Cards */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        /* Enhanced Buttons */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+            }
+
+        /* Enhanced Tables */
+        .dataTables_wrapper .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+            .dataTable th {
+                background: linear-gradient(180deg, #60a5fa 0%, #a78bfa 100%) !important;
+                border-bottom: 2px solid #e9ecef;
+                font-weight: 600;
+                color: #ffffff;
+            }
+
+        /* Enhanced Form Controls */
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            }
+    </style>
 </head>
 <body>
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
@@ -702,7 +782,7 @@
                 </nav>
                 <!-- / Navbar -->
                 <!-- Content wrapper -->
-                <div class="content-wrapper">
+                <div class="content-wrapper mt-5">
                     @RenderBody()
                     <!-- Footer -->
                     <footer class="content-footer footer bg-footer-theme">
