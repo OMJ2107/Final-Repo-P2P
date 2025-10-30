@@ -5563,7 +5563,6 @@
     <Content Include="Views\Purchase\SelectedQuotationListShowOK.cshtml" />
     <Content Include="Views\Purchase\VenderManagementOK.cshtml" />
     <Content Include="Views\Inventory\WHIndex.cshtml" />
-    <Content Include="Views\Inventory\_BinSK.cshtml" />
     <Content Include="Views\Inventory\_RackSK.cshtml" />
     <Content Include="Views\Inventory\_RowSK.cshtml" />
     <Content Include="Views\Inventory\_SectionSK.cshtml" />
@@ -5607,6 +5606,7 @@
     <Content Include="Views\GRN\_PendingItemsRHK.cshtml" />
     <Content Include="Views\Purchase\_ApprovedPOsPartialVNK.cshtml" />
     <Content Include="Views\Purchase\JustInTimeItemListOK.cshtml" />
+    <Content Include="Views\Inventory\_BinSK.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
