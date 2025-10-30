@@ -996,7 +996,11 @@ namespace P2PLibray.Inventory
         public async Task<List<InventoryLM>> ShowNonMovingStockLM()
         {
             List<InventoryLM> nonMovingStocks = new List<InventoryLM>();
-            var param = new Dictionary<string, string> { { "@Flag", "ShowNonMovingStockLM" } };
+            var param = new Dictionary<string, string>
+    {
+        { "@Flag", "ShowNonMovingStockLM" },
+        { "@CurrentDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") }  //  pass current date
+    };
             SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("InventoryProcedure", param);
 
             if (dr.HasRows)
