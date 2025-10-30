@@ -56,6 +56,8 @@
                        readonly
                        value="@ViewBag.WarehouseName" />
             </div>
+            <input type="hidden" id="txtWareHouseId" value="@ViewBag.WareHouseId" />
+
             <!-- 🔹 Invoice No -->
             <div class="col-md-4">
                 <label class="fw-semibold">Invoice No:<span class="text-danger">*</span></label>
@@ -159,6 +161,7 @@
                     <th>GST %</th>
                     <th>Amount</th>
                     <th>Action</th>
+                    <th>WarehouseId</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -272,7 +275,8 @@ $(document).ready(function () {
             { data: 'Discount', className: 'text-center', render: data => `${data}%` },
             { data: 'GST', className: 'text-center' },
             { data: 'Amount', className: 'text-center', render: data => `₹${data}` },
-            { data: null, render: () => `<button class="btn btn-danger btn-sm deleteRow" data-bs-toggle="tooltip" title="Delete this item"><i class="bi bi-trash3"></i></button>`, orderable: false, className: 'text-center' }
+            { data: null, render: () => `<button class="btn btn-danger btn-sm deleteRow" data-bs-toggle="tooltip" title="Delete this item"><i class="bi bi-trash3"></i></button>`, orderable: false, className: 'text-center' },
+             { data: 'WareHouseId', visible: false } 
         ]
     });
 
@@ -398,7 +402,8 @@ $(document).ready(function () {
             UnitRate: item.CostPerUnit,
             Discount: item.DiscountPercent,
             GST: item.GST,
-            Amount: item.TotalAmount
+            Amount: item.TotalAmount,
+            WareHouseId: $('#txtWareHouseId').val()
         }).draw(false);
 
         selectedItems.add(itemCode);
@@ -545,10 +550,13 @@ $(document).ready(function () {
                 formData.append('InvoiceNo', grnHeader.InvoiceNo);
                 formData.append('InvoiceDate', grnHeader.InvoiceDate);
                 formData.append('AddedDate', grnHeader.AddedDate);
+                formData.append('WareHouseId', $('#txtWareHouseId').val());
+
 
                 grnHeader.Items.forEach(function (item, index) {
                     formData.append(`Items[${index}].ItemCode`, item.ItemCode);
                     formData.append(`Items[${index}].Quantity`, item.Quantity);
+                    formData.append(`Items[${index}].WareHouseId`, $('#txtWareHouseId').val());
                 });
 
                 $.ajax({
