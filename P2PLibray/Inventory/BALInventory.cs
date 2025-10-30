@@ -2490,7 +2490,7 @@ namespace P2PLibray.Inventory
 
         #endregion
 
-        #region Mayur
+            #region Mayur
         /// <summary>
         /// Retrieves stock planning data for MHB by executing the 'StockAnalysisMHB' flag.
         /// </summary>
@@ -2514,14 +2514,14 @@ namespace P2PLibray.Inventory
                         ItemCode = row["ItemCode"].ToString(),
                         ReorderQuantity = row["ReorderQuantity"].ToString(),
                         minQuantity = row["minQuantity"].ToString(),
-                        MaxQuantity = Convert.ToInt32(row["MaxQuantity"]),
+                        //MaxQuantity = Convert.ToInt32(row["MaxQuantity"]),
                         CurrentItems = Convert.ToInt32(row["CurrentItems"]),
                         StockStatus = row["StockStatus"].ToString()
                     };
                     lst.Add(SHR);
                 }
             }
-
+            
             return lst;
         }
 
@@ -2540,6 +2540,205 @@ namespace P2PLibray.Inventory
             InventoryMHB itm = new InventoryMHB();
 
             for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             {
                 itm.ItemId = ds.Tables[0].Rows[i]["ItemId"].ToString();
                 itm.ItemName = ds.Tables[0].Rows[i]["ItemName"].ToString();
@@ -3393,7 +3592,6 @@ namespace P2PLibray.Inventory
             param.Add("@TaxRateId", i.TaxRateId.ToString());
             await obj.ExecuteStoredProcedure("InventoryProcedure", param);
         }
-
         /// <summary>
         /// Updates an existing item category in the database.
         /// Calls InventoryProcedure with flag = "UpdateCategorySSG".

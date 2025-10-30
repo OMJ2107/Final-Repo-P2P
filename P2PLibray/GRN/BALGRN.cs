@@ -996,13 +996,16 @@ namespace P2PLibray.GRN
         /// </summary>
         /// <param name="objGRN">GRN object containing GRN code and added by details.</param>
         /// <returns>Number of inserted QC records.</returns>
-        public async Task<int> AssignQCSSG(GRN objGRN)
+        public async Task<int> AssignQCSSG(GRN objGRN, string staffcode)
         {
             try
             {
                 Dictionary<string, string> param = new Dictionary<string, string>();
-                param.Add("@Flag", "AssignQC");
+                param.Add("@Flag", "AssignQCSSG");
                 param.Add("@GRNCode", objGRN.GRNCode);
+                param.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                param.Add("@AddedBy", staffcode);
+
 
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("GRNProcedure", param);
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)

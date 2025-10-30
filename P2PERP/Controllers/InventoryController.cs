@@ -6,10 +6,13 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using static P2PLibray.Inventory.Inventory;
+using System.IO;
 
 namespace P2PERP.Controllers
 {
@@ -59,6 +62,55 @@ namespace P2PERP.Controllers
             }
             return View();
         }
+
+
+        [Route("Inventory/SendMail")]
+        [HttpGet]
+        public ActionResult SendMailHSB()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult SendMailHSB(HttpPostedFileBase attachment, string toEmail, string subject, string messageBody)
+        {
+            try
+            {
+                string fromEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
+                string password = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"];
+
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(fromEmail);
+                mail.To.Add(toEmail);
+                mail.Subject = subject;
+                mail.Body = messageBody;
+                mail.IsBodyHtml = true;
+
+                // Add attachment if provided
+                if (attachment != null && attachment.ContentLength > 0)
+                {
+                    string fileName = Path.GetFileName(attachment.FileName);
+                    mail.Attachments.Add(new Attachment(attachment.InputStream, fileName));
+                }
+
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com")
+                {
+                    Port = 587,
+                    Credentials = new NetworkCredential(fromEmail, password),
+                    EnableSsl = true
+                };
+
+                smtp.Send(mail);
+                ViewBag.Status = "Email sent successfully!";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Status = "Error: " + ex.Message;
+            }
+
+            return View();
+        }
+
         #endregion
 
         #region Rutik
@@ -164,7 +216,6 @@ namespace P2PERP.Controllers
                     {
                         GRNCode = dr["GRNCode"].ToString(),
                         AddedDate = Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy"),
-                        StatusName = dr["StatusName"].ToString(),
                     };
 
                     ReceiveMaterialList.Add(ReceiveMaterial);
@@ -1776,13 +1827,16 @@ namespace P2PERP.Controllers
                     itemcode = updateitem.ItemCode,
                     name = updateitem.ItemName,
                     category = updateitem.ItemCategoryId,
+                    categoryname= updateitem.ItemCategory,
                     status = updateitem.ItemStatusId,
+                    Status = updateitem.Status,
                     uom = updateitem.UOMId,
                     descri = updateitem.Description,
                     unitR = updateitem.UnitRates,
                     recQ = updateitem.RecorderQuantity,
                     minQ = updateitem.MinQuantity,
                     itemby = updateitem.ItemMakeId,
+                    itemmake =updateitem.ItemMake,
                     exp = updateitem.ExpiryDays,
                     isqua = updateitem.ISQualityBit,
                     hsn = updateitem.HSNCode,
@@ -1985,6 +2039,8 @@ namespace P2PERP.Controllers
             await bal.InsertCategorySSG(objCategory);
             return Json(new { success = true, message = "Category created successfully." });
         }
+
+
 
         // Update Category POST
         [HttpPost]
