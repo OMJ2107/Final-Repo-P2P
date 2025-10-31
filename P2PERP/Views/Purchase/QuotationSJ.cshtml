@@ -1942,10 +1942,14 @@
                         $("#rfqCreatedDate").val(moment(header.CreatedDate).format('DD/MM/YYYY'));
                     }
 
-                    if (header.RequiredDate && moment(header.RequiredDate).isValid()) {
-                        $("#rfqRequiredDate").val(moment(header.RequiredDate).format('DD/MM/YYYY'));
+                    if (header.RequiredDate) {
+                        const m = moment(header.RequiredDate, "DD-MM-YYYY HH:mm:ss", true);
+                        if (m.isValid()) {
+                            $("#rfqRequiredDate").val(m.format("DD/MM/YYYY"));
+                        } else {
+                            console.warn("Invalid date format:", header.RequiredDate);
+                        }
                     }
-
 
                     $("#rfqCreatedBy").val(header.CreatedBy || "");
                     $("#rfqContactPerson").val(header.ContactPerson || "");

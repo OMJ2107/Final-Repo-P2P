@@ -442,10 +442,12 @@ namespace P2PLibray.Purchase
                                 ? Convert.ToInt32(row["HasUnregisteredVendors"])
                                 : 0,
 
- AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
+                            AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
                                 ? Convert.ToInt32(row["HasRegisteredQuotation"])
+                                : 0,
+                            HasApproved = row.Table.Columns.Contains("HasApproved") && row["HasApproved"] != DBNull.Value
+                                ? Convert.ToInt32(row["HasApproved"])
                                 : 0
-
 
                         });
 
