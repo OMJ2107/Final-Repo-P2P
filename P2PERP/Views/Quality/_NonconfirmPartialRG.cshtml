@@ -78,7 +78,7 @@
 
             $(this).addClass('is-invalid').after(`
             <small id="itfError" class="text-danger fw-semibold">
-                ⚠ Value cannot be greater than ${maxVal}
+                 Value cannot be greater than ${maxVal}
             </small>
         `);
         }
@@ -141,21 +141,21 @@
         if (!STF) {
             $('#itf').addClass('is-invalid').after(`
                 <small class="text-danger fw-semibold error-text">
-                   ⚠️ Please enter Item Tested Failed.
+                    Please enter Item Tested Failed.
                 </small>
             `);
             hasError = true;
         } else if (isNaN(STF) || parseInt(STF, 10) <= 0) {
             $('#itf').addClass('is-invalid').after(`
                 <small class="text-danger fw-semibold error-text">
-                    ⚠️ Item Tested Failed must be greater than 0.
+                     Item Tested Failed must be greater than 0.
                 </small>
             `);
             hasError = true;
         } else if (parseInt(STF, 10) > SQC) {
             $('#itf').addClass('is-invalid').after(`
                 <small class="text-danger fw-semibold error-text">
-                   ⚠️ Item Tested Failed cannot exceed Sample Qty Checked (${SQC}).
+                    Item Tested Failed cannot exceed Sample Qty Checked (${SQC}).
                 </small>
             `);
             hasError = true;
@@ -165,21 +165,21 @@
         if (!ROR) {
             $('#ROr').addClass('is-invalid').after(`
                 <small class="text-danger fw-semibold error-text">
-                    ⚠️ Please enter Reason of Rejection.
+                     Please enter Reason of Rejection.
                 </small>
             `);
             hasError = true;
         } else if (ROR.length < 10) {
             $('#ROr').addClass('is-invalid').after(`
                 <small class="text-danger fw-semibold error-text">
-                    ⚠️ Reason must be at least 10 characters long.
+                     Reason must be at least 10 characters long.
                 </small>
             `);
             hasError = true;
         } else if (!/^[a-zA-Z\s]+$/.test(ROR)) {
             $('#ROr').addClass('is-invalid').after(`
                 <small class="text-danger fw-semibold error-text">
-                    ⚠️ Only alphabets and spaces are allowed.
+                     Only alphabets and spaces are allowed.
                 </small>
             `);
             hasError = true;
