@@ -6,65 +6,58 @@
 }
 
 
-<div class="container mt-4  container-fluid ">
+<!--<div class="container mt-4  container-fluid ">
 
 
     <!-- ✅ Alert Messages -->
-    <div id="alertSuccess" class="alert alert-success d-none" role="alert">
-        ✅ Stock request submitted successfully!
-    </div>
-    <div id="alertError" class="alert alert-danger d-none" role="alert">
-        ❌ Failed to submit stock request.
-    </div>
+<!--<div id="alertSuccess" class="alert alert-success d-none" role="alert">
+    ✅ Stock request submitted successfully!
+</div>
+<div id="alertError" class="alert alert-danger d-none" role="alert">
+    ❌ Failed to submit stock request.
+</div>-->
+<!-- 📋 Form -->
+<!--<form id="stockForm" class="bg-white p-4 rounded shadow-sm">
+    <h2 class="text-center text-primary mb-4 fw-bold"> Just In Time - Stock Request</h2>
+    <div class="row g-3">-->
+<!-- 🔽 Item Name Dropdown -->
+<!--<div class="col-md-6">
+    <label for="itemName" class="form-label fw-semibold">Item Name</label>
+    <select id="itemName" class="form-select" name="ItemId" required>
+        <option value="">-- Select Item --</option>-->
+@* Populated via AJAX *@
+@*</select>
+    </div>-->*@
 
-    <!-- 📋 Form -->
-    <form id="stockForm" class="bg-white p-4 rounded shadow-sm">
-        <h2 class="text-center text-primary mb-4 fw-bold"> Just In Time - Stock Request</h2>
-        <div class="row g-3">
-
-            <!-- 🔽 Item Name Dropdown -->
-            <div class="col-md-6">
-                <label for="itemName" class="form-label fw-semibold">Item Name</label>
-                <select id="itemName" class="form-select" name="ItemId" required>
-                    <option value="">-- Select Item --</option>
-                    @* Populated via AJAX *@
-                </select>
-            </div>
-
-            <!-- 🔐 Item Code -->
-            <div class="col-md-6">
-                <label for="itemCode" class="form-label fw-semibold">Item Code</label>
-                <input type="text" class="form-control" id="itemCode" name="ItemCode" readonly>
-            </div>
-
-            <!-- 📏 UOM -->
-            <div class="col-md-6">
-                <label for="uom" class="form-label fw-semibold">UOM</label>
-                <input type="text" class="form-control" id="uom" name="UOM" readonly>
-            </div>
-
-            <!-- 🔢 Quantity -->
-            <div class="col-md-6">
-                <label for="quantity" class="form-label fw-semibold">Quantity</label>
-                <input type="number" class="form-control" id="quantity" name="Quantity" min="1" placeholder=" order quntity upto  "  required>
-            </div>
-
-            <!-- 📝 Description -->
-            <div class="col-md-6">
-                <label for="description" class="form-label fw-semibold">Description</label>
-                <textarea class="form-control" id="description" name="Description" rows="3" readonly></textarea>
-            </div>
-
-            <!-- 📅 Required Date -->
-            <div class="col-md-6">
-                <label for="RequiredDate">Required Date</label>
-                <input type="date" id="RequiredDate" name="RequiredDate"
-                       class="form-control" required
-                       min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-            </div>
-
-            <!-- ✅ Submit Button -->
-            <div class="col-12 text-end mt-4">
+<!-- 🔐 Item Code -->
+<!--<div class="col-md-6">
+    <label for="itemCode" class="form-label fw-semibold">Item Code</label>
+    <input type="text" class="form-control" id="itemCode" name="ItemCode" readonly>
+</div>-->
+<!-- 📏 UOM -->
+<!--<div class="col-md-6">
+    <label for="uom" class="form-label fw-semibold">UOM</label>
+    <input type="text" class="form-control" id="uom" name="UOM" readonly>
+</div>-->
+<!-- 🔢 Quantity -->
+<!--<div class="col-md-6">
+    <label for="quantity" class="form-label fw-semibold">Quantity  <span class="required-star">*</span></label>
+    <input type="number" class="form-control" id="quantity" name="Quantity" min="1" placeholder=" order quntity upto  "  required>
+</div>-->
+<!-- 📝 Description -->
+<!--<div class="col-md-6">
+    <label for="description" class="form-label fw-semibold">Description</label>
+    <textarea class="form-control" id="description" name="Description" rows="3" readonly></textarea>
+</div>-->
+<!-- 📅 Required Date -->
+<!--<div class="col-md-6">
+    <label for="RequiredDate">Required Date  <span class="required-star">*</span></label>
+    <input type="date" id="RequiredDate" name="RequiredDate"
+           class="form-control" required
+           min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+</div>-->
+<!-- ✅ Submit Button -->
+<!--<div class="col-12 text-end mt-4">
                 <button type="submit" class="btn btn-success px-4">Submit</button>
             </div>
         </div>
@@ -73,6 +66,14 @@
 
 
 <style>
+    .required-star {
+        color: red;
+        font-size: 1em;
+        font-weight: bold;
+        vertical-align: middle;
+        position: relative;
+        top: -4px;
+    }
     label {
         font-weight: 600;
     }
@@ -108,7 +109,7 @@
             $.get('/Inventory/GetItemDetailsMHB', { itemId: itemId }, function (item) {
                 $('#itemCode').val(item.ItemCode);
                 $('#uom').val(item.UOMName);
-                $('#description').val(item.Description);             
+                $('#description').val(item.Description);
                 $('#quantity').val(''); // clear previous value if any
                 $('#quantity')
                     .attr('placeholder', 'Order quantity upto ' + item.ReorderQuantity) // ✅ set placeholder text
@@ -182,6 +183,244 @@
             });
         });
 
+    });
+</script>-->
+
+
+<div class="container mt-4 container-fluid">
+
+    <!-- ✅ Alert Messages -->
+    <div id="alertSuccess" class="alert alert-success d-none" role="alert">
+        ✅ Stock request submitted successfully!
+    </div>
+    <div id="alertError" class="alert alert-danger d-none" role="alert">
+        ❌ Failed to submit stock request.
+    </div>
+
+    <!-- 📋 Form -->
+    <form id="stockForm" class="bg-white p-4 rounded shadow-sm" novalidate>
+        <h3 class="text-center text-primary mb-1 fw-bold">Just In Time - Stock Request</h3>
+        <div class="row g-3">
+
+            <!-- 🔽 Item Name Dropdown -->
+            <div class="col-md-6">
+                <label for="itemName" class="form-label fw-semibold">Item Name <span class="text-danger">*</span></label>
+                <select id="itemName" class="form-select" name="ItemId" required>
+                    <option value="">-- Select Item --</option>
+                </select>
+                <div class="invalid-feedback">Please select an item.</div>
+            </div>
+
+            <!-- 🔐 Item Code -->
+            <div class="col-md-6">
+                <label for="itemCode" class="form-label fw-semibold">Item Code</label>
+                <input type="text" class="form-control" id="itemCode" name="ItemCode" readonly>
+            </div>
+
+            <!-- 📏 UOM -->
+            <div class="col-md-6">
+                <label for="uom" class="form-label fw-semibold">UOM</label>
+                <input type="text" class="form-control" id="uom" name="UOM" readonly>
+            </div>
+
+            <!-- 🔢 Quantity -->
+            <div class="col-md-6">
+                <label for="quantity" class="form-label fw-semibold">
+                    Quantity <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control" id="quantity" name="Quantity"
+                       min="1" placeholder="Enter order quantity" required>
+                <div class="invalid-feedback">
+                    Please enter a valid quantity greater than 0 and within allowed limit.
+                </div>
+            </div>
+
+            <!-- 📝 Description -->
+            <div class="col-md-6">
+                <label for="description" class="form-label fw-semibold">Description</label>
+                <textarea class="form-control" id="description" name="Description" rows="3" readonly></textarea>
+            </div>
+
+            <!-- 📅 Required Date -->
+            <div class="col-md-6">
+                <label for="RequiredDate" class="form-label fw-semibold">
+                    Required Date <span class="text-danger">*</span>
+                </label>
+                <input type="date" id="RequiredDate" name="RequiredDate"
+                       class="form-control" required
+                       min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                <div class="invalid-feedback">
+                    Please select a valid date .
+                </div>
+            </div>
+
+            <!-- ✅ Submit Button -->
+            <div class="col-12 text-end mt-4">
+                <button type="submit" class="btn btn-success px-4">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+<style>
+    .required-star {
+        color: red;
+        font-size: 1em;
+        font-weight: bold;
+        vertical-align: middle;
+        position: relative;
+        top: -4px;
+    }
+
+    label {
+        font-weight: 600;
+    }
+
+    .form-control[readonly] {
+        background-color: #f9f9f9;
+    }
+
+    /*    #stockForm {
+        max-width: 1200px;
+        margin: 0 auto;
+    }*/
+</style>
+<script>
+    $(document).ready(function () {
+        // 🔄 Load Item Dropdown
+        $.get('/Inventory/GetItemListMHB', function (items) {
+            $.each(items, function (i, item) {
+                $('#itemName').append(`<option value="${item.ItemId}">${item.ItemName}</option>`);
+            });
+        });
+
+        // 🔄 Fetch Item Details on Change
+        $('#itemName').on('change', function () {
+            const itemId = $(this).val();
+            $('#itemName').removeClass('is-invalid'); // clear invalid state
+
+            if (!itemId) {
+                $('#itemCode, #uom, #description').val('');
+                return;
+            }
+
+            $.get('/Inventory/GetItemDetailsMHB', { itemId: itemId }, function (item) {
+                $('#itemCode').val(item.ItemCode);
+                $('#uom').val(item.UOMName);
+                $('#description').val(item.Description);
+                $('#quantity').val('');
+                $('#quantity')
+                    .attr('placeholder', 'Order quantity upto ' + item.ReorderQuantity)
+                    .attr('max', item.ReorderQuantity)
+                    .data('maxqty', item.ReorderQuantity); // store for validation
+            });
+        });
+
+        // ✅ Unified validation + submission
+        $('#stockForm').on('submit', function (e) {
+            e.preventDefault();
+            const form = this;
+            let isValid = true;
+
+            const itemSelect = $('#itemName');
+            const qtyInput = $('#quantity');
+            const dateInput = $('#RequiredDate');
+
+            const maxQty = parseFloat(qtyInput.data('maxqty')) || Infinity;
+            const qty = parseFloat(qtyInput.val());
+            const today = new Date().toISOString().split('T')[0];
+
+            // 🔹 Reset previous validation states
+            itemSelect.removeClass('is-invalid');
+            qtyInput.removeClass('is-invalid');
+            dateInput.removeClass('is-invalid');
+
+            // 🔹 Validate Item Selection
+            if (!itemSelect.val()) {
+                itemSelect.addClass('is-invalid');
+                isValid = false;
+            }
+
+            // 🔹 Validate Quantity
+            if (isNaN(qty) || qty <= 0 || qty > maxQty) {
+                qtyInput.addClass('is-invalid');
+                isValid = false;
+            }
+
+            // 🔹 Validate Required Date
+            if (!dateInput.val() || dateInput.val() < today) {
+                dateInput.addClass('is-invalid');
+                isValid = false;
+            }
+
+            // ❌ Stop if invalid
+            if (!isValid) return;
+
+            // ✅ SweetAlert confirmation after validation
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to submit this stock request?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, Submit',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Submitting...',
+                        text: 'Please wait while we process your request',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    const formData = {
+                        ItemCode: $('#itemCode').val(),
+                        Quantity: qtyInput.val(),
+                        RequiredDate: dateInput.val()
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Inventory/SaveJustInTimeMHB',
+                        data: formData,
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: 'Your stock request has been submitted.',
+                                    timer: 1800,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    form.reset();
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Submission Failed',
+                                    text: 'Please try again.'
+                                });
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Something went wrong. Please try again.'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        // 🔹 Remove red border when user changes input
+        $('#itemName, #quantity, #RequiredDate').on('input change', function () {
+            $(this).removeClass('is-invalid');
+        });
     });
 </script>
 
