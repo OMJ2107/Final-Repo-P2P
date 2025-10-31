@@ -3,6 +3,18 @@
 }
 
 <style>
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+
+
     .badge-status {
         font-size: 12px;
         padding: 0.35em 0.5em;
@@ -76,6 +88,7 @@
 <script>
     $(function () {
 
+
         // Toastr for messages
         toastr.options = {
             closeButton: true, progressBar: true, newestOnTop: true,
@@ -112,18 +125,36 @@
                     { data: null, orderable: false, className: 'text-center', render: (d, t, r, meta) => meta.row + 1 },
                     { data: 'POCode', className: 'text-center' },
                     { data: 'PODateVK', className: 'text-center', render: d => d ? moment(d).format('DD/MM/YYYY') : '' },
-                    { data: 'POCost', className: 'text-center' },
+
+                    // ✅ Added ₹ sign in PO Cost column (display only)
+                    { data: 'POCost', className: 'text-center', render: d => d ? `₹ ${parseFloat(d).toFixed(2)}` : '₹ 0.00' },
+
                     { data: 'CreatedBy', className: 'text-center' },
                     { data: 'StatusName', className: 'text-center', render: d => `<span class="badge badge-pending">${d || 'Pending'}</span>` },
                     {
-                        data: 'POCode', orderable: false, className: 'text-center', render: d => `<button class="btn btn-sm btn-success btn-approve" data-pocode="${d}">Approve</button>
-                           <button class="btn btn-sm btn-view btn-primary ms-1" data-pocode="${d}"><i class="bi bi-eye-fill"></i></button>`
+                        data: null,
+                        orderable: false,
+                        className: 'text-center',
+                        render: (data, type, row) => {
+                            let pocode = row.POCode;
+                            let amount = parseFloat(row.POCost);
+                            let buttons = '';
+
+                            if (amount < 500000) {
+                                buttons += `<button class="btn btn-sm btn-success btn-approve" data-pocode="${pocode}">Approve</button>`;
+                            }
+
+                            buttons += `<button class="btn btn-sm btn-view btn-primary ms-1" data-pocode="${pocode}"><i class="bi bi-eye-fill"></i></button>`;
+                            return buttons;
+                        }
                     }
                 ],
+
                 buttons: [
                     // Print
                     {
                         extend: 'print',
+                        title: '',
                         text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
                         titleAttr: 'Print',
                         action: function (e, dt, button, config) {
@@ -138,23 +169,44 @@
                             rows: (idx, d, node) => $(node).find('.row-select').prop('checked')
                         },
                         customize: function (win) {
+                            const title = ' Pending Purchase Orders';
                             const today = new Date();
                             const formattedDate = today.toLocaleDateString('en-GB');
+
                             $(win.document.body).prepend(`
-                <div style="text-align:center; font-size:18px; font-weight:bold; margin-bottom:5px;">Pending Purchase Orders</div>
-                <div style="text-align:center; font-size:12px; margin-bottom:10px;">Exported Date: ${formattedDate}</div>
-            `);
-                            $(win.document.body).find('thead th').css({
-                                'background-color': '#212529',
-                                'color': '#ffffff',
-                                'text-align': 'center',
-                                '-webkit-print-color-adjust': 'exact',
-                                'print-color-adjust': 'exact'
-                            });
-                            $(win.document.body).find('table').addClass('table table-bordered table-striped').css('font-size', '14px');
-                            // Reset SR NO in first column
+        <div style="text-align:center; margin-bottom:10px;">
+            <h2 style="margin:0;">${title}</h2>
+            <div style="font-size:12px;">Generated Date: ${formattedDate}</div>
+        </div>
+`);
+
+                            $(win.document.body).append(`
+        <style>
+            thead th {
+                background-color: black !important;
+                color: white !important;
+                text-align: center !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+            td, th {
+                border: 1px solid #000 !important;
+                padding: 6px !important;
+            }
+        </style>
+`);
+
+                            $(win.document.body).find('table')
+                                .addClass('table table-bordered table-striped')
+                                .css('width', '100%')
+                                .css('font-size', '14px');
+
                             $(win.document.body).find('table tbody tr').each(function (i) {
-                                $(this).find('td:nth-child(2)').text(i + 1);
+                                $(this).find('td:first').text(i + 1);
                             });
                         }
                     },
@@ -175,26 +227,51 @@
                         exportOptions: {
                             columns: exportColumns,
                             rows: (idx, d, node) => $(node).find('.row-select').prop('checked'),
-                            format: { body: (data, row, col) => typeof data === 'string' ? data.replace(/<\/?[^>]+(>|$)/g, "").trim() : data }
+                            format: {
+                                body: (data, row, col) =>
+                                    typeof data === 'string'
+                                        ? data.replace(/<\/?[^>]+(>|$)/g, "").trim()
+                                        : data
+                            }
                         },
                         customize: function (doc) {
+                            // Title formatting
                             doc.content[0].alignment = 'center';
                             doc.content[0].fontSize = 14;
+
+                            // Add export date
                             doc.content.splice(1, 0, {
-                                text: 'Exported Date: ' + new Date().toLocaleDateString('en-GB'),
+                                text: 'Genrated Date: ' + new Date().toLocaleDateString('en-GB'),
                                 alignment: 'center',
                                 margin: [0, 0, 0, 8],
                                 fontSize: 10
                             });
+
+                            // Find table content
                             const tableNode = doc.content.find(c => c.table);
                             if (!tableNode) return;
-                            doc.styles.tableHeader = { alignment: 'center', fillColor: '#212529', color: '#ffffff', bold: true };
+
+                            // Table header style
+                            doc.styles.tableHeader = {
+                                alignment: 'center',
+                                fillColor: '#212529',
+                                color: '#ffffff',
+                                bold: true
+                            };
+
+                            // Add serial number column formatting
                             tableNode.table.body.forEach((row, i) => {
-                                if (i > 0) row[1] = { text: String(i), alignment: 'center' };
+                                if (i > 0) row[0] = { text: String(i), alignment: 'center' };
                             });
-                            tableNode.layout = { paddingLeft: () => 30, paddingRight: () => 6 };
+
+                            // Adjust padding for better layout
+                            tableNode.layout = {
+                                paddingLeft: () => 30,
+                                paddingRight: () => 6
+                            };
                         }
                     },
+
 
                     // Excel
                     {
@@ -216,35 +293,85 @@
                             rows: (idx, d, node) => $(node).find('.row-select').prop('checked'),
                             format: {
                                 body: (data, row, col, node) =>
-                                    col === 1 ? ++window.__excelSrCounter : (typeof data === 'string' ? data.replace(/<\/?[^>]+(>|$)/g, "").trim() : data)
+                                    col === 1
+                                        ? ++window.__excelSrCounter
+                                        : (typeof data === 'string' ? data.replace(/<\/?[^>]+(>|$)/g, "").trim() : data)
                             }
                         },
                         customize: function (xlsx) {
-                            const sheet = xlsx.xl.worksheets['sheet1.xml'];
-                            const today = new Date();
-                            const dateStr = today.toLocaleDateString('en-GB');
+                            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            var $sheet = $(sheet);
 
-                            // Shift all existing rows down by 2
-                            $(sheet).find('row').each(function () {
-                                let r = parseInt($(this).attr('r'));
+                            // 🔹 Count columns
+                            var colCount = $('row:first c', sheet).length;
+                            if (colCount === 0) colCount = 5;
+
+                            var title = 'Pending Purchase Orders';
+                            var dateStr = 'Generated Date: ' + moment().format('DD/MM/YYYY');
+
+                            // 🔹 Shift all existing rows down by 2
+                            $sheet.find('sheetData row').each(function () {
+                                var r = parseInt($(this).attr('r'));
                                 $(this).attr('r', r + 2);
                                 $(this).find('c').each(function () {
-                                    const cellRef = $(this).attr('r');
-                                    const col = cellRef.replace(/\d+/g, '');
-                                    const row = parseInt(cellRef.replace(/\D/g, '')) + 2;
-                                    $(this).attr('r', col + row);
+                                    var cellRef = $(this).attr('r');
+                                    var col = cellRef.replace(/[0-9]/g, '');
+                                    var rowNum = parseInt(cellRef.replace(/[A-Z]/g, '')) + 2;
+                                    $(this).attr('r', col + rowNum);
                                 });
                             });
 
-                            // Add title and date rows
-                            const titleRow = `<row r="1"><c t="inlineStr" r="A1" s="2"><is><t>Pending Purchase Orders</t></is></c></row>`;
-                            const dateRow = `<row r="2"><c t="inlineStr" r="A2" s="2"><is><t>Export Date: ${dateStr}</t></is></c></row>`;
+                            // 🔹 Create Title & Date rows (top)
+                            var titleRow = `
+<row r="1">
+    <c t="inlineStr" r="A1" s="55"><is><t>${title}</t></is></c>
+</row>`;
+                            var dateRow = `
+<row r="2">
+    <c t="inlineStr" r="A2" s="56"><is><t>${dateStr}</t></is></c>
+</row>`;
 
-                            sheet.childNodes[0].childNodes[1].innerHTML = titleRow + dateRow + sheet.childNodes[0].childNodes[1].innerHTML;
+                            $sheet.find('sheetData').prepend(titleRow + dateRow);
+
+                            // 🔹 Merge cells (so title/date are centered across columns)
+                            var mergeCells = $sheet.find('mergeCells');
+                            if (mergeCells.length === 0) {
+                                mergeCells = $('<mergeCells count="0"></mergeCells>');
+                                $sheet.append(mergeCells);
+                            }
+
+                            var lastCol = String.fromCharCode(64 + colCount);
+                            mergeCells.append(`<mergeCell ref="A1:${lastCol}1"/>`);
+                            mergeCells.append(`<mergeCell ref="A2:${lastCol}2"/>`);
+                            mergeCells.attr('count', mergeCells.find('mergeCell').length);
+
+                            // 🔹 Add centered style for title & date
+                            var styles = xlsx.xl['styles.xml'];
+                            var $styles = $(styles);
+                            var cellXfs = $styles.find('cellXfs');
+                            var count = parseInt(cellXfs.attr('count'));
+                            var newStyleIndex1 = count;
+                            var newStyleIndex2 = count + 1;
+
+                            // Style for center alignment
+                            cellXfs.append(`
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
+    <alignment horizontal="center" vertical="center"/>
+</xf>`);
+                            cellXfs.append(`
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
+    <alignment horizontal="center" vertical="center"/>
+</xf>`);
+                            cellXfs.attr('count', count + 2);
+
+                            // Apply new styles
+                            $sheet.find('c[r="A1"]').attr('s', newStyleIndex1);
+                            $sheet.find('c[r="A2"]').attr('s', newStyleIndex2);
                         }
                     }
                     ,
 
+                    // CSV
                     // CSV
                     {
                         extend: 'csvHtml5',
@@ -264,47 +391,78 @@
                             format: {
                                 body: (data, row, col, node) => {
                                     data = typeof data === 'string' ? data.replace(/<[^>]*>/g, '').trim() : data;
-                                    if (col === 1) return ++window.__srnoCounter;
+                                    if (col === 1) return ++window.__srnoCounter; // Serial No.
                                     return data;
                                 }
                             }
                         },
                         filename: () => 'PendingPO_List_' + new Date().toISOString().slice(0, 10).replace(/-/g, ""),
                         customize: function (csv) {
-                            const today = new Date();
-                            const dateStr = today.toLocaleDateString('en-GB');
-                            const header = `"All Pending POs"\n"Export Date: ${dateStr}"\n`;
-                            return header + csv;
+                            // Add UTF-8 BOM at the start to ensure proper encoding of ₹ symbol
+                            return '\uFEFF' + csv;
                         }
                     }
-                ]
-                ,
+                ],
+
+
+
                 initComplete: function () { $('#tblPending_filter input').addClass("form-control").attr("placeholder", "Search...").css("height", "40px"); }
             });
         }
 
         initializePendingPOs();
 
-        // Select All
-        $(document).on('change', '#selectAllPending', function () { $('#tblPending .row-select').prop('checked', this.checked); });
 
-        // Approve button
+        $(document).on('change', '#selectAllPending', function () {
+            $('#tblPending .row-select').prop('checked', this.checked);
+        });
+
+        $(document).on('change', '.row-select', function () {
+            const allChecked = $('#tblPending .row-select').length === $('#tblPending .row-select:checked').length;
+            $('#selectAllPending').prop('checked', allChecked);
+        });
+
+
+        //approve button
         $(document).on('click', '#tblPending .btn-approve', function () {
             const poCode = $(this).data('pocode');
+
             Swal.fire({
                 title: 'Are you sure?',
                 text: "Do you want to approve PO " + poCode + "?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, approve it!',
-                cancelButtonText: 'Cancel'
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'swal2-confirm btn btn-success',
+                    cancelButton: 'swal2-cancel btn btn-danger'
+                },
+                buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.get('/Purchase/ApprovePONAM', { poCode }, function (res) {
+                    $.post('/Purchase/ApprovePONAM', { poCode }, function (res) {
                         if (res.success) {
-                            Swal.fire({ icon: 'success', title: 'PO ' + poCode + ' approved!', showConfirmButton: false, timer: 2000 });
+                            // First success alert for approval
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'PO ' + poCode + ' approved!',
+                                showConfirmButton: false,
+                                timer: 2000
+                            }).then(() => {
+                                // Second info alert for email sent
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Email sent to vendor!',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+                            });
+
                             pendingTable.ajax.reload();
-                        } else Swal.fire('Error!', 'Failed to approve PO.', 'error');
+                        } else {
+                            Swal.fire('Error!', 'Failed to approve PO.', 'error');
+                        }
                     });
                 }
             });
@@ -321,11 +479,14 @@
         });
 
         // Date Range Picker filter
-        $(document).on('focus', '#PendingDatepicker', function () {
+        // ✅ Date filter with custom ranges for Pending PO
+        $(document).off('focus', '#PendingDatepicker').on('focus', '#PendingDatepicker', function () {
             if (!$(this).data('daterangepicker')) {
                 $(this).daterangepicker({
                     autoUpdateInput: false,
-                    opens: 'center', drops: 'down', alwaysShowCalendars: true,
+                    opens: "center",
+                    drops: "down",
+                    alwaysShowCalendars: false,
                     locale: { cancelLabel: 'Clear' },
                     ranges: {
                         'Today': [moment(), moment()],
@@ -336,11 +497,14 @@
                     }
                 }, function (start, end) {
                     $('#PendingDatepicker').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-                    $.fn.dataTable.ext.search.push(function (settings, data, rowData) {
+
+                    // ✅ Filter table by PO Date column (index 3)
+                    $.fn.dataTable.ext.search.push(function (settings, data) {
                         if (settings.nTable.id !== 'tblPending') return true;
                         const poDate = moment(data[3], 'DD/MM/YYYY');
                         return poDate.isBetween(start, end, undefined, '[]');
                     });
+
                     if (pendingTable) pendingTable.draw();
                     $.fn.dataTable.ext.search.pop();
                 });
@@ -351,6 +515,7 @@
                 });
             }
         });
+
 
     });
 </script>

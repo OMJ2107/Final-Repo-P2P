@@ -1,4 +1,18 @@
-﻿<!-- Title -->
+﻿<style>
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+</style>
+
+
+<!-- Title -->
 <div class="text-center mb-3">
     <h3 class="text-primary fw-bold">Approved Purchase Order</h3>
 </div>
@@ -95,7 +109,7 @@
                             const formattedDate = today.toLocaleDateString('en-GB');
                             $(win.document.body).prepend(`
                 <div style="text-align:center; font-size:18px; font-weight:bold; margin-bottom:5px;">Approved Purchase Orders</div>
-                <div style="text-align:center; font-size:12px; margin-bottom:10px;">Exported Date: ${formattedDate}</div>
+                <div style="text-align:center; font-size:12px; margin-bottom:10px;">Generated Date: ${formattedDate}</div>
             `);
                             $(win.document.body).find('thead th').css({
                                 'background-color': '#212529',
@@ -135,7 +149,7 @@
                             doc.content[0].alignment = 'center';
                             doc.content[0].fontSize = 14;
                             doc.content.splice(1, 0, {
-                                text: 'Exported Date: ' + new Date().toLocaleDateString('en-GB'),
+                                text: 'Generated Date: ' + new Date().toLocaleDateString('en-GB'),
                                 alignment: 'center',
                                 margin: [0, 0, 0, 8],
                                 fontSize: 10
@@ -150,84 +164,196 @@
                         }
                     },
 
-                    // Excel
+                  
+                    // ✅ Excel Export for Approved PO Table
                     {
                         extend: 'excelHtml5',
                         title: '',
                         filename: 'Approved_POs',
                         text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                         titleAttr: 'Export Excel',
+                        attr: {
+                            'data-bs-toggle': 'tooltip',
+                            'data-bs-placement': 'bottom',
+                            'title': 'Export to Excel'
+                        },
                         action: function (e, dt, button, config) {
+                            // ✅ Require at least one PO selected
                             if ($('#tblApproved .row-select:checked').length === 0) {
-                                showToast("Select at least one PO to export Excel");
+                                showToast("Please select at least one PO to export Excel", "warning");
                                 return;
                             }
                             window.__excelSrCounter = 0;
                             $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                         },
                         exportOptions: {
-                            columns: exportColumns,
+                            // ✅ Export only checked rows
                             rows: (idx, d, node) => $(node).find('.row-select').prop('checked'),
-                            format: {
-                                body: (data, row, col, node) =>
-                                    col === 1 ? ++window.__excelSrCounter : (typeof data === 'string' ? data.replace(/<\/?[^>]+(>|$)/g, "").trim() : data)
-                            }
-                        },
-                        customize: function (xlsx) {
-                            const sheet = xlsx.xl.worksheets['sheet1.xml'];
-                            const today = new Date();
-                            const dateStr = today.toLocaleDateString('en-GB');
-
-                            $(sheet).find('row').each(function () {
-                                let r = parseInt($(this).attr('r'));
-                                $(this).attr('r', r + 2);
-                                $(this).find('c').each(function () {
-                                    const cellRef = $(this).attr('r');
-                                    const col = cellRef.replace(/\d+/g, '');
-                                    const row = parseInt(cellRef.replace(/\D/g, '')) + 2;
-                                    $(this).attr('r', col + row);
-                                });
-                            });
-
-                            const titleRow = `<row r="1"><c t="inlineStr" r="A1" s="2"><is><t>Approved Purchase Orders</t></is></c></row>`;
-                            const dateRow = `<row r="2"><c t="inlineStr" r="A2" s="2"><is><t>Export Date: ${dateStr}</t></is></c></row>`;
-                            sheet.childNodes[0].childNodes[1].innerHTML = titleRow + dateRow + sheet.childNodes[0].childNodes[1].innerHTML;
-                        }
-                    },
-
-                    // CSV
-                    {
-                        extend: 'csvHtml5',
-                        text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
-                        titleAttr: 'Export CSV',
-                        action: function (e, dt, button, config) {
-                            if ($('#tblApproved .row-select:checked').length === 0) {
-                                showToast("Select at least one PO to export CSV");
-                                return;
-                            }
-                            window.__srnoCounter = 0;
-                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                        },
-                        exportOptions: {
                             columns: exportColumns,
-                            rows: (idx, d, node) => $(node).find('.row-select').prop('checked'),
                             format: {
                                 body: (data, row, col, node) => {
                                     data = typeof data === 'string' ? data.replace(/<[^>]*>/g, '').trim() : data;
-                                    if (col === 1) return ++window.__srnoCounter;
+                                    if (col === 1) {
+                                        if (!window.__excelSrCounter) window.__excelSrCounter = 0;
+                                        return ++window.__excelSrCounter;
+                                    }
                                     return data;
                                 }
                             }
                         },
-                        filename: () => 'ApprovedPO_List_' + new Date().toISOString().slice(0, 10).replace(/-/g, ""),
-                        customize: function (csv) {
-                            const today = new Date();
-                            const dateStr = today.toLocaleDateString('en-GB');
-                            const header = `"All Approved POs"\n"Export Date: ${dateStr}"\n`;
-                            return header + csv;
+
+                        // ✅ Custom Excel Formatting (Title + Date at Center)
+                        customize: function (xlsx) {
+                            const sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            const $sheet = $(sheet);
+
+                            // Count number of columns in first row
+                            let colCount = $('row:first c', sheet).length;
+                            if (colCount === 0) colCount = 5; // fallback
+
+                            const title = 'Approved Purchase Orders';
+                            const generatedDate = 'Export Date: ' + moment().format('DD/MM/YYYY');
+
+                            // 🔹 Shift existing rows down by 2
+                            $sheet.find('sheetData row').each(function () {
+                                const r = parseInt($(this).attr('r'));
+                                $(this).attr('r', r + 2);
+                                $(this).find('c').each(function () {
+                                    const cellRef = $(this).attr('r');
+                                    const col = cellRef.replace(/[0-9]/g, '');
+                                    const rowNum = parseInt(cellRef.replace(/[A-Z]/g, '')) + 2;
+                                    $(this).attr('r', col + rowNum);
+                                });
+                            });
+
+                            // 🔹 Create Title & Date Rows
+                            const titleRow = `
+<row r="1">
+    <c t="inlineStr" r="A1" s="55"><is><t>${title}</t></is></c>
+</row>`;
+                            const dateRow = `
+<row r="2">
+    <c t="inlineStr" r="A2" s="56"><is><t>${generatedDate}</t></is></c>
+</row>`;
+
+                            $sheet.find('sheetData').prepend(titleRow + dateRow);
+
+                            // 🔹 Merge title and date cells (A1:LastCol1, A2:LastCol2)
+                            let mergeCells = $sheet.find('mergeCells');
+                            if (mergeCells.length === 0) {
+                                mergeCells = $('<mergeCells count="0"></mergeCells>');
+                                $sheet.append(mergeCells);
+                            }
+
+                            const lastCol = String.fromCharCode(64 + colCount);
+                            mergeCells.append(`<mergeCell ref="A1:${lastCol}1"/>`);
+                            mergeCells.append(`<mergeCell ref="A2:${lastCol}2"/>`);
+                            mergeCells.attr('count', mergeCells.find('mergeCell').length);
+
+                            // 🔹 Add custom styles for center alignment
+                            const styles = xlsx.xl['styles.xml'];
+                            const $styles = $(styles);
+                            const cellXfs = $styles.find('cellXfs');
+                            const count = parseInt(cellXfs.attr('count'));
+                            const newStyleIndex1 = count;      // for title
+                            const newStyleIndex2 = count + 1;  // for date
+
+                            // Add center alignment styles
+                            cellXfs.append(`
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
+    <alignment horizontal="center" vertical="center"/>
+</xf>`);
+                            cellXfs.append(`
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
+    <alignment horizontal="center" vertical="center"/>
+</xf>`);
+                            cellXfs.attr('count', count + 2);
+
+                            // Apply new style indices to our custom rows
+                            $sheet.find('c[r="A1"]').attr('s', newStyleIndex1);
+                            $sheet.find('c[r="A2"]').attr('s', newStyleIndex2);
                         }
                     }
-                ],
+                    ,
+              
+                    // ✅ CSV Export for Approved PO Table
+                    {
+                        extend: 'csvHtml5',
+                        text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
+                        titleAttr: 'Export to CSV',
+                        attr: {
+                            'data-bs-toggle': 'tooltip',
+                            'data-bs-placement': 'bottom',
+                            'title': 'Export to CSV'
+                        },
+                        action: function (e, dt, button, config) {
+                            // ✅ Require at least one checkbox selection
+                            if ($('#tblApproved .row-select:checked').length === 0) {
+                                showToast("Please select at least one PO to export!", "warning");
+                                return;
+                            }
+
+                            // Reset serial counter
+                            window.__srnoCounter = 0;
+
+                            // Call default export action
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                            dt.processing(false); // remove spinner if any
+                        },
+                        exportOptions: {
+                            rows: function (idx, data, node) {
+                                return $(node).find('.row-select').prop('checked'); // ✅ only checked rows
+                            },
+                            columns: exportColumns, // use your defined export column list
+                            format: {
+                                body: (function () {
+                                    let counter = 0;
+                                    return function (data, row, column, node) {
+                                        // Clean HTML tags
+                                        data = typeof data === 'string' ? data.replace(/<[^>]*>/g, '').trim() : data;
+
+                                        // ✅ Serial number column
+                                        if (column === 1) {
+                                            if (!window.__srnoCounter) window.__srnoCounter = 0;
+                                            return ++window.__srnoCounter;
+                                        }
+
+                                        // ✅ Date formatting (e.g., PO Date column)
+                                        // Adjust 'column === 2' if your date column is at another index
+                                        if (column === 2) {
+                                            const m = moment(data, ["DD-MM-YYYY", "YYYY-MM-DD", "DD/MM/YYYY"], true);
+                                            if (m.isValid()) {
+                                                return m.format("DD/MM/YYYY"); // unified format
+                                            }
+                                            return data;
+                                        }
+
+                                        // ✅ Default fallback for other columns
+                                        return data;
+                                    };
+                                })()
+                            }
+                        },
+                        title: null, // disable default title row
+                        filename: function () {
+                            return 'ApprovedPO_List_' + new Date().toISOString().slice(0, 10).replace(/-/g, "");
+                        },
+                        customize: function (csv) {
+                            // Optional: add slight spacing or header alignment
+                            const spaces = '          '; // 10 spaces
+                            return spaces + '\n' + csv;
+                        }
+                    }
+
+
+
+
+
+
+
+
+                    ],
+
 
                 initComplete: function () {
                     $('#tblApproved_filter input').addClass("form-control").attr("placeholder", "Search...").css("height", "40px");
