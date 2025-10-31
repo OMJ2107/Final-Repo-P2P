@@ -369,9 +369,6 @@ namespace P2PLibray.Purchase
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
         /// <summary>
         /// RFQ Registered Quotation List
         /// </summary>
@@ -401,7 +398,8 @@ namespace P2PLibray.Purchase
                                                                     ? row["VenderName"]?.ToString()
                                                                     : row["VendorName"]?.ToString(),
                         DaysToReceiveQuotation = row["DaysToReceiveQuotation"]?.ToString(),
-                        DaysToApproveQuotation = row["DaysToApproveQuotation"]?.ToString()
+                        DaysToApproveQuotation = row["DaysToApproveQuotation"]?.ToString(),
+                        StatusName = row["StatusName"]?.ToString()
                     });
                 }
             }
