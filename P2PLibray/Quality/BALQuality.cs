@@ -499,7 +499,7 @@ namespace P2PLibray.Quality
             dc.Add("@statusId", 14);
             dc.Add("@Inspectionfrequency", Inf);
             dc.Add("@AddedBy", staffcode);
-            dc.Add("@AddedDate", DateTime.Now);
+            dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             dc.Add("@SampleQualityChecked", sqc);
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
@@ -554,7 +554,7 @@ namespace P2PLibray.Quality
             dc.Add("@statusId", 15);
             dc.Add("@Inspectionfrequency", int.Parse(INF));
             dc.Add("@AddedBy", staffcode);
-            dc.Add("@AddedDate", DateTime.Now);
+            dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             dc.Add("@SampleQualityChecked", long.Parse(SQC));
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
@@ -644,7 +644,7 @@ namespace P2PLibray.Quality
             dc.Add("@SampleTestedFailed", long.Parse(STF));
             dc.Add("@Reason", ROR);
             dc.Add("@AddedBy", "STF014");
-            dc.Add("@AddedDate", DateTime.Now);
+            dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
 
@@ -691,7 +691,7 @@ namespace P2PLibray.Quality
         /// <summary>
         /// Updates the status of a GRN after inspection.
         /// </summary>
-        /// <param name="id">GRN Code</param>
+        /// <param name="id">GRN Code</param>c
         public async Task UpdateGRNStatusRG(string id)
         {
             Dictionary<string, object> dic = new Dictionary<string, object>();
