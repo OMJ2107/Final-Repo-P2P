@@ -371,13 +371,63 @@
             // Modal loader (unchanged)
             const modal = new bootstrap.Modal(document.getElementById("dashboardModal"));
             function loadPartial(title, url) {
+                const $modal = $("#dashboardModal");
+                const $modalBody = $("#dashboardModalBody");
+
+                // Set modal title
                 $("#dashboardModalLabel").text(title);
-                $("#dashboardModalBody").html('<p class="text-center text-muted">Loading...</p>');
-                modal.show();
-                $.get(url, function (html) {
-                    $("#dashboardModalBody").html(html);
+
+                // Show modal
+                $modal.modal('show');
+
+                // Abort previous AJAX
+                if (window.currentAjax && window.currentAjax.readyState !== 4) {
+                    window.currentAjax.abort();
+                }
+
+                // Destroy any existing DataTables inside modal
+                $modalBody.find('.dataTable').each(function () {
+                    if ($.fn.DataTable.isDataTable(this)) {
+                        $(this).DataTable().clear().destroy(true); // fully remove old table
+                    }
+                });
+
+                // Clear modal body and show loading
+                $modalBody.empty().html('<p class="text-center text-muted">Loading...</p>');
+
+                // Load new partial
+                window.currentAjax = $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: { startDate: selectedStartDate, endDate: selectedEndDate },
+                    cache: false
+                });
+
+                window.currentAjax.done(function (html) {
+                    // Insert partial HTML
+                    $modalBody.html(html);
+
+                    // 🔹 Initialize DataTables dynamically
+                    $modalBody.find('.dataTable').each(function () {
+                        const tableId = $(this).attr('id');
+                        // Check if there’s a global init function for this table
+                        if (tableId && typeof window['init_' + tableId] === 'function') {
+                            window['init_' + tableId](selectedStartDate, selectedEndDate);
+                        }
+                    });
+
+                    // Reset AJAX tracker
+                    window.currentAjax = null;
+                });
+
+                window.currentAjax.fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error('AJAX failed:', textStatus, errorThrown);
+                    $modalBody.html('<p class="text-danger text-center">Error loading data.</p>');
+                    window.currentAjax = null;
                 });
             }
+
+
 
             // Card click events
             $("#approvedPrCard").click(() => loadPartial("Approved Purchase Requisition", "/Purchase/ShowApprovePRPartialPRK"));
@@ -388,6 +438,24 @@
             $("#pendingRcCard").click(() => loadPartial("Pending Register Quotation", "/Purchase/ShowPendingRQPartialPRK"));
             $("#approvedPoCard").click(() => loadPartial("Approved Purchase Orders", "/Purchase/ShowApprovePOPartialPRK"));
             $("#pendingPoCard").click(() => loadPartial("Pending Purchase Orders", "/Purchase/ShowPendingPOPartialPRK"));
+
+
+            $('#dashboardModal').on('hidden.bs.modal', function () {
+                // Destroy tables from any partials
+                destroyDataTable('#requestedRfqTable');
+                destroyDataTable('#anotherPartialTable'); // if you have more partial tables
+
+                // Abort any pending AJAX
+                if (window.currentAjax && window.currentAjax.readyState !== 4) {
+                    window.currentAjax.abort();
+                    window.currentAjax = null;
+                }
+
+                $("#dashboardModalBody").empty();
+            });
+
+
+
         });
     </script>
 </body>
