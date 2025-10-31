@@ -543,7 +543,7 @@
                             console.log(row)
                             let registerBtn = '';
                             let viewBtn = ''
-                            if (row.HasUnregisteredVendors && Number(row.HasUnregisteredVendors) === 1) {
+                            if (row.HasUnregisteredVendors && Number(row.HasUnregisteredVendors) === 1 && Number(row.HasApproved)==0 ) {
                                 registerBtn = `<a class="btn btn-sm btn-success ms-1"
                                     href="/Purchase/RegisterQuotationVNK?rfqCode=${encodeURIComponent(row.RFQCode)}&prCode=${encodeURIComponent(row.PRCode)}"
                                     title="Register Quotation" data-bs-toggle="tooltip">

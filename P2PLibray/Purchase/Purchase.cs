@@ -393,6 +393,9 @@ namespace P2PLibray.Purchase
 
         public int AnyVendor { get; set; }
 
+        public int HasApproved { get; set; }
+
+        
 
 
 
