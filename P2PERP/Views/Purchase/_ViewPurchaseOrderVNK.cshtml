@@ -150,7 +150,27 @@
             $.get('/Purchase/GetPOHeaderByCodeVNK', { POCode: POCode }, function (h) {
                 if (!h) return;
                 $("#po_no").val(h.POCode || '');
-                $("#po_date").val(h.AddedDateVK || '');
+                // Format PO Date to dd/MM/yyyy
+                let formattedDate = '';
+                if (h.AddedDateVK) {
+                    let dateObj;
+
+                    if (typeof h.AddedDateVK === 'string' && h.AddedDateVK.includes('/Date')) {
+                        const timestamp = parseInt(h.AddedDateVK.replace(/\/Date\((\d+)\)\//, '$1'));
+                        dateObj = new Date(timestamp);
+                    } else {
+                        dateObj = new Date(h.AddedDateVK);
+                    }
+
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const year = dateObj.getFullYear();
+
+                    formattedDate = `${day}/${month}/${year}`;
+                }
+
+                $("#po_date").val(formattedDate || '');
+
                 $("#companyName").val(h.InvoiceToCompanyName || '');
                 $("#deliveryAddress").val(h.DeliveryAddress || '');
                 if (h.TermConditionName) {
