@@ -100,8 +100,6 @@
                 <span id="qtyError" class="text-danger small fw-semibold"></span> <!-- Inline error -->
             </div>
 
-
-
             <!-- 🔸 Unit Rate -->
             <div class="col-md-4">
                 <label class="fw-semibold">Unit Rate (₹):</label>
@@ -187,8 +185,30 @@
 </style>
 
 <script>
+/* -------------------------
+   Defensive global helper
+   ------------------------- */
+window.setLoaderTimeout = function(ms) {
+    // safe guard if some other script expects this function to call setMaxTimeout on some loader object
+    try {
+        if (window.pageLoader && typeof window.pageLoader.setMaxTimeout === 'function') {
+            window.pageLoader.setMaxTimeout(ms);
+            return;
+        }
+        if (window.someLoader && typeof window.someLoader.setMaxTimeout === 'function') {
+            window.someLoader.setMaxTimeout(ms);
+            return;
+        }
+        // if no loader, silently warn (no exception)
+        console.warn('setLoaderTimeout: loader not available', ms);
+    } catch (err) {
+        console.warn('setLoaderTimeout error', err);
+    }
+};
+
 document.addEventListener("DOMContentLoaded", function() {
 
+    // Defensive: element txtInvoiceDateDisplay may not exist in markup.
     const txtDisplay = document.getElementById("txtInvoiceDateDisplay");
     const txtHidden = document.getElementById("txtInvoiceDate");
 
@@ -205,9 +225,9 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     const serverDate = '@(ViewBag.InvoiceDate != null ? Convert.ToDateTime(ViewBag.InvoiceDate).ToString("yyyy-MM-dd") : "")';
-    if(serverDate) {
+    if(serverDate && txtHidden) {
         txtHidden.value = serverDate;
-        txtDisplay.value = formatDate(serverDate);
+        if (txtDisplay) txtDisplay.value = formatDate(serverDate);
     }
 
     if(txtDisplay && txtHidden){
@@ -217,7 +237,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         txtHidden.addEventListener("change", () => {
-            txtDisplay.value = formatDate(txtHidden.value);
+            if (txtDisplay) txtDisplay.value = formatDate(txtHidden.value);
             if(txtHidden.value) txtHidden.classList.remove('input-error');
         });
     }
@@ -226,10 +246,36 @@ document.addEventListener("DOMContentLoaded", function() {
 
 $(document).ready(function () {
 
+    /* SAFE tooltip initializer - idempotent, defensive */
     function initTooltips() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+        // Use try/catch so tooltip issues won't break other JS
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            try {
+                // dispose existing via public API if exists
+                const existing = bootstrap.Tooltip.getInstance(el);
+                if (existing && typeof existing.dispose === 'function') {
+                    existing.dispose();
+                }
+                // create new instance (getOrCreateInstance if available)
+                if (typeof bootstrap.Tooltip.getOrCreateInstance === 'function') {
+                    bootstrap.Tooltip.getOrCreateInstance(el, {
+                        template: '<div class="tooltip" role="tooltip">' +
+                                  '<div class="tooltip-arrow"></div>' +
+                                  '<div class="tooltip-inner" style="background-color:#000; color:#fff;"></div>' +
+                                  '</div>'
+                    });
+                } else {
+                    // fallback for older bootstrap versions
+                    new bootstrap.Tooltip(el, {
+                        template: '<div class="tooltip" role="tooltip">' +
+                                  '<div class="tooltip-arrow"></div>' +
+                                  '<div class="tooltip-inner" style="background-color:#000; color:#fff;"></div>' +
+                                  '</div>'
+                    });
+                }
+            } catch (e) {
+                console.warn('Tooltip init failed for element', el, e);
+            }
         });
     }
 
@@ -240,9 +286,40 @@ $(document).ready(function () {
     const num = v => parseFloat(String(v).replace(/[, ]/g,'').replace('%','')) || 0;
 
     const loadPOItems = (code) => {
-        if(!code) return;
-        $.get('/GRN/POItemsSSG', { POCode: code }, res=>{
-            POItems = res.data || [];
+        if(!code) {
+            // no PO code: clear dropdown
+            POItems = [];
+            refreshItemDropdown();
+            return;
+        }
+        $.get('/GRN/POItemsSSG', { POCode: code }, function(res){
+            // Defensive: support different shapes of response
+            try {
+                if (!res) {
+                    POItems = [];
+                    console.warn('POItemsSSG returned empty response');
+                } else if (Array.isArray(res)) {
+                    // if API returned array directly
+                    POItems = res;
+                } else if (Array.isArray(res.data)) {
+                    POItems = res.data;
+                } else if (Array.isArray(res.items)) {
+                    POItems = res.items;
+                } else {
+                    // try to find a likely array property
+                    POItems = res.data || res.items || [];
+                }
+            } catch (err) {
+                console.warn('Error processing POItemsSSG response', err, res);
+                POItems = [];
+            }
+            // Ensure POItems is an array
+            if (!Array.isArray(POItems)) POItems = [];
+
+            refreshItemDropdown();
+        }).fail(function (xhr, status, err) {
+            console.warn('/GRN/POItemsSSG failed', status, err);
+            POItems = [];
             refreshItemDropdown();
         });
     };
@@ -252,8 +329,13 @@ $(document).ready(function () {
     function refreshItemDropdown() {
         const dropdown = $('#itemDropdown').empty().append('<option value="">Select Item</option>');
         POItems.forEach(item => {
-            if (!selectedItems.has(item.ItemCode)) {
-                dropdown.append(`<option value="${item.ItemCode}">${item.ItemName}</option>`);
+            // defensive: ensure item and ItemCode/ItemName exist
+            if (!item) return;
+            const code = item.ItemCode || item.itemCode || item.Code || '';
+            const name = item.ItemName || item.itemName || item.Name || item.Item || '';
+            if (!code) return;
+            if (!selectedItems.has(code)) {
+                dropdown.append(`<option value="${code}">${name || code}</option>`);
             }
         });
     }
@@ -268,7 +350,10 @@ $(document).ready(function () {
             {
                 data: 'Description',
                 className: 'text-center',
-                render: data => `<span data-bs-toggle="tooltip" title="${data}">${data}</span>`
+                render: data => {
+                    const safe = (data === null || data === undefined) ? '' : String(data).replace(/"/g,'&quot;');
+                    return `<span data-bs-toggle="tooltip" title="${safe}">${safe}</span>`;
+                }
             },
             { data: 'Quantity', className: 'text-center' },
             { data: 'UnitRate', className: 'text-center', render: data => `₹${data}` },
@@ -276,14 +361,15 @@ $(document).ready(function () {
             { data: 'GST', className: 'text-center' },
             { data: 'Amount', className: 'text-center', render: data => `₹${data}` },
             { data: null, render: () => `<button class="btn btn-danger btn-sm deleteRow" data-bs-toggle="tooltip" title="Delete this item"><i class="bi bi-trash3"></i></button>`, orderable: false, className: 'text-center' },
-             { data: 'WareHouseId', visible: false } 
+             { data: 'WareHouseId', visible: false }
         ]
     });
 
     const updateTotal = () => {
         let total = 0;
         itemTable.rows().every(function () {
-            total += num(this.data().Amount);
+            const d = this.data();
+            total += num(d && d.Amount ? d.Amount : 0);
         });
 
         $('#totalAmount').remove();
@@ -297,18 +383,31 @@ $(document).ready(function () {
     };
 
     $('#itemDropdown').change(function () {
-        const item = POItems.find(x => x.ItemCode == $(this).val());
+        const sel = $(this).val();
+        if (!sel) {
+            // clear fields if no selection
+            $('#txtQty').val('');
+            $('#txtUnitRate').val('');
+            $('#txtDiscount').val('');
+            $('#txtGST').val('');
+            $('#txtAmount').val('');
+            $('#txtItemDesc').val('');
+            $('#txtQC').val('');
+            $('#txtUOM').val('');
+            return;
+        }
+        // robust find: account for different property names
+        const item = POItems.find(x => x && (x.ItemCode == sel || x.itemCode == sel || x.Code == sel));
         if (!item) return;
 
-        $('#txtQty').val(item.Quantity);
-        $('#txtUnitRate').val(item.CostPerUnit);
-        $('#txtDiscount').val(item.Discount + "%");
-        $('#txtGST').val(item.GST);
-        $('#txtAmount').val(item.TotalAmount);
-        $('#txtItemDesc').val(item.Description);
-        $('#txtQC').val(item.IsQuality);
-        $('#txtUOM').val(item.UOMName);
-
+        $('#txtQty').val(item.Quantity || item.Qty || '');
+        $('#txtUnitRate').val(item.CostPerUnit || item.UnitRate || '');
+        $('#txtDiscount').val((item.Discount !== undefined ? item.Discount : item.DiscountPercent) + "%");
+        $('#txtGST').val(item.GST || '');
+        $('#txtAmount').val(item.TotalAmount || item.Amount || '');
+        $('#txtItemDesc').val(item.Description || '');
+        $('#txtQC').val(item.IsQuality || '');
+        $('#txtUOM').val(item.UOMName || '');
         $('#qtyError').text('');
         $('#itemDropdown').removeClass('input-error');
         $('#txtQty').removeClass('input-error');
@@ -317,7 +416,7 @@ $(document).ready(function () {
     $('#txtQty').on('input', function () {
         const qtyStr = $(this).val().trim();
         const itemCode = $('#itemDropdown').val();
-        const item = POItems.find(x => x.ItemCode == itemCode);
+        const item = POItems.find(x => x && (x.ItemCode == itemCode || x.itemCode == itemCode || x.Code == itemCode));
 
         if (!qtyStr) {
             $('#qtyError').text('');
@@ -344,8 +443,8 @@ $(document).ready(function () {
             $('#txtQty').removeClass('input-error');
         }
 
-        if (item && qty > num(item.Quantity)) {
-            $('#qtyError').text(`Quantity cannot exceed PO quantity (${item.Quantity}).`);
+        if (item && qty > num(item.Quantity || item.Qty || 0)) {
+            $('#qtyError').text(`Quantity cannot exceed PO quantity (${item.Quantity || item.Qty || 0}).`);
             $('#txtQty').addClass('input-error');
             return;
         } else {
@@ -380,7 +479,7 @@ $(document).ready(function () {
             return;
         }
 
-        const item = POItems.find(x => x.ItemCode === itemCode);
+        const item = POItems.find(x => x && (x.ItemCode === itemCode || x.itemCode === itemCode || x.Code === itemCode));
 
         if (qty <= 0) {
             $('#qtyError').text('Please enter a valid quantity.');
@@ -388,23 +487,26 @@ $(document).ready(function () {
             return;
         }
 
-        if (item && qty > num(item.Quantity)) {
-            $('#qtyError').text(`Quantity cannot exceed PO quantity (${item.Quantity}).`);
+        if (item && qty > num(item.Quantity || item.Qty || 0)) {
+            $('#qtyError').text(`Quantity cannot exceed PO quantity (${item.Quantity || item.Qty || 0}).`);
             $('#txtQty').addClass('input-error');
             return;
         }
 
-        itemTable.row.add({
+        // Build a clean row-data object using available properties
+        const rowObj = {
             ItemCode: itemCode,
-            ItemName: item.ItemName,
-            Description: item.Description,
+            ItemName: item ? (item.ItemName || item.Name || item.itemName || '') : '',
+            Description: item ? (item.Description || item.Desc || '') : '',
             Quantity: qty,
-            UnitRate: item.CostPerUnit,
-            Discount: item.DiscountPercent,
-            GST: item.GST,
-            Amount: item.TotalAmount,
+            UnitRate: item ? (item.CostPerUnit || item.UnitRate || 0) : 0,
+            Discount: item ? (item.DiscountPercent || item.Discount || 0) : 0,
+            GST: item ? (item.GST || 0) : 0,
+            Amount: item ? (item.TotalAmount || item.Amount || (qty * (item.CostPerUnit || item.UnitRate || 0))) : (qty * 0),
             WareHouseId: $('#txtWareHouseId').val()
-        }).draw(false);
+        };
+
+        itemTable.row.add(rowObj).draw(false);
 
         selectedItems.add(itemCode);
         refreshItemDropdown();
@@ -425,14 +527,15 @@ $(document).ready(function () {
 
     $('#itemTable tbody').on('click', '.deleteRow', function () {
         const row = itemTable.row($(this).closest('tr'));
-        const itemCode = row.data().ItemCode;
-        selectedItems.delete(itemCode);
+        const rowData = row.data() || {};
+        const itemCode = rowData.ItemCode;
+        if (itemCode) selectedItems.delete(itemCode);
         row.remove().draw();
         refreshItemDropdown();
         updateTotal();
     });
 
-    const invoicePattern = /^[A-Za-z0-9/-]{3,16}$/;
+    const invoicePattern = /^[A-Za-z0-9/-]{3,10}$/;
 
     function validateInvoiceNo() {
         const invoiceNo = $('#txtInvoiceNo').val().trim();
@@ -441,7 +544,7 @@ $(document).ready(function () {
             $('#txtInvoiceNo').addClass('input-error');
             return false;
         } else if (!invoicePattern.test(invoiceNo)) {
-            $('#invoiceNoError').text('Invoice No must be 3-16 chars (letters, digits, - or /).');
+            $('#invoiceNoError').text('Invoice No must be 3-10 chars (letters, digits, - or /).');
             $('#txtInvoiceNo').addClass('input-error');
             return false;
         } else {
@@ -519,8 +622,8 @@ $(document).ready(function () {
             cancelButtonText: "No, cancel",
             reverseButtons: false,
             customClass: {
-                confirmButton: 'btn btn-success me-2', 
-                cancelButton: 'btn btn-danger'      
+                confirmButton: 'btn btn-success me-2',
+                cancelButton: 'btn btn-danger'
             },
             buttonsStyling: false
 
@@ -566,7 +669,7 @@ $(document).ready(function () {
                     processData: false,
                     contentType: false,
                     success: function (res) {
-                        if (res.success) {
+                        if (res && res.success) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'GRN created successfully!',
@@ -585,8 +688,12 @@ $(document).ready(function () {
                                     $('#grnTable').DataTable().ajax.reload(null, false);
                             });
                         } else {
-                            Swal.fire({ icon: 'error', title: res.message, showConfirmButton: false, timer: 2000 });
+                            Swal.fire({ icon: 'error', title: (res && res.message) || 'Failed to create GRN', showConfirmButton: false, timer: 2000 });
                         }
+                    },
+                    error: function(xhr, status, err) {
+                        console.warn('CreateSSG error', status, err, xhr);
+                        Swal.fire({ icon: 'error', title: 'Error creating GRN', showConfirmButton: false, timer: 2000 });
                     }
                 });
 
@@ -594,31 +701,8 @@ $(document).ready(function () {
         });
     });
 
-
-    function initTooltips() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (el) {
-            if (el._tooltip) el._tooltip.dispose();
-            el._tooltip = new bootstrap.Tooltip(el, {
-                template: '<div class="tooltip" role="tooltip">' +
-                    '<div class="tooltip-arrow"></div>' +
-                    '<div class="tooltip-inner" style="background-color:#000; color:#fff;"></div>' +
-                    '</div>'
-            });
-        });
-    }
-
     initTooltips();
     $('#itemTable').on('draw.dt', function () { initTooltips(); });
 
 });
 </script>
-
-
-
-
-
-
-
-
-
