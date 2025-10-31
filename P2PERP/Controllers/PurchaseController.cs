@@ -1516,6 +1516,7 @@ namespace P2PERP.Controllers
                     header.ShippingCharges = Convert.ToDecimal(ds.Tables[0].Rows[i]["TransportationCharges"].ToString());
                     header.TotalAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["TotalAmount"]);
                     header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
+                    header.BillingAddress = ds.Tables[0].Rows[i]["BillingAddress"].ToString();
 
                     lstHeader.Add(header);
                 }
@@ -2057,8 +2058,10 @@ namespace P2PERP.Controllers
                     header.SwiftCode = ds.Tables[0].Rows[i]["SwiftCode"].ToString();
                     header.DeliveryAddress = ds.Tables[0].Rows[i]["DeliveryAddress"].ToString();
                     header.ShippingCharges = Convert.ToDecimal(ds.Tables[0].Rows[i]["TransportationCharges"].ToString());
+                    header.BillingAddress = ds.Tables[0].Rows[i]["BillingAddress"].ToString();
+
                     //header.TotalAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["TotalAmount"]);
-                  //  header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
+                    //  header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
 
                     lstHeader.Add(header);
                 }
@@ -2210,9 +2213,10 @@ namespace P2PERP.Controllers
 
                 using (MailMessage mail = new MailMessage())
                 {
-                    mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
-                    //mail.To.Add(vendorEmail);
-                    mail.To.Add("kumbharomkar765@gmail.com"); // Test email
+                    //mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
+                    mail.From = new MailAddress("gstprocurmenterp@gmail.com", "Rahitech IT Solution");
+                    mail.To.Add(vendorEmail);
+                   // mail.To.Add("kumbharomkar765@gmail.com"); // Test email
                     mail.Subject = $"Purchase Order - {POCode}";
                     mail.Body = $"Dear {vendorName},\n\nPlease find attached the Purchase Order #{POCode}.\n\nThank you.\n\nRegards,\nYour Company";
                     mail.IsBodyHtml = false;
@@ -2222,7 +2226,7 @@ namespace P2PERP.Controllers
 
                     using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                     {
-                        smtp.Credentials = new NetworkCredential("sandeshjatti5329@gmail.com", "pbji sngj tkgz ylow");
+                        smtp.Credentials = new NetworkCredential("gstprocurmenterp@gmail.com", "lhrlntigzidizmju");
                         smtp.EnableSsl = true;
                         await smtp.SendMailAsync(mail);
                     }
