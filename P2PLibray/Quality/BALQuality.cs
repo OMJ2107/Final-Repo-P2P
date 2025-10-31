@@ -659,7 +659,7 @@ namespace P2PLibray.Quality
             dc.Add("@SampleTestedFailed", long.Parse(STF));
             dc.Add("@Reason", ROR);
             dc.Add("@AddedBy", "STF014");
-            dc.Add("@AddedDate", DateTime.Now);
+            dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
 

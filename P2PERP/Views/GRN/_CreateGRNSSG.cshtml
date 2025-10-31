@@ -586,6 +586,7 @@ $(document).ready(function () {
                             });
                         } else {
                             Swal.fire({ icon: 'error', title: res.message, showConfirmButton: false, timer: 2000 });
+                            console.log(res.message);
                         }
                     }
                 });

@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "ShowAllRFQsVNK";
+    ViewBag.Title = "Show All RFQs";
 }
 
 <html>
@@ -16,6 +16,7 @@
             button.dt-button.processing:after {
                 content: none !important;
             }
+
         .card-header-small {
             padding: 0.25rem 1rem;
             font-size: 1.8rem;
@@ -204,7 +205,7 @@
                     }
                 }
 
-                return dateValue; 
+                return dateValue;
             }
 
 
@@ -230,7 +231,7 @@
                         // Add filter to DataTable
                         $.fn.dataTable.ext.search.push(function (settings, data) {
                             if (settings.nTable.id !== 'tblRFQ') return true;
-                            const addedDate = moment(data[3], 'DD/MM/YYYY'); 
+                            const addedDate = moment(data[3], 'DD/MM/YYYY');
                             return addedDate.isBetween(start, end, undefined, '[]');
                         });
                         if (rfqTable) rfqTable.draw();
@@ -291,29 +292,29 @@
                             const formattedDate = today.toLocaleDateString('en-GB');
 
                             $(win.document.body).prepend(`
-                        <div style="text-align:center; font-size:18px; font-weight:bold; margin-bottom:5px;">Register Quotations</div>
-                        <div style="text-align:center; font-size:12px; margin-bottom:10px;">Generated Date: ${formattedDate}</div>
-                    `);
+                            <div style="text-align:center; font-size:18px; font-weight:bold; margin-bottom:5px;">Register Quotations</div>
+                            <div style="text-align:center; font-size:12px; margin-bottom:10px;">Generated Date: ${formattedDate}</div>
+                        `);
 
                             $(win.document.body).append(`
-                        <style>
-                            thead th {
-                                background-color: black !important;
-                                color: white !important;
-                                text-align: center !important;
-                                -webkit-print-color-adjust: exact !important;
-                                print-color-adjust: exact !important;
-                            }
-                            table {
-                                border-collapse: collapse !important;
-                                width: 100% !important;
-                            }
-                            td, th {
-                                border: 1px solid #000 !important;
-                                padding: 6px !important;
-                            }
-                        </style>
-                    `);
+                            <style>
+                                thead th {
+                                    background-color: black !important;
+                                    color: white !important;
+                                    text-align: center !important;
+                                    -webkit-print-color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
+                                table {
+                                    border-collapse: collapse !important;
+                                    width: 100% !important;
+                                }
+                                td, th {
+                                    border: 1px solid #000 !important;
+                                    padding: 6px !important;
+                                }
+                            </style>
+                        `);
 
                             $(win.document.body).find('table')
                                 .addClass('table table-bordered table-striped')
@@ -348,7 +349,7 @@
                         }
                     },
 
-                   
+
                     // Excel
                     {
                         extend: 'excelHtml5',
@@ -401,15 +402,15 @@
 
                             var titleRow = `
 <row r="1">
-    <c t="inlineStr" r="A1" s="55">
-        <is><t>${title}</t></is>
-    </c>
+        <c t="inlineStr" r="A1" s="55">
+            <is><t>${title}</t></is>
+        </c>
 </row>`;
                             var dateRow = `
 <row r="2">
-    <c t="inlineStr" r="A2" s="56">
-        <is><t>${generatedDate}</t></is>
-    </c>
+        <c t="inlineStr" r="A2" s="56">
+            <is><t>${generatedDate}</t></is>
+        </c>
 </row>`;
 
                             $sheet.find('sheetData').prepend(titleRow + dateRow);
@@ -435,11 +436,11 @@
                             // Create new centered style entries
                             cellXfs.append(`
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
-    <alignment horizontal="center" vertical="center"/>
+        <alignment horizontal="center" vertical="center"/>
 </xf>`);
                             cellXfs.append(`
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
-    <alignment horizontal="center" vertical="center"/>
+        <alignment horizontal="center" vertical="center"/>
 </xf>`);
                             cellXfs.attr('count', count + 2);
 
@@ -449,8 +450,8 @@
                         }
                     },
 
-              
-                    // ✅ CSV Export for RFQ Table
+
+                    //  CSV Export for RFQ Table
                     {
                         extend: 'csvHtml5',
                         text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
@@ -461,62 +462,52 @@
                             'title': 'Export to CSV'
                         },
                         action: function (e, dt, button, config) {
-                            // ✅ Require selection before export
                             if ($('#tblRFQ .row-select:checked').length === 0) {
                                 showToast("Please select at least one row to export!", "warning");
                                 return;
                             }
 
-                            // ✅ Reset serial counter before export
                             window.__srnoCounter = 0;
 
-                            // ✅ Call default export logic
                             $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
                             dt.processing(false);
                         },
                         exportOptions: {
-                            // ✅ Only export checked rows
                             rows: function (idx, data, node) {
                                 return $(node).find('.row-select').prop('checked');
                             },
-                            // ✅ Exclude unwanted columns (like checkbox + last column)
                             columns: function (idx) {
                                 return idx !== 0 && idx !== 6;
                             },
                             format: {
                                 body: (function () {
                                     return function (data, row, column, node) {
-                                        // Remove HTML tags
                                         data = typeof data === 'string' ? data.replace(/<[^>]*>/g, '').trim() : data;
 
-                                        // ✅ Serial Number Column
                                         if (column === 1) {
                                             if (!window.__srnoCounter) window.__srnoCounter = 0;
                                             return ++window.__srnoCounter;
                                         }
 
-                                        // ✅ Date Column (Change column index if needed)
                                         if (column === 3) {
                                             const m = moment(data, ["DD/MM/YYYY", "YYYY-MM-DD", "DD-MM-YYYY"], true);
                                             if (m.isValid()) {
-                                                return m.format("DD/MM/YYYY"); // consistent format
+                                                return m.format("DD/MM/YYYY");
                                             }
                                             return data;
                                         }
 
-                                        // ✅ Default return for other columns
                                         return data;
                                     };
                                 })()
                             }
                         },
-                        title: null, // Disable auto title row
+                        title: null,
                         filename: function () {
                             return 'RFQ_List_' + new Date().toISOString().slice(0, 10).replace(/-/g, "");
                         },
                         customize: function (csv) {
-                            // Optional: center-align or add spacing at top
-                            const spaces = '          '; // 10 spaces
+                            const spaces = '          ';
                             return spaces + '\n' + csv;
                         }
                     }
@@ -543,20 +534,20 @@
                             console.log(row)
                             let registerBtn = '';
                             let viewBtn = ''
-                            if (row.HasUnregisteredVendors && Number(row.HasUnregisteredVendors) === 1 && Number(row.HasApproved)==0 ) {
+                            if (row.HasUnregisteredVendors && Number(row.HasUnregisteredVendors) === 1 && Number(row.HasApproved) == 0) {
                                 registerBtn = `<a class="btn btn-sm btn-success ms-1"
-                                    href="/Purchase/RegisterQuotationVNK?rfqCode=${encodeURIComponent(row.RFQCode)}&prCode=${encodeURIComponent(row.PRCode)}"
-                                    title="Register Quotation" data-bs-toggle="tooltip">
-                                    <i class="bi bi-file-earmark-plus-fill fs-5"></i>
-                                </a>`;
+                                        href="/Purchase/RegisterQuotationVNK?rfqCode=${encodeURIComponent(row.RFQCode)}&prCode=${encodeURIComponent(row.PRCode)}"
+                                        title="Register Quotation" data-bs-toggle="tooltip">
+                                        <i class="bi bi-file-earmark-plus-fill fs-5"></i>
+                                    </a>`;
                             }
                             if (row.AnyVendor && Number(row.AnyVendor) === 1) {
                                 viewBtn = `<a href="javascript:void(0)"
-                                class="btn btn-sm btn-view  btn-icon-square btn-primary btn-view-quotation"
-                                data-rfq="${row.RFQCode}" data-pr="${row.PRCode}" data-unreg="${row.HasUnregisteredVendors}"
-                                data-bs-toggle="tooltip" title="View Quotation">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>`};
+                                    class="btn btn-sm btn-view  btn-icon-square btn-primary btn-view-quotation"
+                                    data-rfq="${row.RFQCode}" data-pr="${row.PRCode}" data-unreg="${row.HasUnregisteredVendors}"
+                                    data-bs-toggle="tooltip" title="View Quotation">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>`};
 
                             return `<div class="d-flex justify-content-center align-items-center">${viewBtn}${registerBtn}</div>`;
                         }
