@@ -1429,7 +1429,7 @@ namespace P2PLibray.Purchase
             Dictionary<string, string> prParam = new Dictionary<string, string>();
             prParam.Add("@Flag", "NewPRSP");
             prParam.Add("@PRCode", purchase.PRCode);
-            prParam.Add("@RequiredDate", purchase.RequiredDate.ToString("yyyy-MM-dd HH:mm:ss"));
+            prParam.Add("@RequiredDate", purchase.RequiredDate.ToString("yyyy-MM-dd"));
             prParam.Add("@StatusId", purchase.Status.ToString());
             prParam.Add("@AddedBy", purchase.AddedBy);
             prParam.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));

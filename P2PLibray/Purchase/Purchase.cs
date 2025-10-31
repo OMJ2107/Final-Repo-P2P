@@ -131,6 +131,7 @@ namespace P2PLibray.Purchase
             public string ItemCode { get; set; }
             public decimal RequiredQuantity { get; set; }
         }
+
     #endregion
 
         #region Vaibhavi
