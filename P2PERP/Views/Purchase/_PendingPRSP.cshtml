@@ -185,7 +185,6 @@
                                             <th class="border-top-0">QTY</th>
                                             <th class="border-top-0">UNIT RATE</th>
                                             <th class="border-top-0">AMOUNT</th>
-                                            <th class="border-top-0">ACTION</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ItemTableBodyUpdate2">
@@ -194,7 +193,11 @@
                                 </table>
                             </div>
                         </div>
-
+                        <div class="text-center mt-4">
+                            <button id="btnSaveAllUpdates2" class="btn btn-success px-4 fw-bold">
+                                <i class="bi bi-save-fill me-2"></i>Save All Changes
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -991,15 +994,13 @@
     });
 
     // ===================== Update Modal Loader =====================
+    var itemTableUpdate2;
+
+    // 🔹 Update Modal Open
     $(document).on("click", ".update-btn2", function () {
         var prCode = $(this).data("id");
-        loadUpdateModal2(prCode);
-    });
 
-
-    // Load Update Modal Function
-    function loadUpdateModal2(prCode) {
-        // Load PR Info
+        // Load Header Info
         $.ajax({
             url: '/Purchase/DetailsPartialSP',
             type: 'POST',
@@ -1012,110 +1013,142 @@
                     $("#FullNameUpdate2").text(response.data.FullName);
                     $("#StatusUpdate2").text(response.data.Status);
 
-                    // Status color
                     let statusDiv = $("#StatusUpdate2");
                     statusDiv.removeClass("text-success text-danger text-warning text-dark");
                     if (response.data.Status === "Approved") statusDiv.addClass("text-success");
                     else if (response.data.Status === "Rejected") statusDiv.addClass("text-danger");
                     else if (response.data.Status === "Pending") statusDiv.addClass("text-warning");
                 }
-            },
-            error: function (xhr, status, error) {
-                console.error("Error loading PR details:", error);
             }
         });
 
-        // Load Item Details (Editable)
-        $.ajax({
-            url: '/Purchase/ItemPartialSP',
-            type: 'POST',
-            data: { id: prCode },
-            success: function (response) {
-                if (response.success) {
-                    $("#ItemTableBodyUpdate2").empty();
+        // Load Item Table
+        loadItemTableUpdate2(prCode);
+        $("#updatependingModal").modal("show");
+    });
 
-                    $.each(response.data, function (i, item) {
-                        var row = `
-                        <tr data-id="${item.PRItemId}">
-                            <td>${i + 1}</td>
-                            <td>${item.ItemCode}</td>
-                            <td>${item.ItemName}</td>
-                            <td title="${item.Description}" data-bs-toggle="tooltip" data-bs-placement="top" 
-    style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-    ${item.Description}
-</td>
-                            <td>
-                                <input type="number" class="form-control qty-input"
-                                    value="${item.RequiredQuantity}" min="1" />
-                            </td>
-                            <td>₹ ${parseFloat(item.UnitRate).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td>₹ ${parseFloat(item.Amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>                            
-                            <td>
-                                <button class="btn btn-sm btn-success save-item-btn2">Save</button>
-                            </td>
-                        </tr>`;
-                        $("#ItemTableBodyUpdate2").append(row);
-                    });
+    // 🔹 Load DataTable Dynamically
+    function loadItemTableUpdate2(prCode) {
+        if ($.fn.DataTable.isDataTable("#ItemTableUpdate2")) {
+            itemTableUpdate2.clear().destroy();
+            $("#ItemTableUpdate2 tbody").empty();
+        }
 
-                    // Initialize DataTable or re-initialize safely
-                    $("#ItemTableUpdate2").DataTable({
-                        ordering: false,
-                        paging: true,
-                        language: {
-                            lengthMenu: ""
-                        },
-                        searching: true,
-                        info: true,
-                        columnDefs: [
-                            { className: "text-center", targets: "_all" }
-                        ],
-                        destroy: true  // Important to allow re-initialization
-                    });
+        itemTableUpdate2 = $("#ItemTableUpdate2").DataTable({
+            ajax: {
+                url: '/Purchase/ItemPartialSP',
+                type: 'POST',
+                data: { id: prCode },
+                dataSrc: function (json) {
+                    return json.success ? json.data : [];
                 }
             },
-            error: function (xhr, status, error) {
-                console.error("Error loading item details:", error);
-            }
+            columns: [
+                { data: null, render: (data, type, row, meta) => meta.row + 1 },
+                { data: "ItemCode" },
+                { data: "ItemName" },
+                {
+                    data: "Description",
+                    createdCell: function (td, cellData) {
+                        if (cellData) {
+                            let shortText = cellData.length > 25 ? cellData.substring(0, 25) + "..." : cellData;
+                            $(td)
+                                .text(shortText)
+                                .attr("title", cellData)
+                                .attr("data-bs-toggle", "tooltip")
+                                .attr("data-bs-placement", "top");
+                        }
+                    }
+                },
+                {
+                    data: "RequiredQuantity",
+                    render: (data) => `<input type="number" class="form-control qty-input text-center" value="${data}" min="1" />`
+                },
+                {
+                    data: "UnitRate",
+                    render: (data) => `₹ ${parseFloat(data).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`
+                },
+                {
+                    data: "Amount",
+                    render: (data) => `₹ ${parseFloat(data).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`
+                }
+            ],
+            columnDefs: [{ className: "text-center", targets: "_all" }],
+            paging: false,
+            searching: false,
+            info: false,
+            destroy: true
+        });
+
+        setTimeout(() => $('[data-bs-toggle="tooltip"]').tooltip(), 500);
+
+        $("#ItemTableUpdate2").on("input", ".qty-input", function () {
+            let val = parseInt($(this).val(), 10);
+            if (isNaN(val) || val < 1) $(this).val("");
         });
     }
 
-    // ===================== Save Item Quantity =====================
-    $(document).on("click", ".save-item-btn2", function () {
-        var row = $(this).closest("tr");
-        var prItemId = row.data("id");
-        var requiredQuantity = row.find(".qty-input").val();
+    $(document).on("click", "#btnSaveAllUpdates2", function () {
+        let updatedRows = itemTableUpdate2.rows().data().toArray();
+        let allUpdates = [];
 
-        $.ajax({
-            url: '/Purchase/UpdateItemQuantitySP',
-            type: 'POST',
-            data: { PRItemId: prItemId, requiredQuantity: requiredQuantity },
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Item updated successfully!',
-                        icon: 'success',
-                        showConfirmButton: false,
-                        timer: 2000
-                    }).then(() => {
-                        // Close the Update Modal after SweetAlert
-                        $('#updatependingModal').modal('hide');
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: response.message || 'Failed to update item.',
-                        icon: 'error'
-                    });
-                }
-            },
-            error: function () {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Something went wrong while updating the item.',
-                    icon: 'error'
+        $("#ItemTableUpdate2 tbody tr").each(function (i) {
+            let qty = parseInt($(this).find(".qty-input").val(), 10);
+            if (!isNaN(qty) && qty > 0) {
+                let rowData = updatedRows[i];
+                allUpdates.push({
+                    PRItemId: rowData.PRItemId,
+                    requiredQuantity: qty
                 });
             }
         });
+
+        if (allUpdates.length === 0) {
+            Swal.fire("No Changes", "Please update at least one quantity before saving.", "info");
+            return;
+        }
+
+        Swal.fire({
+            title: "Confirm Save",
+            text: "Do you want to save all updated quantities?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Save",
+            cancelButtonText: "Cancel",
+            customClass: {
+                confirmButton: 'btn btn-success mx-2', 
+                cancelButton: 'btn btn-danger mx-2'     
+            },
+            buttonsStyling: false 
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+
+            let updatePromises = allUpdates.map(item =>
+                $.ajax({
+                    url: "/Purchase/UpdateItemQuantitySP",
+                    type: "POST",
+                    data: { PRItemId: item.PRItemId, requiredQuantity: item.requiredQuantity }
+                })
+            );
+
+            Promise.all(updatePromises)
+                .then(() => {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Saved!",
+                        text: "All quantities updated successfully!",
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(() => {
+                        $("#updatependingModal").modal("hide");
+                    });
+                })
+                .catch(() => {
+                    Swal.fire("Error", "Some updates failed. Please try again.", "error");
+                });
+        });
     });
+
+
 </script>
