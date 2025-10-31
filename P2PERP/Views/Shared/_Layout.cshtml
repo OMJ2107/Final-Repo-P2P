@@ -338,7 +338,7 @@
 
                     @if (role == "9") // PO User
                     {
-                        <li class="menu-item @(currentAction.Contains("SelectedQuotationListShowOK") || currentAction.Contains("PurchaseOrederHistoryOK") ? "active open" : "")">
+                        <li class="menu-item @(currentAction.Contains("SelectedQuotationListShowOK") || currentAction.Contains("PurchaseOrederHistoryOK") || currentAction.Contains("JustInTimeItemListOK") ? "active open" : "")">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-cart4 me-3 fs-5"></i>
                                 <div class="fw-semibold">PO User Dashboard</div>
@@ -348,6 +348,12 @@
                                     <a href="@Url.Action("SelectedQuotationListShowOK", "Purchase")" class="menu-link">
                                         <i class="menu-icon tf-icons bi bi-inbox me-3"></i>
                                         <div>Receive Quotation</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item @(currentAction == "JustInTimeItemListOK" ? "active" : "")">
+                                    <a href="@Url.Action("JustInTimeItemListOK", "Purchase")" class="menu-link">
+                                        <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
+                                        <div>Just In Time</div>
                                     </a>
                                 </li>
                                 <li class="menu-item @(currentAction == "PurchaseOrederHistoryOK" ? "active" : "")">
@@ -793,7 +799,7 @@
                                     <script>
                                         document.write(new Date().getFullYear());
                                     </script>
-                                    , made with ❤️ by <a href="https://themeselection.com" target="_blank" class="footer-link fw-medium">ThemeSelection</a>
+                                     made with ❤️ by <a href="https://rahitechit.com/" target="_blank" class="footer-link fw-medium">Rahitech</a>
                                 </div>
                                 <div class="d-none d-lg-inline-block">
                                     <a href="https://themeselection.com/item/category/admin-templates/" target="_blank" class="footer-link me-4">Admin Templates</a>
@@ -967,6 +973,33 @@
                     modal.hide();
                 });
             });
+
+            var roleid = '@role';
+            var controllerName = '@currentController';
+
+            if (roleid === '13' || roleid === '14' || roleid === '15') {
+                if (controllerName !== 'Quality') {
+                    window.location.href = '/Account/Logout';
+                }
+            }
+
+            if (roleid === '10' || roleid === '11' || roleid === '12') {
+                if (controllerName !== 'GRN') {
+                    window.location.href = '/Account/Logout';
+                }
+            }
+
+            if (roleid === '2' || roleid === '3' || roleid === '4') {
+                if (controllerName !== 'Inventory') {
+                    window.location.href = '/Account/Logout';
+                }
+            }
+
+            if (roleid === '5' || roleid === '6' || roleid === '7' || roleid === '8' || roleid === '9') {
+                if (controllerName !== 'Purchase') {
+                    window.location.href = '/Account/Logout';
+                }
+            }
         });
     </script>
 

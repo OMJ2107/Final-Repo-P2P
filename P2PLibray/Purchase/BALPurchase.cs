@@ -442,10 +442,12 @@ namespace P2PLibray.Purchase
                                 ? Convert.ToInt32(row["HasUnregisteredVendors"])
                                 : 0,
 
- AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
+                            AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
                                 ? Convert.ToInt32(row["HasRegisteredQuotation"])
+                                : 0,
+                            HasApproved = row.Table.Columns.Contains("HasApproved") && row["HasApproved"] != DBNull.Value
+                                ? Convert.ToInt32(row["HasApproved"])
                                 : 0
-
 
                         });
 
@@ -1454,7 +1456,7 @@ namespace P2PLibray.Purchase
             prParam.Add("@RequiredDate", purchase.RequiredDate.ToString("yyyy-MM-dd"));
             prParam.Add("@StatusId", purchase.Status.ToString());
             prParam.Add("@AddedBy", purchase.AddedBy);
-            prParam.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+            prParam.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             prParam.Add("@PriorityId", purchase.PriorityId.ToString());
 
             await obj.ExecuteStoredProcedure("PurchaseProcedure", prParam);
