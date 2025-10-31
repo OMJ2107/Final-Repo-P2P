@@ -30,7 +30,6 @@
                     <th>GRN Code</th>
                     <th>Vendor Name</th>
                     <th>Add Date</th>
-                    @*<th>Quality Check Date</th>*@
                     <th>Action</th>
                 </tr>
             </thead>
@@ -71,7 +70,6 @@
                             <th>Sr No</th>
                             <th>Item Code</th>
                             <th>Item Name</th>
-                          
                             <th>Quality Check Date</th>
                         </tr>
                     </thead>
@@ -104,9 +102,6 @@
         z-index: 99999 !important;
     }
 
-    viewItemModal {
-    }
-
     #itemDetailsTable th,
     #itemDetailsTable td {
         vertical-align: middle;
@@ -132,34 +127,11 @@
     }
 
     .tooltip-inner {
-        font-weight: 600 !important; /* Make it bold */
+        font-weight: 600 !important;
         font-family: 'Arial', sans-serif;
         font-size: 13px;
     }
-    /* Smaller checkbox styling for all tables */
-    .small-checkbox {
-        width: 10px !important;
-        height: 10px !important;
-        transform: scale(0.85);
-        margin: 0 auto;
-        display: block;
-    }
 
-    /* Ensure proper alignment */
-    #confirmItemTable th:first-child,
-    #confirmItemTable td:first-child,
-    #itemDetailsTable th:first-child,
-    #itemDetailsTable td:first-child {
-        width: 30px !important;
-        text-align: center !important;
-    }
-
-    /* Modal positioning - ADDED */
-    .modal-dialog-centered {
-        display: flex;
-        align-items: center;
-        min-height: calc(100% - 1rem);
-    }
     /* Smaller checkbox styling for all tables */
     .small-checkbox {
         width: 16px !important;
@@ -197,59 +169,28 @@
         padding: 8px 4px !important;
     }
 
-    /* Modal positioning - ADDED */
+    /* Modal positioning */
     .modal-dialog-centered {
         display: flex;
         align-items: center;
         min-height: calc(100% - 1rem);
     }
 
-    /* DataTables styling */
-    div.dataTables_wrapper div.dataTables_paginate {
-        text-align: right;
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
     }
 
-    div.dataTables_filter input {
-        width: auto;
-        display: inline-block;
-    }
+        button.dt-button.processing:after {
+            content: none !important;
+        }
 
-    div.dt-buttons {
-        margin-bottom: 0 !important;
-    }
-
-    #toast-container {
-        z-index: 99999 !important;
-    }
-
-    #itemDetailsTable th,
-    #itemDetailsTable td {
-        vertical-align: middle;
-        text-align: center;
-    }
-
-    /* Confirm Item Table ke liye */
-    #confirmItemTable th,
-    #confirmItemTable td {
-        vertical-align: middle !important;
-        text-align: center;
-    }
-
-    /* Modal ke andar ka table ke liye */
-    #itemDetailsTable th,
-    #itemDetailsTable td {
-        vertical-align: middle !important;
-        text-align: center;
-    }
-
-    div.dataTables_wrapper div.dataTables_paginate {
-        text-align: right !important;
-    }
-
-    .tooltip-inner {
-        font-weight: 600 !important;
-        font-family: 'Arial', sans-serif;
-        font-size: 13px;
+    /* Search input styling  */
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
     }
 </style>
 
@@ -263,13 +204,13 @@
             "timeOut": "3000"
         };
 
-        //  ✅ Initialize Date Range Picker with the format you provided
+        //   Initialize Date Range Picker with the format you provided
         $('#tblConfirm').daterangepicker({
             autoUpdateInput: false,
             alwaysShowCalendars: false,
             locale: {
                 cancelLabel: 'Clear',
-                format: 'DD-MM-YYYY',
+                format: 'DD/MM/YYYY',
                 applyLabel: 'Apply',
                 customRangeLabel: 'Custom Range'
             },
@@ -282,7 +223,7 @@
             }
         }, function (start, end) {
             // Set the date range in the input field
-            $('#tblConfirm').val(start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY'));
+            $('#tblConfirm').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
 
             // Store the dates in data attributes for filtering
             $('#tblConfirm').data('start', start);
@@ -317,7 +258,7 @@
             if (!addDateStr || addDateStr.trim() === '') return false;
 
             // Try multiple common date formats with priority to DD-MM-YYYY
-            const addDate = moment(addDateStr, ['DD-MM-YYYY', 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'], true);
+            const addDate = moment(addDateStr, ['DD/MM/YYYY', 'YYYY/MM/DD', 'MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'], true);
 
             if (!addDate.isValid()) {
                 console.warn('Invalid date format in table:', addDateStr);
@@ -327,7 +268,7 @@
             return addDate.isSameOrAfter(start) && addDate.isSameOrBefore(end);
         });
 
-        // ✅ Initialize Main DataTable
+        //  Initialize Main DataTable
         const table = $('#confirmItemTable').DataTable({
             processing: true,
             serverSide: false,
@@ -362,10 +303,9 @@
                         return meta.row + 1;
                     }
                 },
-                { data: "GRNCode", orderable: false },
-                { data: "VenderName", orderable: false },
-                { data: "AddDate", orderable: false },
-              
+                { data: "GRNCode", orderable: false, className: "dt-center" },
+                { data: "VenderName", orderable: false, className: "dt-center" },
+                { data: "AddDate", orderable: false, className: "dt-center" },
                 {
                     data: null,
                     title: 'Action',
@@ -397,19 +337,16 @@
                         },
                         columns: ':not(:first-child):not(:last-child)',
                         format: {
-                            header: function (data, column, row) {
-                                return data;
-                            },
                             body: function (data, row, column, node) {
-                                // Handle serial number for selected rows
-                                if (column === 0) { // Sr No column
+                                if (column === 1) {
                                     const $node = $(node);
-                                    if ($node.find('.row-checkbox').prop('checked')) {
-                                        // Return sequential number for selected rows
-                                        const selectedRows = $('input.row-checkbox:checked');
-                                        const currentIndex = selectedRows.index($node.closest('tr').find('.row-checkbox'));
+                                    if ($node.closest('tr').find('.row-checkbox').prop('checked')) {
+                                        const selectedRows = $('#confirmItemTable tbody input.row-checkbox:checked');
+                                        const currentRow = $node.closest('tr');
+                                        const currentIndex = selectedRows.index(currentRow.find('.row-checkbox'));
                                         return currentIndex + 1;
                                     }
+                                    return '';
                                 }
                                 return data;
                             }
@@ -424,66 +361,53 @@
                         $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
                     },
                     customize: function (win) {
-                        // Get the body reference
                         var $body = $(win.document.body);
 
-                        // Add print-specific CSS styles
                         $body.append(`
-            <style>
-                thead th {
-                    background-color: black !important;
-                    color: white !important;
-                    text-align: center !important;
-                    vertical-align: middle !important;
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                    font-weight: bold !important;
-                    padding: 8px !important;
-                }
-                table {
-                    border-collapse: collapse !important;
-                    width: 100% !important;
-                    margin: 0 auto !important;
-                }
-                td, th {
-                    border: 1px solid #000 !important;
-                    padding: 6px !important;
-                    text-align: center !important;
-                    vertical-align: middle !important;
-                }
-                tbody td {
-                    text-align: center !important;
-                    vertical-align: middle !important;
-                }
-                h3, p {
-                    text-align: center !important;
-                }
-            </style>
-        `);
+                            <style>
+                                thead th {
+                                    background-color: black !important;
+                                    color: white !important;
+                                    text-align: center !important;
+                                }
+                                table {
+                                    border-collapse: collapse !important;
+                                    width: 100% !important;
+                                }
+                                td, th {
+                                    border: 1px solid #000 !important;
+                                    padding: 6px !important;
+                                    text-align: center !important;
+                                }
+                                .centered-content {
+                                    text-align: center !important;
+                                }
+                            </style>
+                        `);
 
-                        // Add title and metadata
                         $body.prepend(`
-            <h3>Confirm Item List</h3>
-            <p>Generated on: ${moment().format("DD-MM-YYYY")}</p>
-        `);
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <h2>Confirm Item List</h2>
+                                <p>Generated Date: ${moment().format("DD/MM/YYYY")}</p>
+                            </div>
+                        `);
 
-                        // Set body styling
-                        $body.css({
-                            'font-size': '12pt',
-                            'font-family': 'Arial, sans-serif'
-                        });
+                        $body.find('table').addClass('centered-content');
+                        $body.find('td, th').css('text-align', 'center');
 
-                        // Fix serial numbers in print
                         const $table = $body.find('table');
-                        $table.find('tbody tr').each(function (index) {
-                            $(this).find('td:first').text(index + 1);
+                        let serialNo = 1;
+                        $table.find('tbody tr').each(function () {
+                            const $row = $(this);
+                            $row.find('td:first').text(serialNo++);
                         });
+
+                        $body.find('h1').remove();
                     }
                 },
-
                 // PDF
                 {
-                    extend: 'pdf',
+                    extend: 'pdfHtml5',
                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                     title: 'Confirm Item List',
                     exportOptions: {
@@ -493,14 +417,15 @@
                         columns: ':not(:first-child):not(:last-child)',
                         format: {
                             body: function (data, row, column, node) {
-                                // Handle serial number for selected rows
-                                if (column === 0) { // Sr No column
+                                if (column === 1) {
                                     const $node = $(node);
-                                    if ($node.find('.row-checkbox').prop('checked')) {
-                                        const selectedRows = $('input.row-checkbox:checked');
-                                        const currentIndex = selectedRows.index($node.closest('tr').find('.row-checkbox'));
+                                    if ($node.closest('tr').find('.row-checkbox').prop('checked')) {
+                                        const selectedRows = $('#confirmItemTable tbody input.row-checkbox:checked');
+                                        const currentRow = $node.closest('tr');
+                                        const currentIndex = selectedRows.index(currentRow.find('.row-checkbox'));
                                         return currentIndex + 1;
                                     }
+                                    return '';
                                 }
                                 return data;
                             }
@@ -515,33 +440,19 @@
                         $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                     },
                     customize: function (doc) {
-                        // Set page margins
                         doc.pageMargins = [40, 60, 40, 40];
 
-                        // Title styling - centered
-                        doc.styles.title = {
-                            fontSize: 16,
-                            bold: true,
-                            alignment: 'center',
-                            margin: [0, 0, 0, 10]
-                        };
-
-                        // Add generation date - centered
-                        doc.content.splice(1, 0, {
-                            text: `Generated on: ${moment().format("DD-MM-YYYY")}`,
+                        doc.content[0] = {
+                            text: 'Confirm Item List\nGenerated Date: ' + moment().format("DD/MM/YYYY"),
                             alignment: 'center',
                             margin: [0, 0, 0, 10],
-                            fontSize: 10,
-                            italics: true
-                        });
+                            fontSize: 14,
+                            bold: true
+                        };
 
-                        // Find and style the table
                         const table = doc.content.find(n => n.table);
                         if (table) {
-                            // Set all columns to equal width
                             table.table.widths = Array(table.table.body[0].length).fill('*');
-
-                            // Table layout settings
                             table.layout = {
                                 hLineWidth: () => 0.5,
                                 vLineWidth: () => 0.5,
@@ -552,7 +463,6 @@
                                 paddingRight: () => 5
                             };
 
-                            // Style header row
                             table.table.body[0].forEach(cell => {
                                 cell.fillColor = '#343a40';
                                 cell.color = 'white';
@@ -561,40 +471,80 @@
                                 cell.bold = true;
                             });
 
-                            // Style all data rows - CENTER ALIGNMENT
+                            let serialNo = 1;
                             table.table.body.forEach((row, rowIndex) => {
-                                if (rowIndex > 0) { // Skip header row
-                                    // Fix serial numbers in PDF
-                                    row[0].text = rowIndex;
-
-                                    // Center align all cells in data rows
-                                    row.forEach(cell => {
-                                        cell.alignment = 'center';
-                                    });
+                                if (rowIndex > 0) {
+                                    row[0].text = serialNo++;
                                 }
+                                row.forEach(cell => {
+                                    cell.alignment = 'center';
+                                });
                             });
 
-                            // Ensure table is centered on page
                             table.alignment = 'center';
                         }
 
-                        // Set default styles for all text to be centered
                         doc.defaultStyle = {
                             alignment: 'center'
                         };
                     }
                 },
-
-                // EXCEL
+                // EXCEL 
                 {
-                    extend: 'excel',
+                    extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     title: 'Confirm Item List',
+                    messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-checkbox').prop('checked');
                         },
-                        columns: ':not(:first-child):not(:last-child)'
+                        columns: ':not(:first-child):not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                if (column === 1) {
+                                    const $node = $(node);
+                                    if ($node.closest('tr').find('.row-checkbox').prop('checked')) {
+                                        const selectedRows = $('#confirmItemTable tbody input.row-checkbox:checked');
+                                        const currentRow = $node.closest('tr');
+                                        const currentIndex = selectedRows.index(currentRow.find('.row-checkbox'));
+                                        return currentIndex + 1;
+                                    }
+                                    return '';
+                                }
+                                return data;
+                            }
+                        }
+                    },
+                    customize: function (xlsx) {
+                        let sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // Insert "Sr. No" column at start and make it bold (s="2")
+                        let serial = 1;
+                        $('row', sheet).each(function () {
+                            let rowIndex = parseInt($(this).attr('r'));
+
+                            if (rowIndex === 1) {
+                                // Title row - center align and bold
+                                $(this).find('c').attr('s', '51');
+                            } else if (rowIndex === 2) {
+                                // Generated date row - center align and bold
+                                $(this).find('c').attr('s', '51');
+                            } else if (rowIndex === 3) {
+                                // Header row: Add Sr. No column
+                                $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>`);
+                                // Make all header cells bold and centered
+                                $(this).find('c').attr('s', '2');
+                            } else if (rowIndex > 3) {
+                                // Data rows: Add serial numbers
+                                $(this).find('c:first').before(`<c t="inlineStr"><is><t>${serial}</t></is></c>`);
+                                serial++;
+                            }
+                        });
+
+                        // Center align title and date rows
+                        $('row[r="1"] c', sheet).attr('s', '51'); 
+                        $('row[r="2"] c', sheet).attr('s', '51');
                     },
                     action: function (e, dt, button, config) {
                         const selected = $('input.row-checkbox:checked').length;
@@ -605,17 +555,31 @@
                         $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                     }
                 },
-
-                // CSV
+                // CSV - Main Table
                 {
-                    extend: 'csv',
+                    extend: 'csvHtml5',
                     text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
-                    title: 'Confirm Item List',
+                    title: 'Confirm Item List - ' + moment().format("DD/MM/YYYY"),
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-checkbox').prop('checked');
                         },
-                        columns: ':not(:first-child):not(:last-child)'
+                        columns: ':not(:first-child):not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                if (column === 1) {
+                                    const $node = $(node);
+                                    if ($node.closest('tr').find('.row-checkbox').prop('checked')) {
+                                        const selectedRows = $('#confirmItemTable tbody input.row-checkbox:checked');
+                                        const currentRow = $node.closest('tr');
+                                        const currentIndex = selectedRows.index(currentRow.find('.row-checkbox'));
+                                        return currentIndex + 1;
+                                    }
+                                    return '';
+                                }
+                                return data;
+                            }
+                        }
                     },
                     action: function (e, dt, button, config) {
                         const selected = $('input.row-checkbox:checked').length;
@@ -649,282 +613,315 @@
             tbody.empty().append('<tr><td colspan="6" class="text-center">Loading...</td></tr>');
             $('#noDataMessage').hide();
 
-            $.ajax({
-                url: '@Url.Action("ConfirmedItemsDetailsPR", "Quality")',
-                type: 'GET',
-                data: { grnCode },
-                success: function (response) {
-                    tbody.empty();
-                    if ($.fn.DataTable.isDataTable('#itemDetailsTable')) {
-                        $('#itemDetailsTable').DataTable().clear().destroy();
-                    }
-                    $('#modalTableButtons').empty();
-                    $('#selectAllModalItemsConfirm').prop('checked', false);
+           $.ajax({
+    url: '@Url.Action("ConfirmedItemsDetailsPR", "Quality")',
+    type: 'GET',
+    data: { grnCode },
+    success: function (response) {
+        tbody.empty();
+        if ($.fn.DataTable.isDataTable('#itemDetailsTable')) {
+            $('#itemDetailsTable').DataTable().clear().destroy();
+        }
+        $('#modalTableButtons').empty();
+        $('#selectAllModalItemsConfirm').prop('checked', false);
 
-                    if (response.success && response.data.length > 0) {
-                        response.data.forEach((item, i) => {
-                            tbody.append(`
-                                <tr>
-                                    <td class="dt-center"><input type="checkbox" class="modal-confirm-checkbox small-checkbox" value="${item.ItemCode}" /></td>
-                                    <td class="dt-center">${i + 1}</td>
-                                    <td>${item.ItemCode}</td>
-                                    <td>${item.ItemName}</td>
-                                   
-                                    <td>${item.QualityCheckDate}</td>
-                                </tr>
-                            `);
-                        });
+        if (response.success && response.data.length > 0) {
+            response.data.forEach((item, i) => {
+                tbody.append(`
+                    <tr>
+                        <td class="dt-center"><input type="checkbox" class="modal-confirm-checkbox small-checkbox" value="${item.ItemCode}" /></td>
+                        <td class="dt-center">${i + 1}</td>
+                        <td class="dt-center">${item.ItemCode}</td>
+                        <td class="dt-center">${item.ItemName}</td>
+                        <td class="dt-center">${item.QualityCheckDate}</td>
+                    </tr>
+                `);
+            });
 
-                        const modalTable = $('#itemDetailsTable').DataTable({
-                            paging: true,
-                            searching: false,
-                            ordering: false,
-                            lengthChange: false,
-                            pageLength: 5,
-                            responsive: true,
-                            dom: "tr<'row mt-2'<'col-md-6'i><'col-md-6 text-end'p>><'row mt-2'<'col-sm-12'B>>",
-                            buttons: [
-                                // PRINT
-                                {
-                                    extend: 'print',
-                                    text: '<i class="bi bi-printer-fill text-dark fs-6"></i>',
-                                    title: '',
-                                    exportOptions: {
-                                        rows: function (idx, data, node) {
-                                            return $(node).find('.modal-confirm-checkbox').prop('checked');
-                                        },
-                                        columns: ':not(:first-child)',
-                                        format: {
-                                            body: function (data, row, column, node) {
-                                                if (column === 0) { // Sr No column
-                                                    const $node = $(node);
-                                                    if ($node.find('.modal-confirm-checkbox').prop('checked')) {
-                                                        const selectedRows = $('.modal-confirm-checkbox:checked');
-                                                        const currentIndex = selectedRows.index($node.closest('tr').find('.modal-confirm-checkbox'));
-                                                        return currentIndex + 1;
-                                                    }
-                                                }
-                                                return data;
-                                            }
+            
+            // Reinitialize DataTable with proper DOM including search
+            const modalTable = $('#itemDetailsTable').DataTable({
+                processing: true,
+                serverSide: false,
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: false,
+                lengthChange: false,
+                pageLength: 5,
+                dom: '<"d-flex justify-content-end align-items-center mb-2"<"button-group">f>rt<"d-flex justify-content-between align-items-center mt-2"ip>',
+                language: {
+                    search: "Search:",
+                },
+                buttons: [
+                    // PRINT 
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer-fill text-dark fs-6"></i>',
+                        title: '',
+                        exportOptions: {
+                            rows: function (idx, data, node) {
+                                return $(node).find('.modal-confirm-checkbox').prop('checked');
+                            },
+                            columns: ':not(:first-child)',
+                            format: {
+                                body: function (data, row, column, node) {
+                                    if (column === 1) {
+                                        const $node = $(node);
+                                        if ($node.closest('tr').find('.modal-confirm-checkbox').prop('checked')) {
+                                            const selectedRows = $('.modal-confirm-checkbox:checked');
+                                            const currentRow = $node.closest('tr');
+                                            const currentIndex = selectedRows.index(currentRow.find('.modal-confirm-checkbox'));
+                                            return currentIndex + 1;
                                         }
-                                    },
-                                    action: function (e, dt, button, config) {
-                                        const selected = $('.modal-confirm-checkbox:checked').length;
-                                        if (selected === 0) {
-                                            toastr.warning('Please select at least one item to export.');
-                                            return;
-                                        }
-                                        $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                                    },
-                                    customize: function (win) {
-                                        // Get the body reference
-                                        var $body = $(win.document.body);
-
-                                        // Add print-specific CSS styles
-                                        $body.append(`
-            <style>
-                thead th {
-                    background-color: black !important;
-                    color: white !important;
-                    text-align: center !important;
-                    vertical-align: middle !important;
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                    font-weight: bold !important;
-                    padding: 8px !important;
-                }
-                table {
-                    border-collapse: collapse !important;
-                    width: 100% !important;
-                    margin: 0 auto !important;
-                }
-                td, th {
-                    border: 1px solid #000 !important;
-                    padding: 6px !important;
-                    text-align: center !important;
-                    vertical-align: middle !important;
-                }
-                tbody td {
-                    text-align: center !important;
-                    vertical-align: middle !important;
-                }
-                h3, p {
-                    text-align: center !important;
-                }
-            </style>
-        `);
-
-                                        // Add title and metadata
-                                        $body.prepend(`
-            <h3>Confirm Item Details</h3>
-            <p>GRN Code: <strong>${$('#modalGRNCode').text()}</strong></p>
-            <p>Generated on: ${moment().format("DD-MM-YYYY")}</p>
-        `);
-
-                                        // Set body styling
-                                        $body.css({
-                                            'font-size': '12pt',
-                                            'font-family': 'Arial, sans-serif'
-                                        });
-
-                                        // Fix serial numbers in modal print
-                                        const $table = $body.find('table');
-                                        $table.find('tbody tr').each(function (index) {
-                                            $(this).find('td:first').text(index + 1);
-                                        });
+                                        return '';
                                     }
-                                },
-                                // PDF - Modal Table
-                                {
-                                    extend: 'pdfHtml5',
-                                    text: '<i class="bi bi-file-earmark-pdf text-danger fs-6"></i>',
-                                    title: 'Confirm Item Details',
-                                    exportOptions: {
-                                        rows: function (idx, data, node) {
-                                            return $(node).find('.modal-confirm-checkbox').prop('checked');
-                                        },
-                                        columns: ':not(:first-child)',
-                                        format: {
-                                            body: function (data, row, column, node) {
-                                                if (column === 0) { // Sr No column
-                                                    const $node = $(node);
-                                                    if ($node.find('.modal-confirm-checkbox').prop('checked')) {
-                                                        const selectedRows = $('.modal-confirm-checkbox:checked');
-                                                        const currentIndex = selectedRows.index($node.closest('tr').find('.modal-confirm-checkbox'));
-                                                        return currentIndex + 1;
-                                                    }
-                                                }
-                                                return data;
-                                            }
-                                        }
-                                    },
-                                    action: function (e, dt, button, config) {
-                                        const selected = $('.modal-confirm-checkbox:checked').length;
-                                        if (selected === 0) {
-                                            toastr.warning('Please select at least one item to export.');
-                                            return;
-                                        }
-                                        $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-                                    },
-                                    customize: function (doc) {
-                                        doc.pageMargins = [40, 80, 40, 40];
-
-                                        // Title styling - centered
-                                        doc.styles.title = {
-                                            fontSize: 16,
-                                            bold: true,
-                                            alignment: 'center',
-                                            margin: [0, 0, 0, 10]
-                                        };
-
-                                        // Add GRN Code and generation date - centered
-                                        doc.content.splice(1, 0,
-                                            {
-                                                text: `GRN Code: ${$('#modalGRNCode').text()}`,
-                                                alignment: 'center',
-                                                margin: [0, 0, 0, 5],
-                                                fontSize: 12,
-                                                bold: true
-                                            },
-                                            {
-                                                text: `Generated on: ${moment().format("DD-MM-YYYY")}`,
-                                                alignment: 'center',
-                                                margin: [0, 0, 0, 10],
-                                                fontSize: 10,
-                                                italics: true
-                                            }
-                                        );
-
-                                        const table = doc.content.find(n => n.table);
-                                        if (table) {
-                                            table.table.widths = Array(table.table.body[0].length).fill('*');
-                                            table.layout = {
-                                                hLineWidth: () => 0.5,
-                                                vLineWidth: () => 0.5,
-                                                hLineColor: () => '#aaa',
-                                                vLineColor: () => '#aaa',
-                                                fillColor: (i) => i === 0 ? '#343a40' : null,
-                                                paddingLeft: () => 5,
-                                                paddingRight: () => 5
-                                            };
-
-                                            // Style header row
-                                            table.table.body[0].forEach(cell => {
-                                                cell.fillColor = '#343a40';
-                                                cell.color = 'white';
-                                                cell.alignment = 'center';
-                                                cell.fontSize = 11;
-                                                cell.bold = true;
-                                            });
-
-                                            // Style all data rows - CENTER ALIGNMENT
-                                            table.table.body.forEach((row, rowIndex) => {
-                                                if (rowIndex > 0) {
-                                                    // Fix serial numbers
-                                                    row[0].text = rowIndex;
-
-                                                    // Center align all cells in data rows
-                                                    row.forEach(cell => {
-                                                        cell.alignment = 'center';
-                                                    });
-                                                }
-                                            });
-
-                                            // Ensure table is centered on page
-                                            table.alignment = 'center';
-                                        }
-
-                                        // Set default styles for all text to be centered
-                                        doc.defaultStyle = {
-                                            alignment: 'center'
-                                        };
-                                    }
-
-                                },
-
-                // EXCEL
-                                {
-                                    extend: 'excelHtml5',
-                                    text: '<i class="bi bi-file-earmark-excel text-success fs-6"></i>',
-                                    title: 'Confirm Item Details',
-                                    exportOptions: {
-                                        rows: function (idx, data, node) {
-                                            return $(node).find('.modal-confirm-checkbox').prop('checked');
-                                        },
-                                        columns: ':not(:first-child)'
-                                    },
-                                    action: function (e, dt, button, config) {
-                                        const selected = $('.modal-confirm-checkbox:checked').length;
-                                        if (selected === 0) {
-                                            toastr.warning('Please select at least one item to export.');
-                                            return;
-                                        }
-                                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
-                                    }
-                                },
-
-                                // CSV
-                                {
-                                    extend: 'csvHtml5',
-                                    text: '<i class="bi bi-filetype-csv text-success fs-6"></i>',
-                                    title: 'Confirm Item Details',
-                                    exportOptions: {
-                                        rows: function (idx, data, node) {
-                                            return $(node).find('.modal-confirm-checkbox').prop('checked');
-                                        },
-                                        columns: ':not(:first-child)'
-                                    },
-                                    action: function (e, dt, button, config) {
-                                        const selected = $('.modal-confirm-checkbox:checked').length;
-                                        if (selected === 0) {
-                                            toastr.warning('Please select at least one item to export.');
-                                            return;
-                                        }
-                                        $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                                    }
+                                    return data;
                                 }
-                            ]
-                        });
+                            }
+                        },
+                        action: function (e, dt, button, config) {
+                            const selected = $('.modal-confirm-checkbox:checked').length;
+                            if (selected === 0) {
+                                toastr.warning('Please select at least one item to export.');
+                                return;
+                            }
+                            $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                        },
+                        customize: function (win) {
+                            var $body = $(win.document.body);
+
+                            $body.append(`
+                    <style>
+                        thead th {
+                            background-color: black !important;
+                            color: white !important;
+                            text-align: center !important;
+                        }
+                        table {
+                            border-collapse: collapse !important;
+                            width: 100% !important;
+                        }
+                        td, th {
+                            border: 1px solid #000 !important;
+                            padding: 6px !important;
+                            text-align: center !important;
+                        }
+                        .centered-content {
+                            text-align: center !important;
+                        }
+                    </style>
+                `);
+
+                            $body.prepend(`
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2>Confirm Item Details - ${$('#modalGRNCode').text()}</h2>
+                        <p>Generated Date: ${moment().format("DD/MM/YYYY")}</p>
+                    </div>
+                `);
+
+                            $body.find('table').addClass('centered-content');
+                            $body.find('td, th').css('text-align', 'center');
+
+                            const $table = $body.find('table');
+                            let serialNo = 1;
+                            $table.find('tbody tr').each(function () {
+                                const $row = $(this);
+                                $row.find('td:first').text(serialNo++);
+                            });
+                        }
+                    },
+                    // PDF 
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="bi bi-file-earmark-pdf text-danger fs-6"></i>',
+                        title: 'Confirm Item Details',
+                        exportOptions: {
+                            rows: function (idx, data, node) {
+                                return $(node).find('.modal-confirm-checkbox').prop('checked');
+                            },
+                            columns: ':not(:first-child)',
+                            format: {
+                                body: function (data, row, column, node) {
+                                    if (column === 1) {
+                                        const $node = $(node);
+                                        if ($node.closest('tr').find('.modal-confirm-checkbox').prop('checked')) {
+                                            const selectedRows = $('.modal-confirm-checkbox:checked');
+                                            const currentRow = $node.closest('tr');
+                                            const currentIndex = selectedRows.index(currentRow.find('.modal-confirm-checkbox'));
+                                            return currentIndex + 1;
+                                        }
+                                        return '';
+                                    }
+                                    return data;
+                                }
+                            }
+                        },
+                        action: function (e, dt, button, config) {
+                            const selected = $('.modal-confirm-checkbox:checked').length;
+                            if (selected === 0) {
+                                toastr.warning('Please select at least one item to export.');
+                                return;
+                            }
+                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                        },
+                        customize: function (doc) {
+                            doc.pageMargins = [40, 80, 40, 40];
+
+                            doc.content[0] = {
+                                text: `Confirm Item Details - ${$('#modalGRNCode').text()}\nGenerated Date: ${moment().format("DD/MM/YYYY")}`,
+                                alignment: 'center',
+                                margin: [0, 0, 0, 10],
+                                fontSize: 14,
+                                bold: true
+                            };
+
+                            const table = doc.content.find(n => n.table);
+                            if (table) {
+                                table.table.widths = Array(table.table.body[0].length).fill('*');
+                                table.layout = {
+                                    hLineWidth: () => 0.5,
+                                    vLineWidth: () => 0.5,
+                                    hLineColor: () => '#aaa',
+                                    vLineColor: () => '#aaa',
+                                    fillColor: (i) => i === 0 ? '#343a40' : null,
+                                    paddingLeft: () => 5,
+                                    paddingRight: () => 5
+                                };
+
+                                table.table.body[0].forEach(cell => {
+                                    cell.fillColor = '#343a40';
+                                    cell.color = 'white';
+                                    cell.alignment = 'center';
+                                    cell.fontSize = 11;
+                                    cell.bold = true;
+                                });
+
+                                let serialNo = 1;
+                                table.table.body.forEach((row, rowIndex) => {
+                                    if (rowIndex > 0) {
+                                        row[0].text = serialNo++;
+                                    }
+                                    row.forEach(cell => {
+                                        cell.alignment = 'center';
+                                    });
+                                });
+
+                                table.alignment = 'center';
+                            }
+
+                            doc.defaultStyle = {
+                                alignment: 'center'
+                            };
+                        }
+                    },
+                    // EXCEL
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="bi bi-file-earmark-excel text-success fs-6"></i>',
+                        title: 'Confirm Item Details - ' + $('#modalGRNCode').text(),
+                        messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
+                        exportOptions: {
+                            rows: function (idx, data, node) {
+                                return $(node).find('.modal-confirm-checkbox').prop('checked');
+                            },
+                            columns: ':not(:first-child)',
+                            format: {
+                                body: function (data, row, column, node) {
+                                    if (column === 1) {
+                                        const $node = $(node);
+                                        if ($node.closest('tr').find('.modal-confirm-checkbox').prop('checked')) {
+                                            const selectedRows = $('.modal-confirm-checkbox:checked');
+                                            const currentRow = $node.closest('tr');
+                                            const currentIndex = selectedRows.index(currentRow.find('.modal-confirm-checkbox'));
+                                            return currentIndex + 1;
+                                        }
+                                        return '';
+                                    }
+                                    return data;
+                                }
+                            }
+                        },
+                        customize: function (xlsx) {
+                            let sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                            // Insert "Sr. No" column at start and make it bold
+                            let serial = 1;
+                            $('row', sheet).each(function () {
+                                let rowIndex = parseInt($(this).attr('r'));
+
+                                if (rowIndex === 1) {
+                                    // Title row - center align and bold
+                                    $(this).find('c').attr('s', '51');
+                                } else if (rowIndex === 2) {
+                                    // Generated date row - center align and bold
+                                    $(this).find('c').attr('s', '51');
+                                } else if (rowIndex === 3) {
+                                    // Header row: Add Sr. No column
+                                    $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>`);
+                                    // Make all header cells bold and centered
+                                    $(this).find('c').attr('s', '2');
+                                } else if (rowIndex > 3) {
+                                    // Data rows: Add serial numbers
+                                    $(this).find('c:first').before(`<c t="inlineStr"><is><t>${serial}</t></is></c>`);
+                                    serial++;
+                                }
+                            });
+
+                            // Center align title and date rows
+                            $('row[r="1"] c', sheet).attr('s', '51');
+                            $('row[r="2"] c', sheet).attr('s', '51');
+                        },
+                        action: function (e, dt, button, config) {
+                            const selected = $('.modal-confirm-checkbox:checked').length;
+                            if (selected === 0) {
+                                toastr.warning('Please select at least one item to export.');
+                                return;
+                            }
+                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                        }
+                    },
+                    // CSV - Modal Table
+                    {
+                        extend: 'csvHtml5',
+                        text: '<i class="bi bi-filetype-csv text-success fs-6"></i>',
+                        title: 'Confirm Item Details - ' + $('#modalGRNCode').text() + ' - ' + moment().format("DD/MM/YYYY"),
+                        exportOptions: {
+                            rows: function (idx, data, node) {
+                                return $(node).find('.modal-confirm-checkbox').prop('checked');
+                            },
+                            columns: ':not(:first-child)',
+                            format: {
+                                body: function (data, row, column, node) {
+                                    if (column === 1) {
+                                        const $node = $(node);
+                                        if ($node.closest('tr').find('.modal-confirm-checkbox').prop('checked')) {
+                                            const selectedRows = $('.modal-confirm-checkbox:checked');
+                                            const currentRow = $node.closest('tr');
+                                            const currentIndex = selectedRows.index(currentRow.find('.modal-confirm-checkbox'));
+                                            return currentIndex + 1;
+                                        }
+                                        return '';
+                                    }
+                                    return data;
+                                }
+                            }
+                        },
+                        action: function (e, dt, button, config) {
+                            const selected = $('.modal-confirm-checkbox:checked').length;
+                            if (selected === 0) {
+                                toastr.warning('Please select at least one item to export.');
+                                return;
+                            }
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                        }
+                    }
+                ],
+                initComplete: function () {
+                    // Buttons aur search box ko align karne ke liye
+                    $('.dataTables_filter').addClass('ms-3');
+                }
+            });
 
                         modalTable.buttons().container().appendTo('#modalTableButtons');
 
@@ -959,8 +956,8 @@
             const end = $('#tblConfirm').data('end');
             if (start && end) {
                 console.log('Active date filter:', {
-                    start: start.format('DD-MM-YYYY'),
-                    end: end.format('DD-MM-YYYY')
+                    start: start.format('DD/M/YYYY'),
+                    end: end.format('DD/MM/YYYY')
                 });
             }
         });

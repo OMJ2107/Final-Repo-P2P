@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using static P2PLibray.Purchase.Purchase;
@@ -441,10 +442,12 @@ namespace P2PLibray.Purchase
                                 ? Convert.ToInt32(row["HasUnregisteredVendors"])
                                 : 0,
 
- AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
+                            AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
                                 ? Convert.ToInt32(row["HasRegisteredQuotation"])
+                                : 0,
+                            HasApproved = row.Table.Columns.Contains("HasApproved") && row["HasApproved"] != DBNull.Value
+                                ? Convert.ToInt32(row["HasApproved"])
                                 : 0
-
 
                         });
 
@@ -1018,7 +1021,8 @@ namespace P2PLibray.Purchase
                     VendorCompanyName = row.Table.Columns.Contains("VendorCompanyName") ? row["VendorCompanyName"]?.ToString() : null,
                     VendorContact = row.Table.Columns.Contains("VendorContact") ? row["VendorContact"]?.ToString() : null,
                     VendorAddress = row.Table.Columns.Contains("VendorAddress") ? row["VendorAddress"]?.ToString() : null,
-                    InvoiceToCompanyName = row.Table.Columns.Contains("InvoiceToCompanyName") ? row["InvoiceToCompanyName"]?.ToString() : null
+                    InvoiceToCompanyName = row.Table.Columns.Contains("InvoiceToCompanyName") ? row["InvoiceToCompanyName"]?.ToString() : null,
+
                 };
 
                 return h;
@@ -1059,7 +1063,9 @@ namespace P2PLibray.Purchase
                         Quantity = row.Table.Columns.Contains("Quantity") && row["Quantity"] != DBNull.Value ? Convert.ToDecimal(row["Quantity"]) : 0m,
                         CostPerUnit = row.Table.Columns.Contains("CostPerUnit") && row["CostPerUnit"] != DBNull.Value ? Convert.ToDecimal(row["CostPerUnit"]) : 0m,
                         Discount = row.Table.Columns.Contains("Discount") && row["Discount"] != DBNull.Value ? Convert.ToDecimal(row["Discount"]) : 0m,
-                        GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m
+                        GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m,
+                        ShippingCharges = row.Table.Columns.Contains("ShippingCharges") && row["ShippingCharges"] != DBNull.Value ? Convert.ToDecimal(row["ShippingCharges"]) : 0m
+
                     });
                 }
             }
@@ -1091,6 +1097,9 @@ namespace P2PLibray.Purchase
                 return false;
             }
         }
+
+
+
 
         /// <summary>
         /// Rejects the purchase order by its PO code.
@@ -1129,7 +1138,7 @@ namespace P2PLibray.Purchase
         {
             var dic = new Dictionary<string, string>
             {
-                { "@Flag", "SendForApprovalNAM" },
+                { "@Flag", "SendforApprovalPONAM" },
                 { "@POCode", poCode }
             };
 
@@ -1444,10 +1453,10 @@ namespace P2PLibray.Purchase
             Dictionary<string, string> prParam = new Dictionary<string, string>();
             prParam.Add("@Flag", "NewPRSP");
             prParam.Add("@PRCode", purchase.PRCode);
-            prParam.Add("@RequiredDate", purchase.RequiredDate.ToString("yyyy-MM-dd HH:mm:ss"));
+            prParam.Add("@RequiredDate", purchase.RequiredDate.ToString("yyyy-MM-dd"));
             prParam.Add("@StatusId", purchase.Status.ToString());
             prParam.Add("@AddedBy", purchase.AddedBy);
-            prParam.Add("@AddedDate", DateTime.Now.ToString());
+            prParam.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             prParam.Add("@PriorityId", purchase.PriorityId.ToString());
 
             await obj.ExecuteStoredProcedure("PurchaseProcedure", prParam);
@@ -1840,19 +1849,22 @@ namespace P2PLibray.Purchase
         }
 
         /// <summary>
-        /// Approves a pending vendor by their ID.
+        /// Approves a pending vendor by their ID..
         /// </summary>
         /// <param name="VendorId">The ID of the vendor to approve</param>
         /// <returns>Boolean indicating success or failure of the approval operation</returns>
 
-        public async Task<bool> ApproveVendorOK(int VendorId)
+        public async Task<bool> ApproveVendorOK(int VendorId,string staffcode)
         {
             try
             {
                 Dictionary<string, string> para = new Dictionary<string, string>();
                 para.Add("@Flag", "ApproveVendorOK");
                 para.Add("@VendorId", VendorId.ToString());
+                para.Add("@StaffCode", staffcode);
+                para.Add("@ApprovedRejectedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 await obj.ExecuteStoredProcedure("PurchaseProcedure", para);
+                
                 return true;
             }
             catch (Exception ex)
@@ -2006,14 +2018,135 @@ namespace P2PLibray.Purchase
         /// <summary>
         /// Fetch item details for selected JIT items
         /// </summary>
-        public async Task<DataSet> FetchSelectedJITItemDetailstOK(List<string> itemCodes)
+        public async Task<DataSet> FetchSelectedJITItemDetailstOK(string itemCode, int stockRequirementId)
         {
             Dictionary<string, string> para = new Dictionary<string, string>();
-            string csvItemCodes = string.Join(",", itemCodes);
             para.Add("@Flag", "FetchJITDetaistoPOOK");
-            para.Add("@ItemCodes", csvItemCodes);
+            para.Add("@ItemCode", itemCode);
+            para.Add("@StockRequirementId", stockRequirementId.ToString());
+
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
             return ds;
+        }
+
+
+
+
+        /// <summary>
+        /// Save Just In Time Items to create PO
+        /// <summary>
+
+        public async Task<bool> SaveJITPOOK(Purchase model)
+        {
+            try
+            {
+                DateTime date = DateTime.Now;
+                if (model == null || model.POItems == null || !model.POItems.Any())
+                    throw new ArgumentException("PO items are required");
+
+                string itemsCsv = string.Join(",", model.POItems);
+
+                string itemscodeCsv = string.Join(",", model.Itemslst);
+
+                // Join terms as CSV string
+                string termsCsv = model.TermConditionIds;
+
+                // Prepare parameters
+                Dictionary<string, object> para = new Dictionary<string, object>();
+                para.Add("@Flag", "SaveJITPOOK");
+                para.Add("@RegisterQuotationCode", model.RegisterQuotationCode);
+                para.Add("@BillingAddress", model.BillingAddress);
+                para.Add("@TermsConditionIds", termsCsv);
+                para.Add("@UserCode", model.UserCode);
+                para.Add("@AddedDate", date);
+                para.Add("@StaffCode", model.StaffCode);
+                para.Add("@TotalAmount", model.TotalAmount);
+
+                SqlDataReader rd = await obj.ExecuteStoredProcedureReturnDataReaderObject("PurchaseProcedure", para);
+
+                string poCode = null;
+                if (rd != null && await rd.ReadAsync())
+                {
+                    poCode = rd["POCode"].ToString();
+                }
+                else
+                {
+                    throw new Exception("No POCode returned from stored procedure.");
+                }
+                rd.Close();
+
+                // Save items
+                await SavePOJITItemsOK(model, poCode);
+
+                // ✅ Update ItemRequirement Status separately
+                await UpdateItemRequirementStatus(model);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> SavePOJITItemsOK(Purchase model, string POcode)
+        {
+            foreach (var item in model.POItems)
+            {
+                // Parse JSON string
+                    var arr = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(item);
+
+                    foreach (var objs in arr)
+                    {
+                        string rqItemCode = objs["RQItemCode"].ToString();
+
+                        Dictionary<string, string> para = new Dictionary<string, string>();
+                        para.Add("@Flag", "SaveJITPOItemsOK");
+                        para.Add("@POCode", POcode);
+                        para.Add("@RQItemCode", rqItemCode);
+                       // para.Add("@ItemCode", itemcode);
+
+                        await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
+                    }
+
+            }
+            return true;
+        }
+
+
+        // ✅ Separate function to update ItemRequirement Status
+        public async Task<bool> UpdateItemRequirementStatus(Purchase model)
+        {
+            foreach (var item in model.Itemslst)
+            {
+                var arr = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(item);
+                foreach (var objs in arr)
+                {
+                    string itemCode = objs["ItemCode"]?.ToString();
+                    if (string.IsNullOrEmpty(itemCode))
+                        continue;
+
+                    Dictionary<string, string> para = new Dictionary<string, string>
+            {
+                { "@Flag", "UpdateItemRequirementStatusOK" }, // New flag
+                { "@ItemCode", itemCode },
+                {@"StockrequirementId",model.StockReqirementId.ToString()}
+            };
+
+                    await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
+                }
+            }
+            return true;
+        }
+
+
+        public async Task<SqlDataReader> FetchMaxPoCodeToAttachmentok()
+        {
+            Dictionary<string, string> para = new Dictionary<string, string>();
+            para.Add("@Flag", "FetchMaxPOCodeOK");
+            SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("PurchaseProcedure", para);
+            return dr;
         }
 
         #endregion
@@ -2492,15 +2625,111 @@ namespace P2PLibray.Purchase
         /////DashBord/////
 
         /// <summary>
-        /// This Function Show Approved PR List
+        /// This Function Show Pending PR List
         /// </summary>
-        /// <returns>Approved PR List</returns>
-        public async Task<List<Purchase>> ShowRequestedRFQPRK()
+        /// <returns>List of Pending PR </returns>
+        public async Task<List<Purchase>> ShowPendingPRDashPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "RequestedRFQCDashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                { 
+                    { "@Flag", "ShowAllPendingPRDashPRK" },
+                    { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+                     { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
+                DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+
+                        Purchase p = new Purchase();
+
+
+                        p.PRCode = row["PRCode"].ToString();
+                        p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
+                        p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
+                        p.FullName = row["FullName"].ToString();
+                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        //p.StatusName = row["StatusName"].ToString();
+                        p.Priority = row["Priority"].ToString();
+                        lst.Add(p);
+
+                    }
+                }
+
+                return lst;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error in ShowPendingPRPRK", ex);
+            }
+        }
+
+        /// <summary>
+        /// This Function Show Approved PR List
+        /// </summary>
+        /// <returns>Approved PR List</returns>
+        public async Task<List<Purchase>> ShowApprovedPRDashPRK(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<Purchase> lst = new List<Purchase>();
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "ViewApprovePRDashPRK" },
+                    { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
+                DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        Purchase p = new Purchase();
+
+
+                        p.PRCode = row["PRCode"].ToString();
+                        p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
+                        p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
+                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        //p.StatusName = row["StatusName"].ToString();
+                        p.ApprovedRejectedDate = Convert.ToDateTime(row["ApproveRejectedDate"].ToString());
+                        p.ApprovedRejectedDateString = p.ApprovedRejectedDate.ToString("dd-MM-yyyy");
+                        p.Priority = row["Priority"].ToString();
+                        lst.Add(p);
+                    }
+                }
+
+                return lst;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error in ShowApprovedPRPRK", ex);
+            }
+        }
+
+
+
+        /// <summary>
+        /// This Function Show Approved PR List
+        /// </summary>
+        /// <returns>Approved PR List</returns>
+        public async Task<List<Purchase>> ShowRequestedRFQPRK(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<Purchase> lst = new List<Purchase>();
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "RequestedRFQCDashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2537,12 +2766,17 @@ namespace P2PLibray.Purchase
         /// This Function Show RFQ PR List
         /// </summary>
         /// <returns>Approved RFQ  List</returns>
-        public async Task<List<Purchase>> ShowPendingRFQPRK()
+        public async Task<List<Purchase>> ShowPendingRFQPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "PendingRFQDashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "PendingRFQDashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2577,12 +2811,17 @@ namespace P2PLibray.Purchase
         /// This Function Show RQ PR List
         /// </summary>
         /// <returns>Approved RQ  List</returns>
-        public async Task<List<Purchase>> ShowApproveRQPRK()
+        public async Task<List<Purchase>> ShowApproveRQPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "ApprovedRQDashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                { 
+                    { "@Flag", "ApprovedRQDashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2618,12 +2857,17 @@ namespace P2PLibray.Purchase
         /// This Function Show RFQ PR List
         /// </summary>
         /// <returns>Pending RFQ  List</returns>
-        public async Task<List<Purchase>> ShowPendingRQPRK()
+        public async Task<List<Purchase>> ShowPendingRQPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "PendingRQDashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "PendingRQDashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2661,12 +2905,17 @@ namespace P2PLibray.Purchase
         /// This Function Show PO  List
         /// </summary>
         /// <returns>Approved PO  List</returns>
-        public async Task<List<Purchase>> ShowApprovePOPRK()
+        public async Task<List<Purchase>> ShowApprovePOPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "ApprovePODashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                { 
+                    { "@Flag", "ApprovePODashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -2704,12 +2953,17 @@ namespace P2PLibray.Purchase
         /// This Function Show PO  List
         /// </summary>
         /// <returns>Pending PO  List</returns>
-        public async Task<List<Purchase>> ShowPendingPOPRK()
+        public async Task<List<Purchase>> ShowPendingPOPRK(DateTime startDate, DateTime endDate)
         {
             try
             {
                 List<Purchase> lst = new List<Purchase>();
-                Dictionary<string, string> paradic = new Dictionary<string, string> { { "@Flag", "PendingPODashPRK" } };
+                Dictionary<string, string> paradic = new Dictionary<string, string> 
+                {
+                    { "@Flag", "PendingPODashPRK" },
+                     { "@StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "@EndDate", endDate.ToString("yyyy-MM-dd") }
+                };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)

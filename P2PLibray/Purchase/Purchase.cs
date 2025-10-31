@@ -59,6 +59,12 @@ namespace P2PLibray.Purchase
         }
 
     #endregion
+    public class JITItem
+    {
+        public string ItemCode { get; set; }
+        public int StockRequirementId { get; set; }
+    }
+
 
     #region Akash
     public class PurchaseAMG
@@ -284,6 +290,9 @@ namespace P2PLibray.Purchase
         public decimal CostPerUnit { get; set; }
         public decimal Discount { get; set; }     // percent
         public decimal GSTPct { get; set; }       // percent
+        public decimal ShippingCharges { get; set; }       // percent
+
+        
     }
 
 
@@ -383,7 +392,7 @@ namespace P2PLibray.Purchase
         public int HasUnregisteredVendors { get; set; }
 
         public int AnyVendor { get; set; }
-
+        public int HasApproved { get; set; }
 
 
 
@@ -413,6 +422,7 @@ namespace P2PLibray.Purchase
         #region Omkar
         public int SRNO { get; set; }
         //Vendor tbl start
+        public int StockReqirementId { get; set; }
         public int VendorId { get; set; }
         public string VendorCode { get; set; }
        // public string VendorName { get; set; }
@@ -511,8 +521,13 @@ namespace P2PLibray.Purchase
         public long WarehousePhone { get; set; }
         public string WarehouseEmail { get; set; }
         public List<string> POItems { get; set; } = new List<string>();
+
+        public List<string> Itemslst { get; set; } = new List<string>();
         public decimal GrandTotal { get; set; }
         public decimal SubAmount { get; set; }
+        public int RequestTypeId { get; set; }
+        public int JITQuantity { get; set; }
+
         #endregion
 
         #region Sandesh
