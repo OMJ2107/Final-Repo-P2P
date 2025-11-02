@@ -70,7 +70,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-dark">Issue Date</label>
-                        <input type="date" id="IssueDate" class="form-control form-control-lg bg-light text-dark shadow-sm" value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly />
+                        <input type="text" id="IssueDate" class="form-control form-control-lg bg-light text-dark shadow-sm" value="@Html.Raw(DateTime.Now.ToString("dd'/'MM'/'yyyy"))" readonly />
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-dark">Department<span class="text-danger">*</span></label>

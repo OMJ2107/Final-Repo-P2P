@@ -158,20 +158,20 @@
                 if ($this.attr('id') === 'txtSamplequalitycheck') {
                     if (val < 0) {
                         $this.addClass('is-invalid')
-                            .after('<span class="text-danger small error-text"> ⚠️ Sample Quality cannot be negative.</span>');
+                            .after('<span class="text-danger small error-text">  Sample Quality cannot be negative.</span>');
                     } else if (val > quantity) {
                         $this.addClass('is-invalid')
-                            .after(`<span class="text-danger small error-text"> ⚠️ Sample Quality Checked cannot be greater than Quantity (${quantity}).</span>`);
+                            .after(`<span class="text-danger small error-text">  Sample Quality Checked cannot be greater than Quantity (${quantity}).</span>`);
                     }
                 }
 
                 if ($this.attr('id') === 'txtinspfreq') {
                     if (val < 0) {
                         $this.addClass('is-invalid')
-                            .after('<span class="text-danger small error-text"> ⚠️ Inspection Frequency cannot be negative.</span>');
+                            .after('<span class="text-danger small error-text">  Inspection Frequency cannot be negative.</span>');
                     } else if (val > quantity) {
                         $this.addClass('is-invalid')
-                            .after(`<span class="text-danger small error-text"> ⚠️ Inspection Frequency cannot be greater than Quantity (${quantity}).</span>`);
+                            .after(`<span class="text-danger small error-text">  Inspection Frequency cannot be greater than Quantity (${quantity}).</span>`);
                     }
                 }
             });
@@ -231,13 +231,13 @@
             if (!sqc) {
                 $('#txtSamplequalitycheck')
                     .addClass('is-invalid')
-                    .after('<span class="text-danger small error-text"> ⚠️ Please enter Sample Quality Checked.</span>');
+                    .after('<span class="text-danger small error-text">  Please enter Sample Quality Checked.</span>');
                 hasError = true;
             }
             if (!Inf) {
                 $('#txtinspfreq')
                     .addClass('is-invalid')
-                    .after('<span class="text-danger small error-text"> ⚠️ Please enter Inspection Frequency.</span>');
+                    .after('<span class="text-danger small error-text">  Please enter Inspection Frequency.</span>');
                 hasError = true;
             }
 
@@ -248,14 +248,14 @@
             if (sqc && (isNaN(numericValueSqc) || numericValueSqc < 0)) {
                 $('#txtSamplequalitycheck')
                     .addClass('is-invalid')
-                    .after('<span class="text-danger small error-text"> ⚠️ Please enter a valid positive number for Sample Quality Checked.</span>');
+                    .after('<span class="text-danger small error-text">  Please enter a valid positive number for Sample Quality Checked.</span>');
                 hasError = true;
             }
 
             if (Inf && (isNaN(numericValueInf) || numericValueInf < 0)) {
                 $('#txtinspfreq')
                     .addClass('is-invalid')
-                    .after('<span class="text-danger small error-text"> ⚠️ Please enter a valid positive number for Inspection Frequency.</span>');
+                    .after('<span class="text-danger small error-text">  Please enter a valid positive number for Inspection Frequency.</span>');
                 hasError = true;
             }
 
@@ -263,14 +263,14 @@
             if (parseFloat(sqc) > quantity) {
                 $('#txtSamplequalitycheck')
                     .addClass('is-invalid')
-                    .after(`<span class="text-danger small error-text"> ⚠️ Sample Quality Checked cannot be greater than Quantity (${quantity}).</span>`);
+                    .after(`<span class="text-danger small error-text">  Sample Quality Checked cannot be greater than Quantity (${quantity}).</span>`);
                 hasError = true;
             }
 
             if (parseFloat(Inf) > quantity) {
                 $('#txtinspfreq')
                     .addClass('is-invalid')
-                    .after(`<span class="text-danger small error-text"> ⚠️ Inspection Frequency cannot be greater than Quantity (${quantity}).</span>`);
+                    .after(`<span class="text-danger small error-text">  Inspection Frequency cannot be greater than Quantity (${quantity}).</span>`);
                 hasError = true;
             }
              /*---------- 4️⃣ Stop if Validation Fails ----------*/
@@ -329,7 +329,7 @@
             const itemcode = $('#itemcode').val();
             const grnnumber = $('#GRN').val();
             if (!sqc || !Inf) {
-                Swal.fire("⚠️ Missing Data", "Please enter Inspection Frequency and Sample Quality Checked before initiating NC.", "warning");
+                Swal.fire(" Missing Data", "Please enter Inspection Frequency and Sample Quality Checked before initiating NC.", "warning");
                 return;
             }
 
