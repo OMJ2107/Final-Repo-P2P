@@ -1,7 +1,4 @@
-﻿
-
-<style>
-
+﻿<style>
     #reqTable th,
     #reqTable td {
         text-align: center;
@@ -14,23 +11,42 @@
         vertical-align: middle;
     }
 
- 
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+
+    /* Tooltip styling for better appearance */
+    .tooltip-inner {
+        max-width: 400px;
+        text-align: left;
+        white-space: pre-wrap;
+    }
+
+    /* Description cell styling */
+    .description-cell {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: help;
+    }
 </style>
 
 <div class="container-fluid py-4 main-content">
-
     <div class="card mt-3">
         <div class="card-body">
-
             <div class="text-center mb-3">
-                <h3 class="text-primary fw-bold">  Requirement Master</h3>
+                <h3 class="text-primary fw-bold">Requirement Master</h3>
             </div>
 
-
-        
-
             <div class="table-responsive">
-
                 <!-- 🔹 Header Row inside Card -->
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                     <div class="input-group" style="height: 40px; max-width: 280px;">
@@ -60,7 +76,7 @@
                             <th>Required Date</th>
                             <th>Request Type</th>
                             <th>Added Date</th>
-                           <th>Added By</th>
+                            <th>Added By</th>
                         </tr>
                     </thead>
                     <tbody id="tblRecent"></tbody>
@@ -70,8 +86,6 @@
     </div>
 
     <!-- 🔹 Modal for Viewing -->
-
-
     <div class="modal fade" id="viewPlanModal" data-bs-backdrop="true" tabindex="-1" aria-labelledby="viewPlanModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -82,11 +96,7 @@
                     <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="viewPlanContent">
-
-                    <!--
-                      Modal content area - dynamically loaded with partial views
-                      Shows detailed information when KPI cards or chart segments are clicked
-                    -->
+                    <!-- Modal content area - dynamically loaded with partial views -->
                 </div>
             </div>
         </div>
@@ -97,13 +107,11 @@
     let tableStartDate = null; // Start date for table filtering
     let tableEndDate = null;   // End date for table filtering
     let dataTable; // Declare dataTable variable globally
+    let originalData = []; // Store original data for exports
 
     $(document).ready(function () {
-
-
-            // Load data and initialize table
+        // Load data and initialize table
         loadTableData();
-
 
         // ✅ Configure toastr once
         toastr.options = {
@@ -128,11 +136,13 @@
             success: function (response) {
                 console.log(response);
 
+                // Store original data for exports
+                originalData = response?.data || [];
+
                 // Destroy existing DataTable if already initialized
                 if ($.fn.DataTable.isDataTable("#reqTable")) {
                     $('#reqTable').DataTable().clear().destroy();
                 }
-
 
                 // Populate table rows
                 $('#tblRecent').empty();
@@ -140,7 +150,9 @@
                 if (response?.data?.length > 0) {
                     let i = 1;
                     response.data.forEach(item => {
-                        
+                        // Truncate description for display
+                        const shortDescription = truncateDescription(item.Description || 'N/A', 40);
+
                         $('#tblRecent').append(`
 <tr>
     <td><input type="checkbox" class="row-select" value="${item.ItemCode}"></td>
@@ -148,8 +160,12 @@
     <td>${item.ItemCode || 'N/A'}</td>
     <td>${item.ItemName || 'N/A'}</td>
     <td>
-        <span data-bs-toggle="tooltip" title="${item.Description || ''}">
-            ${item.Description || 'N/A'}
+        <span class="description-cell"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-html="true"
+              title="${escapeHtml(item.Description || 'No description available')}">
+            ${shortDescription}
         </span>
     </td>
     <td>${item.RequiredQuantity || '0'}</td>
@@ -159,15 +175,12 @@
     <td>${item.AddedBy || 'N/A'}</td>
 </tr>
 `);
-
-
-                        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                            return new bootstrap.Tooltip(tooltipTriggerEl)
-                        })
                     });
+
+                    // Initialize tooltips
+                    initializeTooltips();
                 } else {
-                    $('#tblRecent').html(`<tr><td colspan="6" class="text-center text-muted">No stock plans found</td></tr>`);
+                    $('#tblRecent').html(`<tr><td colspan="10" class="text-center text-muted">No requirements found</td></tr>`);
                 }
 
                 // Initialize DataTable
@@ -178,18 +191,42 @@
             },
             error: function (xhr, status, error) {
                 console.error("Error loading table data:", error);
-                $('#tblRecent').html(`<tr><td colspan="6" class="text-center text-danger">Error loading data</td></tr>`);
+                $('#tblRecent').html(`<tr><td colspan="10" class="text-center text-danger">Error loading data</td></tr>`);
             }
         });
     }
 
+    // Helper function to truncate description for display
+    function truncateDescription(text, maxLength) {
+        if (!text || text === 'N/A') return 'N/A';
 
+        if (text.length <= maxLength) return text;
+
+        return text.substring(0, maxLength) + '...';
+    }
+
+    // Helper function to escape HTML for tooltip
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Initialize Bootstrap tooltips
+    function initializeTooltips() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                trigger: 'hover'
+            });
+        });
+    }
 
     function initDataTable() {
         dataTable = $('#reqTable').DataTable({
             pageLength: 10,
             paging: true,
-            ordering:false,
+            ordering: false,
             searching: true,
             dom: '<"d-flex justify-content-between align-items-center mt-1 mb-2"Bf>rt<"d-flex justify-content-between mt-2"<"datatable-info"i><"datatable-pagination"p>>',
             buttons: [
@@ -217,14 +254,21 @@
                         columns: ':visible:not(:first-child)',
                         format: {
                             body: function (data, row, column, node) {
-                                if (column === 1)
+                                // For description column (index 4), return full description
+                                if (column === 4) {
+                                    const itemCode = $(node).closest('tr').find('td:eq(2)').text();
+                                    const originalItem = originalData.find(item => item.ItemCode === itemCode);
+                                    return originalItem ? (originalItem.Description || 'N/A') : data;
+                                }
+
+                                if (column === 1) {
                                     return $('#reqTable tbody input.row-select:checked')
                                         .index($(node).closest('tr').find('.row-select')) + 1;
+                                }
 
                                 return typeof data === 'string'
                                     ? data.replace(/<[^>]*>/g, '').trim()
                                     : data;
-
                             }
                         }
                     },
@@ -253,9 +297,6 @@
 `);
 
                         $body.find('h1').css('text-align', 'center');
-
-
-
                         $body.find('table')
                             .addClass('table table-bordered table-striped')
                             .css('width', '100%');
@@ -272,7 +313,6 @@
                     orientation: 'landscape',
                     pagesize: 'A4',
                     customize: function (doc) {
-
                         doc.content.splice(1, 0, {
                             text: 'Generated Date: ' + new Date().toLocaleDateString('en-GB'),
                             alignment: 'center',
@@ -283,7 +323,6 @@
                         var table = doc.content[doc.content.length - 1].table;
                         table.widths = new Array(table.body[0].length).fill('*'); // equal widths
                         doc.content[doc.content.length - 1].alignment = 'center'; // ✅ Center table
-
 
                         doc.styles.tableHeader = { fillColor: '#000000', color: 'white', alignment: 'center' };
 
@@ -317,9 +356,17 @@
                         columns: ':visible:not(:first-child)',
                         format: {
                             body: function (data, row, column, node) {
-                                if (column === 1)
+                                // For description column (index 4), return full description
+                                if (column === 4) {
+                                    const itemCode = $(node).closest('tr').find('td:eq(2)').text();
+                                    const originalItem = originalData.find(item => item.ItemCode === itemCode);
+                                    return originalItem ? (originalItem.Description || 'N/A') : data;
+                                }
+
+                                if (column === 1) {
                                     return $('#reqTable tbody input.row-select:checked')
                                         .index($(node).closest('tr').find('.row-select')) + 1;
+                                }
                                 return typeof data === 'string'
                                     ? data.replace(/<[^>]*>/g, '').trim()
                                     : data;
@@ -333,6 +380,7 @@
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     className: 'btn btn-sm btn-outline-success',
                     title: "Requirement Master",
+                    messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY'),
                     action: function (e, dt, button, config) {
                         if ($('#reqTable tbody input.row-select:checked').length === 0) {
                             showExportToast();
@@ -347,14 +395,41 @@
                         columns: ':visible:not(:first-child)',
                         format: {
                             body: function (data, row, column, node) {
-                                if (column === 1)
+                                // For description column (index 4), return full description
+                                if (column === 4) {
+                                    const itemCode = $(node).closest('tr').find('td:eq(2)').text();
+                                    const originalItem = originalData.find(item => item.ItemCode === itemCode);
+                                    return originalItem ? (originalItem.Description || 'N/A') : data;
+                                }
+
+                                if (column === 1) {
                                     return $('#reqTable tbody input.row-select:checked')
                                         .index($(node).closest('tr').find('.row-select')) + 1;
+                                }
                                 return typeof data === 'string'
                                     ? data.replace(/<[^>]*>/g, '').trim()
                                     : data;
                             }
                         }
+                    },
+                    customize: function (xlsx) {
+                        const sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // 🔹 Center align the Title (Row 1)
+                        $('row:first c', sheet).attr('s', '51');
+
+                        // 🔹 Center align the "Generated Date" (Row 2)
+                        $('row:eq(1) c', sheet).attr('s', '51');
+
+                        // 🔹 Optional: Make Title Bold (stronger visual)
+                        const styles = xlsx.xl['styles.xml'];
+                        const cellXfs = $('cellXfs xf', styles);
+                        const fontBold = '<font><b val="1"/></font>';
+                        const xf = cellXfs.first().clone(); // Clone first style
+                        xf.attr('applyFont', '1');
+                        $('alignment', xf).attr('horizontal', 'center');
+                        $('font', xf).replaceWith(fontBold);
+                        cellXfs.append(xf);
                     }
                 },
                 // 🔹 CSV
@@ -377,9 +452,17 @@
                         columns: ':visible:not(:first-child)',
                         format: {
                             body: function (data, row, column, node) {
-                                if (column === 1)
+                                // For description column (index 4), return full description
+                                if (column === 4) {
+                                    const itemCode = $(node).closest('tr').find('td:eq(2)').text();
+                                    const originalItem = originalData.find(item => item.ItemCode === itemCode);
+                                    return originalItem ? (originalItem.Description || 'N/A') : data;
+                                }
+
+                                if (column === 1) {
                                     return $('#reqTable tbody input.row-select:checked')
                                         .index($(node).closest('tr').find('.row-select')) + 1;
+                                }
                                 return typeof data === 'string'
                                     ? data.replace(/<[^>]*>/g, '').trim()
                                     : data;
@@ -401,24 +484,14 @@
             let checked = $('#reqTable tbody .row-select:checked').length;
             $('#selectAll').prop('checked', total === checked);
         });
-
     }
-
-
-
-
-
-
-
-
-
 
     function initDateRangePicker() {
         $('#reportrange').daterangepicker({
             autoUpdateInput: false,
             locale: {
                 cancelLabel: 'Clear',
-                format: 'YYYY-MM-DD'
+                format: 'DD/MM/YYYY'
             },
             ranges: {
                 'Today': [moment(), moment()],
@@ -432,7 +505,7 @@
         $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
             tableStartDate = picker.startDate;
             tableEndDate = picker.endDate;
-            $(this).val(tableStartDate.format('YYYY-MM-DD') + ' - ' + tableEndDate.format('YYYY-MM-DD'));
+            $(this).val(tableStartDate.format('DD/MM/YYYY') + ' - ' + tableEndDate.format('DD/MM/YYYY'));
             filterTableByDate();
         });
 
@@ -440,45 +513,44 @@
             tableStartDate = null;
             tableEndDate = null;
             $(this).val('');
-
-            // Remove the custom filter and redraw
-            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.name || f.name !== 'addedDateFilter');
-            dataTable.draw();
+            filterTableByDate(); // This will clear the filter
         });
     }
 
-
-
-
-
     function filterTableByDate() {
         if (tableStartDate && tableEndDate) {
-
             // Remove any previous filters first
-            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.name || f.name !== 'addedDateFilter');
+            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.name || f.name !== 'dateRangeFilter');
 
-            // Add new custom filter for Added Date (column index 8)
-            const addedDateFilter = function (settings, data, dataIndex) {
-                const addedDate = moment(data[8], 'DD/MM/YYYY'); // column 8 = Added Date
+            // Add new custom filter for both Required Date (column 6) AND Added Date (column 8)
+            const dateRangeFilter = function (settings, data, dataIndex) {
+                const requiredDate = moment(data[6], 'DD/MM/YYYY'); // column 6 = Required Date
+                const addedDate = moment(data[8], 'DD/MM/YYYY');    // column 8 = Added Date
 
-                if (!addedDate.isValid()) return false;
+                // Check if either required date OR added date falls within the selected range
+                const isRequiredDateInRange = requiredDate.isValid() &&
+                    requiredDate.isSameOrAfter(tableStartDate, 'day') &&
+                    requiredDate.isSameOrBefore(tableEndDate, 'day');
 
-                // Include rows between selected start & end date
-                return addedDate.isSameOrAfter(tableStartDate, 'day') &&
+                const isAddedDateInRange = addedDate.isValid() &&
+                    addedDate.isSameOrAfter(tableStartDate, 'day') &&
                     addedDate.isSameOrBefore(tableEndDate, 'day');
+
+                // Return true if EITHER date falls within the range (OR logic)
+                return isRequiredDateInRange || isAddedDateInRange;
             };
 
             // Assign a name to easily remove later
-            addedDateFilter.name = 'addedDateFilter';
+            dateRangeFilter.name = 'dateRangeFilter';
 
-            $.fn.dataTable.ext.search.push(addedDateFilter);
+            $.fn.dataTable.ext.search.push(dateRangeFilter);
+        } else {
+            // Remove filter when no date range is selected
+            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.name || f.name !== 'dateRangeFilter');
         }
 
         dataTable.draw();
     }
-
-
-
 
     // ✅ Helper function for warning toast
     function showExportToast() {

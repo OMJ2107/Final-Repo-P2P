@@ -101,7 +101,7 @@
         $('#CreateGoods').DataTable({
             dom: '<"d-flex justify-content-end mb-2"f>rt<"d-flex justify-content-between align-items-center mt-2"ip>',
             paging: true,
-            searching: true,  // disable textbox
+            searching: false,  // disable textbox
             ordering: false,   // disable sorting
             info: true,
             responsive: true,
@@ -110,60 +110,75 @@
             ]
         });
 
-        //Form Submit with Validation
-        $("#createGRForm").on("submit", function (e) {
-            e.preventDefault();
+        $(document).ready(function () {
 
-            $(".error-msg").text("");
-            $("input").removeClass("is-invalid");
+    // -------- Validation Function --------
+    function validateReasonReturn() {
+        const input = $(".reason-return");
+        const reason = input.val().trim();
 
-            let valid = true;
-            let reasonReturn = $(".reason-return").val().trim();
+        if (!reason) {
+            input.next(".error-msg").text("Reason for Good Return is required");
+            input.addClass("is-invalid");
+            return false;
+        } else {
+            input.next(".error-msg").text("");
+            input.removeClass("is-invalid");
+            return true;
+        }
+    }
 
-            if (!reasonReturn) {
-                $(".reason-return").next(".error-msg").text("Reason for Good Return is required");
-                $(".reason-return").addClass("is-invalid");
-                valid = false;
-            }
+    // -------- Real-time Validation --------
+    $(".reason-return").on("input", validateReasonReturn);
 
-            if (!valid) return false;
+    // -------- Form Submit --------
+    $("#createGRForm").on("submit", function (e) {
+        e.preventDefault();
 
-            let form = $(this);
-            $.ajax({
-                url: form.attr("action"),
-                type: "POST",
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Your Good Return List Created..!',
-                            text: response.message,
-                            showConfirmButton: false,
-                            timer: 2000
-                        }).then(() => {
+        $(".error-msg").text("");
+        $("input").removeClass("is-invalid");
 
-                            // Close modal
-                            $("#staticBackdrop").modal("hide");
+        let valid = true;
+        if (!validateReasonReturn()) valid = false;
 
+        if (!valid) return false;
 
-                            form[0].reset();
+        let form = $(this);
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Your Good Return List Created..!',
+                        text: response.message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(() => {
+                        // Close modal
+                        $("#staticBackdrop").modal("hide");
 
-                            // Refresh table (Goods Return)
-                            $('#RejectGoods').DataTable().ajax.reload(null, false);
+                        // Reset form
+                        form[0].reset();
 
-                            window.location.href = '@Url.Action("RejectedGoods", "GRN")';
+                        // Refresh DataTable
+                        $('#RejectGoods').DataTable().ajax.reload(null, false);
 
-                           
-                        });
-                    } else {
-                        Swal.fire("Error", response.message, "error");
-                    }
-                },
-                error: function () {
-                    Swal.fire("Error", "Something went wrong!", "error");
+                        // Redirect to page
+                        window.location.href = '@Url.Action("RejectedGoods", "GRN")';
+                    });
+                } else {
+                    Swal.fire("Error", response.message, "error");
                 }
-            });
+            },
+            error: function () {
+                Swal.fire("Error", "Something went wrong!", "error");
+            }
         });
+    });
+});
+
     });
 </script>

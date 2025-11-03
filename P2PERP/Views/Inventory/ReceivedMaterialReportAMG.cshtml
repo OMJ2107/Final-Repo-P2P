@@ -45,6 +45,20 @@
 
     .dt-buttons {
     }
+
+    button.dt-button.processing,
+    div.dt-button.processing {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        background: none !important;
+    }
+
+        button.dt-button.processing:after {
+            content: none !important;
+        }
+
+
+
 </style>
 
 <div id="receivedSection" class="container-fluid">
@@ -364,6 +378,7 @@
                             return $(node).find('.row-check').prop('checked');
                         },
                         columns: ':visible:not(:first-child)',
+
                         format: {
                             body: function (data, row, column, node) {
                                 if (column === 1) {
@@ -378,6 +393,7 @@
                                 }
                                 return data;
                             }
+
                         }
                     }
                 },
@@ -393,6 +409,20 @@
                         }
                         $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
                     },
+                    customize: function (xlsx) {
+                        // Access the first sheet
+                        const sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // Find the cell containing the messageTop text (usually in row 2)
+                        $('row c[r^="A2"] t', sheet).each(function () {
+                            // Center align text in that cell
+                            $(this).closest('c').attr('s', '51'); // style 51 = center alignment (built-in style)
+                        });
+
+                        // Optional: make the text bold
+                        $('row c[r^="A2"]', sheet).attr('s', '51');
+                    }
+                    ,
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-check').prop('checked');
@@ -415,6 +445,7 @@
                         }
                     }
                 },
+
 
 
                 {
@@ -476,15 +507,32 @@
             ],
             initComplete: function () {
                 this.api().buttons().container().appendTo('#dtButtonsContainer');
+                //$('#selectAllReceived').off('change').on('change', function () {
+                //    $('#receivedTable tbody input.row-check').prop('checked', $(this).prop('checked'));
+                //});
+
+
+                //// bind select all checkbox
+                //$('#selectAllReceived').off('change').on('change', function () {
+                //    $('#receivedTable tbody input.row-check').prop('checked', $(this).prop('checked'));
+                //});
+
+
                 $('#selectAllReceived').off('change').on('change', function () {
-                    $('#receivedTable tbody input.row-check').prop('checked', $(this).prop('checked'));
+                    const isChecked = $(this).prop('checked');
+                    $('#receivedTable tbody input.row-check').prop('checked', isChecked);
+                });
+
+                $('#receivedTable tbody').off('change', 'input.row-check').on('change', 'input.row-check', function () {
+                    const total = $('#receivedTable tbody input.row-check').length;
+                    const checked = $('#receivedTable tbody input.row-check:checked').length;
+
+                    // If all rows selected → check header checkbox, else uncheck it
+                    $('#selectAllReceived').prop('checked', total === checked);
                 });
 
 
-                // bind select all checkbox
-                $('#selectAllReceived').off('change').on('change', function () {
-                    $('#receivedTable tbody input.row-check').prop('checked', $(this).prop('checked'));
-                });
+
             }
         });
     }
@@ -572,9 +620,10 @@
             });
 
             const chartData = [
-                { name: 'Assigned to Bin', y: assigned, color: '#28a745' },
-                { name: 'Not Assigned to Bin', y: notAssigned, color: '#dc3545' }
+                { name: 'Assigned to Bin', y: assigned, color: '#00bfa6' },   // aqua green
+                { name: 'Not Assigned to Bin', y: notAssigned, color: '#ff6b6b' } // coral red
             ];
+
 
             const binChart = Highcharts.chart('binStatusChart', {
                 chart: { type: 'pie', height: 260 },
