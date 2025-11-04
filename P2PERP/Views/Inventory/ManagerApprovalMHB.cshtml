@@ -1123,7 +1123,23 @@
                 $('#editFromDate').val(formatDateForInput(data.FromDate));
                 $('#editToDate').val(formatDateForInput(data.ToDate));
 
+                 $(document).ready(function () {
+        const today = new Date().toISOString().split("T")[0];
+        $('#editFromDate').attr("min", today);
+        $('#editToDate').attr("min", today);
 
+        // When From Date changes, set To Date min accordingly
+        $('#editFromDate').on('change', function () {
+            const fromDate = $(this).val();
+            $('#editToDate').attr("min", fromDate);
+
+            // Optional: Clear To Date if it's before the new From Date
+            const toDate = $('#editToDate').val();
+            if (toDate && toDate < fromDate) {
+                $('#editToDate').val('');
+            }
+        });
+    });
 
                
 
@@ -1203,11 +1219,46 @@
         const reqType = $('#editRequestType').val();
         const description = $('#editItemDescription').val() || '–';
 
-        if (!itemName || !itemCode || !qty || !uom || !reqType) {
-            alert("⚠️ Fill all fields before adding.");
+
+        if (!itemName || !itemCode ||  !uom || !reqType) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'please Select Item ',
+                text: '⚠️ Please fill in all required fields before adding.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
             return;
+
+        }
+        if ( !qty) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Please Fill Quantity',
+                text: '⚠️ Please fill required fields Quantity.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+            return;
+
         }
 
+        // ✅ Duplicate check (based on ItemCode or ItemName)
+        let duplicateFound = false;
+        $('#editItemTableBody tr').each(function () {
+            const existingItemName = $(this).find('td:eq(0)').text().trim();
+            const existingItemCode = $(this).find('td:eq(1)').text().trim();
+            if (existingItemName === itemName || existingItemCode === itemCode) {
+                duplicateFound = true;
+                return false; // stop loop
+            }
+        });
+
+        if (duplicateFound) {
+            Swal.fire('Duplicate', 'This item is already added.', 'warning');
+            return;
+        }
+      
         $('#editItemTableBody').append(`
             <tr>
                 <td>${itemName}</td>
@@ -1290,7 +1341,7 @@
                 $('#editRequestType').val('MRPItems');
             },
             error: function () {
-                alert("⚠️ Failed to fetch item details.");
+                Swal.fire("⚠️ Failed to fetch item details.");
             }
         });
     });
@@ -1321,6 +1372,9 @@
         // ✅ Prepare the payload
         let payload = {
             MRPCode: $('#editMRPCode').val(),
+            Fromdate: $('#editFromDate').val(),
+            ToDate: $('#editToDate').val(),
+
             ItemList: items
         };
 
