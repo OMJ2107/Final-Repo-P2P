@@ -1471,7 +1471,9 @@ namespace P2PLibray.Purchase
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error while approving quotation {quotationCode}.", ex);
+                throw new Exception();
+
+               // throw new Exception($"Error while approving quotation {quotationCode}.", ex);
             }
         }
 
