@@ -651,8 +651,13 @@ namespace P2PERP.Controllers
         {
             try
             {
+                var staffcode = Session["StaffCode"] as string;
 
-                await bal.ApprovePONAM(poCode);
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                await bal.ApprovePONAM(poCode, staffcode);
+
 
 
                 DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
@@ -752,11 +757,22 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<JsonResult> RejectPONAM(string poCode)
         {
-            // Call BLL to reject PO
-            var result = await bal.RejectPONAM(poCode);
-            // Return success result
-            return Json(new { success = result }, JsonRequestBehavior.AllowGet);
+            try
+            {
+                var staffcode = Session["StaffCode"] as string;
+
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                var result = await bal.RejectPONAM(poCode, staffcode);
+                return Json(new { success = result, message = result ? "Purchase Order rejected successfully." : "Failed to reject Purchase Order." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error rejecting PO: " + ex.Message });
+            }
         }
+        
 
         // Send PO for higher approval
         [HttpPost]
@@ -764,8 +780,12 @@ namespace P2PERP.Controllers
         {
             try
             {
+                var staffcode = Session["StaffCode"] as string;
 
-                await bal.SendForApprovalNAM(poCode);
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                var result = await bal.SendForApprovalNAM(poCode, staffcode);
 
 
                 DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
