@@ -2723,7 +2723,9 @@ namespace P2PLibray.Inventory
                         { "@flag", "insertMRPItemMHB" },
                         { "@MRPCode", model.MRPCode },
                         { "@ItemCode", item.ItemCode },
-                        { "@Quantity", item.QuantityMRP }
+                        { "@Quantity", item.QuantityMRP },
+                        {"@fromDate",model.FromDate },
+                         {"@toDate",model.ToDate},
                     };
 
                     await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", insertParams);
