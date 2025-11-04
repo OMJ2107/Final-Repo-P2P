@@ -208,7 +208,7 @@
                                                 <td class="text-center fw-semibold Quantity">@item.Quantity</td>
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center">
-                                                        <span class="fw-semibold @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
+                                                        <span class="fw-semibold QuantityStored @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
                                                         @if (!isComplete)
                                                         {
                                                             <div class="progress mt-1" style="height: 5px; width: 60px;">
@@ -455,6 +455,8 @@ $(document).ready(function () {
         const current = parseInt($row.find(".current-items").text()) || 0;
         const max = parseInt($row.find(".max-capacity").text()) || 0;
         const totalItemQty = parseInt($row.find(".Quantity").text()) || 0;
+        const QuantityStored = parseInt($row.find(".QuantityStored").text()) || 0;
+        const Total = totalItemQty - QuantityStored;
         let remaining = max - (current + assignQty);
 
         // --- Error message placeholder ---
@@ -473,8 +475,8 @@ $(document).ready(function () {
         }
 
         // --- 2️⃣ Exceeding item quantity check ---
-        if (assignQty > totalItemQty) {
-            $errorMsg.text("Assigned quantity cannot exceed total item quantity (" + totalItemQty + ").");
+        if (assignQty > totalItemQty - QuantityStored) {
+            $errorMsg.text("Assigned quantity cannot exceed total item quantity (" + Total + ").");
             toastr.error("Assigned quantity exceeds available quantity!");
             $input.addClass("is-invalid");
             $input.val(totalItemQty); // reset to max allowed

@@ -256,6 +256,7 @@ namespace P2PLibray.Purchase
         public decimal POCost { get; set; }
         public string CreatedBy { get; set; }
         public string StatusName { get; set; }
+        public string approvedby { get; set; }
     }
 
     public class POHeaderNAM
@@ -291,7 +292,7 @@ namespace P2PLibray.Purchase
         public decimal CostPerUnit { get; set; }
         public decimal Discount { get; set; }     // percent
         public decimal GSTPct { get; set; }       // percent
-        //public decimal ShippingCharges { get; set; }       // percent
+        public decimal ShippingCharges { get; set; }       // percent
 
         
     }
