@@ -441,10 +441,10 @@ namespace P2PLibray.GRN
         /// Retrieves goods return summary details.
         /// </summary>
         /// <returns>A DataTable containing goods return summary data.</returns>
-        public async Task<DataTable> GoodsReturnSummaryPSM()
+        public async Task<DataTable> GoodsReturnPieChartPSM()
         {
             Dictionary<string, string> param = new Dictionary<string, string>();
-            param.Add("@Flag", "GoodsReturnSummaryPSM");
+            param.Add("@Flag", "GoodsReturnPieChartPSM");
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("GRNProcedure", param);
             return ds.Tables[0];
         }
