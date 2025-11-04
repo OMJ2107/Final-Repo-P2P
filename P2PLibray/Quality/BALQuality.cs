@@ -315,10 +315,10 @@ namespace P2PLibray.Quality
 
 
 
-		#endregion Prashant
+        #endregion Prashant
 
 
-	
+
 
 
         #region Rajlaxmi
@@ -358,11 +358,11 @@ namespace P2PLibray.Quality
         /// </summary>
         /// <param name="id">GRN Code</param>
         /// <returns>List of <see cref="Quality"/> items linked to the GRN.</returns>
-        public async Task<List<Quality>> ItemByGRNCodeRG(string id)
+        public async Task<List<Quality>> ItemByGRNCodeRG()
         {
             Dictionary<string, string> dic = new Dictionary<string, string>();
             dic.Add("@Flag", "ItemsBYGRNCodeRG");
-            dic.Add("@GRNCode", id);
+
             var ds = await obj.ExecuteStoredProcedureReturnDS("QualityCheckProcedure", dic);
             List<Quality> lst = new List<Quality>();
             foreach (DataRow row in ds.Tables[0].Rows)
@@ -633,7 +633,7 @@ namespace P2PLibray.Quality
         /// <param name="STF">Sample Tested Failed</param>
         /// <param name="ROR">Reason of Rejection</param>
 
-        public async Task insertQFitemsRG(string FQC, string QC, string STF, string ROR)
+        public async Task insertQFitemsRG(string FQC, string QC, string STF, string ROR, string staffcode)
         {
 
             Dictionary<string, object> dc = new Dictionary<string, object>();
@@ -643,7 +643,7 @@ namespace P2PLibray.Quality
             dc.Add("@QualityheckCode", QC);
             dc.Add("@SampleTestedFailed", long.Parse(STF));
             dc.Add("@Reason", ROR);
-            dc.Add("@AddedBy", "STF014");
+            dc.Add("@AddedBy", staffcode);
             dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
@@ -691,7 +691,7 @@ namespace P2PLibray.Quality
         /// <summary>
         /// Updates the status of a GRN after inspection.
         /// </summary>
-        /// <param name="id">GRN Code</param>c
+        /// <param name="id">GRN Code</param>
         public async Task UpdateGRNStatusRG(string id)
         {
             Dictionary<string, object> dic = new Dictionary<string, object>();

@@ -16,7 +16,6 @@
         text-align: end;
         margin-left: 90%;
     }
-
 </style>
 <input type="hidden" value="@ViewBag.GRN" name="GRNCode" id="GRNCode" />
 
@@ -29,12 +28,20 @@
 </button>
 <!-- 🔹 Single Card Wrapper -->
 <div class="card shadow-lg rounded-3 border-0">
-   <div class="card-body">
+    <div class="card-body">
 
         <!-- GRN Info -->
         <div class="d-flex align-items-center mb-3 mt-4">
-            <label for="grnno" class="fw-semibold me-2 mb-0">GRN No:</label>
-            <input type="text" id="grnno" value="@ViewBag.GRN" name="GRNCode" class="form-control w-auto bg-light" readonly />
+            <!-- Date Picker -->
+            <div class="mt-2" id="dtp">
+                <div class="input-group" style="height: 40px; max-width: 280px;">
+                    <span class="input-group-text bg-primary text-white"><i class="bi bi-calendar-date"></i></span>
+                    <input type="text" id="grnlistdatepicker1" class="form-control"
+                           placeholder="Select date range" readonly />
+                </div>
+            </div>
+            @*<label for="grnno" class="fw-semibold me-2 mb-0">GRN No:</label>*@
+            <input type="hidden" id="grnno" value="@ViewBag.GRN" name="GRNCode" class="form-control w-auto bg-light" readonly />
         </div>
 
         <!-- Table -->
@@ -69,7 +76,7 @@
         color: black !important;
     }
 
-      button.dt-button.processing,
+    button.dt-button.processing,
     div.dt-button.processing {
         pointer-events: auto !important;
         opacity: 1 !important;
@@ -597,9 +604,9 @@
                                                         return m.format("DD/MM/YYYY"); // ✅ plain text
                                                     }
                                                     return data;
-                                                
+
                                                 }
-                                           return data;
+                                                return data;
                                             };
                                         })()
                                     }
@@ -625,7 +632,7 @@
                                     });
                                 },
                                 customize: function (csv) {
-                                    
+
 
                                     // Estimate spaces to center (adjust if needed)
                                     const spaces = '          '; // 10 spaces for rough centering
@@ -668,8 +675,67 @@
             </div>
         `
                 });
+                initDatePicker(table);
+
+
+            });
+
+        }
+        //  Date Range Picker
+        // ✅ Correct Date Range Picker Filter
+        function initDatePicker(table) {
+            $('#grnlistdatepicker1').daterangepicker({
+                autoUpdateInput: false,
+                alwaysShowCalendars: false,
+                opens: "center",
+                drops: "down",
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    cancelLabel: 'Clear',
+                    applyLabel: 'Apply'
+                },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 1 Month': [moment().subtract(1, 'month'), moment()],
+                    'Last 3 Months': [moment().subtract(3, 'month'), moment()],
+                    'Last 1 Year': [moment().subtract(1, 'year'), moment()]
+                }
+            });
+
+            // ✅ On Apply
+            $('#grnlistdatepicker1').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+
+                // Remove existing custom filter
+                $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.customDateFilter);
+
+                // Add new filter
+                $.fn.dataTable.ext.search.push(function (settings, data) {
+                    var dateStr = data[7]; // ✅ Assigned Date column index
+                    if (!dateStr) return false;
+
+                    var assignedDate = moment(dateStr, ['DD/MM/YYYY', 'DD-MM-YYYY', 'YYYY-MM-DD']);
+                    if (!assignedDate.isValid()) return false;
+
+                    return assignedDate.isBetween(picker.startDate, picker.endDate, 'day', '[]');
+                });
+
+                // Mark filter as custom
+                $.fn.dataTable.ext.search[$.fn.dataTable.ext.search.length - 1].customDateFilter = true;
+
+                table.draw();
+            });
+
+            // ✅ On Clear
+            $('#grnlistdatepicker1').on('cancel.daterangepicker', function () {
+                $(this).val('');
+                $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.customDateFilter);
+                table.draw();
             });
         }
-
     });
+
+
+
 </script> 

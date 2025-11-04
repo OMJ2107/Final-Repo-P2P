@@ -238,13 +238,13 @@ namespace P2PERP.Controllers
 
 
 
-		#endregion Prashant
+        #endregion Prashant
 
-		#region Rajlaxmi
+        #region Rajlaxmi
 
-		// GET: QualityP2P
-		//  Default Index action
-		public ActionResult IndexRG()
+        // GET: QualityP2P
+        //  Default Index action
+        public ActionResult IndexRG()
         {
             return View();
         }
@@ -283,9 +283,9 @@ namespace P2PERP.Controllers
 
 
         //  Fetches item details by GRN code and returns as JSON
-        public async Task<ActionResult> ItemByGRNRG(string id)
+        public async Task<ActionResult> ItemByGRNRG()
         {
-            var data = await bal.ItemByGRNCodeRG(id);
+            var data = await bal.ItemByGRNCodeRG();
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -330,7 +330,7 @@ namespace P2PERP.Controllers
 
             var staffcode = Session["StaffCode"].ToString();
             await bal.ConfirmBtnInsStatusRG(id, sqc, Inf, staffcode);
-           
+
             return Json(new { success = true });
         }
 
@@ -338,7 +338,7 @@ namespace P2PERP.Controllers
 
 
         //This is PartialView for nonconfirmform
-        public async Task<ActionResult> NonconfirmRG(string GRIcode, string sqc, string Inf, string itemcode,string grnnumber)
+        public async Task<ActionResult> NonconfirmRG(string GRIcode, string sqc, string Inf, string itemcode, string grnnumber)
         {
             if (!string.IsNullOrEmpty(itemcode))
             {
@@ -378,7 +378,7 @@ namespace P2PERP.Controllers
             var staffcode = Session["StaffCode"].ToString();
             String QCCODE = await bal.GetQcCodeRG(GRNICode);
             await bal.InitiatebtnstatusRG(GRNICode, INF, SQC, staffcode);
-            await bal.insertQFitemsRG(FQC, QCCODE, STF, ROR);
+            await bal.insertQFitemsRG(FQC, QCCODE, STF, ROR, staffcode);
 
             return Json("");
 

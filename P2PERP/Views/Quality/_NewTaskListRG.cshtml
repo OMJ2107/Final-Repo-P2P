@@ -8,14 +8,13 @@
 
 
     .btnback {
-
-        margin-top:-200px;
-        align-content:end;
-        align-items:end;
-        text-align:end;
-        align-self:end;
-        text-align:end;
-        margin-left:90%;
+        margin-top: -200px;
+        align-content: end;
+        align-items: end;
+        text-align: end;
+        align-self: end;
+        text-align: end;
+        margin-left: 90%;
     }
 </style>
 <!-- 🔹 Wrap Whole Partial in One Card Only -->
@@ -26,18 +25,22 @@
     <i class="bi bi-arrow-left"></i> Back
 </button>
 
-<div class="card shadow-lg rounded-4 border-0 bg-white">
-   
 
-
-
-
+<div class="card shadow-lg rounded-3 border-0">
     <div class="card-body">
 
         <!-- GRN Info -->
         <div class="d-flex align-items-center mb-3 mt-4">
-            <label for="grnno" class="fw-semibold me-2 mb-0">GRN No:</label>
-            <input type="text"  id="grnno" value="@ViewBag.GRN" name="GRNCode" class="form-control w-auto bg-light" readonly />
+            <!-- Date Picker -->
+            <div class="mt-2" id="dtp">
+                <div class="input-group" style="height: 40px; max-width: 280px;">
+                    <span class="input-group-text bg-primary text-white"><i class="bi bi-calendar-date"></i></span>
+                    <input type="text" id="grnlistdatepicker" class="form-control"
+                           placeholder="Select date range" readonly />
+                </div>
+            </div>
+            @*<label for="grnno" class="fw-semibold me-2 mb-0">GRN No:</label>*@
+            <input type="hidden" id="grnno" value="@ViewBag.GRN" name="GRNCode" class="form-control w-auto bg-light" readonly />
         </div>
 
         <!-- Task Grid -->
@@ -48,7 +51,7 @@
                     <tr>
                         <th><input type="checkbox" id="selectAllNewTask" /></th>
                         <th>Sr.No</th>
-                        <th>GRNItemCode</th>
+                        <th>GRNCode</th>
                         <th>Item Code</th>
                         <th>Item Name</th>
                         <th>Item Type</th>
@@ -61,9 +64,9 @@
                 <tbody></tbody>
             </table>
         </div>
-
     </div>
 </div>
+
 
 <!-- Modal for Inspection Form -->
 <div class="modal fade" id="inspecModal" tabindex="-1" aria-hidden="true">
@@ -130,17 +133,17 @@
         //  Toast HTML with white text for all
         const toastHTML = `
 <div id="${toastId}" class="toast align-items-center bg-${type} border-0 mb-2 shadow-lg"
-                 role="alert" aria-live="assertive" aria-atomic="true"
-                 data-bs-delay="3000" data-bs-animation="true">
-                <div class="d-flex">
-                    <div class="toast-body d-flex align-items-center text-white">
-                        ${icon} ${message}
+                     role="alert" aria-live="assertive" aria-atomic="true"
+                     data-bs-delay="3000" data-bs-animation="true">
+                    <div class="d-flex">
+                        <div class="toast-body d-flex align-items-center text-white">
+                            ${icon} ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
-                            data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="progress" style="height: 3px; margin:0; background: rgba(255,255,255,0.3);">
-            <div class="progress-bar" role="progressbar"></div>
+                    <div class="progress" style="height: 3px; margin:0; background: rgba(255,255,255,0.3);">
+                <div class="progress-bar" role="progressbar"></div>
 </div>
 
 </div>`;
@@ -202,7 +205,7 @@
                             return meta.row + 1; // ✅ Sr.No
                         }
                     },
-                    { data: 'GrnItemCode' },
+                    { data: 'GRNCode' },
 
                     { data: 'ItemCode' },
                     { data: 'ItemName' },
@@ -222,11 +225,11 @@
                         data: 'GrnItemcode',
                         render: function (data, type, row) {
                             return `<button class="btn btn-sm btn-primary open-inspec"
-                            onclick="openInspecForm('${row.GrnItemCode}')"
-                            data-bs-toggle="tooltip"
-                            title="Open Inspection Form">
-                      <i class="bi bi-box-arrow-up-right me-1"></i>
-                    </button>`;
+                                onclick="openInspecForm('${row.GrnItemCode}')"
+                                data-bs-toggle="tooltip"
+                                title="Open Inspection Form">
+                          <i class="bi bi-box-arrow-up-right me-1"></i>
+                        </button>`;
                         }
                     }
                 ],
@@ -285,35 +288,35 @@
 
                                     // Prepend centered title and generated date
                                     $(win.document.body).prepend(`
-                                            <div style="text-align:center; width:100%;">
-                                                <h2 style="margin:0; font-size:20pt; font-weight:bold;">GRN List</h2>
-                                                <div style="font-size:12pt; font-style:italic; margin-bottom:15px;">
-                                                    Generated on: ${new Date().toLocaleDateString()}
+                                                <div style="text-align:center; width:100%;">
+                                                    <h2 style="margin:0; font-size:20pt; font-weight:bold;">GRN List</h2>
+                                                    <div style="font-size:12pt; font-style:italic; margin-bottom:15px;">
+                                                        Generated on: ${new Date().toLocaleDateString()}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        `);
+                                            `);
 
                                     // Table styles (header colors and alignment remain intact)
                                     var css = `
-                                            page {
-                                                margin: 0 !important;
-                                            }
-                                            body {
-                                                margin: 0 !important;
-                                                padding: 0 !important;
-                                            }
-                                            table.dataTable thead th {
-                                                background-color: black !important;
-                                                color: white !important;
-                                                font-weight: bold !important;
-                                                text-align: center !important;
-                                                -webkit-print-color-adjust: exact !important;
-                                                print-color-adjust: exact !important;
-                                            }
-                                            table.dataTable tbody td {
-                                                text-align: center !important;
-                                            }
-                                        `;
+                                                page {
+                                                    margin: 0 !important;
+                                                }
+                                                body {
+                                                    margin: 0 !important;
+                                                    padding: 0 !important;
+                                                }
+                                                table.dataTable thead th {
+                                                    background-color: black !important;
+                                                    color: white !important;
+                                                    font-weight: bold !important;
+                                                    text-align: center !important;
+                                                    -webkit-print-color-adjust: exact !important;
+                                                    print-color-adjust: exact !important;
+                                                }
+                                                table.dataTable tbody td {
+                                                    text-align: center !important;
+                                                }
+                                            `;
                                     $(win.document.head).append('<style>' + css + '</style>');
                                 }
                             },
@@ -493,13 +496,13 @@
 
                                     // 🔹 Create Title & Date rows
                                     var titleRow = `
-                                                   <row r="1">
-                                             <c t="inlineStr" r="A1" s="55"><is><t>${title}</t></is></c>
-                                                </row>`;
+                                                       <row r="1">
+                                                 <c t="inlineStr" r="A1" s="55"><is><t>${title}</t></is></c>
+                                                    </row>`;
                                     var dateRow = `
-                                        <row r="2">
-                                   <c t="inlineStr" r="A2" s="56"><is><t>${generatedDate}</t></is></c>
-                                          </row>`;
+                                            <row r="2">
+                                       <c t="inlineStr" r="A2" s="56"><is><t>${generatedDate}</t></is></c>
+                                              </row>`;
 
                                     $sheet.find('sheetData').prepend(titleRow + dateRow);
 
@@ -526,15 +529,15 @@
                                     var newStyleIndex2 = count + 1;  // for date
 
                                     cellXfs.append(`
-                                     <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
-                                     <alignment horizontal="center" vertical="center"/>
-                                     </xf>
-                                      `);
+                                         <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
+                                         <alignment horizontal="center" vertical="center"/>
+                                         </xf>
+                                          `);
                                     cellXfs.append(`
-                                  <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
-                                   <alignment horizontal="center" vertical="center"/>
-                                    </xf>
-                                     `);
+                                      <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1">
+                                       <alignment horizontal="center" vertical="center"/>
+                                        </xf>
+                                         `);
                                     cellXfs.attr('count', count + 2);
 
                                     // Update the style index in your cells (s="55" → newStyleIndex1, s="56" → newStyleIndex2)
@@ -582,15 +585,15 @@
                                                 }
                                                 if (column === 8) {
                                                     if (moment(data, 'DD/MM/YYYY', true).isValid()) {
-                                                        return  moment(data, 'DD/MM/YYYY').format('DD/MM/YYYY');
+                                                        return moment(data, 'DD/MM/YYYY').format('DD/MM/YYYY');
                                                     }
                                                     if (moment(data, 'DD/MM/YYYY', true).isValid()) {
-                                                        return  moment(data, 'DD/MM/YYYY').format('DD/MM/YYYY');
+                                                        return moment(data, 'DD/MM/YYYY').format('DD/MM/YYYY');
                                                     }
-                                                    return  data;
+                                                    return data;
                                                 }
 
-                                                if (column === 8 ) {
+                                                if (column === 8) {
                                                     const m = moment(data, ["DD-MM-YYYY", "YYYY-MM-DD", "DD/MM/YYYY"], true);
                                                     if (m.isValid()) {
                                                         return m.format("DD/MM/YYYY"); // ✅ plain text
@@ -637,6 +640,7 @@
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
+                initDatePicker(table);
             });
 
             // 🔹 Initialize tooltips for export buttons
@@ -719,6 +723,56 @@
             },
 
 
+        });
+    }
+    // ✅ Date Range Picker Initialization
+    function initDatePicker(table) {
+        $('#grnlistdatepicker').daterangepicker({
+            autoUpdateInput: false,
+            alwaysShowCalendars: false,
+            opens: "center",
+            drops: "down",
+            locale: {
+                format: 'DD/MM/YYYY',
+                cancelLabel: 'Clear',
+                applyLabel: 'Apply'
+            },
+            ranges: {
+                'Today': [moment(), moment()],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 1 Month': [moment().subtract(1, 'month'), moment()],
+                'Last 3 Months': [moment().subtract(3, 'month'), moment()],
+                'Last 1 Year': [moment().subtract(1, 'year'), moment()]
+            }
+        });
+
+        // ✅ When a date range is selected
+        $('#grnlistdatepicker').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+
+            // Remove old filter before applying a new one
+            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.customDateFilter);
+
+            $.fn.dataTable.ext.search.push(function (settings, data) {
+
+                var dateStr = data[8];
+                if (!dateStr) return false;
+
+                var addedDate = moment(dateStr, ['DD/MM/YYYY', 'DD-MM-YYYY', 'YYYY-MM-DD']);
+                if (!addedDate.isValid()) return false;
+
+                return addedDate.isBetween(picker.startDate, picker.endDate, 'day', '[]');
+            });
+
+            $.fn.dataTable.ext.search[$.fn.dataTable.ext.search.length - 1].customDateFilter = true;
+            table.draw();
+        });
+
+        // ✅ When "Clear" is clicked
+        $('#grnlistdatepicker').on('cancel.daterangepicker', function () {
+            $(this).val('');
+            $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => !f.customDateFilter);
+            table.draw();
         });
     }
 
