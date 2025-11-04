@@ -377,6 +377,15 @@ namespace P2PERP.Controllers
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // RFQ Registered Quotation List
+        //[HttpGet]
+        //public async Task<ActionResult> GetRFQVendorResponses(string rfqCode)
+        //{
+        //    if (string.IsNullOrEmpty(rfqCode))
+        //        return Json(new { success = false, message = "RFQCode is required" }, JsonRequestBehavior.AllowGet);
+
+        //    var items = await bal.GetRFQVendorResponsesAT(rfqCode);
+        //    return Json(new { success = true, data = items }, JsonRequestBehavior.AllowGet);
+        //}
         [HttpGet]
         public async Task<ActionResult> GetRFQVendorResponses(string rfqCode)
         {
