@@ -52,6 +52,7 @@
                     <tr>
                         <th><input type="checkbox" id="selectAllCompleted" /></th>
                         <th>Sr.No</th>
+                        <th>GRNCode</th>
                         <th>Item Code</th>
                         <th>Item Name</th>
                         <th>Item Type</th>
@@ -198,6 +199,7 @@
                             return meta.row + 1; // ✅ Sr.No
                         }
                     },
+                    { data: 'GRNCode' },
                     { data: 'ItemCode' },
                     { data: 'ItemName' },
                     { data: 'ItemType' },

@@ -666,7 +666,7 @@ namespace P2PLibray.Quality
             {
                 lst.Add(new Quality
                 {
-                    //GRNCode = row["GRNCode"].ToString(),
+                    GRNCode = row["GRNCode"].ToString(),
                     ItemCode = row["ItemCode"].ToString(),
                     ItemName = row["ItemName"].ToString(),
                     ItemType = row["ItemType"].ToString(),
