@@ -302,7 +302,7 @@
                     <div class="card shadow-sm">
                         <div class="card-body">
 
-                            <!-- Hidden Extra Fieldsr -->
+                            <!-- Hidden Extra Fields -->
                             <div id="rfqExtraFields" class="d-none mb-4">
                                 <div class="row mb-3">
                                     <div class="col-md-3">
@@ -345,6 +345,8 @@
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Note</label>
                                         <textarea class="form-control" name="Note" rows="3"></textarea>
+                                        <div class="invalid-feedback">Note is required.</div>
+
                                     </div>
                                 </div>
                             </div>
@@ -445,33 +447,41 @@
                             </div>
                         </div>
 
-                        
 
-                        <div class="row mb-4">
-                            <div class="col-12">
+                        <div class="row mb-3">
+                            <div class="col-md-8">
                                 <label class="form-label fw-bold">Note:</label>
                                 <textarea class="form-control bg-light" id="rfqNote" rows="2" readonly></textarea>
                             </div>
+                            <div class="col-md-3">
+                                <label for="ToDate" class="form-label fw-bold">
+                                    Expected Date: <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" id="ToDate" placeholder="DD-MM-YYYY" class="form-control" />
+                                <div class="invalid-feedback">Expected Date is required.</div>
+                                <small id="ToDateDisplay" class="text-muted"></small>
+                            </div>
+
                         </div>
 
-                        <!-- RFQ Items Table -->
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped" id="RFQitems">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th class="text-center">Sr.No.</th>
-                                        <th class="text-center">Item Name</th>
-                                        <th class="text-center">Description</th>
-                                        <th class="text-center">Quantity</th>
-                                        <th class="text-center">UOM</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tblRFQDetails"></tbody>
-                            </table>
-                        </div>
+                            <!-- RFQ Items Table -->
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped" id="RFQitems">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th class="text-center">Sr.No.</th>
+                                            <th class="text-center">Item Name</th>
+                                            <th class="text-center">Description</th>
+                                            <th class="text-center">Quantity</th>
+                                            <th class="text-center">UOM</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblRFQDetails"></tbody>
+                                </table>
+                            </div>
 
+                        </div>
                     </div>
-                </div>
             </div>
 
             <!-- Modal Footer -->
@@ -700,6 +710,7 @@
 
 
 <script>
+    let expdate;
     $(document).ready(function () {
         (() => {
             'use strict';
@@ -865,8 +876,9 @@
         function showExportToast() {
             toastr.warning("Please select at least one row before exporting.", "Warning");
         }
-
+        ///////////////////
         // Load PR List
+        ////////////////////
         function loadPRList() {
             $.ajax({
                 url: "/Purchase/GETQUATIONLISTSJ",
@@ -1541,7 +1553,7 @@
                             <th>Sr.No.</th>
                             <th>PR Code</th>
                             <th>RFQ Code</th>
-                            <th>Required Date</th>
+                            <th>Expected Date</th>
                             <th>Description</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -1561,9 +1573,15 @@
                                 <td>${item.RFQCode ?? ""}</td>
 
 
-                        <td>${moment(item.RequiredDate, 'DD-MM-YYYY').isValid()
-                                ? moment(item.RequiredDate, 'DD-MM-YYYY').format('DD/MM/YYYY')
-                                : moment(item.RequiredDate).format('DD/MM/YYYY')}</td>
+                        <td>${item.RequiredDate
+                                    ? (
+                                        moment(item.RequiredDate, 'DD-MM-YYYY').isValid()
+                                            ? moment(item.RequiredDate, 'DD-MM-YYYY').format('DD/MM/YYYY')
+                                            : moment(item.RequiredDate).format('DD/MM/YYYY')
+                                      )
+                                    : '-'
+                            }</td>
+
 
                                 <td>
                                     <span data-bs-toggle="tooltip" data-bs-placement="top" title="${desc}">
@@ -1942,9 +1960,31 @@
                         $("#rfqCreatedDate").val(moment(header.CreatedDate).format('DD/MM/YYYY'));
                     }
 
-                    if (header.RequiredDate && moment(header.RequiredDate).isValid()) {
-                        $("#rfqRequiredDate").val(moment(header.RequiredDate).format('DD/MM/YYYY'));
+                    if (header.RequiredDate) {
+                        const m = moment(header.RequiredDate, "DD-MM-YYYY HH:mm:ss", true);
+                        if (m.isValid()) {
+                            const formattedRequiredDate = m.format("DD/MM/YYYY");
+                            $("#rfqRequiredDate").val(formattedRequiredDate);
+
+                            // Calculate min and max selectable Expected Dates
+                            const today = moment();
+                            const maxAllowed = m.clone().subtract(2, "days");
+
+                            // Set the date input range: from today to two days before RequiredDate
+                            $("#ToDate").attr("min", today.format("YYYY-MM-DD"));
+                            $("#ToDate").attr("max", maxAllowed.format("YYYY-MM-DD"));
+
+                        } else {
+                            console.warn("Invalid date format:", header.RequiredDate);
+                        }
                     }
+
+                    // Inside your success callback, after setting ToDate range:
+                    $("#ToDate").off("change").on("change", function () {
+                        const expectedDate = $(this).val();
+                        $("#rfqDetailsModal").data("expectedDate", expectedDate);
+                    });
+
 
 
                     $("#rfqCreatedBy").val(header.CreatedBy || "");
@@ -2020,6 +2060,7 @@
 
 
         });
+
 
         // ==============================
         // Back to RFQ List
@@ -2107,6 +2148,25 @@
 
 
         $(document).on("click", "#btnSendRFQ", function () {
+
+                const rfqCode = $("#rfqDetailsModal").data("rfqCode");
+                const expectedDate = $("#rfqDetailsModal").data("expectedDate");
+                expdate=$("#rfqDetailsModal").data("expectedDate");
+
+                 // Reset previous validation
+                    $("#rfqDetailsModal").on("hidden.bs.modal", function () {
+                        $("#ToDate").removeClass("is-invalid").val("");
+                        $("#ToDateDisplay").text(""); // clear helper text if you use it
+                    });
+
+                    if (!expectedDate) {
+                        $("#ToDate").addClass("is-invalid"); // 🔴 show validation message
+                        return;
+                    }
+
+                // Optionally, show it in console for debugging
+                console.log("Sending RFQ:", rfqCode, "Expected Date:", expectedDate);
+
 
             $("#vendorContainer").show();
             $("#rfqDetailsModal").modal("hide");
@@ -2521,6 +2581,7 @@
                 data: JSON.stringify({
                     rfqCode: $("#vendorRFQCode").val(),
                     PRCode: $("#vendorPRCode").val(),
+                    ExpectedDate:expdate,
                     vendors: selectedVendors
                 }),
                 contentType: "application/json",
