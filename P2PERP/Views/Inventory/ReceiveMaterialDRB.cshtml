@@ -2,6 +2,18 @@
     ViewBag.Title = "Receive Material";
 }
 
+
+<style>
+    /* ✅ Compact row height for ReturnGoods table */
+    #ReturnGoods.table td,
+    #ReturnGoods.table th {
+        padding: 0.35rem 0.50rem !important;
+        font-size: 0.80rem !important;
+        vertical-align: middle;
+    }
+
+</style>
+
 <div class="container">
     <div class="card p-4">
         <h3 class="text-center text-primary">Receive Material</h3>
@@ -179,7 +191,7 @@
             </style>
         `);
 
-                        // ========== Add Title & Date ==========
+                        // ========== Add sqTitle & Date ==========
                         $body.find('h1').after(
                             `<div style="text-align:center;font-style:italic;font-size:10pt;margin-bottom:12px;">
                 Generated Date: ${moment().format("DD/MM/YYYY")}
@@ -494,8 +506,8 @@
                     searchable: false,
                     render: function (data, type, row) {
                         return `
-            <button type="button" class="btn btn-success btn-InStock square-pill d-inline-flex align-items-center px-2 py-1 shadow-InStock" data-bs-toggle="tooltip" title="In Stock">
-                <i class="bi bi-box-seam fs-6"></i>
+            <button type="button" class="btn btn-success btn-sm btn-InStock square-pill d-inline-flex align-items-center px-2 py-1 shadow-InStock" data-bs-toggle="tooltip" title="In Stock">
+                <i class="bi bi-box-seam "></i>
             </button>`;
                     }
                 }
