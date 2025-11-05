@@ -101,6 +101,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
+    <!-- DataTables FixedHeader Extension -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+    <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+
+
 
     <style>
 
@@ -135,6 +140,52 @@
             box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
         }
 
+        /* Export buttons container */
+        .dt-buttons {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 0.8rem;
+        }
+
+        /* Base button style */
+        .dt-button {
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 10px !important;
+            padding: 8px 14px !important;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            /* Hover effects */
+            .dt-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(123, 78, 255, 0.3);
+            }
+
+        /* Specific button colors */
+        .buttons-print {
+            background: rgb(120, 129, 122, 0.30);
+        }
+
+        .buttons-pdf {
+            background: rgb(120, 129, 122, 0.30);
+        }
+
+        .buttons-excel {
+            background: rgb(120, 129, 122, 0.30);
+        }
+
+        .buttons-copy {
+            background: rgb(120, 129, 122, 0.30);
+        }
+
+        .buttons-csv {
+            background: rgb(120, 129, 122, 0.30);
+        }
 
     </style>
 
@@ -144,11 +195,11 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
 
     <!-- Layout wrapper -->
-    <div class="layout-wrapper layout-content-navbar  ">
+    <div class="layout-wrapper layout-content-navbar bg-gradient-light ">
         <div class="layout-container">
 
             <!-- Menu -->
-            <aside id="layout-menu" class="layout-menu menu-vertical menu">
+            <aside id="layout-menu" class="layout-menu menu-vertical menu shadow-right card ">
                 <div class="app-brand demo ">
                     <a href="index.html" class="app-brand-link gap-xl-0 gap-2">
                         <span class="app-brand-logo demo me-1">
