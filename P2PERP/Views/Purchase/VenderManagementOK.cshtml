@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     ViewBag.Title = "Vendor Management";
 }
 <!DOCTYPE html>
@@ -1451,7 +1451,7 @@
         // === Indian Mobile Number Validation (Live) ===
         $("#mobile, #altMobile").on("input", function () {
             this.value = this.value.replace(/\D/g, ""); // Only digits allowed
-            const val = this.value.trim();   
+            const val = this.value.trim();
         });
 
         // Personal email validation (FIXED - now stricter)
@@ -1735,6 +1735,21 @@
             }
 
             // === Validation Starts ===
+
+            const fullName = $("#fullName").val().trim();
+
+            if (!fullName) {
+                setInvalidField("#fullName", "Full Name is required.");
+            }
+            else if (fullName.length < 2) {
+                setInvalidField("#fullName", "Full Name must be at least 2 characters long.");
+            }
+            else if (!/^[A-Za-z\s]+$/.test(fullName)) {
+                setInvalidField("#fullName", "Full Name should contain only letters and spaces.");
+            }
+            else {
+                setValidField("#fullName");
+            }
 
             // Mobile Number validation
             const mobile = $("#mobile").val().trim();
