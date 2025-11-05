@@ -11,7 +11,7 @@
 
                     <!-- Title Centered -->
                     <h5 class="modal-title m-0 flex-grow-1 text-center text-white py-3">
-                        Create Goods Return
+                        Send Mail
                     </h5>
 
 
@@ -21,22 +21,22 @@
                     <form method="post" enctype="multipart/form-data" id="mailForm">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">To Email</label>
-                            <input type="email" name="toEmail" class="form-control" placeholder="example@gmail.com" required />
+                            <input type="text" name="toEmail" class="form-control" id="toEmail" placeholder="example@gmail.com" required />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Subject</label>
-                            <input type="text" name="subject" class="form-control" placeholder="Enter subject" required />
+                            <input type="text" name="subject" class="form-control" id="Subject" placeholder="Enter subject" required />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Message</label>
-                            <textarea name="messageBody" class="form-control" rows="4" placeholder="Write your message here..."></textarea>
+                            <textarea name="messageBody" class="form-control" rows="4" id="messageBody" placeholder="Write your message here..."></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Attachment</label>
-                            <input type="file" name="attachment" class="form-control" />
+                            <input type="file" name="attachment" id="mailAttachment" class="form-control" />
                         </div>
 
                         <div class="d-grid">
@@ -52,7 +52,7 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    @*document.addEventListener("DOMContentLoaded", function () {
         // Only show SweetAlert after mail is actually sent
         var status = "@ViewBag.Status";
 
@@ -73,6 +73,43 @@
                 });
             }
         }
+    });*@
+
+    $(document).ready(function () {
+        $('#mailForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var toEmail = $('#toEmail').val().split(',').map(e => e.trim());
+            var Subject = $('#Subject').val();
+            var messageBody = $('#messageBody').val();
+            var mailAttachment = $('#mailAttachment')[0].files[0];
+
+            var formData = new FormData();
+            var emailObj = {
+                ToEmails: toEmail,
+                Subject: Subject,
+                Body: messageBody,
+                IsBodyHtml: true,
+                CcEmails: [],
+                BccEmails: [],
+                AttachmentPaths: []
+            };
+
+            formData.append("email", JSON.stringify(emailObj));
+
+            if (mailAttachment) {
+                formData.append("mailAttachment", mailAttachment);
+            }
+
+            sendEmailAjax(formData, {
+                title: "Sending Email...",
+                html: "<b>Please wait.</b>",
+                willClose: () => {
+                    $('#mailForm')[0].reset();
+                }
+            });
+        });
     });
+
 </script>
 

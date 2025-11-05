@@ -207,6 +207,7 @@ namespace P2PERP.Controllers
             }
         }
 
+        [Route("GRN/SendMail")]
         [HttpGet]
         public ActionResult SendMailHSB()
         {
