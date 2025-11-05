@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{
+    ViewBag.Title = "Vendor Management";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,20 +9,22 @@
     <title>Vendor Management</title>
     <link href="~/Content/VendorManagementOK.css" rel="stylesheet" />
     <style>
-       
+
         .btn-sm {
             border-radius: 6px;
             font-size: 0.8rem;
             font-weight: 500;
         }
-        input{
-            outline:none!important;
+
+        input {
+            outline: none !important;
         }
+
         #exportContainer .dt-buttons {
             display: flex;
             justify-content: end; /* center align */
             gap: 8px;
-            margin-left:-10px;
+            margin-left: -10px;
         }
 
         .table-container {
@@ -77,9 +82,74 @@
         #searchContainer {
             margin-top: 50px !important;
         }
+
         .expbtndate {
-            padding:0px;
+            padding: 0px;
             margin-left: -10px;
+        }
+        /* ============================= */
+        /* Remove green border for valid */
+        /* ============================= */
+        .was-validated .form-select:valid,
+        .form-select.is-valid,
+        .was-validated .form-control:valid,
+        .form-control.is-valid {
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        /* Force red border for invalid selects */
+        .form-select.is-invalid,
+        .was-validated .form-select:invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+            background-image: none !important;
+        }
+
+            /* Keep same red color when focused */
+            .form-select.is-invalid:focus {
+                border-color: #dc3545 !important;
+                box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+            }
+
+        /* Make sure red border stays even inside input-groups */
+        .input-group .form-control.is-invalid {
+            border: 1.8px solid #dc3545 !important;
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1) !important;
+        }
+
+        /* When focused, keep red outline */
+        .form-control.is-invalid:focus,
+        .form-select.is-invalid:focus {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+        }
+
+        was-validated .form-control:invalid, .form-control.is-invalid {
+            border-color: red !important;
+        }
+
+        #bankName.is-invalid,
+        #industryType.is-invalid,
+        #branchName.is-invalid {
+            border: 1.8px solid #dc3545 !important;
+            outline: none !important;
+        }
+        /* Add spacing between buttons */
+        .swal2-custom-actions {
+            gap: 12px; /* adjust gap as needed */
+        }
+
+            /* Optional: small visual consistency */
+            .swal2-custom-actions .btn {
+                font-weight: 600;
+                border-radius: 6px;
+                min-width: 120px;
+            }
+        /* Common container style for both */
+        .expbtndate .input-group {
+            width: 230px !important; /* or match your preferred width */
+            min-width: 230px;
         }
     </style>
 </head>
@@ -119,61 +189,36 @@
                         <h5>Personal Details</h5>
                         <div class="row">
                             <!-- Full Name -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-user-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" class="form-control" id="fullName" name="VendorName" placeholder="Full Name" required>
-                                        <label for="fullName">Full Name</label>
-                                        <div class="invalid-feedback">Full Name is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="fullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="fullName" name="VendorName" required>
+                                <div class="invalid-feedback">Full Name is required.</div>
                             </div>
                             <!-- Mobile -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-phone-fill"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="tel" class="form-control" id="mobile" name="MobileNo" placeholder="Mobile Number" required>
-                                        <label for="mobile">Mobile Number</label>
-                                        <div class="invalid-feedback">Mobile Number is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mobile" class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="mobile" name="MobileNo" required>
+                                <div class="invalid-feedback">Mobile Number is required.</div>
                             </div>
 
                             <!-- Alternate Mobile -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-phone-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="tel" class="form-control" id="altMobile" name="AlternateNo" placeholder="Alternate Mobile">
-                                        <label for="altMobile">Alternate Mobile</label>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="altMobile" class="form-label">Alternate Mobile</label>
+                                <input type="tel" class="form-control" id="altMobile" name="AlternateNo">
                             </div>
 
                             <!-- Personal Email -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-mail-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="email" class="form-control" id="personalEmail" name="Email" placeholder="Email" required>
-                                        <label for="personalEmail">Personal Email</label>
-                                        <div class="invalid-feedback">Valid email is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="personalEmail" class="form-label">Personal Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="personalEmail" name="Email" required>
+                                <div class="invalid-feedback">Valid email is required.</div>
                             </div>
 
                             <!-- Address -->
-                            <div class="col-12">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-map-pin-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <textarea class="form-control" id="address" name="Address" placeholder="Address" rows="2" required></textarea>
-                                        <label for="address">Address</label>
-                                        <div class="invalid-feedback">Address is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-12 mb-3">
+                                <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="address" name="Address" rows="2" required></textarea>
+                                <div class="invalid-feedback">Address is required.</div>
                             </div>
                         </div>
                     </div>
@@ -183,113 +228,67 @@
                         <h5>Communication Details</h5>
                         <div class="row">
                             <!-- Company Email -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-mail-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" class="form-control" id="CompanyEmail" name="CompanyEmail" placeholder="Company Email" required>
-                                        <label for="CompanyEmail">Company Email</label>
-                                        <div class="invalid-feedback">CompanyEmail is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="CompanyEmail" class="form-label">Company Email <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="CompanyEmail" name="CompanyEmail" required>
+                                <div class="invalid-feedback">Company Email is required.</div>
                             </div>
 
-                            <!-- Contact Mobile -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-phone-fill"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="tel" class="form-control" name="CompanyMobileNo" id="CompanyMobileNo" placeholder="Mobile Number" required>
-                                        <label for="contactMobile">Mobile Number</label>
-                                        <div class="invalid-feedback">Mobile Number is required.</div>
-                                    </div>
-                                </div>
+                            <!-- Company Mobile -->
+                            <div class="col-md-6 mb-3">
+                                <label for="CompanyMobileNo" class="form-label">Company Mobile Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="CompanyMobileNo" name="CompanyMobileNo" required>
+                                <div class="invalid-feedback">Company Mobile Number is required.</div>
                             </div>
-                            <!-- Alternate Mobile -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-phone-fill"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="tel" class="form-control" id="CompanyAlternateNo" name="CompanyAlternateNo" placeholder="AlternateMobile Number">
-                                        <label for="contactMobile">AlternateMobile Number</label>
-                                        @*<div class="invalid-feedback">Mobile Number is required.</div>*@
-                                    </div>
-                                </div>
+
+                            <!-- Alternate Company Mobile -->
+                            <div class="col-md-6 mb-3">
+                                <label for="CompanyAlternateNo" class="form-label">Alternate Mobile</label>
+                                <input type="tel" class="form-control" id="CompanyAlternateNo" name="CompanyAlternateNo">
                             </div>
 
                             <!-- Company Name -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-building-4-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" class="form-control" id="companyName" name="CompanyName" placeholder="Company Name" required>
-                                        <label for="companyName">Company Name</label>
-                                        <div class="invalid-feedback">Company Name is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="companyName" class="form-label">Company Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="companyName" name="CompanyName" required>
+                                <div class="invalid-feedback">Company Name is required.</div>
                             </div>
 
                             <!-- Company Address -->
-                            <div class="col-12">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-map-pin-2-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <textarea class="form-control" name="CompanyAddress" id="companyAddress" placeholder="Company Address" rows="2" required></textarea>
-                                        <label for="companyAddress">Company Address</label>
-                                        <div class="invalid-feedback">Company Address is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-12 mb-3">
+                                <label for="companyAddress" class="form-label">Company Address <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="companyAddress" name="CompanyAddress" rows="2" required></textarea>
+                                <div class="invalid-feedback">Company Address is required.</div>
                             </div>
 
                             <div class="row g-3">
 
                                 <!-- Industry Type -->
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-merge mb-3">
-                                        <span class="input-group-text"><i class="bi bi-briefcase-fill"></i></span>
-                                        <div class="form-floating form-floating-outline flex-grow-1">
-                                            <select class="form-select" id="industryType" name="IndustryTypeId" required>
-                                            </select>
-                                            <label for="industryType">Industry Type</label>
-                                            <div class="invalid-feedback">Industry Type is required.</div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="industryType" class="form-label">Industry Type <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="industryType" name="IndustryTypeId" required></select>
+                                    <div class="invalid-feedback">Industry Type is required.</div>
                                 </div>
 
                                 <!-- Country -->
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-merge mb-3">
-                                        <span class="input-group-text"><i class="bi bi-globe2"></i></span>
-                                        <div class="form-floating form-floating-outline flex-grow-1">
-                                            <select class="form-select" id="country" name="CountryCode" required></select>
-                                            <label for="country">Country</label>
-                                            <div class="invalid-feedback">Country is required.</div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="country" name="CountryCode" required></select>
+                                    <div class="invalid-feedback">Country is required.</div>
                                 </div>
 
                                 <!-- State -->
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-merge mb-3">
-                                        <span class="input-group-text"><i class="bi bi-map-fill"></i></span>
-                                        <div class="form-floating form-floating-outline flex-grow-1">
-                                            <select class="form-select" id="state" name="StateCode" required></select>
-                                            <label for="state">State</label>
-                                            <div class="invalid-feedback">State is required.</div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="state" class="form-label">State <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="state" name="StateCode" required></select>
+                                    <div class="invalid-feedback">State is required.</div>
                                 </div>
 
                                 <!-- City -->
-                                <div class="col-md-6">
-                                    <div class="input-group input-group-merge mb-3">
-                                        <span class="input-group-text"><i class="bi bi-building-fill"></i></span>
-                                        <div class="form-floating form-floating-outline flex-grow-1">
-                                            <select class="form-select" id="city" name="CityId" required></select>
-                                            <label for="city">City</label>
-                                            <div class="invalid-feedback">City is required.</div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="city" name="CityId" required></select>
+                                    <div class="invalid-feedback">City is required.</div>
                                 </div>
 
                             </div>
@@ -303,65 +302,39 @@
                         <div class="row">
 
                             <!-- Bank Name -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-bank-line"></i></span>
-                                    <div class="form-floating form-floating-outline flex-grow-1">
-                                        <select class="form-select" id="bankName" required>
-                                        </select>
-                                        <label for="bankName">Bank Name</label>
-                                        <div class="invalid-feedback">Please select a bank.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bankName" class="form-label">Bank Name <span class="text-danger">*</span></label>
+                                <select class="form-select" id="bankName" required></select>
+                                <div class="invalid-feedback">Please select a bank.</div>
                             </div>
 
                             <!-- Branch -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-map-pin-line"></i></span>
-                                    <div class="form-floating form-floating-outline flex-grow-1">
-                                        <select class="form-select" id="branchName" name="BranchId" required>
-                                        </select>
-                                        <label for="branchName">Branch</label>
-                                        <div class="invalid-feedback">Please select a branch.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="branchName" class="form-label">Branch <span class="text-danger">*</span></label>
+                                <select class="form-select" id="branchName" name="BranchId" required></select>
+                                <div class="invalid-feedback">Please select a branch.</div>
                             </div>
 
                             <!-- Account Number -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-file-text-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" class="form-control" name="AccountNumber" id="accountNumber" placeholder="Account Number" required>
-                                        <label for="accountNumber">Account Number</label>
-                                        <div class="invalid-feedback">Account Number is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="accountNumber" class="form-label">Account Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="accountNumber" name="AccountNumber" required>
+                                <div class="invalid-feedback">Account Number is required.</div>
                             </div>
 
+
                             <!-- IFSC -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-key-2-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" class="form-control" name="IFSCCode" id="ifsc" placeholder="IFSC Code" required>
-                                        <label for="ifsc">IFSC Code</label>
-                                        <div class="invalid-feedback">IFSC is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ifsc" class="form-label">IFSC Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="ifsc" name="IFSCCode" required>
+                                <div class="invalid-feedback">IFSC Code is required.</div>
                             </div>
 
                             <!-- Swift -->
-                            <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-exchange-dollar-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <input type="text" class="form-control" id="swift" name="SwiftCode" placeholder="Swift Code" required>
-                                        <label for="swift">Swift Code</label>
-                                        <div class="invalid-feedback">Swift Code is required.</div>
-                                    </div>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="swift" class="form-label">Swift Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="swift" name="SwiftCode" required>
+                                <div class="invalid-feedback">Swift Code is required.</div>
                             </div>
                         </div>
                     </div>
@@ -386,20 +359,21 @@
                     <div class="d-flex align-items-center flex-column gap-3 flex-wrap expbtndate">
 
                         <!-- Date Range Picker -->
-                        <div class="input-group shadow-sm rounded w-25" style="min-width:250px;">
+                        <div class="input-group border-1 border-gray">
                             <span class="input-group-text bg-primary text-white border-0">
                                 <i class="bi bi-calendar-date"></i>
                             </span>
                             <input type="text" id="vendorcreateddate"
-                                   class="form-control border-0 shadow-none ms-0"
-                                   placeholder="Select date range" readonly style="height:100%;" />
+                                   class="form-control shadow-none ms-0 border"
+                                   placeholder="Select date range" readonly
+                                   style="height:100%; border-color: #ced4da;" />
                         </div>
 
                         <!-- Export Buttons -->
                         <div id="exportContainer" class="d-flex align-items-center gap-2 ps-0 ms-0">
-
                         </div>
                     </div>
+
 
                     <!-- Right Section: Search Box -->
                     <div id="searchContainer">
@@ -426,7 +400,7 @@
                                 <th>SRNO</th>
                                 <th class="d-none">VendorId</th>
                                 <th>Vendor Name</th>
-                                <th>Mobile No</th>
+                                <th class="text-center">Mobile No</th>
                                 <th class="d-none">Company Name</th>
                                 <th class="d-none">Industry Type</th>
                                 <th>Added By</th>
@@ -480,53 +454,27 @@
                                     <div class="row">
                                         <!-- Full Name -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-user-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="text" class="form-control" id="FullName" name="VendorName" placeholder="Full Name" readonly>
-                                                    <label for="fullName">Full Name</label>
-                                                </div>
-                                            </div>
+                                            <label for="FullName" class="form-label fw-semibold">Full Name</label>
+                                            <input type="text" class="form-control" id="FullName" name="VendorName" placeholder="Enter Full Name" readonly>
                                         </div>
                                         <!-- Mobile -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-phone-fill"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="tel" class="form-control" id="Mobile" name="MobileNo" placeholder="Mobile Number" readonly>
-                                                    <label for="mobile">Mobile Number</label>
-                                                </div>
-                                            </div>
+                                            <label for="Mobile" class="form-label fw-semibold">Mobile Number</label>
+                                            <input type="tel" class="form-control" id="Mobile" name="MobileNo" placeholder="Enter Mobile Number" readonly>
                                         </div>
-                                        <!-- Alternate Mobile -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-phone-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="tel" class="form-control" id="AltMobile" name="AlternateNo" placeholder="Alternate Mobile" readonly>
-                                                    <label for="altMobile">Alternate Mobile</label>
-                                                </div>
-                                            </div>
+                                            <label for="AltMobile" class="form-label fw-semibold">Alternate Mobile</label>
+                                            <input type="tel" class="form-control" id="AltMobile" name="AlternateNo" placeholder="Enter Alternate Mobile" readonly>
                                         </div>
-                                        <!-- Personal Email -->
+
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-mail-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="email" class="form-control" id="PersonalEmail" name="Email" placeholder="Email" readonly>
-                                                    <label for="personalEmail">Personal Email</label>
-                                                </div>
-                                            </div>
+                                            <label for="PersonalEmail" class="form-label fw-semibold">Personal Email</label>
+                                            <input type="email" class="form-control" id="PersonalEmail" name="Email" placeholder="Enter Email Address" readonly>
                                         </div>
                                         <!-- Address -->
                                         <div class="col-12">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-map-pin-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <textarea class="form-control" id="Address" name="Address" placeholder="Address" rows="2" readonly></textarea>
-                                                    <label for="address">Address</label>
-                                                </div>
-                                            </div>
+                                            <label for="Address" class="form-label fw-semibold">Address</label>
+                                            <textarea class="form-control" id="Address" name="Address" rows="2" placeholder="Enter Address" readonly></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -536,109 +484,57 @@
                                     <div class="row">
                                         <!-- Company Email -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-mail-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="text" class="form-control" id="companyEmail" name="CompanyEmail" placeholder="Company Email" readonly>
-                                                    <label for="CompanyEmail">Company Email</label>
-                                                    <div class="invalid-feedback">CompanyEmail is required.</div>
-                                                </div>
-                                            </div>
+                                            <label for="CompanyEmail" class="form-label fw-semibold">Company Email</label>
+                                            <input type="email" class="form-control" id="companyEmail" name="CompanyEmail" placeholder="Enter Company Email" readonly>
                                         </div>
-
-                                        <!-- Contact Mobile -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-phone-fill"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="tel" class="form-control" name="CompanyMobileNo" id="companyMobileNo" placeholder="Mobile Number" readonly>
-                                                    <label for="contactMobile">Mobile Number</label>
-                                                    <div class="invalid-feedback">Mobile Number is required.</div>
-                                                </div>
-                                            </div>
+                                            <label for="CompanyName" class="form-label fw-semibold">Company Name</label>
+                                            <input type="text" class="form-control" id="CompanyName" name="CompanyName" placeholder="Enter Company Name" readonly>
                                         </div>
                                         <!-- Alternate Mobile -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-phone-fill"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="tel" class="form-control" id="companyAlternateNo" name="CompanyAlternateNo" placeholder="AlternateMobile Number" readonly>
-                                                    <label for="contactMobile">AlternateMobile Number</label>
-                                                    @*<div class="invalid-feedback">Mobile Number is required.</div>*@
-                                                </div>
-                                            </div>
+                                            <label for="CompanyEmail" class="form-label fw-semibold">Company Mobile Number</label>
+                                            <input type="tel" class="form-control" id="companyMobileNo" name="CompanyAlternateNo" placeholder="AlternateMobile Number" readonly>
                                         </div>
-
-                                        <!-- Company Name -->
+                                        <!-- Alternate Mobile -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-building-4-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="text" class="form-control" id="CompanyName" name="CompanyName" placeholder="Company Name" readonly>
-                                                    <label for="companyName">Company Name</label>
-                                                    <div class="invalid-feedback">Company Name is required.</div>
-                                                </div>
-                                            </div>
+                                            <label for="CompanyEmail" class="form-label fw-semibold">AlternateMobile Number</label>
+                                            <input type="tel" class="form-control" id="companyAlternateNo" name="CompanyAlternateNo" placeholder="AlternateMobile Number" readonly>
                                         </div>
-
+                                        <!-- Company Name -->
+                                        <!--<div class="col-md-6">
+                                            <label for="CompanyName" class="form-label fw-semibold">Company Name</label>
+                                            <input type="text" class="form-control" id="CompanyName" name="CompanyName" placeholder="Enter Company Name" readonly>
+                                        </div>-->
                                         <!-- Company Address -->
-                                        <div class="col-12">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-map-pin-2-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <textarea class="form-control" name="CompanyAddress" id="CompanyAddress" placeholder="Company Address" rows="2" readonly></textarea>
-                                                    <label for="companyAddress">Company Address</label>
-                                                    <div class="invalid-feedback">Company Address is required.</div>
-                                                </div>
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label for="CompanyName" class="form-label fw-semibold">Company Address</label>
+                                            <input type="text" class="form-control" id="CompanyAddress" name="CompanyAddress" placeholder="Company Address" readonly>
                                         </div>
-
                                         <div class="row g-3">
 
                                             <!-- Industry Type -->
-                                            <div class="col-md-4">
-                                                <div class="input-group input-group-merge mb-3">
-                                                    <span class="input-group-text"><i class="bi bi-briefcase-fill"></i></span>
-                                                    <div class="form-floating form-floating-outline flex-grow-1">
-                                                        <input type="text" class="form-control" id="IndustryType" name="IndustryTypeId" placeholder="industry Type" readonly>
-                                                        <label for="industryType">Industry Type</label>
-                                                        <div class="invalid-feedback">Industry Type is required.</div>
-                                                    </div>
-                                                </div>
+                                            <div class="col-md-6">
+                                                <label for="industryType" class="form-label fw-semibold">Industry Type</label>
+                                                <input type="text" class="form-control" id="IndustryType" name="IndustryTypeId" placeholder="Enter Company Email" readonly>
                                             </div>
                                             <!-- Country -->
-                                            <div class="col-md-4">
-                                                <div class="input-group input-group-merge mb-3">
-                                                    <span class="input-group-text"><i class="bi bi-globe2"></i></span>
-                                                    <div class="form-floating form-floating-outline flex-grow-1">
-                                                        <input type="text" class="form-control" id="Country" readonly>
-                                                        <label for="Country">Country</label>
-                                                    </div>
-                                                </div>
+                                            <div class="col-md-6">
+                                                <label for="Country" class="form-label fw-semibold">Country</label>
+                                                <input type="text" class="form-control" id="Country" readonly placeholder="Enter Country">
                                             </div>
 
                                             <!-- State -->
-                                            <div class="col-md-4">
-                                                <div class="input-group input-group-merge mb-3">
-                                                    <span class="input-group-text"><i class="bi bi-map-fill"></i></span>
-                                                    <div class="form-floating form-floating-outline flex-grow-1">
-                                                        <input type="text" class="form-control" id="State" readonly>
-                                                        <label for="State">State</label>
-                                                    </div>
-                                                </div>
+                                            <div class="col-md-6">
+                                                <label for="State" class="form-label fw-semibold">State</label>
+                                                <input type="text" class="form-control" id="State" readonly placeholder="Enter State">
                                             </div>
 
                                             <!-- City -->
                                             <div class="col-md-6">
-                                                <div class="input-group input-group-merge mb-3">
-                                                    <span class="input-group-text"><i class="bi bi-building-fill"></i></span>
-                                                    <div class="form-floating form-floating-outline flex-grow-1">
-                                                        <input type="text" class="form-control" id="City" readonly>
-                                                        <label for="City">City</label>
-                                                    </div>
-                                                </div>
+                                                <label for="City" class="form-label fw-semibold">City</label>
+                                                <input type="text" class="form-control" id="City" readonly placeholder="Enter City">
                                             </div>
-
 
                                         </div>
 
@@ -652,62 +548,30 @@
 
                                         <!-- Bank Name -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-bank-line"></i></span>
-                                                <div class="form-floating form-floating-outline flex-grow-1">
-                                                    <input type="text" class="form-control" name="BankName" id="BankName" placeholder="Bank Name" readonly>
-                                                    <label for="bankName">Bank Name</label>
-                                                    <div class="invalid-feedback">Please select a bank.</div>
-                                                </div>
-                                            </div>
+                                            <label for="BankName" class="form-label fw-semibold">Bank Name</label>
+                                            <input type="text" class="form-control" id="BankName" name="BankName" placeholder="Enter Bank Name" readonly>
                                         </div>
 
                                         <!-- Branch -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-map-pin-line"></i></span>
-                                                <div class="form-floating form-floating-outline flex-grow-1">
-                                                    <input type="text" class="form-control" id="BranchName" name="BranchId" placeholder="Account Number" readonly>
-                                                    <label for="branchName">Branch</label>
-                                                    <div class="invalid-feedback">Please select a branch.</div>
-                                                </div>
-                                            </div>
+                                            <label for="Branch" class="form-label fw-semibold">Branch</label>
+                                            <input type="text" class="form-control" id="BranchName" name="Branch" placeholder="Enter Branch Name" readonly>
                                         </div>
 
                                         <!-- Account Number -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-file-text-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="text" class="form-control" name="AccountNumber" id="AccountNumber" placeholder="Account Number" readonly>
-                                                    <label for="accountNumber">Account Number</label>
-                                                    <div class="invalid-feedback">Account Number is required.</div>
-                                                </div>
-                                            </div>
+                                            <label for="AccountNumber" class="form-label fw-semibold">Account Number</label>
+                                            <input type="text" class="form-control" id="AccountNumber" name="AccountNumber" placeholder="Enter Account Number" readonly>
                                         </div>
 
                                         <!-- IFSC -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-key-2-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="text" class="form-control" name="IFSCCode" id="Ifsc" placeholder="IFSC Code" readonly>
-                                                    <label for="ifsc">IFSC Code</label>
-                                                    <div class="invalid-feedback">IFSC is required.</div>
-                                                </div>
-                                            </div>
+                                            <label for="IFSC" class="form-label fw-semibold">IFSC Code</label>
+                                            <input type="text" class="form-control" id="Ifsc" name="IFSC" placeholder="Enter IFSC Code" readonly>
                                         </div>
-
-                                        <!-- Swift -->
                                         <div class="col-md-6">
-                                            <div class="input-group input-group-merge mb-3">
-                                                <span class="input-group-text"><i class="ri-exchange-dollar-line"></i></span>
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="text" class="form-control" id="Swift" name="SwiftCode" placeholder="Swift Code" readonly>
-                                                    <label for="swift">Swift Code</label>
-                                                    <div class="invalid-feedback">Swift Code is required.</div>
-                                                </div>
-                                            </div>
+                                            <label for="IFSC" class="form-label fw-semibold">Swift Code</label>
+                                            <input type="text" class="form-control" id="Swift" name="SwiftCode" placeholder="Enter IFSC Code" readonly>
                                         </div>
 
                                     </div>
@@ -763,7 +627,11 @@
     });
 
     // jQuery document ready function
-    $(document).ready(function () {
+        $(document).ready(function () {
+            $("#Vendorform").addClass("hide-validation-messages");
+
+            // Remove this class to show messages again
+            $("#Vendorform").removeClass("hide-validation-messages");
         // Clear processing state for all DataTable button
         window.__dt_clearAllProcessing = function () {
             try {
@@ -893,7 +761,6 @@
             });
         });
 
-        // PDF/Print customization function
         function customizeDoc(doc) {
             // Title Styling
             doc.styles.title = {
@@ -903,9 +770,16 @@
                 alignment: 'center'
             };
 
-            // Generated on date
+            // ✅ Generate date in dd/mm/yyyy format
+            var now = new Date();
+            var day = String(now.getDate()).padStart(2, '0');
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var year = now.getFullYear();
+            var formattedDate = day + '/' + month + '/' + year;
+
+            // ✅ Insert generated date
             doc.content.splice(1, 0, {
-                text: 'Generated on: ' + new Date().toISOString().split('T')[0],
+                text: 'Generated Date: ' + formattedDate,
                 fontSize: 10,
                 italics: true,
                 alignment: 'center',
@@ -978,7 +852,7 @@
 
         // ✅ Helper function for warning toast
         function showExportToast() {
-            toastr.warning("Please select at least one row before exporting.", "Warning");
+            toastr.warning("Please select at least one row before exporting.");
         }
         // Vendor DataTable initialization
         vendorTable = $('#tblVendor').DataTable({
@@ -1005,51 +879,52 @@
                         return `<input type="checkbox" class="row-select" value="${row.VendorId}" />`;
                     }
                 },
-                { data: "SRNO", title: 'Sr.No' },
-                { data: "VendorId", visible: false },
-                { data: "VendorName", title: "Vendor Name" },
+                { data: "SRNO", title: 'Sr.No', className: "text-center"},
+                { data: "VendorId", className: "text-center",visible: false },
+                { data: "VendorName", title: "Vendor Name", className: "text-center"},
                 { data: "MobileNo", title: "Mobile NO" },
-                { data: "CompanyName", title: "Company Name", visible: false },
-                { data: "IndustryType", title: "Industry Type", visible: false },
-                { data: "AddedBy", title: "Created By" },
+                { data: "CompanyName", title: "Company Name", className: "text-center",visible: false },
+                { data: "IndustryType", title: "Industry Type", className: "text-center",visible: false },
+                { data: "AddedBy", title: "Created By", className: "text-center"},
                 {
-                    data: "AddedDateString", title: "Created Date",
+                    data: "AddedDateString", title: "Created Date", className: "text-center",
                     "render": function (data) {
                         if (!data) return "";
                         var match = /Date\((\d+)\)/.exec(data);
                         if (match) {
                             var dt = new Date(parseInt(match[1], 10));
-                            return dt.toLocaleDateString("en-GB"); 
+                            return dt.toLocaleDateString("en-GB");
                         }
                         var dt2 = new Date(data);
                         if (!isNaN(dt2.getTime())) {
                             return dt2.toLocaleDateString("en-GB");
                         }
 
-                        return data; 
+                        return data;
                     }
                 },
-                { data: "AlternateNo", visible: false },
-                { data: "Email", visible: false },
-                { data: "Address", visible: false },
-                { data: "CompanyEmail", visible: false },
-                { data: "CompanyMobileNo", visible: false },
-                { data: "CompanyAlternateNo", visible: false },
-                { data: "CompanyAddress", visible: false },
-                { data: "IndustryTypeId", visible: false },
-                { data: "CityId", visible: false },
-                { data: "BankName", visible: false },
-                { data: "SwiftCode", visible: false },
-                { data: "BranchName", visible: false },
-                { data: "IFSCCode", visible: false },
-                { data: "AccountNumber", visible: false },
-                { data: "CountryCode", visible: false },
-                { data: "StateCode", visible: false },
-                { data: "CityName", visible: false },
+                { data: "AlternateNo", className: "text-center", visible: false },
+                { data: "Email", className: "text-center",visible: false },
+                { data: "Address", className: "text-center",visible: false },
+                { data: "CompanyEmail", className: "text-center", visible: false },
+                { data: "CompanyMobileNo", className: "text-center",visible: false },
+                { data: "CompanyAlternateNo", className: "text-center",visible: false },
+                { data: "CompanyAddress", className: "text-center",visible: false },
+                { data: "IndustryTypeId", className: "text-center",visible: false },
+                { data: "CityId", className: "text-center",visible: false },
+                { data: "BankName", className: "text-center",visible: false },
+                { data: "SwiftCode", className: "text-center",visible: false },
+                { data: "BranchName", className: "text-center",visible: false },
+                { data: "IFSCCode", className: "text-center",visible: false },
+                { data: "AccountNumber", className: "text-center",visible: false },
+                { data: "CountryCode", className: "text-center",visible: false },
+                { data: "StateCode", className: "text-center",visible: false },
+                { data: "CityName", className: "text-center",visible: false },
 
                 // Action column
                 {
                     data: null,
+                    className: "text-center",
                     render: function (data, type, row) {
                         return `
                             <div class="d-flex gap-2 justify-content-center">
@@ -1131,11 +1006,19 @@
                         // Center title
                         $body.find('h1').css('text-align', 'center');
 
-                        // Insert generated date
+                        // Insert generated date in dd/mm/yyyy format
                         $body.find('h1').after(
-                            '<div style="text-align:center;font-style:italic;font-size:10pt;margin-bottom:12px;">Generated on: '
-                            + new Date().toISOString().split('T')[0] + '</div>'
+                            '<div style="text-align:center;font-style:italic;font-size:10pt;margin-bottom:12px;">Generated Date: ' +
+                            (function () {
+                                const d = new Date();
+                                const day = String(d.getDate()).padStart(2, '0');
+                                const month = String(d.getMonth() + 1).padStart(2, '0');
+                                const year = d.getFullYear();
+                                return `${day}/${month}/${year}`;
+                            })() +
+                            '</div>'
                         );
+
 
                         // Add bootstrap table styles
                         $body.find('table')
@@ -1237,7 +1120,7 @@
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
                     titleAttr: 'Excel',
-                    title: 'Vendor List',
+                    title: ' ', //Vendor List
                     exportOptions: {
                         columns: [1, 3, 4, 5, 6, 7, 8],
                         rows: function (idx) {
@@ -1267,6 +1150,114 @@
 
                         // Fallback clear spinner after 1.5s
                         setTimeout(function () { try { btnApi.processing(false); } catch (err) { } }, 300);
+                    },
+                    customize: function (xlsx) {
+                        // ✅ Rename worksheet
+                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                        $('sheet', xlsx.xl['workbook.xml']).attr('name', 'Vendor List');
+
+                        // ✅ Date in dd/mm/yyyy format
+                        var now = new Date();
+                        var day = String(now.getDate()).padStart(2, '0');
+                        var month = String(now.getMonth() + 1).padStart(2, '0');
+                        var year = now.getFullYear();
+                        var formattedDate = day + '/' + month + '/' + year;
+
+                        var sheetData = $('sheetData', sheet);
+
+                        // Shift all data rows down by 2 (for title + date)
+                        sheetData.find('row').each(function () {
+                            var r = parseInt($(this).attr('r'));
+                            $(this).attr('r', r + 2);
+                            $(this).find('c').each(function () {
+                                var cellRef = $(this).attr('r');
+                                var col = cellRef.replace(/[0-9]/g, '');
+                                $(this).attr('r', col + (r + 2));
+                            });
+                        });
+
+                        // ✅ Insert Title row (now in A1, will be merged A1:G1 for centering across 7 columns)
+                        var titleRow =
+                            '<row r="1">' +
+                            '<c t="inlineStr" r="A1">' +
+                            '<is><t>Vendor List</t></is>' +
+                            '</c>' +
+                            '</row>';
+
+                        // ✅ Insert Generated Date row (now in A2, will be merged A2:G2 for centering)
+                        var dateRow =
+                            '<row r="2">' +
+                            '<c t="inlineStr" r="A2">' +
+                            '<is><t>Generated Date: ' + formattedDate + '</t></is>' +
+                            '</c>' +
+                            '</row>';
+
+                        // Add rows to the top
+                        sheetData.prepend(dateRow);
+                        sheetData.prepend(titleRow);
+
+                        // ✅ Add merge cells for centering title and date across columns A:G (7 columns from export)
+                        var mergeCells = $('mergeCells', sheet);
+                        if (mergeCells.length === 0) {
+                            // If no mergeCells exist, create the element
+                            $('worksheet', sheet).append('<mergeCells count="2"/>');
+                            mergeCells = $('mergeCells', sheet);
+                        } else {
+                            // Update existing count
+                            var currentCount = parseInt(mergeCells.attr('count') || 0);
+                            mergeCells.attr('count', currentCount + 2);
+                        }
+                        // Add title merge (A1:G1)
+                        mergeCells.append('<mergeCell ref="A1:G1"/>');
+                        // Add date merge (A2:G2)
+                        mergeCells.append('<mergeCell ref="A2:G2"/>');
+
+                        // ✅ Add styles for centering + font (fonts, fills, etc.)
+                        var styles = xlsx.xl['styles.xml'];
+                        var cellXfs = $('cellXfs', styles);
+                        var fonts = $('fonts', styles);
+
+                        // Count existing fonts (default is usually 1: fontId=0)
+                        var fontCount = $('font', fonts).length;
+
+                        // Add new font for title (bold, size 14)
+                        fonts.append(
+                            '<font>' +
+                            '<sz val="14"/>' +  // Font size 14
+                            '<b/>' +             // Bold
+                            '<color rgb="000000"/>' +  // Black (default)
+                            '</font>'
+                        );
+
+                        // Add new font for date (italic, size 11)
+                        fonts.append(
+                            '<font>' +
+                            '<sz val="11"/>' +   // Font size 11 (default size)
+                            '<i/>' +             // Italic
+                            '<color rgb="000000"/>' +  // Black (default)
+                            '</font>'
+                        );
+
+                        // Count existing cellXfs
+                        var styleCount = $('xf', cellXfs).length;
+
+                        // Add new style for title (use new bold/large font, center alignment)
+                        cellXfs.append(
+                            '<xf numFmtId="0" fontId="' + fontCount + '" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">' +
+                            '<alignment horizontal="center" vertical="center" wrapText="1"/>' +  // Center, wrap for long text
+                            '</xf>'
+                        );
+
+                        // Add new style for date (use new italic font, center alignment)
+                        cellXfs.append(
+                            '<xf numFmtId="0" fontId="' + (fontCount + 1) + '" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1">' +
+                            '<alignment horizontal="center" vertical="center" wrapText="1"/>' +  // Center, wrap for long text
+                            '</xf>'
+                        );
+
+                        // Apply new style indexes to the cells
+                        $('c[r=A1]', sheet).attr('s', styleCount);       // Title style
+                        $('c[r=A2]', sheet).attr('s', styleCount + 1);   // Date style
                     }
                 },
 
@@ -1366,7 +1357,7 @@
             },
             ranges: {
                 'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
                 'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
                 'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
@@ -1395,64 +1386,475 @@
         });
 
 
-       $('#Vendorform').submit(function (e) {
-            e.preventDefault();
+        // === Utility Functions ===
+        function setInvalid(selector, message) {
+            $(selector).addClass("is-invalid").removeClass("is-valid");
+            $(selector).next(".invalid-feedback").text(message);
+        }
 
-            const form = this;
+        function setValid(selector) {
+            $(selector).removeClass("is-invalid").addClass("is-valid");
+            $(selector).next(".invalid-feedback").text("");
+        }
+
+        $("#fullName").on("input", function () {
+            let currentValue = $(this).val();
+
+            // Clean up immediately
+            const cleanedValue = currentValue.replace(/[^A-Za-z ]/g, "");
+            if (cleanedValue !== currentValue) {
+                $(this).val(cleanedValue);
+                //setInvalid(this, "Only letters and spaces allowed.");
+                //return;
+            }
+        });
+        // === Address Validation (Live) ===
+        $("#address, #companyAddress").on("input", function () {
+            const val = this.value.trim();
+
+            if (!val) {
+                setInvalid(this, this.id === "address" ? "Address is required." : "Company Address is required.");
+            } else if (val.length < 5) {
+                setInvalid(this, "Address must be at least 5 characters long.");
+            } else {
+                setValid(this);
+            }
+        });
+
+        // === Company Name Validation (Live) ===
+        $("#companyName").on("input", function () {
+           let currentValue = $(this).val();
+
+            const cleanedValue = currentValue.replace(/[^A-Za-z ]/g, "");
+            if (cleanedValue !== currentValue) {
+                $(this).val(cleanedValue);
+                //setInvalid(this, "Only letters, numbers and spaces allowed.");
+                //return;
+            }
+
+        });
+
+        // === Company Mobile Validation (Live) ===
+        $("#CompanyMobileNo, #CompanyAlternateNo").on("input", function () {
+            // Only digits allowed, max 10 digits
+            this.value = this.value.replace(/\D/g, "").substring(0, 10);
+            const val = this.value.trim();
+        });
+
+        // === Account Number Validation (Live) ===
+        $("#accountNumber").on("input", function () {
+            // Only digits allowed
+            this.value = this.value.replace(/\D/g, "");
+            const val = this.value.trim();
+        });
+
+        // === Indian Mobile Number Validation (Live) ===
+        $("#mobile, #altMobile").on("input", function () {
+            this.value = this.value.replace(/\D/g, ""); // Only digits allowed
+            const val = this.value.trim();   
+        });
+
+        // Personal email validation (FIXED - now stricter)
+        $("#personalEmail").on("input", function () {
+            const val = $(this).val().trim();
+            const atSymbol = String.fromCharCode(64);
+
+            // Fixed regex: TLD must be 2-6 letters (com, org, net, co.in, etc.)
+            const emailRegex = new RegExp("^[a-zA-Z0-9._%+-]+" + atSymbol + "[a-zA-Z0-9.-]+\\.[A-Za-z]{2,6}$");
+
+            if (!val) {
+                setInvalid(this, "Personal Email is required.");
+            } else if (!emailRegex.test(val)) {
+                setInvalid(this, "Please enter a valid personal email address.");
+            } else {
+                const domain = val.split(atSymbol)[1].toLowerCase();
+
+                // Check TLD first
+                if (!isValidTLD(domain)) {
+                    setInvalid(this, "Please enter an email with valid domain extension (.com, .org, .net, etc.).");
+                    return;
+                }
+
+                // Check for test/example domains in personal email too
+                if (isTestOrExampleDomain(domain)) {
+                    setInvalid(this, "Test or example email addresses are not allowed.");
+                    return;
+                }
+
+                if (isDisposableEmail(domain)) {
+                    setInvalid(this, "Temporary or disposable email addresses are not allowed.");
+                    return;
+                }
+
+                setValid(this);
+            }
+        });
+
+        // Company email validation (strict) - UPDATED
+        $("#CompanyEmail").on("input", function () {
+            const val = $(this).val().trim();
+            const atSymbol = String.fromCharCode(64);
+
+            const emailRegex = new RegExp("^[a-zA-Z0-9._%+-]+" + atSymbol + "[a-zA-Z0-9.-]+\\.[A-Za-z]{2,6}$");
+
+            if (!val) {
+                setInvalid(this, "Company Email is required.");
+            } else if (!emailRegex.test(val)) {
+                setInvalid(this, "Please enter a valid company email address.");
+            } else {
+                const domain = val.split(atSymbol)[1].toLowerCase();
+
+                // Check TLD first
+                if (!isValidTLD(domain)) {
+                    setInvalid(this, "Please enter an email with valid domain extension (.com, .org, .net, etc.).");
+                    return;
+                }
+
+                // Check for test/example domains
+                if (isTestOrExampleDomain(domain)) {
+                    setInvalid(this, "Test or example email addresses are not allowed for company registration.");
+                    return;
+                }
+
+                const validation = validateCompanyEmailStrict(val);
+                if (!validation.isValid) {
+                    setInvalid(this, validation.message);
+                } else {
+                    setValid(this);
+                }
+            }
+        });
+
+        // NEW FUNCTION: Check for test/example domains
+        function isTestOrExampleDomain(domain) {
+            const testDomains = [
+                'example.com', 'example.org', 'example.net', 'example.edu',
+                'test.com', 'test.org', 'test.net', 'test.edu',
+                'demo.com', 'demo.org', 'demo.net',
+                'sample.com', 'sample.org', 'sample.net',
+                'fake.com', 'fake.org', 'fake.net',
+                'dummy.com', 'dummy.org', 'dummy.net'
+            ];
+
+            return testDomains.includes(domain);
+        }
+
+        // Enhanced domain validation for company emails
+        function validateCompanyEmailStrict(email) {
+            const atSymbol = String.fromCharCode(64);
+            const domain = email.split(atSymbol)[1].toLowerCase();
+            const domainName = domain.split('.')[0];
+
+            const personalDomains = [
+                'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com',
+                'icloud.com', 'protonmail.com', 'zoho.com', 'yandex.com', 'mail.com',
+                'gmx.com', 'live.com', 'rediffmail.com', 'inbox.com'
+            ];
+
+            // Remove example.com from here since we check it separately now
+            const genericDomains = [
+                'company.com', 'business.com', 'enterprise.com', 'corporation.com',
+                'firm.com', 'organization.com', 'venture.com', 'startup.com',
+                'office.com', 'work.com', 'professional.com', 'service.com',
+                'solution.com', 'technology.com', 'digital.com', 'online.com',
+                'web.com', 'site.com', 'network.com', 'system.com',
+                'mycompany.com', 'yourcompany.com', 'testcompany.com',
+                'company.org', 'business.org', 'test.org', 'asa.com'
+            ];
+
+            const disposableDomains = getDisposableDomains();
+
+            if (personalDomains.includes(domain)) {
+                return {
+                    isValid: false,
+                    message: "Please use your official company email, not personal email provider."
+                };
+            }
+
+            if (genericDomains.includes(domain)) {
+                return {
+                    isValid: false,
+                    message: "Generic company domain names are not accepted. Please use your actual company email."
+                };
+            }
+
+            if (disposableDomains.includes(domain)) {
+                return {
+                    isValid: false,
+                    message: "Temporary email addresses cannot be used for company registration."
+                };
+            }
+
+            // Check if domain name is too generic
+            if (isTooGenericDomainName(domainName)) {
+                return {
+                    isValid: false,
+                    message: "Please provide a valid company email address from a registered business domain."
+                };
+            }
+
+            // Check if it looks like a company domain
+            if (!looksLikeCompanyDomain(domain)) {
+                return {
+                    isValid: false,
+                    message: "Please provide a valid company email address with proper business domain."
+                };
+            }
+
+            return { isValid: true, message: "Valid company email." };
+        }
+
+        // Update disposable domains list - remove example.com since we handle it separately
+        function getDisposableDomains() {
+            return [
+                // Temporary/Disposable email domains
+                'tempmail.com', 'throwaway.com', 'fake.com', 'guerrillamail.com',
+                'mailinator.com', '10minutemail.com', 'temp-mail.org', 'trashmail.com',
+                'sharklasers.com', 'getairmail.com', 'tmpmail.org', 'disposablemail.com',
+                'maildrop.cc', 'yopmail.com', 'jetable.org', 'mailnesia.com',
+                '33mail.com', 'spam4.me', 'tempinbox.com', 'fakeinbox.com',
+                'mytemp.email', 'throwawaymail.com', 'dispostable.com', 'tempomail.org',
+
+                // Additional disposable domains
+                'crazymailing.com', 'deadaddress.com', 'emailias.com', 'filzmail.com',
+                'get2mail.fr', 'givmail.com', 'gowikicorps.com', 'gufum.com',
+                'harakirimail.com', 'hat-geld.de', 'ichigo.me', 'instaddr.ch',
+                'mailhazard.com', 'mailhazard.us', 'mailinator.net', 'mailinator.org',
+                'mailincubator.com', 'mailmetrash.com', 'mailmoat.com', 'mailnull.com',
+                'mailslurp.com', 'mail-temp.com', 'mailtothis.com', 'mintemail.com',
+                'mytrashmail.com', 'notmailinator.com', 'objectmail.com', 'proxymail.eu',
+                'rcpt.at', 'reconmail.com', 'safetymail.info', 'selfdestructingmail.com',
+                'spamgourmet.com', 'spammotel.com', 'spamstack.net', 'suremail.info',
+                'thisisnotmyrealemail.com', 'tmail.com', 'tmail.ws', 'temporarymail.net',
+                'thankyou2010.com', 'thrott.com', 'tmailinator.com', 'tradermail.info',
+                'trash2009.com', 'trashymail.com', 'uroid.com', 'wegwerfmail.de',
+                'wh4f.org', 'whyspam.me', 'willselfdestruct.com', 'yep.it',
+                'zoemail.com'
+                // REMOVED: 'example.com' - now handled separately
+            ];
+        }
+
+        // Rest of your functions remain the same...
+        function isValidTLD(domain) {
+            const parts = domain.split('.');
+            const tld = parts[parts.length - 1].toLowerCase();
+            const validTLDs = [
+                'com', 'org', 'net', 'edu', 'gov', 'mil', 'int',
+                'in', 'us', 'uk', 'ca', 'au', 'de', 'fr', 'jp', 'cn', 'br', 'ru',
+                'it', 'es', 'nl', 'se', 'no', 'dk', 'fi', 'pl', 'cz', 'hu', 'at',
+                'ch', 'be', 'ie', 'pt', 'gr', 'tr', 'kr', 'sg', 'my', 'id', 'ph',
+                'vn', 'th', 'nz', 'za', 'eg', 'sa', 'ae', 'il', 'ir', 'pk', 'bd',
+                'lk', 'np',
+                'io', 'ai', 'co', 'me', 'info', 'biz', 'mobi', 'name', 'pro',
+                'tv', 'cc', 'ws', 'xyz', 'online', 'site', 'tech', 'store', 'shop',
+                'app', 'dev', 'blog', 'cloud', 'digital', 'world', 'global'
+            ];
+            return validTLDs.includes(tld);
+        }
+
+        function isTooGenericDomainName(domainName) {
+            const genericKeywords = [
+                'company', 'business', 'corporate', 'enterprise', 'organization',
+                'firm', 'venture', 'startup', 'office', 'work', 'professional',
+                'service', 'solution', 'technology', 'digital', 'online', 'web',
+                'site', 'network', 'system', 'example', 'test', 'demo', 'sample',
+                'generic', 'placeholder', 'temporary', 'fake', 'dummy',
+                'mycompany', 'yourcompany', 'ourcompany', 'testcompany',
+                'mybusiness', 'yourbusiness', 'ourbusiness', 'testbusiness'
+            ];
+            return genericKeywords.some(keyword =>
+                domainName.toLowerCase().includes(keyword) || domainName.toLowerCase() === keyword
+            );
+        }
+
+        function looksLikeCompanyDomain(domain) {
+            const companyPatterns = [
+                /\.(com|org|net|co|biz|info|io)$/i,
+                /\.(com\.[a-z]{2}|co\.[a-z]{2})$/i,
+                /\.(ac|edu|sch|gov|mil)$/i,
+                /^[a-z0-9-]+\.[a-z]{2,6}$/i
+            ];
+            return companyPatterns.some(pattern => pattern.test(domain));
+        }
+
+        function isDisposableEmail(domain) {
+            const disposableDomains = getDisposableDomains();
+            return disposableDomains.includes(domain);
+        }
+
+
+        // Update your setInvalid and setValid functions
+        function setInvalid(selector, message) {
+            const $element = $(selector);
+            $element.addClass("is-invalid").removeClass("is-valid");
+
+            // Find and update the invalid-feedback element
+            const $feedback = $element.next(".invalid-feedback");
+            if ($feedback.length) {
+                $feedback.text(message).show();
+            }
+        }
+
+        function setValid(selector) {
+            const $element = $(selector);
+            $element.addClass("is-valid").removeClass("is-invalid");
+
+            // Clear the invalid feedback message
+            const $feedback = $element.next(".invalid-feedback");
+            if ($feedback.length) {
+                $feedback.text("").hide();
+            }
+        }
+
+
+        $('#Vendorform').submit(function (e) {
+               console.log("Active form");
+        e.preventDefault();
+
+            const form = this; // form is defined here
             let isValid = true;
 
-            // --- Custom Rules ---
 
-            // Mobile: 10 digits
+            // In your reset validation code, make sure to include .form-select
+            $("#Vendorform .form-control, #Vendorform .form-select")
+                .removeClass("is-invalid is-valid")
+                .next(".invalid-feedback").text("");
+
+            // And in your setInvalidField and setValidField functions
+            function setInvalidField(selector, message) {
+                const $element = $(selector);
+                $element.addClass("is-invalid").removeClass("is-valid");
+                $element.next(".invalid-feedback").text(message);
+                isValid = false;
+            }
+
+            function setValidField(selector) {
+                const $element = $(selector);
+                $element.addClass("is-valid").removeClass("is-invalid");
+                $element.next(".invalid-feedback").text("");
+            }
+
+            // === Validation Starts ===
+
+            // Mobile Number validation
             const mobile = $("#mobile").val().trim();
-            if (!/^\d{10}$/.test(mobile)) {
-                isValid = false;
-                $("#mobile").addClass("is-invalid");
-                $("#mobile").next(".invalid-feedback").text("Please enter a 10-digit mobile number.");
+            if (!mobile) {
+                setInvalidField("#mobile", "Mobile Number is required.");
+            } else if (!/^[6-9]\d{9}$/.test(mobile)) {
+                setInvalidField("#mobile", "Enter a valid 10-digit Indian mobile number (starts with 6-9).");
             } else {
-                $("#mobile").removeClass("is-invalid").addClass("is-valid");
+                setValidField("#mobile");
             }
 
-            // Personal Email
-            const email = $("#personalEmail").val().trim();
-            if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email)) {
-                isValid = false;
-                $("#personalEmail").addClass("is-invalid");
-                $("#personalEmail").next(".invalid-feedback").text("Please enter a valid personal email address.");
+            // Alternate Mobile validation
+            const altMobile = $("#altMobile").val().trim();
+
+            if (altMobile == "") {
+                // Empty - no validation needed (optional field)
+            } else if (altMobile.length < 10) {
+                setInvalidField("#altMobile", "Alternate mobile must be 10 digits.");
+            } else if (!/^[6-9]/.test(altMobile)) {
+                setInvalidField("#altMobile", "Alternate mobile must start with 6,7,8 or 9.");
+            } else if (!/^[6-9]\d{9}$/.test(altMobile)) {
+                setInvalidField("#altMobile", "Enter a valid 10-digit Indian mobile number.");
             } else {
-                $("#personalEmail").removeClass("is-invalid").addClass("is-valid");
+                setValidField("#altMobile");
             }
 
-            // Company Email
-            const cemail = $("#CompanyEmail").val().trim();
-            if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(cemail)) {
-                isValid = false;
-                $("#CompanyEmail").addClass("is-invalid");
-                $("#CompanyEmail").next(".invalid-feedback").text("Please enter a valid company email address.");
-            } else {
-                $("#CompanyEmail").removeClass("is-invalid").addClass("is-valid");
+
+
+            const address = $("#address").val().trim();
+            if (!address) {
+                setInvalidField("#address", "Address is required.");
+            } else if (address.length < 5) {
+                setInvalidField("#address", "Address must be at least 5 characters long.");
             }
 
-            // Account Number
-            const acc = $("#accountNumber").val().trim();
-            if (!/^\d{12}$/.test(acc)) {
-                isValid = false;
-                $("#accountNumber").addClass("is-invalid");
-                $("#accountNumber").next(".invalid-feedback").text("Please enter a 12-digit account number.");
+            const CompanyMobileNo = $("#CompanyMobileNo").val().trim();
+            if (!CompanyMobileNo) {
+                setInvalidField("#CompanyMobileNo", "Mobile Number is required.");
+            } else if (!/^[6-9]\d{9}$/.test(CompanyMobileNo)) {
+                setInvalidField("#CompanyMobileNo", "Enter a valid 10-digit Indian mobile number (starts with 6-9).");
             } else {
-                $("#accountNumber").removeClass("is-invalid").addClass("is-valid");
+                setValidField("#CompanyMobileNo");
             }
 
-            // --- Bootstrap Required Validation ---
-            if (!form.checkValidity() || !isValid) {
+
+            const companyAltMobile = $("#CompanyAlternateNo").val().trim();
+            if (companyAltMobile && !/^[6-9]\d{9}$/.test(companyAltMobile)) {
+                setInvalidField("#CompanyAlternateNo", "Enter a valid alternate company mobile number.");
+            }
+
+            const companyName = $("#companyName").val().trim();
+            if (!companyName) {
+                setInvalidField("#companyName", "Company Name is required.");
+            } else if (companyName.length < 2) {
+                setInvalidField("#companyName", "Company Name must be at least 2 characters.");
+            }
+
+            const companyAddress = $("#companyAddress").val().trim();
+            if (!companyAddress) {
+                setInvalidField("#companyAddress", "Company Address is required.");
+            }
+            // Dropdown validations - UPDATED
+            if (!$("#industryType").val() || $("#industryType").val() === "0") {
+                setInvalidField("#industryType", "Please select an Industry Type.");
+            } else {
+                setValidField("#industryType"); // Add this line
+            }
+
+            if (!$("#country").val() || $("#country").val() === "0") {
+                setInvalidField("#country", "Please select a Country.");
+            } else {
+                setValidField("#country"); // Add this line
+            }
+
+            if (!$("#state").val() || $("#state").val() === "0") {
+                setInvalidField("#state", "Please select a State.");
+            } else {
+                setValidField("#state"); // Add this line
+            }
+
+            if (!$("#city").val() || $("#city").val() === "0") {
+                setInvalidField("#city", "Please select a City.");
+            } else {
+                setValidField("#city"); // Add this line
+            }
+
+            if (!$("#bankName").val() || $("#bankName").val() === "0") {
+                setInvalidField("#bankName", "Please select a Bank Name.");
+            } else {
+                setValidField("#bankName"); // Add this line
+            }
+
+            if (!$("#branchName").val() || $("#branchName").val() === "0") {
+                setInvalidField("#branchName", "Please select a Branch.");
+            } else {
+                setValidField("#branchName"); // Add this line
+            }
+            const accountNumber = $("#accountNumber").val().trim();
+            if (!accountNumber) {
+                setInvalidField("#accountNumber", "Account Number is required.");
+            } else if (!/^\d{9,18}$/.test(accountNumber)) {
+                setInvalidField("#accountNumber", "Enter a valid 9–18 digit Account Number.");
+            }
+
+            // === Final Check ===
+            if (!isValid) {
                 e.stopPropagation();
                 $(form).addClass("was-validated");
+                const firstError = $(form).find(".is-invalid").first();
+                if (firstError.length) {
+                    $("html, body").animate({ scrollTop: firstError.offset().top - 100 }, 500);
+                }
                 return;
             }
 
-            // --- If Valid → Confirmation + Save ---
-            let formdata = $(form).serialize();
-            console.log("FormData", formdata);
+
+           // --- If Valid → Confirmation + Save (Rest of your code is fine) ---
+           let formdata = $(form).serialize();
+           console.log("FormData", formdata);
+
 
             swalWithBootstrapButtons.fire({
                 title: "Are you sure?",
@@ -1461,7 +1863,13 @@
                 showCancelButton: true,
                 confirmButtonText: "Yes, create it!",
                 cancelButtonText: "No, cancel!",
-                reverseButtons: false // Yes first, Cancel second
+                reverseButtons: false, // Yes first, Cancel second
+                customClass: {
+                    confirmButton: 'btn btn-success px-4', // green button
+                    cancelButton: 'btn btn-danger px-4',   // red button
+                    actions: 'swal2-custom-actions'        // for spacing between buttons
+                },
+                buttonsStyling: false // disable SweetAlert2 default button styling
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
@@ -1503,7 +1911,7 @@
                     });
                 }
             });
-        });
+       });
 
         // Utility function: hide all tooltips
         function hideAllTooltips() {
@@ -1610,9 +2018,15 @@
             text: "Do you really want to approve this vendor?",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonText: "Yes, create it!",
+            confirmButtonText: "Yes, Approve it!",
             cancelButtonText: "No, cancel!",
-            reverseButtons: false 
+            reverseButtons: false,
+            customClass: {
+                confirmButton: 'btn btn-success px-4', // green button
+                cancelButton: 'btn btn-danger px-4',   // red button
+                actions: 'swal2-custom-actions'        // for spacing between buttons
+            },
+            buttonsStyling: false // disable SweetAlert2 default button styling
         }).then((result) => {
             if (result.isConfirmed) {
                 // Call AJAX only if user confirmed
@@ -1685,7 +2099,24 @@
         // Find the position of this row in the checkedRows array
         let sr = checkedRows.findIndex(row => tbl.row(row).index() === rowIdx) + 1;
         return sr; // consecutive Sr.No
-    }
+        }
+        function setInvalid(selector, message) {
+            const element = $(selector);
+            element.addClass("is-invalid").removeClass("is-valid");
+            let feedback = element.next(".invalid-feedback");
+            if (!feedback.length) {
+                feedback = $('<div class="invalid-feedback"></div>').insertAfter(element);
+            }
+            feedback.text(message);
+        }
+
+        function setValid(selector) {
+            const element = $(selector);
+            element.addClass("is-valid").removeClass("is-invalid");
+            let feedback = element.next(".invalid-feedback");
+            if (feedback.length) feedback.text("");
+        }
+
     </script>
 
 </body>

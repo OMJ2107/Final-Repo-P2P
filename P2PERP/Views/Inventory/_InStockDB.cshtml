@@ -1,4 +1,7 @@
 ﻿@model P2PLibray.Inventory.GRNdetailsDRB
+@{
+    ViewBag.Title = "In-Stock Management";
+}
 
 
 <style>
@@ -78,9 +81,9 @@
 
             <!-- Header -->
             <div class="modal-header bg-primary text-white justify-content-center position-relative py-3">
-                <h5 class="modal-title fw-bold text-white text-center m-0 fs-4" id="grnModalLabel">
-                    <i class="bi bi-box-seam me-2"></i>In-Stocks Management
-                </h5>
+                <h3 class="modal-title fw-bold text-white text-center m-0 fs-4" id="grnModalLabel">
+                   In-Stocks Management
+                </h3>
                 <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -102,21 +105,9 @@
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">GRN Date</label>
-                                        <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" value="@Model.GRNDate.ToString("dd/MM/yyyy")" readonly />
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
                                         <label class="col-sm-4 col-form-label fw-bold text-muted small">PO Reference</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control bg-light border-0" name="POReference" value="@Model.POReference" readonly />
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Invoice No</label>
-                                        <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="InvoiceCode" value="@Model.InvoiceCode" readonly />
                                         </div>
                                     </div>
                                     <div class="row">
@@ -125,20 +116,32 @@
                                             <input type="text" class="form-control bg-light border-0" name="VendorCode" value="@Model.VendorCode" readonly />
                                         </div>
                                     </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Invoice No</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control bg-light border-0" name="InvoiceCode" value="@Model.InvoiceCode" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Warehouse Code</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control bg-light border-0" name="StorId" value="@Model.WareHouseCode" readonly />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Right Column -->
                                 <div class="col-md-6 p-3">
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">PO Contact Info</label>
+                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">GRN Date</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="POContactInfo" value="@Model.ContactNo" readonly />
+                                            <input type="text" class="form-control bg-light border-0" value="@Model.GRNDate.ToString("dd/MM/yyyy")" readonly />
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Invoice Date</label>
+                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">PO Contact Info</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="InvoiceDate" value="@Model.InvoiceDate" readonly />
+                                            <input type="text" class="form-control bg-light border-0" name="POContactInfo" value="@Model.ContactNo" readonly />
                                         </div>
                                     </div>
                                     <div class="row mb-3">
@@ -148,9 +151,9 @@
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Store ID</label>
+                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Invoice Date</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="StorId" value="@Model.WareHouseCode" readonly />
+                                            <input type="text" class="form-control bg-light border-0" name="InvoiceDate" value="@Model.InvoiceDate" readonly />
                                         </div>
                                     </div>
                                     <div class="row">
@@ -202,7 +205,7 @@
                                                 <td class="text-center">
                                                     <span class="badge bg-light text-dark border">@item.UOMName</span>
                                                 </td>
-                                                <td class="text-center fw-semibold">@item.Quantity</td>
+                                                <td class="text-center fw-semibold Quantity">@item.Quantity</td>
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center">
                                                         <span class="fw-semibold @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
@@ -265,7 +268,7 @@
                                                             </div>
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <label class="form-label small fw-semibold text-muted mb-0">Assign Qty:</label>
-                                                                <input type="number" class="form-control form-control-sm assign-qty" style="width: 150px;" min="0" font-size="14px"; placeholder="Enter quantity" @(isComplete ? "disabled" : "") />
+                                                                <input type="number" class="form-control form-control-sm bg-white text-dark assign-qty" style="width: 150px;" min="0" font-size="14px" ; placeholder="Enter quantity" @(isComplete ? "disabled" : "") />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -314,7 +317,7 @@ $(document).ready(function () {
         });
     }
 
-   
+
     const warehouseCode = '@Model.WareHouseCode';
     if (!warehouseCode) return;
 
@@ -438,6 +441,7 @@ $(document).ready(function () {
         const current = selected.data("current") || 0;
 
         $row.find(".current-items").text(current);
+        $row.find(".Quantity").text();
         $row.find(".max-capacity").text(max);
         $row.find(".assign-qty").val(0);
         $row.find(".remaining").text(max - current);
@@ -450,16 +454,51 @@ $(document).ready(function () {
         const assignQty = parseInt($input.val()) || 0;
         const current = parseInt($row.find(".current-items").text()) || 0;
         const max = parseInt($row.find(".max-capacity").text()) || 0;
+        const totalItemQty = parseInt($row.find(".Quantity").text()) || 0;
         let remaining = max - (current + assignQty);
 
-        if (remaining < 0) {
-            toastr.warning("Bin Capacity Exceeded...!");
-            $input.val(0);
-            remaining = max - current;
+        // --- Error message placeholder ---
+        let $errorMsg = $row.find(".assign-qty-error");
+        if ($errorMsg.length === 0) {
+            $errorMsg = $('<div class="text-danger small mt-1 assign-qty-error"></div>');
+            $input.after($errorMsg);
         }
 
+        // --- 1️⃣ Negative value check ---
+        if (assignQty <= 0) {
+            $errorMsg.text("Quantity must be greater than zero.");
+            $input.addClass("is-invalid");
+            $row.find(".remaining").text(max - current);
+            return;
+        }
+
+        // --- 2️⃣ Exceeding item quantity check ---
+        if (assignQty > totalItemQty) {
+            $errorMsg.text("Assigned quantity cannot exceed total item quantity (" + totalItemQty + ").");
+            toastr.error("Assigned quantity exceeds available quantity!");
+            $input.addClass("is-invalid");
+            $input.val(totalItemQty); // reset to max allowed
+            $row.find(".remaining").text(max - current);
+            return;
+        }
+
+        // --- 3️⃣ Bin capacity exceeded check ---
+        if (remaining < 0) {
+            $errorMsg.text("Bin capacity exceeded!");
+            toastr.warning("Bin capacity exceeded!");
+            $input.addClass("is-invalid");
+            $input.val(0);
+            $row.find(".remaining").text(max - current);
+            return;
+        }
+
+        // --- 4️⃣ Valid input ---
+        $errorMsg.text("");
+        $input.removeClass("is-invalid");
         $row.find(".remaining").text(remaining);
     });
+
+
 
     // Save Assignments
     $(".btnAssign").off("click").on("click", function () {
@@ -516,5 +555,7 @@ $(document).ready(function () {
             $(this).find("select, input").prop("disabled", true);
         }
     });
+
+
 });
 </script>
