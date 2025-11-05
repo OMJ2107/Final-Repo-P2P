@@ -141,7 +141,12 @@
                             let buttons = '';
 
                             if (amount < 500000) {
-                                buttons += `<button class="btn btn-sm btn-success btn-approve" data-pocode="${pocode}">Approve</button>`;
+                                buttons += `<button class="btn btn-sm btn-success btn-approve" data-pocode="${pocode}"><i class="bi bi-check-circle text-white" 
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="top" 
+                  title="Approve" 
+                  style="cursor:pointer; font-size:18px;" 
+                  "></i></button>`;
                             }
 
                             buttons += `<button class="btn btn-sm btn-view btn-primary ms-1" data-pocode="${pocode}"><i class="bi bi-eye-fill"></i></button>`;
@@ -441,19 +446,35 @@
                 buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
+
+                    
+                    Swal.fire({
+                        title: 'Sending POS...',
+                        text: 'Please wait while email is sending to Vendor .',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                   
                     $.post('/Purchase/ApprovePONAM', { poCode }, function (res) {
+
+                      
+                        Swal.close();
+
                         if (res.success) {
-                            // First success alert for approval
+                            
                             Swal.fire({
                                 icon: 'success',
                                 title: 'PO ' + poCode + ' approved!',
                                 showConfirmButton: false,
                                 timer: 2000
                             }).then(() => {
-                                // Second info alert for email sent
+                                
                                 Swal.fire({
                                     icon: 'info',
-                                    title: 'Email sent to vendor!',
+                                    title: 'Email sent to vendor',
                                     showConfirmButton: false,
                                     timer: 2000
                                 });
