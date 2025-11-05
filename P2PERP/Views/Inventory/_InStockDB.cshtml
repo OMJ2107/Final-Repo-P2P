@@ -185,10 +185,10 @@
                                                 <td class="text-center">
                                                     <span class="badge bg-light text-dark border">@item.UOMName</span>
                                                 </td>
-                                                <td class="text-center fw-semibold">@item.Quantity</td>
+                                                <td class="text-center fw-semibold Quantity">@item.Quantity</td>
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center">
-                                                        <span class="fw-semibold @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
+                                                        <span class="fw-semibold QuantityStored @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
                                                         @if (!isComplete)
                                                         {
                                                             <div class="progress mt-1" style="height: 5px; width: 60px;">
@@ -421,6 +421,7 @@ $(document).ready(function () {
         const current = selected.data("current") || 0;
 
         $row.find(".current-items").text(current);
+        $row.find(".Quantity").text();
         $row.find(".max-capacity").text(max);
         $row.find(".assign-qty").val(0);
         $row.find(".remaining").text(max - current);
@@ -430,37 +431,55 @@ $(document).ready(function () {
     $(document).off("input", ".assign-qty").on("input", ".assign-qty", function () {
         const $input = $(this);
         const $row = $input.closest("tr");
-        const assignQty = parseInt($input.val());
+        const assignQty = parseInt($input.val()) || 0;
         const current = parseInt($row.find(".current-items").text()) || 0;
         const max = parseInt($row.find(".max-capacity").text()) || 0;
-        let remaining = max - (current + (assignQty || 0));
+        const totalItemQty = parseInt($row.find(".Quantity").text()) || 0;
+        const QuantityStored = parseInt($row.find(".QuantityStored").text()) || 0;
+        const Total = totalItemQty - QuantityStored;
+        let remaining = max - (current + assignQty);
 
-        // --- Negative value validation (only show if actual negative entered) ---
+        // --- Error message placeholder ---
         let $errorMsg = $row.find(".assign-qty-error");
         if ($errorMsg.length === 0) {
             $errorMsg = $('<div class="text-danger small mt-1 assign-qty-error"></div>');
             $input.after($errorMsg);
         }
 
-        if (assignQty < 0) { // only trigger for actual negative
-            $errorMsg.text("Quantity cannot be negative or zero.");
+        // --- 1️⃣ Negative value check ---
+        if (assignQty <= 0) {
+            $errorMsg.text("Quantity must be greater than zero.");
             $input.addClass("is-invalid");
-            $row.find(".remaining").text(max - current); // keep remaining consistent
-            return; // stop further calculation
-        } else {
-            $errorMsg.text("");
-            $input.removeClass("is-invalid");
+            $row.find(".remaining").text(max - current);
+            return;
         }
 
-        // --- Existing Bin Capacity logic ---
-        if ((assignQty || 0) > 0 && remaining < 0) {
-            toastr.warning("Bin Capacity Exceeded...!");
+        // --- 2️⃣ Exceeding item quantity check ---
+        if (assignQty > totalItemQty - QuantityStored) {
+            $errorMsg.text("Assigned quantity cannot exceed total item quantity (" + Total + ").");
+            toastr.error("Assigned quantity exceeds available quantity!");
+            $input.addClass("is-invalid");
+            $input.val(totalItemQty); // reset to max allowed
+            $row.find(".remaining").text(max - current);
+            return;
+        }
+
+        // --- 3️⃣ Bin capacity exceeded check ---
+        if (remaining < 0) {
+            $errorMsg.text("Bin capacity exceeded!");
+            toastr.warning("Bin capacity exceeded!");
+            $input.addClass("is-invalid");
             $input.val(0);
-            remaining = max - current;
+            $row.find(".remaining").text(max - current);
+            return;
         }
 
+        // --- 4️⃣ Valid input ---
+        $errorMsg.text("");
+        $input.removeClass("is-invalid");
         $row.find(".remaining").text(remaining);
     });
+
 
 
     // Save Assignments

@@ -202,6 +202,7 @@
                             <th>FullName</th>
                             <th>AddedDate</th>
                             <th>RequiredDate</th>
+                            <th class="d-none">StockReqirementId</th>
                             @*<th>Action</th>*@
                         </tr>
                     </thead>
@@ -409,6 +410,7 @@
                         return data; // fallback
                     }
                 },
+                { data: "StockReqirementId", "visible": false},
                
             ],
             drawCallback: function () {
@@ -974,31 +976,55 @@
         });
         // Handle Create PO button click
         $(document).on("click", ".btn-create-po", function () {
-            let selectedItemCodes = [];
+            let selectedItems = [];
 
-            // Use DataTable API to get checked rows
+            // ✅ Use DataTable API properly
             $("#tblJITItems tbody input.row-select:checked").each(function () {
-                let rowData = tblJITItems.row($(this).closest("tr")).data();
+                let row = $(this).closest("tr");
+                let rowData = tblJITItems.row(row).data();
 
-                if (rowData && rowData.ItemCode) {
-                    selectedItemCodes.push(rowData.ItemCode);
+                if (rowData) {
+                    selectedItems.push({
+                        ItemCode: rowData.ItemCode,
+                        StockReqirementId: rowData.StockReqirementId
+                    });
                 }
             });
 
-            if (selectedItemCodes.length === 0) {
-                alert("Please select at least one item to create PO.");
+            console.log("Selected items:", selectedItems);
+
+            // ✅ Toast configuration
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                newestOnTop: true,
+                positionClass: "toast-top-right",
+                preventDuplicates: true,
+                timeOut: 3000,
+                extendedTimeOut: 1000,
+                showDuration: 300,
+                hideDuration: 300,
+                showMethod: "slideDown",
+                hideMethod: "fadeOut"
+            };
+
+            if (selectedItems.length === 0) {
+                toastr.warning("Please select at least one item to create PO.");
                 return;
             }
 
-            console.log("✅ Selected Item Codes:", selectedItemCodes.join(","));
-            // Set cookie for JIT PO mode
-            document.cookie = "POMode=JIT; path=/; max-age=" + 20 * 60; 
-            // ✅ Store in localStorage
-            localStorage.setItem("SelectedJITItems", JSON.stringify(selectedItemCodes));
+            // ⚠️ More than one item selected
+            if (selectedItems.length > 1) {
+                toastr.error("Please select only one item to create PO.");
+                return;
+            }
+            // ✅ Store data
+            document.cookie = "POMode=JIT; path=/; max-age=" + 20 * 60;
+            localStorage.setItem("SelectedJITItems", JSON.stringify(selectedItems));
 
             window.location.href = '/Purchase/CreatePOOK';
-
         });
+
     }); // End of $(document).ready()
 
     // Tooltip click handler

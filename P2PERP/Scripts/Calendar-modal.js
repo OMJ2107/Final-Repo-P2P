@@ -527,8 +527,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelector('#eventModal .modal-body').innerHTML = html;
 
         if (props.Items && props.Items.length > 0) {
-            console.log(props.Items);
-            console.log(props.Items[0]);
             new DataTable('#grnItemsTable', {
                 data: props.Items,
                 destroy: true,
@@ -701,7 +699,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelector('#eventModal .modal-body').innerHTML = html;
 
         if (props.Items && props.Items.length > 0) {
-            console.log(props.Items);
             let table = new DataTable('#qcItemsTable', {
                 data: props.Items,
                 destroy: true,
@@ -765,7 +762,6 @@ document.addEventListener('DOMContentLoaded', function () {
             </thead>
         </table>
     `;
-        console.log(props);
 
         if (props.Items && props.Items.length > 0) {
             new DataTable('#isrJitTable', {

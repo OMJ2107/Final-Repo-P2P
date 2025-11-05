@@ -19,6 +19,7 @@ using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Web.Services.Description;
 using System.Xml.Linq;
@@ -376,6 +377,15 @@ namespace P2PERP.Controllers
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // RFQ Registered Quotation List
+        //[HttpGet]
+        //public async Task<ActionResult> GetRFQVendorResponses(string rfqCode)
+        //{
+        //    if (string.IsNullOrEmpty(rfqCode))
+        //        return Json(new { success = false, message = "RFQCode is required" }, JsonRequestBehavior.AllowGet);
+
+        //    var items = await bal.GetRFQVendorResponsesAT(rfqCode);
+        //    return Json(new { success = true, data = items }, JsonRequestBehavior.AllowGet);
+        //}
         [HttpGet]
         public async Task<ActionResult> GetRFQVendorResponses(string rfqCode)
         {
@@ -636,40 +646,295 @@ namespace P2PERP.Controllers
         }
 
         // Approve purchase order
-        [HttpGet]
+        [HttpPost]
         public async Task<JsonResult> ApprovePONAM(string poCode)
         {
-            // Call BLL to approve PO
-            var result = await bal.ApprovePONAM(poCode);
+            try
+            {
+                var staffcode = Session["StaffCode"] as string;
 
-            // Return success result
-            return Json(new { success = result }, JsonRequestBehavior.AllowGet);
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                await bal.ApprovePONAM(poCode, staffcode);
+
+
+
+                DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
+
+                if (ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return Json(new { success = false, message = "No PO details found." });
+
+                Purchase po = new Purchase();
+                List<Purchase> poItems = new List<Purchase>();
+
+                var row = ds.Tables[0].Rows[0];
+                po.CompanyName = row["CompanyName"].ToString();
+                po.CompanyAddress = row["CompanyAddress"].ToString();
+                po.CompanyMobileNo = Convert.ToInt64(row["CompanyPhone"]);
+                po.CompanyEmail = row["CompanyEmail"].ToString();
+                po.Website = row["Website"].ToString();
+                po.POCode = row["POCode"].ToString();
+                po.AddedDate = Convert.ToDateTime(row["AddedDate"]);
+                po.ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]);
+                po.VendorName = row["VenderName"].ToString();
+                po.Address = row["VendorAddress"].ToString();
+                po.MobileNo = Convert.ToInt64(row["VendorPhone"]);
+                po.Email = row["VendorEmail"].ToString(); // Vendor email (to send PDF)
+                po.WarehouseName = row["WarehouseName"].ToString();
+                po.WarehouseAddress = row["WarehouseAddress"].ToString();
+                po.WarehousePhone = Convert.ToInt64(row["WarehousePhone"]);
+                po.WarehouseEmail = row["WarehouseEmail"].ToString();
+                po.SubAmount = Convert.ToDecimal(row["SubAmount"]);
+                po.GrandTotal = Convert.ToDecimal(row["GrandTotal"]);
+
+                foreach (DataRow dr in ds.Tables[1].Rows)
+                {
+                    poItems.Add(new Purchase
+                    {
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        Quantity = Convert.ToInt32(dr["Quantity"]),
+                        Description = dr["Description"].ToString(),
+                        CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                        Discount = dr["Discount"].ToString(),
+                        GST = dr["GST"].ToString(),
+                        Amount = Convert.ToDecimal(dr["Amount"])
+                    });
+                }
+
+
+                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems);
+
+
+                await SendPurchaseOrderEmailAsync(po, pdfBytes);
+
+
+                return Json(new { success = true, message = "PO approved and email sent successfully." }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        //send pdf code Amg
+        private async Task SendPurchaseOrderEmailAsync(Purchase po, byte[] pdfBytes)
+        {
+            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
+            string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
+
+            string subject = $"Purchase Order {po.POCode} Approved";
+            string body = $@"
+    <p>Dear {po.VendorName},</p>
+    <p> kindly find attached purchase order for your immediate refernce.In return of this mail,
+         kindaly share your acceptance of the po ,and We are pleased to inform you that Purchase Order:<strong>{po.POCode}</strong> has been approved.</p>
+    <p>Please find the attached Purchase Order PDF for your reference.</p>
+    <br/>
+    <p> Best Regards,<br/>{po.CompanyName}</p>
+";
+
+            using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            })
+            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com"))
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            })
+            {
+                var attachment = new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{po.POCode}.pdf", "application/pdf");
+                message.Attachments.Add(attachment);
+
+                await smtp.SendMailAsync(message);
+            }
         }
 
         // Reject purchase order
         [HttpPost]
         public async Task<JsonResult> RejectPONAM(string poCode)
         {
-            // Call BLL to reject PO
-            var result = await bal.RejectPONAM(poCode);
-            // Return success result
-            return Json(new { success = result }, JsonRequestBehavior.AllowGet);
+            try
+            {
+                var staffcode = Session["StaffCode"] as string;
+
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                var result = await bal.RejectPONAM(poCode, staffcode);
+                return Json(new { success = result, message = result ? "Purchase Order rejected successfully." : "Failed to reject Purchase Order." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error rejecting PO: " + ex.Message });
+            }
         }
+        
 
         // Send PO for higher approval
         [HttpPost]
         public async Task<JsonResult> SendForApprovalNAM(string poCode)
         {
-            // Call BLL to send PO for approval
-            var result = await bal.SendForApprovalNAM(poCode);
-            // Return result and message
-            return Json(new
+            try
             {
-                success = result,
-                message = result ? $"PO {poCode} sent for higher approval." : "Failed to send PO for approval."
-            }, JsonRequestBehavior.AllowGet);
+                var staffcode = Session["StaffCode"] as string;
+
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                var result = await bal.SendForApprovalNAM(poCode, staffcode);
+
+
+                DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
+
+                if (ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return Json(new { success = false, message = "No PO details found." });
+
+                Purchase po = new Purchase();
+                List<Purchase> poItems = new List<Purchase>();
+
+                var row = ds.Tables[0].Rows[0];
+                po.CompanyName = row["CompanyName"].ToString();
+                po.CompanyAddress = row["CompanyAddress"].ToString();
+                po.CompanyMobileNo = Convert.ToInt64(row["CompanyPhone"]);
+                po.CompanyEmail = row["CompanyEmail"].ToString();
+                po.Website = row["Website"].ToString();
+                po.POCode = row["POCode"].ToString();
+                po.AddedDate = Convert.ToDateTime(row["AddedDate"]);
+                po.ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]);
+                po.VendorName = row["VenderName"].ToString();
+                po.Address = row["VendorAddress"].ToString();
+                po.MobileNo = Convert.ToInt64(row["VendorPhone"]);
+                po.Email = row["VendorEmail"].ToString(); // Vendor email (to send PDF)
+                po.WarehouseName = row["WarehouseName"].ToString();
+                po.WarehouseAddress = row["WarehouseAddress"].ToString();
+                po.WarehousePhone = Convert.ToInt64(row["WarehousePhone"]);
+                po.WarehouseEmail = row["WarehouseEmail"].ToString();
+                po.SubAmount = Convert.ToDecimal(row["SubAmount"]);
+                po.GrandTotal = Convert.ToDecimal(row["GrandTotal"]);
+
+                foreach (DataRow dr in ds.Tables[1].Rows)
+                {
+                    poItems.Add(new Purchase
+                    {
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        Quantity = Convert.ToInt32(dr["Quantity"]),
+                        Description = dr["Description"].ToString(),
+                        CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                        Discount = dr["Discount"].ToString(),
+                        GST = dr["GST"].ToString(),
+                        Amount = Convert.ToDecimal(dr["Amount"])
+                    });
+                }
+
+
+                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems);
+
+
+                await SendForApprovalEmailAsync(po, pdfBytes);
+
+
+                return Json(new { success = true, message = "PO approved and email sent successfully." }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
+        private async Task SendForApprovalEmailAsync(Purchase po, byte[] pdfBytes)
+        {
+            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
+            string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
+
+            string subject = $"Purchase Order Approval Required — PO No: {po.POCode}";
+
+            string body = $@"
+        <p>Dear Admin,</p>
+
+        <p>
+            A new Purchase Order (<strong>PO No: {po.POCode}</strong>) amounting to 
+            <strong>₹ {po.Amount:N2}</strong> has been created and requires your approval 
+            since it exceeds the ₹5,00,000 limit.
+        </p>
+
+        <p>
+            Kindly review the attached Purchase Order for your consideration and approval.
+        </p>
+
+        <p>
+            Please review the details and approve or reject the PO at your earliest convenience.
+        </p>
+
+        <p>
+            In case of any queries, feel free to reach out.
+        </p>
+
+        <br/>
+        <p>
+            Best regards,<br/>
+           
+            
+        </p>
+    ";
+
+            using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            })
+            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com")) // <-- Replace with admin email
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            })
+            {
+                var attachment = new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{po.POCode}.pdf", "application/pdf");
+                message.Attachments.Add(attachment);
+
+                await smtp.SendMailAsync(message);
+            }
+        }
+
+
+
+
+
+        //    // Call BLL to send PO for approval
+        //    var emailBody = $"PO {poCode} is sent for your approval.Please approve";
+        //    var result = await bal.SendForApprovalNAM(poCode);
+        //    SendEmailForApprovalNAM("mullanurjaha02@gmail.com", "admin approval", emailBody);
+        //    // Return result and message
+        //    return Json(new
+        //    {
+        //        success = result,
+        //        message = result ? $"PO {poCode} sent for higher approval." : "Failed to send PO for approval."
+        //    }, JsonRequestBehavior.AllowGet);
+        //}
+
+        //private void SendEmailForApprovalNAM(string toEmail, string subject, string body)
+        //{
+        //    var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "admin approval");
+        //    string fromPassword = "pbji sngj tkgz ylow";
+
+        //    using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+        //    {
+        //        EnableSsl = true,
+        //        Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+        //    })
+        //    using (var message = new MailMessage(fromAddress, new MailAddress(toEmail))
+        //    {
+        //        Subject = subject,
+        //        Body = body
+        //    })
+        //        smtp.Send(message);
+
+        //}
 
 
         #endregion Vaibhavi
@@ -1340,7 +1605,8 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<JsonResult> ApproveVendorOK(int VendorId)
         {
-            bool isSave = await bal.ApproveVendorOK(VendorId);
+            string staffcode = Session["StaffCode"].ToString();
+            bool isSave = await bal.ApproveVendorOK(VendorId, staffcode);
             if (isSave)
             {
                 var message = "Vendor Approved successfully!";
@@ -1566,6 +1832,7 @@ namespace P2PERP.Controllers
                     header.ShippingCharges = Convert.ToDecimal(ds.Tables[0].Rows[i]["TransportationCharges"].ToString());
                     header.TotalAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["TotalAmount"]);
                     header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
+                    header.BillingAddress = ds.Tables[0].Rows[i]["BillingAddress"].ToString();
 
                     lstHeader.Add(header);
                 }
@@ -1671,6 +1938,10 @@ namespace P2PERP.Controllers
                     Session["JITPOSave"] = "OK";
                     string staffcode = Session["StaffCode"].ToString();
                     model.StaffCode = staffcode;
+                    if (TempData["StockReqirementId"] != null)
+                    {
+                        model.StockReqirementId = Convert.ToInt32(TempData["StockReqirementId"]);
+                    }
                     bool issaved = await bal.SaveJITPOOK(model);
                     if (issaved)
                     {
@@ -1931,34 +2202,58 @@ namespace P2PERP.Controllers
                 AddHeaderCell(table, "GST", boldFont, new BaseColor(135, 206, 235));
                 AddHeaderCell(table, "TOTAL", boldFont, new BaseColor(135, 206, 235));
 
+                // ===== Calculations =====
+                double subTotal = 0, totalGST = 0;
+
                 foreach (var item in poItems)
                 {
+                    // Handle nulls and conversions safely
+                    double quantity = (po.RequestTypeId == 9) ? item.JITQuantity : item.Quantity;
+                    double costPerUnit = Convert.ToDouble(item.CostPerUnit);
+                    double discountPercent = double.TryParse(item.Discount?.Replace("%", ""), out double d) ? d : 0;
+                    double gstPercent = double.TryParse(item.GST?.Replace("%", ""), out double g) ? g : 0;
+
+                    // Calculate amounts
+                    double amountBeforeDiscount = quantity * costPerUnit;
+                    double discountAmount = amountBeforeDiscount * (discountPercent / 100);
+                    double taxableAmount = amountBeforeDiscount - discountAmount;
+                    double gstAmount = taxableAmount * (gstPercent / 100);
+                    double totalAmount = taxableAmount + gstAmount;
+
+                    subTotal +=Convert.ToDouble(item.Amount);
+                    //totalGST += subTotal+;
+
+                    // Add data row
                     AddDataCell(table, item.ItemCode, normalFont);
                     AddDataCell(table, item.ItemName, normalFont);
                     AddDataCell(table, item.Description, normalFont);
-                    AddDataCell(table, item.Quantity.ToString(), normalFont, Element.ALIGN_CENTER);
-                    AddDataCell(table, $"\u20B9{item.CostPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, item.Discount, normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, item.GST, normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, $"\u20B9{item.Amount:N2}", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, quantity.ToString("N2"), normalFont, Element.ALIGN_CENTER);
+                    AddDataCell(table, $"\u20B9{costPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, $"{discountPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, $"{gstPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(table, $"\u20B9{totalAmount:N2}", normalFont, Element.ALIGN_RIGHT);
                 }
 
                 doc.Add(table);
                 doc.Add(new Paragraph(" "));
 
-                // ===== Comment & Totals =====
-                PdfPTable bottomTable = new PdfPTable(2) { WidthPercentage = 100 };
-                bottomTable.SetWidths(new float[] { 60f, 40f });
+                // ===== Totals Section =====
+                double shipping = Convert.ToDouble(po.ShippingCharges);
+                double grandTotal = subTotal+ shipping;
 
-                PdfPCell commentCell = new PdfPCell(new Phrase("COMMENT OR SPECIAL INSTRUCTION", boldFont)) { FixedHeight = 50f };
-                bottomTable.AddCell(commentCell);
-
-                PdfPTable totalsTable = new PdfPTable(2) { WidthPercentage = 100 };
+                PdfPTable totalsTable = new PdfPTable(2)
+                {
+                    WidthPercentage = 40,
+                    HorizontalAlignment = Element.ALIGN_RIGHT
+                };
                 totalsTable.AddCell(new PdfPCell(new Phrase("SUBTOTAL", boldFont)) { Border = 0 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.SubAmount:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{subTotal:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+                //totalsTable.AddCell(new PdfPCell(new Phrase("GST", boldFont)) { Border = 0 });
+                //totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{totalGST:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
 
                 totalsTable.AddCell(new PdfPCell(new Phrase("SHIPPING", boldFont)) { Border = 0 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.ShippingCharges:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{shipping:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
 
                 totalsTable.AddCell(new PdfPCell(new Phrase("GRAND TOTAL", boldFont))
                 {
@@ -1966,7 +2261,7 @@ namespace P2PERP.Controllers
                     BackgroundColor = new BaseColor(135, 206, 235),
                     Padding = 5
                 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{po.GrandTotal:N2}", boldFont))
+                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{grandTotal:N2}", boldFont))
                 {
                     Border = 0,
                     BackgroundColor = new BaseColor(135, 206, 235),
@@ -1974,14 +2269,16 @@ namespace P2PERP.Controllers
                     Padding = 5
                 });
 
-                bottomTable.AddCell(new PdfPCell(totalsTable) { Border = 0 });
-                doc.Add(bottomTable);
+                //bottomTable.AddCell(new PdfPCell(totalsTable) { Border = 0 });
+                //doc.Add(bottomTable);
+                doc.Add(totalsTable);
+
+
 
                 doc.Close();
                 return ms.ToArray();
             }
         }
-
         // ===== Helper Methods =====
         private void AddHeaderCell(PdfPTable table, string text, iTextSharp.text.Font font, BaseColor bgColor)
         {
@@ -2032,6 +2329,7 @@ namespace P2PERP.Controllers
                     p.AddedBy = ds.Tables[0].Rows[i]["FullName"].ToString();
                     p.AddedDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["AddedDate"].ToString());
                     p.RequiredDate = Convert.ToDateTime(ds.Tables[0].Rows[i]["RequiredDate"].ToString());
+                    p.StockReqirementId = Convert.ToInt32(ds.Tables[0].Rows[i]["StockReqirementId"].ToString());
                     lstItem.Add(p);
                 }
 
@@ -2043,9 +2341,15 @@ namespace P2PERP.Controllers
             return Json(new { data = lstItem }, JsonRequestBehavior.AllowGet);
 
         }
-        public async Task<JsonResult> FetchJITItemPODetailsOk(List<string> items)
+        //public async Task<JsonResult> FetchJITItemPODetailsOk(List<string> items)
+        public async Task<JsonResult> FetchJITItemPODetailsOk(string itemCode, int stockRequirementId)
         {
-            DataSet ds = await bal.FetchSelectedJITItemDetailstOK(items);
+            //Purchase p = new Purchase();
+            //p.StockReqirementId = stockRequirementId;
+            TempData["StockReqirementId"] = stockRequirementId;
+            TempData.Keep("StockReqirementId"); //
+            // DataSet ds = await bal.FetchSelectedJITItemDetailstOK(items);
+            DataSet ds = await bal.FetchSelectedJITItemDetailstOK(itemCode, stockRequirementId);
             // 1️⃣ Quotation Header
             List<Purchase> lstHeader = new List<Purchase>();
             try
@@ -2070,8 +2374,10 @@ namespace P2PERP.Controllers
                     header.SwiftCode = ds.Tables[0].Rows[i]["SwiftCode"].ToString();
                     header.DeliveryAddress = ds.Tables[0].Rows[i]["DeliveryAddress"].ToString();
                     header.ShippingCharges = Convert.ToDecimal(ds.Tables[0].Rows[i]["TransportationCharges"].ToString());
+                    header.BillingAddress = ds.Tables[0].Rows[i]["BillingAddress"].ToString();
+
                     //header.TotalAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["TotalAmount"]);
-                  //  header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
+                    //  header.SubAmount = Convert.ToDecimal(ds.Tables[0].Rows[i]["Amount"]);
 
                     lstHeader.Add(header);
                 }
@@ -2099,7 +2405,7 @@ namespace P2PERP.Controllers
                         CostPerUnit = Convert.ToDecimal(ds.Tables[1].Rows[i]["CostPerUnit"]),
                         Discount = ds.Tables[1].Rows[i]["Discount"].ToString(),
                         GST = ds.Tables[1].Rows[i]["GST"].ToString(),
-                        Amount = Convert.ToDecimal(ds.Tables[1].Rows[i]["NetAmount"])
+                        Amount = Convert.ToDecimal(ds.Tables[1].Rows[i]["ItemNetAmount"])
                     };
                     lstRFQItems.Add(item);
                 }
@@ -2223,9 +2529,10 @@ namespace P2PERP.Controllers
 
                 using (MailMessage mail = new MailMessage())
                 {
-                    mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
-                    //mail.To.Add(vendorEmail);
-                    mail.To.Add("kumbharomkar765@gmail.com"); // Test email
+                    //mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
+                    mail.From = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
+                    mail.To.Add(vendorEmail);
+                   // mail.To.Add("kumbharomkar765@gmail.com"); // Test email
                     mail.Subject = $"Purchase Order - {POCode}";
                     mail.Body = $"Dear {vendorName},\n\nPlease find attached the Purchase Order #{POCode}.\n\nThank you.\n\nRegards,\nYour Company";
                     mail.IsBodyHtml = false;
@@ -2235,7 +2542,7 @@ namespace P2PERP.Controllers
 
                     using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                     {
-                        smtp.Credentials = new NetworkCredential("sandeshjatti5329@gmail.com", "pbji sngj tkgz ylow");
+                        smtp.Credentials = new NetworkCredential("gstprocurmenterp@gmail.com", "lhrlntigzidizmju");
                         smtp.EnableSsl = true;
                         await smtp.SendMailAsync(mail);
                     }
@@ -3129,8 +3436,8 @@ Procurement Team
 
         private void SendEmailWithAttachmentSJ(string toEmail, string subject, string body, string attachmentPath)
         {
-            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
-            string fromPassword = "pbji sngj tkgz ylow"; // ⚠️ Move this to config or environment variable
+            var fromAddress = new MailAddress(WebConfigurationManager.AppSettings["MainEmail"], "Procurement System");
+            string fromPassword = WebConfigurationManager.AppSettings["AppPassword"]; // ⚠️ Move this to config or environment variable
 
             using (var smtp = new SmtpClient("smtp.gmail.com", 587)
             {

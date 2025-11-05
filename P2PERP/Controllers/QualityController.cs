@@ -325,13 +325,13 @@ namespace P2PERP.Controllers
 
 
 
-		#endregion Prashant
+        #endregion Prashant
 
-		#region Rajlaxmi
+        #region Rajlaxmi
 
-		// GET: QualityP2P
-		//  Default Index action
-		public ActionResult IndexRG()
+        // GET: QualityP2P
+        //  Default Index action
+        public ActionResult IndexRG()
         {
             return View();
         }
@@ -370,9 +370,9 @@ namespace P2PERP.Controllers
 
 
         //  Fetches item details by GRN code and returns as JSON
-        public async Task<ActionResult> ItemByGRNRG(string id)
+        public async Task<ActionResult> ItemByGRNRG()
         {
-            var data = await bal.ItemByGRNCodeRG(id);
+            var data = await bal.ItemByGRNCodeRG();
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -417,7 +417,7 @@ namespace P2PERP.Controllers
 
             var staffcode = Session["StaffCode"].ToString();
             await bal.ConfirmBtnInsStatusRG(id, sqc, Inf, staffcode);
-           
+
             return Json(new { success = true });
         }
 
@@ -425,7 +425,7 @@ namespace P2PERP.Controllers
 
 
         //This is PartialView for nonconfirmform
-        public async Task<ActionResult> NonconfirmRG(string GRIcode, string sqc, string Inf, string itemcode,string grnnumber)
+        public async Task<ActionResult> NonconfirmRG(string GRIcode, string sqc, string Inf, string itemcode, string grnnumber)
         {
             if (!string.IsNullOrEmpty(itemcode))
             {
@@ -465,7 +465,7 @@ namespace P2PERP.Controllers
             var staffcode = Session["StaffCode"].ToString();
             String QCCODE = await bal.GetQcCodeRG(GRNICode);
             await bal.InitiatebtnstatusRG(GRNICode, INF, SQC, staffcode);
-            await bal.insertQFitemsRG(FQC, QCCODE, STF, ROR);
+            await bal.insertQFitemsRG(FQC, QCCODE, STF, ROR, staffcode);
 
             return Json("");
 
@@ -521,7 +521,7 @@ namespace P2PERP.Controllers
             return View();
         }
 
-        
+
 
         // Fetch Confirmed and Non-Confirmed counts
         [HttpGet]
@@ -532,28 +532,34 @@ namespace P2PERP.Controllers
             // Return JSON result
             return Json(result, JsonRequestBehavior.AllowGet);
         }
-       
+
 
         // Fetch Confirmed items List
         [HttpGet]
-        public async Task<JsonResult> GetConfirmedListNAM()
+        public async Task<JsonResult> GetConfirmedListNAM(DateTime? startDate, DateTime? endDate)
         {
             // Call BAL to get confirmed GRN list
-            var list = await bal.GetConfirmedListNAM();
+            var list = await bal.GetConfirmedListNAM(startDate, endDate);
             // Return JSON result
             return Json(list, JsonRequestBehavior.AllowGet);
         }
         // Fetch NonConfirmed GRN List
         [HttpGet]
-        public async Task<JsonResult> GetNonConfirmedListNAM()
+        public async Task<JsonResult> GetNonConfirmedListNAM(DateTime? startDate, DateTime? endDate)
         {
             // Call BAL to get Nonconfirmed items  list
-            var list = await bal.GetNonConfirmedListNAM();
+            var list = await bal.GetNonConfirmedListNAM(startDate, endDate);
             // Return JSON result
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+
+
+
+        public async Task<JsonResult> GetPendingListNAM(DateTime? startDate, DateTime? endDate)
+        {
+            var result = await bal.GetPendingListNAM(startDate, endDate);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
         #endregion
-
-
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Net.Mail;
 using System.Net;
@@ -265,38 +266,39 @@ namespace P2PERP.Controllers
         }
 
 
-
-        // Fetch Pie Chart GRN summary
+        //Total GRN Count
         [HttpGet]
-        public async Task<JsonResult> GRNPieChartPSM(DateTime? fromDate, DateTime? toDate)
+        public async Task<JsonResult> GRNPieChartPSM(string fromDate, string toDate)
         {
             BALGRN obj = new BALGRN();
-            DataTable dt = await obj.GRNSummaryPSM(); // returns AddedDate, TotalGRN per day
+            DataTable dt = await obj.GRNSummaryPSM();
 
             int totalGRN = 0;
+            DateTime? from = null, to = null;
+
+            if (DateTime.TryParse(fromDate, out DateTime fd)) from = fd;
+            if (DateTime.TryParse(toDate, out DateTime td)) to = td;
 
             if (dt != null && dt.Rows.Count > 0)
             {
-                if (fromDate.HasValue && toDate.HasValue)
+                var filteredRows = dt.AsEnumerable();
+
+                if (from.HasValue && to.HasValue)
                 {
-                    // Sum TotalGRN for rows within the date range
-                    totalGRN = dt.AsEnumerable()
-                                 .Where(r =>
-                                 {
-                                     var date = r.Field<DateTime>("AddedDate");
-                                     return date.Date >= fromDate.Value.Date && date.Date <= toDate.Value.Date;
-                                 })
-                                 .Sum(r => r.Field<int>("TotalGRN"));
+                    filteredRows = filteredRows.Where(r =>
+                    {
+                        var date = r.Field<DateTime>("AddedDate").Date;
+                        return date >= from.Value.Date && date <= to.Value.Date;
+                    });
                 }
-                else
-                {
-                    // No filter, sum all TotalGRN
-                    totalGRN = dt.AsEnumerable().Sum(r => r.Field<int>("TotalGRN"));
-                }
+
+                totalGRN = filteredRows.Sum(r => r.Field<int>("TotalGRN"));
             }
 
             return Json(new { TotalGRN = totalGRN }, JsonRequestBehavior.AllowGet);
         }
+
+
 
         //Retrieves GRN item details by GRN code for display.
         [HttpGet]
@@ -320,10 +322,14 @@ namespace P2PERP.Controllers
 
         // Fetch GRN Reoprt list in Datatable
         [HttpGet]
-        public async Task<JsonResult> AllGRNSummaryListPSM(DateTime? fromDate, DateTime? toDate)
+        public async Task<JsonResult> AllGRNSummaryListPSM(string fromDate, string toDate)
         {
             BALGRN obj = new BALGRN();
             List<object> materials = new List<object>();
+
+            DateTime? from = null, to = null;
+            if (DateTime.TryParse(fromDate, out DateTime fd)) from = fd.Date;
+            if (DateTime.TryParse(toDate, out DateTime td)) to = td.Date;
 
             SqlDataReader dr = await obj.GRNSummaryListPSM();
 
@@ -332,8 +338,11 @@ namespace P2PERP.Controllers
                 if (!DateTime.TryParse(dr["AddedDate"].ToString(), out DateTime addedDate))
                     continue;
 
-                if ((!fromDate.HasValue || addedDate >= fromDate.Value) &&
-                    (!toDate.HasValue || addedDate <= toDate.Value))
+                // ✅ Compare only the Date part
+                DateTime addedDateOnly = addedDate.Date;
+
+                if ((!from.HasValue || addedDateOnly >= from.Value) &&
+                    (!to.HasValue || addedDateOnly <= to.Value))
                 {
                     materials.Add(new
                     {
@@ -342,7 +351,7 @@ namespace P2PERP.Controllers
                         VendorName = dr["VendorName"]?.ToString() ?? "",
                         CompanyName = dr["CompanyName"]?.ToString() ?? "",
                         AddedBy = dr["AddedBy"]?.ToString() ?? "",
-                        AddedDate = addedDate.ToString("yyyy-MM-dd"),
+                        AddedDate = addedDateOnly.ToString("yyyy-MM-dd"),
                         TotalAmount = dr["TotalAmount"]?.ToString() ?? ""
                     });
                 }
@@ -354,80 +363,149 @@ namespace P2PERP.Controllers
 
 
 
+
         //Return Good Report Action Methods
         public ActionResult GoodsReturnSummaryReportPSM()
         {
             return View();
         }
 
-        //Return Good Data Show in Bar Chart
+        //Alternative - Use same approach as table method
         public async Task<JsonResult> GoodsReturnChartsPSM(string fromDate, string toDate)
         {
-            BALGRN obj = new BALGRN();
-            DataTable dt = await obj.GoodsReturnSummaryPSM();
+            try
+            {
+                BALGRN obj = new BALGRN();
+                List<object> goodsReturns = new List<object>();
 
-            DateTime? fDate = string.IsNullOrEmpty(fromDate) ? (DateTime?)null : DateTime.Parse(fromDate);
-            DateTime? tDate = string.IsNullOrEmpty(toDate) ? (DateTime?)null : DateTime.Parse(toDate);
+                SqlDataReader dr = await obj.GoodsReturnSummaryListPSM();
 
-            var result = dt.AsEnumerable()
-                .Where(row =>
+                DateTime? fDate = null;
+                DateTime? tDate = null;
+
+                // Parse dates safely (same as table method)
+                if (!string.IsNullOrEmpty(fromDate))
                 {
-                    if (!DateTime.TryParse(row["AddedDate"].ToString(), out DateTime addedDate))
-                        return false;
+                    if (DateTime.TryParseExact(fromDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedFromDate))
+                        fDate = parsedFromDate;
+                }
 
-                    return (!fDate.HasValue || addedDate >= fDate.Value) &&
-                           (!tDate.HasValue || addedDate <= tDate.Value);
-                })
-                .GroupBy(row => new
+                if (!string.IsNullOrEmpty(toDate))
                 {
-                    DayName = row["DayName"].ToString(),
-                    StatusName = row["StatusName"].ToString()
-                })
-                .Select(g => new
-                {
-                    DayName = g.Key.DayName,
-                    StatusName = g.Key.StatusName,
-                    Count = g.Count()
-                })
-                .ToList();
+                    if (DateTime.TryParseExact(toDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedToDate))
+                        tDate = parsedToDate;
+                }
 
-            return Json(result, JsonRequestBehavior.AllowGet);
+                // Count statuses directly from the data reader
+                int assignCount = 0;
+                int dispatchCount = 0;
+
+                while (await dr.ReadAsync())
+                {
+                    if (!DateTime.TryParse(dr["AddedDate"]?.ToString(), out DateTime addedDate))
+                        continue;
+
+                    // Apply date filtering (same as table method)
+                    bool include = true;
+                    if (fDate.HasValue)
+                        include = include && (addedDate.Date >= fDate.Value.Date);
+                    if (tDate.HasValue)
+                        include = include && (addedDate.Date <= tDate.Value.Date);
+
+                    if (include)
+                    {
+                        var statusName = dr["StatusName"]?.ToString() ?? "";
+                        if (statusName.Equals("Assign", StringComparison.OrdinalIgnoreCase))
+                            assignCount++;
+                        else if (statusName.Equals("Dispatch", StringComparison.OrdinalIgnoreCase))
+                            dispatchCount++;
+                    }
+                }
+
+                dr.Close();
+
+                var result = new List<object>
+        {
+            new { StatusName = "Assign", Count = assignCount },
+            new { StatusName = "Dispatch", Count = dispatchCount }
+        };
+
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GoodsReturnChartsPSM: {ex.Message}");
+                return Json(new[] {
+            new { StatusName = "Assign", Count = 0 },
+            new { StatusName = "Dispatch", Count = 0 }
+           }, JsonRequestBehavior.AllowGet);
+            }
         }
 
-
-        // Goods return summary report show in Datatable
+        // Goods return summary report show in Datatable with Date Filtering
         [HttpGet]
-        public async Task<JsonResult> GetGoodsReturnSummaryPSM(DateTime? fromDate, DateTime? toDate)
+        public async Task<JsonResult> GetGoodsReturnSummaryPSM(string fromDate, string toDate)
         {
-            BALGRN obj = new BALGRN();
-            List<object> goodsReturns = new List<object>();
-
-            SqlDataReader dr = await obj.GoodsReturnSummaryListPSM();
-
-            while (await dr.ReadAsync())
+            try
             {
-                if (!DateTime.TryParse(dr["AddedDate"].ToString(), out DateTime addedDate))
-                    continue;
-                if ((!fromDate.HasValue || addedDate >= fromDate.Value) &&
-                    (!toDate.HasValue || addedDate <= toDate.Value))
+                BALGRN obj = new BALGRN();
+                List<object> goodsReturns = new List<object>();
+
+                SqlDataReader dr = await obj.GoodsReturnSummaryListPSM();
+
+                DateTime? fDate = null;
+                DateTime? tDate = null;
+
+                // Parse dates safely
+                if (!string.IsNullOrEmpty(fromDate))
                 {
-                    goodsReturns.Add(new
-                    {
-                        GoodsReturnCode = dr["GoodsReturnCode"]?.ToString() ?? "",
-                        TransporterName = dr["TransporterName"]?.ToString() ?? "",
-                        TransportContactNo = dr["TransportContactNo"]?.ToString() ?? "",
-                        VehicleNo = dr["VehicleNo"]?.ToString() ?? "",
-                        VehicleTypeName = dr["VehicleTypeName"]?.ToString() ?? "",
-                        Reason = dr["Reason"]?.ToString() ?? "",
-                        StatusName = dr["StatusName"]?.ToString() ?? "",
-                        AddedDate = addedDate.ToString("yyyy-MM-dd")
-                    });
+                    if (DateTime.TryParseExact(fromDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedFromDate))
+                        fDate = parsedFromDate;
                 }
+
+                if (!string.IsNullOrEmpty(toDate))
+                {
+                    if (DateTime.TryParseExact(toDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedToDate))
+                        tDate = parsedToDate;
+                }
+
+                while (await dr.ReadAsync())
+                {
+                    if (!DateTime.TryParse(dr["AddedDate"]?.ToString(), out DateTime addedDate))
+                        continue;
+
+                    // Apply date filtering
+                    bool include = true;
+                    if (fDate.HasValue)
+                        include = include && (addedDate.Date >= fDate.Value.Date);
+                    if (tDate.HasValue)
+                        include = include && (addedDate.Date <= tDate.Value.Date);
+
+                    if (include)
+                    {
+                        goodsReturns.Add(new
+                        {
+                            GoodsReturnCode = dr["GoodsReturnCode"]?.ToString() ?? "",
+                            TransporterName = dr["TransporterName"]?.ToString() ?? "",
+                            TransportContactNo = dr["TransportContactNo"]?.ToString() ?? "",
+                            VehicleNo = dr["VehicleNo"]?.ToString() ?? "",
+                            VehicleTypeName = dr["VehicleTypeName"]?.ToString() ?? "",
+                            Reason = dr["Reason"]?.ToString() ?? "",
+                            StatusName = dr["StatusName"]?.ToString() ?? "",
+                            AddedDate = addedDate.ToString("yyyy-MM-dd")
+                        });
+                    }
+                }
+
+                dr.Close();
+
+                return Json(new { data = goodsReturns }, JsonRequestBehavior.AllowGet);
             }
-
-            dr.Close();
-
-            return Json(new { data = goodsReturns }, JsonRequestBehavior.AllowGet);
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetGoodsReturnSummaryPSM: {ex.Message}");
+                return Json(new { data = new List<object>() }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 
@@ -1229,6 +1307,8 @@ namespace P2PERP.Controllers
                         ViewBag.BillingAddress = row["BillingAddress"].ToString();
                         ViewBag.GRNCode = row["NewGRNCode"].ToString();
                         ViewBag.WarehouseName = row["WarehouseName"].ToString();
+                        ViewBag.WareHouseId = row["WareHouseId"].ToString();
+
                     }
                 }
 

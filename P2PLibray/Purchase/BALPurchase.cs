@@ -370,9 +370,6 @@ namespace P2PLibray.Purchase
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
         /// <summary>
         /// RFQ Registered Quotation List
         /// </summary>
@@ -402,7 +399,8 @@ namespace P2PLibray.Purchase
                                                                     ? row["VenderName"]?.ToString()
                                                                     : row["VendorName"]?.ToString(),
                         DaysToReceiveQuotation = row["DaysToReceiveQuotation"]?.ToString(),
-                        DaysToApproveQuotation = row["DaysToApproveQuotation"]?.ToString()
+                        DaysToApproveQuotation = row["DaysToApproveQuotation"]?.ToString(),
+                        StatusName = row["StatusName"]?.ToString()
                     });
                 }
             }
@@ -442,10 +440,12 @@ namespace P2PLibray.Purchase
                                 ? Convert.ToInt32(row["HasUnregisteredVendors"])
                                 : 0,
 
- AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
+                            AnyVendor = row.Table.Columns.Contains("HasRegisteredQuotation") && row["HasRegisteredQuotation"] != DBNull.Value
                                 ? Convert.ToInt32(row["HasRegisteredQuotation"])
+                                : 0,
+                            HasApproved = row.Table.Columns.Contains("HasApproved") && row["HasApproved"] != DBNull.Value
+                                ? Convert.ToInt32(row["HasApproved"])
                                 : 0
-
 
                         });
 
@@ -965,25 +965,45 @@ namespace P2PLibray.Purchase
         /// </returns>
         public async Task<List<PendingPurchaseOrder>> GetPendingPOsNAM()
         {
-            var dic = new Dictionary<string, string> { { "@Flag", "GetPendingPOsNAM" } };
-            var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
-            var list = new List<PendingPurchaseOrder>();
-
-            if (ds != null && ds.Tables.Count > 0)
+            try
             {
-                foreach (DataRow row in ds.Tables[0].Rows)
+
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                dic.Add("@Flag", "GetPendingPOsNAM");
+
+
+                var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
+
+
+                List<PendingPurchaseOrder> list = new List<PendingPurchaseOrder>();
+
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    list.Add(new PendingPurchaseOrder
+                    foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                        POCode = row["POCode"]?.ToString(),
-                        PODateVK = row["PODate"] == DBNull.Value ? null : Convert.ToDateTime(row["PODate"]).ToString("yyyy-MM-dd"),
-                        POCost = row["POCost"] == DBNull.Value ? 0 : Convert.ToDecimal(row["POCost"]),
-                        CreatedBy = row["CreatedBy"]?.ToString(),
-                        StatusName = row["StatusName"]?.ToString()
-                    });
+                        list.Add(new PendingPurchaseOrder
+                        {
+                            POCode = row.Table.Columns.Contains("POCode") ? row["POCode"]?.ToString() : null,
+                            PODateVK = row.Table.Columns.Contains("PODate") && row["PODate"] != DBNull.Value
+                                ? Convert.ToDateTime(row["PODate"]).ToString("yyyy-MM-dd")
+                                : null,
+                            POCost = row.Table.Columns.Contains("POCost") && row["POCost"] != DBNull.Value
+                                ? Convert.ToDecimal(row["POCost"])
+                                : 0m,
+                            CreatedBy = row.Table.Columns.Contains("CreatedBy") ? row["CreatedBy"]?.ToString() : null,
+                            StatusName = row.Table.Columns.Contains("StatusName") ? row["StatusName"]?.ToString() : null
+                        });
+                    }
                 }
+
+
+                return list;
             }
-            return list;
+            catch (Exception ex)
+            {
+                throw new Exception("Error in GetPendingPOsNAM", ex);
+            }
         }
 
         /// <summary>
@@ -995,36 +1015,52 @@ namespace P2PLibray.Purchase
         /// </returns>
         public async Task<POHeaderNAM> GetPOHeaderNAM(string poCode)
         {
-            var dic = new Dictionary<string, string>
+            try
             {
-                { "@Flag", "GetPOHeaderNAM" },
-                { "@POCode", poCode }
-            };
 
-            var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
-            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-            {
-                var row = ds.Tables[0].Rows[0];
-                var h = new POHeaderNAM
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                dic.Add("@Flag", "GetPOHeaderNAM");
+                dic.Add("@POCode", poCode);
+
+
+                var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
+
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    POCode = row.Table.Columns.Contains("POCode") ? row["POCode"]?.ToString() : null,
-                    RegisterQuotationCode = row.Table.Columns.Contains("RegisterQuotationCode") ? row["RegisterQuotationCode"]?.ToString() : null,
-                    AddedDateVK = row.Table.Columns.Contains("AddedDate") && row["AddedDate"] != DBNull.Value ? Convert.ToDateTime(row["AddedDate"]).ToString("yyyy-MM-dd") : null,
-                    ApprovedRejectedDateVK = row.Table.Columns.Contains("ApprovedRejectedDate") && row["ApprovedRejectedDate"] != DBNull.Value ? Convert.ToDateTime(row["ApprovedRejectedDate"]).ToString("yyyy-MM-dd") : null,
-                    TotalAmount = row.Table.Columns.Contains("TotalAmount") && row["TotalAmount"] != DBNull.Value ? Convert.ToDecimal(row["TotalAmount"]) : 0m,
-                    DeliveryAddress = row.Table.Columns.Contains("DeliveryAddress") ? row["DeliveryAddress"]?.ToString() : null,
-                    TermConditionName = row.Table.Columns.Contains("TermConditionName") ? row["TermConditionName"]?.ToString() : null,
-                    VendorCode = row.Table.Columns.Contains("VendorCode") ? row["VendorCode"]?.ToString() : null,
-                    VendorName = row.Table.Columns.Contains("VendorName") ? row["VendorName"]?.ToString() : null,
-                    VendorCompanyName = row.Table.Columns.Contains("VendorCompanyName") ? row["VendorCompanyName"]?.ToString() : null,
-                    VendorContact = row.Table.Columns.Contains("VendorContact") ? row["VendorContact"]?.ToString() : null,
-                    VendorAddress = row.Table.Columns.Contains("VendorAddress") ? row["VendorAddress"]?.ToString() : null,
-                    InvoiceToCompanyName = row.Table.Columns.Contains("InvoiceToCompanyName") ? row["InvoiceToCompanyName"]?.ToString() : null
-                };
+                    DataRow row = ds.Tables[0].Rows[0];
+                    POHeaderNAM header = new POHeaderNAM
+                    {
+                        POCode = row.Table.Columns.Contains("POCode") ? row["POCode"]?.ToString() : null,
+                        RegisterQuotationCode = row.Table.Columns.Contains("RegisterQuotationCode") ? row["RegisterQuotationCode"]?.ToString() : null,
+                        AddedDateVK = row.Table.Columns.Contains("AddedDate") && row["AddedDate"] != DBNull.Value
+                            ? Convert.ToDateTime(row["AddedDate"]).ToString("yyyy-MM-dd")
+                            : null,
+                        ApprovedRejectedDateVK = row.Table.Columns.Contains("ApprovedRejectedDate") && row["ApprovedRejectedDate"] != DBNull.Value
+                            ? Convert.ToDateTime(row["ApprovedRejectedDate"]).ToString("yyyy-MM-dd")
+                            : null,
+                        TotalAmount = row.Table.Columns.Contains("TotalAmount") && row["TotalAmount"] != DBNull.Value
+                            ? Convert.ToDecimal(row["TotalAmount"])
+                            : 0m,
+                        DeliveryAddress = row.Table.Columns.Contains("DeliveryAddress") ? row["DeliveryAddress"]?.ToString() : null,
+                        TermConditionName = row.Table.Columns.Contains("TermConditionName") ? row["TermConditionName"]?.ToString() : null,
+                        VendorCode = row.Table.Columns.Contains("VendorCode") ? row["VendorCode"]?.ToString() : null,
+                        VendorName = row.Table.Columns.Contains("VendorName") ? row["VendorName"]?.ToString() : null,
+                        VendorCompanyName = row.Table.Columns.Contains("VendorCompanyName") ? row["VendorCompanyName"]?.ToString() : null,
+                        VendorContact = row.Table.Columns.Contains("VendorContact") ? row["VendorContact"]?.ToString() : null,
+                        VendorAddress = row.Table.Columns.Contains("VendorAddress") ? row["VendorAddress"]?.ToString() : null,
+                        InvoiceToCompanyName = row.Table.Columns.Contains("InvoiceToCompanyName") ? row["InvoiceToCompanyName"]?.ToString() : null
+                    };
 
-                return h;
+                    return header;
+                }
+
+                return null;
             }
-            return null;
+            catch (Exception ex)
+            {
+                throw new Exception("Error in GetPOHeaderNAM", ex);
+            }
         }
 
         /// <summary>
@@ -1036,36 +1072,61 @@ namespace P2PLibray.Purchase
         /// </returns>
         public async Task<List<POItemNAM>> GetPOItemsNAM(string poCode)
         {
-            var dic = new Dictionary<string, string>
+            try
             {
-                { "@Flag", "GetPOItemsNAM" },
-                { "@POCode", poCode }
-            };
 
-            var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
-            var list = new List<POItemNAM>();
-            if (ds != null && ds.Tables.Count > 0)
-            {
-                foreach (DataRow row in ds.Tables[0].Rows)
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                dic.Add("@Flag", "GetPOItemsNAM");
+                dic.Add("@POCode", poCode);
+
+
+                var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
+
+
+                List<POItemNAM> list = new List<POItemNAM>();
+
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    list.Add(new POItemNAM
+                    foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                        POItemCode = row.Table.Columns.Contains("POItemCode") ? row["POItemCode"]?.ToString() : null,
-                        POCode = row.Table.Columns.Contains("POCode") ? row["POCode"]?.ToString() : null,
-                        RegisterQuotationItemCode = row.Table.Columns.Contains("RegisterQuotationItemCode") ? row["RegisterQuotationItemCode"]?.ToString() : null,
-                        ItemCode = row.Table.Columns.Contains("ItemCode") ? row["ItemCode"]?.ToString() : null,
-                        ItemName = row.Table.Columns.Contains("ItemName") ? row["ItemName"]?.ToString() : null,
-                        Description = row.Table.Columns.Contains("Description") ? row["Description"]?.ToString() : null,
-                        UOMName = row.Table.Columns.Contains("UOMName") ? row["UOMName"]?.ToString() : null,
-                        Quantity = row.Table.Columns.Contains("Quantity") && row["Quantity"] != DBNull.Value ? Convert.ToDecimal(row["Quantity"]) : 0m,
-                        CostPerUnit = row.Table.Columns.Contains("CostPerUnit") && row["CostPerUnit"] != DBNull.Value ? Convert.ToDecimal(row["CostPerUnit"]) : 0m,
-                        Discount = row.Table.Columns.Contains("Discount") && row["Discount"] != DBNull.Value ? Convert.ToDecimal(row["Discount"]) : 0m,
-                        GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value ? Convert.ToDecimal(row["GSTPct"]) : 0m
-                    });
+                        list.Add(new POItemNAM
+                        {
+                            POItemCode = row.Table.Columns.Contains("POItemCode") ? row["POItemCode"]?.ToString() : null,
+                            POCode = row.Table.Columns.Contains("POCode") ? row["POCode"]?.ToString() : null,
+                            RegisterQuotationItemCode = row.Table.Columns.Contains("RegisterQuotationItemCode") ? row["RegisterQuotationItemCode"]?.ToString() : null,
+                            ItemCode = row.Table.Columns.Contains("ItemCode") ? row["ItemCode"]?.ToString() : null,
+                            ItemName = row.Table.Columns.Contains("ItemName") ? row["ItemName"]?.ToString() : null,
+                            Description = row.Table.Columns.Contains("Description") ? row["Description"]?.ToString() : null,
+                            UOMName = row.Table.Columns.Contains("UOMName") ? row["UOMName"]?.ToString() : null,
+                            Quantity = row.Table.Columns.Contains("Quantity") && row["Quantity"] != DBNull.Value
+                                ? Convert.ToDecimal(row["Quantity"])
+                                : 0m,
+                            CostPerUnit = row.Table.Columns.Contains("CostPerUnit") && row["CostPerUnit"] != DBNull.Value
+                                ? Convert.ToDecimal(row["CostPerUnit"])
+                                : 0m,
+                            Discount = row.Table.Columns.Contains("Discount") && row["Discount"] != DBNull.Value
+                                ? Convert.ToDecimal(row["Discount"])
+                                : 0m,
+                            GSTPct = row.Table.Columns.Contains("GSTPct") && row["GSTPct"] != DBNull.Value
+                                ? Convert.ToDecimal(row["GSTPct"])
+                                : 0m,
+                            ShippingCharges = row.Table.Columns.Contains("ShippingCharges") && row["ShippingCharges"] != DBNull.Value
+                                ? Convert.ToDecimal(row["ShippingCharges"])
+                                : 0m
+                        });
+                    }
                 }
+
+
+                return list;
             }
-            return list;
+            catch (Exception ex)
+            {
+                throw new Exception("Error in GetPOItemsNAM", ex);
+            }
         }
+
 
         /// <summary>
         /// Approves the purchase order by its PO code.
@@ -1074,77 +1135,107 @@ namespace P2PLibray.Purchase
         /// <returns>
         /// True if the purchase order is approved successfully; otherwise, false.
         /// </returns>
-        public async Task<bool> ApprovePONAM(string poCode)
+        /// <summary>
+        /// Approves a purchase order based on the provided PO code and staff code.
+        /// </summary>
+        /// <param name="poCode">The purchase order code to approve.</param>
+        /// <param name="staffcode">The staff code of the approver.</param>
+        /// <returns>
+        /// True if the purchase order was approved successfully; otherwise, false.
+        /// </returns>
+        public async Task<bool> ApprovePONAM(string poCode, string staffcode)
         {
-            var dic = new Dictionary<string, string>
-            {
-                { "@Flag", "ApprovePoNAM" },
-                { "@POCode", poCode }
-            };
-
             try
             {
+
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                dic.Add("@Flag", "ApprovePoNAM");
+                dic.Add("@ApprovedRejectedBy", staffcode);
+                dic.Add("@ApprovedRejectedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                dic.Add("@POCode", poCode);
+
+
                 await obj.ExecuteStoredProcedure("PurchaseProcedure", dic);
+
+
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+
+                throw new Exception("Error in ApprovePONAM", ex);
             }
         }
 
+
+
+
+
+
         /// <summary>
-        /// Rejects the purchase order by its PO code.
+        /// Rejects a purchase order based on the provided PO code and staff code.
         /// </summary>
         /// <param name="poCode">The purchase order code to reject.</param>
+        /// <param name="staffcode">The staff code of the user rejecting the PO.</param>
         /// <returns>
-        /// True if the purchase order is rejected successfully; otherwise, false.
+        /// True if the purchase order was rejected successfully; otherwise, false.
         /// </returns>
-        public async Task<bool> RejectPONAM(string poCode)
+        public async Task<bool> RejectPONAM(string poCode, string staffcode)
         {
-            var dic = new Dictionary<string, string>
-            {
-                { "@Flag", "RejectPoNAM" },
-                { "@POCode", poCode }
-            };
-
             try
             {
+
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                dic.Add("@Flag", "RejectPoNAM");
+                dic.Add("@ApprovedRejectedBy", staffcode);
+                dic.Add("@ApprovedRejectedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                dic.Add("@POCode", poCode);
+
+
                 await obj.ExecuteStoredProcedure("PurchaseProcedure", dic);
+
+
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+
+                throw new Exception("Error in RejectPONAM", ex);
             }
         }
+
 
         /// <summary>
-        /// Sends the purchase order for higher approval by its PO code.
+        /// Sends the specified purchase order for approval.
         /// </summary>
         /// <param name="poCode">The purchase order code to send for approval.</param>
+        /// <param name="staffcode">The staff code of the user sending the PO for approval.</param>
         /// <returns>
-        /// True if the purchase order is sent successfully; otherwise, false.
+        /// True if the purchase order was successfully sent for approval; otherwise, false.
         /// </returns>
-        public async Task<bool> SendForApprovalNAM(string poCode)
+        public async Task<bool> SendForApprovalNAM(string poCode, string staffcode)
         {
-            var dic = new Dictionary<string, string>
-            {
-                { "@Flag", "SendForApprovalNAM" },
-                { "@POCode", poCode }
-            };
-
             try
             {
+
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                dic.Add("@Flag", "SendforApprovalPONAM");
+                dic.Add("@ApprovedRejectedBy", staffcode);
+                dic.Add("@ApprovedRejectedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                dic.Add("@POCode", poCode);
+
+
                 await obj.ExecuteStoredProcedure("PurchaseProcedure", dic);
+
+
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+
+                throw new Exception("Error in SendForApprovalNAM", ex);
             }
         }
-
 
 
         #endregion Vaibhavi
@@ -1380,7 +1471,9 @@ namespace P2PLibray.Purchase
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error while approving quotation {quotationCode}.", ex);
+                throw new Exception();
+
+               // throw new Exception($"Error while approving quotation {quotationCode}.", ex);
             }
         }
 
@@ -1448,7 +1541,7 @@ namespace P2PLibray.Purchase
             prParam.Add("@RequiredDate", purchase.RequiredDate.ToString("yyyy-MM-dd"));
             prParam.Add("@StatusId", purchase.Status.ToString());
             prParam.Add("@AddedBy", purchase.AddedBy);
-            prParam.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+            prParam.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             prParam.Add("@PriorityId", purchase.PriorityId.ToString());
 
             await obj.ExecuteStoredProcedure("PurchaseProcedure", prParam);
@@ -1841,19 +1934,22 @@ namespace P2PLibray.Purchase
         }
 
         /// <summary>
-        /// Approves a pending vendor by their ID.
+        /// Approves a pending vendor by their ID..
         /// </summary>
         /// <param name="VendorId">The ID of the vendor to approve</param>
         /// <returns>Boolean indicating success or failure of the approval operation</returns>
 
-        public async Task<bool> ApproveVendorOK(int VendorId)
+        public async Task<bool> ApproveVendorOK(int VendorId,string staffcode)
         {
             try
             {
                 Dictionary<string, string> para = new Dictionary<string, string>();
                 para.Add("@Flag", "ApproveVendorOK");
                 para.Add("@VendorId", VendorId.ToString());
+                para.Add("@StaffCode", staffcode);
+                para.Add("@ApprovedRejectedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 await obj.ExecuteStoredProcedure("PurchaseProcedure", para);
+                
                 return true;
             }
             catch (Exception ex)
@@ -2007,15 +2103,17 @@ namespace P2PLibray.Purchase
         /// <summary>
         /// Fetch item details for selected JIT items
         /// </summary>
-        public async Task<DataSet> FetchSelectedJITItemDetailstOK(List<string> itemCodes)
+        public async Task<DataSet> FetchSelectedJITItemDetailstOK(string itemCode, int stockRequirementId)
         {
             Dictionary<string, string> para = new Dictionary<string, string>();
-            string csvItemCodes = string.Join(",", itemCodes);
             para.Add("@Flag", "FetchJITDetaistoPOOK");
-            para.Add("@ItemCodes", csvItemCodes);
+            para.Add("@ItemCode", itemCode);
+            para.Add("@StockRequirementId", stockRequirementId.ToString());
+
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
             return ds;
         }
+
 
 
 
@@ -2079,6 +2177,14 @@ namespace P2PLibray.Purchase
 
         public async Task<bool> SavePOJITItemsOK(Purchase model, string POcode)
         {
+            //Dictionary<string, string> parameters = new Dictionary<string, string>();
+            //parameters.Add("@Flag", "GetNewRQItemCodeOK");
+            //SqlDataReader rd = await obj.ExecuteStoredProcedureReturnDataReader("PurchaseProcedure", parameters);
+            //string rqItemCode = null;
+            //if(rd.Read())
+            //{
+            //    rqItemCode = rd["NewRQItemCode"].ToString();
+            //}
             foreach (var item in model.POItems)
             {
                 // Parse JSON string
@@ -2117,7 +2223,8 @@ namespace P2PLibray.Purchase
                     Dictionary<string, string> para = new Dictionary<string, string>
             {
                 { "@Flag", "UpdateItemRequirementStatusOK" }, // New flag
-                { "@ItemCode", itemCode }
+                { "@ItemCode", itemCode },
+                {@"StockrequirementId",model.StockReqirementId.ToString()}
             };
 
                     await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);

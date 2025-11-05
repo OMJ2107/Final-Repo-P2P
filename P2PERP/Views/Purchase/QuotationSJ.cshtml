@@ -302,7 +302,7 @@
                     <div class="card shadow-sm">
                         <div class="card-body">
 
-                            <!-- Hidden Extra Fields -->
+                            <!-- Hidden Extra Fieldsr -->
                             <div id="rfqExtraFields" class="d-none mb-4">
                                 <div class="row mb-3">
                                     <div class="col-md-3">
@@ -384,7 +384,6 @@
 
             <!-- Modal Footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
                 <button type="submit" id="btnCreateRFQ" class="btn btn-success">Create RFQ</button>
                 <button type="submit" id="btnSubmitRFQ" form="rfqForm" class="btn btn-success d-none">Submit</button>
             </div>
@@ -421,13 +420,14 @@
                                 <input type="text" class="form-control bg-light" id="rfqPRCode" readonly />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-bold">Created Date:</label>
-                                <input type="text" class="form-control bg-light" id="rfqCreatedDate" readonly />
+                                <label class="form-label fw-bold">Required Date:</label>
+                                <input type="text" class="form-control bg-light" id="rfqRequiredDate" readonly />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-bold">Created By:</label>
-                                <input type="text" class="form-control bg-light" id="rfqCreatedBy" readonly />
+                                <label class="form-label fw-bold">Delivery Address:</label>
+                                <input type="text" class="form-control bg-light" id="rfqDeliveryAddress" readonly />
                             </div>
+
                         </div>
 
                         <div class="row mb-3">
@@ -445,16 +445,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold">Required Date:</label>
-                                <input type="text" class="form-control bg-light" id="rfqRequiredDate" readonly />
-                            </div>
-                            <div class="col-md-8">
-                                <label class="form-label fw-bold">Delivery Address:</label>
-                                <input type="text" class="form-control bg-light" id="rfqDeliveryAddress" readonly />
-                            </div>
-                        </div>
+                        
 
                         <div class="row mb-4">
                             <div class="col-12">
@@ -1570,10 +1561,9 @@
                                 <td>${item.RFQCode ?? ""}</td>
 
 
-                        <td>${moment(item.RequiredDate, 'DD-MM-YYYY hh:mm:ss A').isValid()
-                                ? moment(item.RequiredDate, 'DD-MM-YYYY hh:mm:ss A').format('DD/MM/YYYY')
-                                : ''}</td>
-
+                        <td>${moment(item.RequiredDate, 'DD-MM-YYYY').isValid()
+                                ? moment(item.RequiredDate, 'DD-MM-YYYY').format('DD/MM/YYYY')
+                                : moment(item.RequiredDate).format('DD/MM/YYYY')}</td>
 
                                 <td>
                                     <span data-bs-toggle="tooltip" data-bs-placement="top" title="${desc}">
@@ -1952,10 +1942,14 @@
                         $("#rfqCreatedDate").val(moment(header.CreatedDate).format('DD/MM/YYYY'));
                     }
 
-                    if (header.RequiredDate && moment(header.RequiredDate).isValid()) {
-                        $("#rfqRequiredDate").val(moment(header.RequiredDate).format('DD/MM/YYYY'));
+                    if (header.RequiredDate) {
+                        const m = moment(header.RequiredDate, "DD-MM-YYYY HH:mm:ss", true);
+                        if (m.isValid()) {
+                            $("#rfqRequiredDate").val(m.format("DD/MM/YYYY"));
+                        } else {
+                            console.warn("Invalid date format:", header.RequiredDate);
+                        }
                     }
-
 
                     $("#rfqCreatedBy").val(header.CreatedBy || "");
                     $("#rfqContactPerson").val(header.ContactPerson || "");
