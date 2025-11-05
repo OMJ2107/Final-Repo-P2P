@@ -12,7 +12,6 @@
 
     <style>
 
-
         #ncModal.show::before {
             display: block;
         }
@@ -48,17 +47,17 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Plan Name</label>
-                        <input type="text" class="form-control" value="@ViewBag.PlanName"readonly>
+                        <input type="text" class="form-control" value="@ViewBag.PlanName" readonly>
                     </div>
 
                     <!-- Parameters & Inspection -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Parameters</label>
-                        <input type="text" class="form-control" id="parameter" value="@ViewBag.Parameters"readonly>
+                        <input type="text" class="form-control" id="parameter" value="@ViewBag.Parameters" readonly>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Inspection Type</label>
-                        <input type="text" class="form-control" value="@ViewBag.InspectionType"readonly>
+                        <input type="text" class="form-control" value="@ViewBag.InspectionType" readonly>
                     </div>
 
                     <!-- Assigned Date -->
@@ -68,7 +67,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Quantity</label>
-                        <input type="text"id="txtQuantity" class="form-control" value="@ViewBag.Quantity" readonly>
+                        <input type="text" id="txtQuantity" class="form-control" value="@ViewBag.Quantity" readonly>
                     </div>
 
                     <!-- Frequency & Sample -->
@@ -105,7 +104,7 @@
                         <button type="button" class="btn btn-warning text-white px-4" onclick="InitiateNc()">
                             <i class="bi bi-exclamation-triangle me-1"></i> Initiate NC
                         </button>
-                      
+
                     </div>
                 </form>
             </div>
@@ -175,7 +174,7 @@
                     }
                 }
             });
-         
+
             //parameter load in table
 
             $.ajax({
@@ -189,11 +188,11 @@
                     if (res && res.length > 0) {
                         res.forEach((item, index) => {
                             $('#tbody').append(`
-                                <tr>
-                                    <td class="text-center">${index + 1}</td>
-                                    <td>${item.Parameters || ''}</td>
-                                </tr>
-                            `);
+                                    <tr>
+                                        <td class="text-center">${index + 1}</td>
+                                        <td>${item.Parameters || ''}</td>
+                                    </tr>
+                                `);
                         });
                     } else {
                         $('#tbody').append('<tr><td colspan="2" class="text-center text-muted">No parameters found</td></tr>');
@@ -273,14 +272,14 @@
                     .after(`<span class="text-danger small error-text">  Inspection Frequency cannot be greater than Quantity (${quantity}).</span>`);
                 hasError = true;
             }
-             /*---------- 4️⃣ Stop if Validation Fails ----------*/
+            /*---------- 4️⃣ Stop if Validation Fails ----------*/
             if (hasError) {
-                
+
                 return;
             }
 
 
-            
+
             //confirm button function for update status and some fields
 
             $.ajax({
