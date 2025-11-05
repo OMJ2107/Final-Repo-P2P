@@ -74,7 +74,7 @@
                                 <td>@(po.ApprovedRejectedDateAT.HasValue? po.ApprovedRejectedDateAT.Value.ToString("dd'/'MM'/'yyyy", System.Globalization.CultureInfo.InvariantCulture): "")</td>
                                 <td>
                                     <span class="@(po.StatusName == "Approved" ? "badge bg-success" :
-                                                   po.StatusName == "Open" ? "badge bg-info" :
+                                po.StatusName == "Open" ? "badge bg-info" :
                                            po.StatusName == "Close" ? "badge bg-danger" : "badge bg-secondary")">
                                         @po.StatusName
                                     </span>

@@ -19,6 +19,7 @@ using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Web.Services.Description;
 using System.Xml.Linq;
@@ -650,8 +651,13 @@ namespace P2PERP.Controllers
         {
             try
             {
+                var staffcode = Session["StaffCode"] as string;
 
-                await bal.ApprovePONAM(poCode);
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                await bal.ApprovePONAM(poCode, staffcode);
+
 
 
                 DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
@@ -751,11 +757,22 @@ namespace P2PERP.Controllers
         [HttpPost]
         public async Task<JsonResult> RejectPONAM(string poCode)
         {
-            // Call BLL to reject PO
-            var result = await bal.RejectPONAM(poCode);
-            // Return success result
-            return Json(new { success = result }, JsonRequestBehavior.AllowGet);
+            try
+            {
+                var staffcode = Session["StaffCode"] as string;
+
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                var result = await bal.RejectPONAM(poCode, staffcode);
+                return Json(new { success = result, message = result ? "Purchase Order rejected successfully." : "Failed to reject Purchase Order." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error rejecting PO: " + ex.Message });
+            }
         }
+        
 
         // Send PO for higher approval
         [HttpPost]
@@ -763,8 +780,12 @@ namespace P2PERP.Controllers
         {
             try
             {
+                var staffcode = Session["StaffCode"] as string;
 
-                await bal.SendForApprovalNAM(poCode);
+                if (string.IsNullOrEmpty(staffcode))
+                    return Json(new { success = false, message = "Staff code not found in session. Please login again." });
+
+                var result = await bal.SendForApprovalNAM(poCode, staffcode);
 
 
                 DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(poCode);
@@ -2509,7 +2530,7 @@ namespace P2PERP.Controllers
                 using (MailMessage mail = new MailMessage())
                 {
                     //mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
-                    mail.From = new MailAddress("gstprocurmenterp@gmail.com", "Rahitech IT Solution");
+                    mail.From = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
                     mail.To.Add(vendorEmail);
                    // mail.To.Add("kumbharomkar765@gmail.com"); // Test email
                     mail.Subject = $"Purchase Order - {POCode}";
@@ -3415,8 +3436,8 @@ Procurement Team
 
         private void SendEmailWithAttachmentSJ(string toEmail, string subject, string body, string attachmentPath)
         {
-            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
-            string fromPassword = "pbji sngj tkgz ylow"; // ⚠️ Move this to config or environment variable
+            var fromAddress = new MailAddress(WebConfigurationManager.AppSettings["MainEmail"], "Procurement System");
+            string fromPassword = WebConfigurationManager.AppSettings["AppPassword"]; // ⚠️ Move this to config or environment variable
 
             using (var smtp = new SmtpClient("smtp.gmail.com", 587)
             {

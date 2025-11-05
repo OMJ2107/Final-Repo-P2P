@@ -137,6 +137,7 @@ namespace P2PLibray.Purchase
             public string ItemCode { get; set; }
             public decimal RequiredQuantity { get; set; }
         }
+
     #endregion
 
         #region Vaibhavi
@@ -255,6 +256,7 @@ namespace P2PLibray.Purchase
         public decimal POCost { get; set; }
         public string CreatedBy { get; set; }
         public string StatusName { get; set; }
+        public string approvedby { get; set; }
     }
 
     public class POHeaderNAM

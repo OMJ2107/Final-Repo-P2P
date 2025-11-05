@@ -135,7 +135,7 @@
                                     <div class="row mb-3">
                                         <label class="col-sm-4 col-form-label fw-bold text-muted small">GRN Date</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" value="@Model.GRNDate.ToString("dd/MM/yyyy")" readonly />
+                                            <input type="text" class="form-control bg-light border-0" value="@Html.Raw(Model.GRNDate.ToString("dd'/'MM'/'yyyy"))" readonly />
                                         </div>
                                     </div>
                                     <div class="row mb-3">
@@ -153,7 +153,7 @@
                                     <div class="row mb-3">
                                         <label class="col-sm-4 col-form-label fw-bold text-muted small">Invoice Date</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="InvoiceDate" value="@Model.InvoiceDate" readonly />
+                                            <input type="text" class="form-control bg-light border-0" name="InvoiceDate" value="@Html.Raw(Model.InvoiceDate.ToString("dd'/'MM'/'yyyy"))" readonly />
                                         </div>
                                     </div>
                                     <div class="row">
@@ -208,7 +208,7 @@
                                                 <td class="text-center fw-semibold Quantity">@item.Quantity</td>
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center">
-                                                        <span class="fw-semibold @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
+                                                        <span class="fw-semibold QuantityStored @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
                                                         @if (!isComplete)
                                                         {
                                                             <div class="progress mt-1" style="height: 5px; width: 60px;">
@@ -229,25 +229,25 @@
                                                         <div class="row g-2 mb-3">
                                                             <div class="col-sm-6 col-lg-3">
                                                                 <label class="form-label small fw-semibold text-muted">Area</label>
-                                                                <select class="form-select form-select-sm area-ddl" @(isComplete ? "disabled" : "")>
+                                                                <select class="form-select form-select-sm area-ddl bg-white text-dark" @(isComplete ? "disabled" : "")>
                                                                     <option value="">Select Area</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-sm-6 col-lg-3">
                                                                 <label class="form-label small fw-semibold text-muted">Rack</label>
-                                                                <select class="form-select form-select-sm rack-ddl" @(isComplete ? "disabled" : "")>
+                                                                <select class="form-select form-select-sm rack-ddl bg-white text-dark" @(isComplete ? "disabled" : "")>
                                                                     <option value="">Select Rack</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-sm-6 col-lg-3">
                                                                 <label class="form-label small fw-semibold text-muted">Row</label>
-                                                                <select class="form-select form-select-sm row-ddl" @(isComplete ? "disabled" : "")>
+                                                                <select class="form-select form-select-sm row-ddl bg-white text-dark" @(isComplete ? "disabled" : "")>
                                                                     <option value="">Select Row</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-sm-6 col-lg-3">
                                                                 <label class="form-label small fw-semibold text-muted">Bin</label>
-                                                                <select class="form-select form-select-sm bin-ddl" @(isComplete ? "disabled" : "")>
+                                                                <select class="form-select form-select-sm bin-ddl bg-white text-dark" @(isComplete ? "disabled" : "")>
                                                                     <option value="">Select Bin</option>
                                                                 </select>
                                                             </div>
@@ -455,6 +455,8 @@ $(document).ready(function () {
         const current = parseInt($row.find(".current-items").text()) || 0;
         const max = parseInt($row.find(".max-capacity").text()) || 0;
         const totalItemQty = parseInt($row.find(".Quantity").text()) || 0;
+        const QuantityStored = parseInt($row.find(".QuantityStored").text()) || 0;
+        const Total = totalItemQty - QuantityStored;
         let remaining = max - (current + assignQty);
 
         // --- Error message placeholder ---
@@ -473,8 +475,8 @@ $(document).ready(function () {
         }
 
         // --- 2️⃣ Exceeding item quantity check ---
-        if (assignQty > totalItemQty) {
-            $errorMsg.text("Assigned quantity cannot exceed total item quantity (" + totalItemQty + ").");
+        if (assignQty > totalItemQty - QuantityStored) {
+            $errorMsg.text("Assigned quantity cannot exceed total item quantity (" + Total + ").");
             toastr.error("Assigned quantity exceeds available quantity!");
             $input.addClass("is-invalid");
             $input.val(totalItemQty); // reset to max allowed
