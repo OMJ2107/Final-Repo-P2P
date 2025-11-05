@@ -3235,7 +3235,6 @@ namespace P2PLibray.Purchase
                 ["@RFQCode"] = model.RFQCode ?? "",
                 ["@ContactPersonId"] = model.ContactPerson ?? "",
                 ["@PRCode"] = model.PRCode ?? "",
-                ["@ExpectedDate"] = model.ExpectedDate.ToString("yyyy-MM-dd"),
                 ["@WarehouseCode"] = model.Warehouse ?? "",
                 ["@Note"] = model.Note ?? "",
                 ["@StaffCode"] = staffCode ?? "",   // ✅ Passed as string
@@ -3441,7 +3440,7 @@ namespace P2PLibray.Purchase
         /// <summary>
         /// Save the RFQ and vendors code 
         /// </summary>
-        public async Task<int> SaveRFQVendorsSJ(Purchase model, string staffCode, string addedDate)
+        public async Task<int> SaveRFQVendorsSJ(Purchase model, string staffCode, string addedDate,DateTime ExpectedDate)
         {
             if (model == null || model.Vendors == null || model.Vendors.Count == 0)
                 return 0;
@@ -3456,8 +3455,9 @@ namespace P2PLibray.Purchase
             { "@RFQCode", model.RFQCode },
             { "@VendorCode", vendorId.ToString() },
             { "@StaffCode", staffCode ?? "" }, 
-            { "@AddedDate", addedDate ?? "" }    
-        };
+            { "@AddedDate", addedDate ?? "" },
+            { "@ExpectedDate", ExpectedDate.ToString("yyyy-MM-dd")}
+                    };
 
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
 
