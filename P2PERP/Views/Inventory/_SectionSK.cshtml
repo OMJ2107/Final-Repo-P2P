@@ -18,6 +18,9 @@
         button.dt-button.processing:after {
             content: none !important;
         }
+        .text-red{
+            color:red;
+        }
 </style>
 
 <div class="table-responsive">
@@ -54,44 +57,38 @@
                 <form id="addSectionForm">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <div class="input-group input-group-merge mb-3">
-                                <span class="input-group-text"><i class="ri-barcode-line"></i></span>
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" id="SectionCodeSk" name="SectionCode" class="form-control" required readonly>
-                                    <label for="SectionCodeSk">Section Code</label>
-                                </div>
+                            <label for="SectionCodeSk">Section Code <span class="text-red">*</span></label>
+                            <div class="form-floating form-floating-outline mb-3">
+                                <input type="text" id="SectionCodeSk" name="SectionCode" class="form-control bg-gray" required readonly>
+
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="input-group input-group-merge mb-1">
-                                <span class="input-group-text"><i class="ri-layout-masonry-line"></i></span>
-                                <div class="form-floating form-floating-outline">
+                            <div>
+                                <label for="SectionName">Section Name <span class="text-red">*</span></label>
+                                <div class="form-floating form-floating-outline mb-1">
                                     <input type="text" name="SectionName" class="form-control">
-                                    <label for="SectionName">Section Name <span class="text-danger">*</span></label>
+
                                 </div>
                             </div>
                             <span id="SectionNameError" class="text-danger"></span>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-building-4-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <select id="WarehouseCodes" name="WarehouseCode" class="form-select">
-                                            <option value="">-- Select Warehouse --</option>
-                                        </select>
-                                        <label for="WarehouseCodes">Warehouse <span class="text-danger">*</span></label>
-                                    </div>
+                                <label for="WarehouseCodes">Warehouse <span class="text-red">*</span></label>
+                                <div class="form-floating form-floating-outline mb-3">
+                                    <select id="WarehouseCodes" name="WarehouseCode" class="form-select">
+                                        <option value="">-- Select Warehouse --</option>
+                                    </select>
+
                                 </div>
                                 <span id="addSectionWhError" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
-                                <div class="input-group input-group-merge mb-3">
-                                    <span class="input-group-text"><i class="ri-file-text-line"></i></span>
-                                    <div class="form-floating form-floating-outline">
-                                        <textarea name="Descriptionk" class="form-control" style="height: 80px;"></textarea>
-                                        <label for="Description">Description</label>
-                                    </div>
+                                <label for="Description">Description</label>
+                                <div class="form-floating form-floating-outline mb-3">
+                                    <textarea name="Descriptionk" class="form-control" style="height: 80px;"></textarea>
+
                                 </div>
                             </div>
                         </div>
@@ -123,42 +120,34 @@
                     <input type="hidden" name="SectionId" id="EditSectionId" />
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <div class="input-group input-group-merge mb-3">
-                                <span class="input-group-text"><i class="ri-barcode-line"></i></span>
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" id="EditSectionCode" name="SectionCode" class="form-control" readonly>
-                                    <label for="EditSectionCode">Section Code</label>
-                                </div>
+                            <label for="EditSectionCode">Section Code</label>
+                            <div class="form-floating form-floating-outline mb-3">
+                                <input type="text" id="EditSectionCode" name="SectionCode" class="form-control bg-gray" readonly>
+
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="input-group input-group-merge mb-3">
-                                <span class="input-group-text"><i class="ri-layout-masonry-line"></i></span>
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" id="EditSectionName" name="SectionName" class="form-control" required>
-                                    <label for="EditSectionName">Section Name <span class="text-danger">*</span></label>
-                                </div>
+                            <label for="EditSectionName">Section Name  <span class="text-red">*</span></label>
+                            <div class="form-floating form-floating-outline mb-3">
+                                <input type="text" id="EditSectionName" name="SectionName" class="form-control" required>
+
                             </div>
                             <div id="EditSectionNameError" class="text-danger" style="font-size: 0.9rem;"></div>
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="input-group input-group-merge mb-3">
-                                <span class="input-group-text"><i class="ri-building-4-line"></i></span>
-                                <div class="form-floating form-floating-outline" readonly>
-                                    <select id="EditWarehouseCode" name="WarehouseCode" class="form-select" required></select>
-                                    <label for="EditWarehouseCode">Warehouse <span class="text-danger">*</span></label>
-                                </div>
+                        <div class="col-md-6" >
+                            <label for="EditWarehouseCode">Warehouse <span class="text-red">*</span></label>
+                            <div class="form-floating form-floating-outline mb-3" readonly>
+                                <select id="EditWarehouseCode" name="WarehouseCode" class="form-select" required ></select>
+
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="input-group input-group-merge mb-3">
-                                <span class="input-group-text"><i class="ri-file-text-line"></i></span>
-                                <div class="form-floating form-floating-outline">
-                                    <textarea id="EditDescription" name="Description" class="form-control" style="height: 80px;"></textarea>
-                                    <label for="EditDescription">Description</label>
-                                </div>
+                            <label for="EditDescription">Description</label>
+                            <div class="form-floating form-floating-outline mb-3">
+                                <textarea id="EditDescription" name="Description" class="form-control" style="height: 80px;"></textarea>
+
                             </div>
                         </div>
                     </div>
@@ -187,39 +176,31 @@
             <div class="modal-body">
                 <form class="row g-3">
                     <div class="col-md-6">
-                        <div class="input-group input-group-merge mb-3">
-                            <span class="input-group-text"><i class="ri-barcode-line"></i></span>
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" class="form-control" id="ViewSectionCode" readonly>
-                                <label for="ViewSectionCode">Section Code</label>
-                            </div>
+                        <label for="ViewSectionCode">Section Code</label>
+                        <div class="form-floating form-floating-outline mb-3">
+                            <input type="text" class="form-control" id="ViewSectionCode" readonly>
+
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="input-group input-group-merge mb-3">
-                            <span class="input-group-text"><i class="ri-layout-masonry-line"></i></span>
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" class="form-control" id="ViewSectionName" readonly>
-                                <label for="ViewSectionName">Section Name</label>
-                            </div>
+                        <label for="ViewSectionName">Section Name</label>
+                        <div class="form-floating form-floating-outline mb-3">
+                            <input type="text" class="form-control" id="ViewSectionName" readonly>
+
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="input-group input-group-merge mb-3">
-                            <span class="input-group-text"><i class="ri-building-4-line"></i></span>
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" class="form-control" id="ViewWarehouseName" readonly>
-                                <label for="ViewWarehouseName">Warehouse</label>
-                            </div>
+                        <label for="ViewWarehouseName">Warehouse</label>
+                        <div class="form-floating form-floating-outline mb-3">
+                            <input type="text" class="form-control" id="ViewWarehouseName" readonly>
+
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="input-group input-group-merge mb-3">
-                            <span class="input-group-text"><i class="ri-file-text-line"></i></span>
-                            <div class="form-floating form-floating-outline">
-                                <textarea class="form-control" id="ViewDescription" rows="3" readonly></textarea>
-                                <label for="ViewDescription">Description</label>
-                            </div>
+                        <label for="ViewDescription">Description</label>
+                        <div class="form-floating form-floating-outline mb-3">
+                            <textarea class="form-control" id="ViewDescription" rows="3" readonly></textarea>
+
                         </div>
                     </div>
                 </form>
@@ -227,6 +208,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     $(document).ready(function () {

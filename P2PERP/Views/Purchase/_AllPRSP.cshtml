@@ -189,7 +189,6 @@
                                             <th class="border-top-0">QTY</th>
                                             <th class="border-top-0">UNIT RATE</th>
                                             <th class="border-top-0">AMOUNT</th>
-                                            <th class="border-top-0">ACTION</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ItemTableBodyUpdate">
@@ -197,6 +196,11 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button id="btnSaveAllUpdates" class="btn btn-success px-4 fw-bold">
+                                <i class="bi bi-save-fill me-2"></i>Save All Changes
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -976,10 +980,11 @@
     // ===================== Update Modal Loader =====================
     var itemTableUpdate;
 
+    // Modal Open
     $(document).on('click', '.update-btn', function () {
         var prCode = $(this).data('id');
 
-        // Load PR Header Details
+        // Load Header
         $.ajax({
             url: '/Purchase/DetailsPartialSP',
             type: 'POST',
@@ -987,48 +992,33 @@
             success: function (response) {
                 if (response.success) {
                     var formattedDate = moment(response.data.RequiredDate).format("DD/MM/YYYY");
-
                     $("#PRCODEUpdate").text(response.data.PRCode);
                     $("#RequiredDateUpdate").text(formattedDate);
                     $("#FullNameUpdate").text(response.data.FullName);
                     $("#StatusUpdate").text(response.data.Status);
 
-                    // Status color
                     let statusDiv = $("#StatusUpdate");
                     statusDiv.removeClass("text-success text-danger text-warning text-dark");
                     if (response.data.Status === "Approved") statusDiv.addClass("text-success");
                     else if (response.data.Status === "Rejected") statusDiv.addClass("text-danger");
                     else if (response.data.Status === "Pending") statusDiv.addClass("text-warning");
                 }
-            },
-            error: function (xhr, status, error) {
-                console.error("Details AJAX Error:", error, xhr.responseText);
             }
         });
 
-        // Load Items Table
+        // Load Items
         loadItemTable(prCode);
-
-        // Show Modal
-        $('#UpdateModal').modal('show');
+        $('#updateModal').modal('show');
     });
 
+    // Load Table
     function loadItemTable(prCode) {
-        // Destroy old DataTable if exists
         if ($.fn.DataTable.isDataTable('#ItemTableUpdate')) {
             itemTableUpdate.clear().destroy();
             $('#ItemTableUpdate tbody').empty();
         }
 
-        // Init DataTable
         itemTableUpdate = $('#ItemTableUpdate').DataTable({
-            responsive: true,
-            paging: true,
-            searching: true,
-            ordering: false, 
-            info: true,
-            lengthChange: false,
-            pageLength: 5,
             ajax: {
                 url: '/Purchase/ItemPartialSP',
                 type: 'POST',
@@ -1038,19 +1028,13 @@
                 }
             },
             columns: [
-                {
-                    data: null,
-                    render: function (data, type, row, meta) {
-                        return meta.row + 1;
-                    }
-                },
+                { data: null, render: (data, type, row, meta) => meta.row + 1 },
                 { data: 'ItemCode' },
                 { data: 'ItemName' },
                 {
                     data: 'Description',
                     createdCell: function (td, cellData) {
                         if (cellData) {
-                            // truncate text if too long
                             let shortText = cellData.length > 25 ? cellData.substring(0, 25) + "..." : cellData;
                             $(td)
                                 .text(shortText)
@@ -1059,95 +1043,95 @@
                                 .attr("data-bs-placement", "top");
                         }
                     }
-},
+                },
                 {
                     data: 'RequiredQuantity',
-                    render: function (data) {
-                        return `<input type="number" class="form-control qty-input"  value="${data}" />`;
-                    }
+                    render: (data) => `<input type="number" class="form-control qty-input text-center" value="${data}" />`
                 },
                 {
                     data: 'UnitRate',
-                    render: function (data) {
-                        return `₹ ${parseFloat(data).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
-                    }
+                    render: (data) => `₹ ${parseFloat(data).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`
                 },
                 {
                     data: 'Amount',
-                    render: function (data) {
-                        return `₹ ${parseFloat(data).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
-                    }
-                },
-                {
-                    data: null,
-                    render: function () {
-                        return `<button class="btn btn-sm btn-success save-item-btn">Save</button>`;
-                    }
+                    render: (data) => `₹ ${parseFloat(data).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`
                 }
             ],
-            columnDefs: [
-                { className: "text-center", targets: "_all" }
-            ]
-
+            columnDefs: [{ className: "text-center", targets: "_all" }],
+            paging: false,
+            searching: false,
+            info: false
         });
+
         $('#ItemTableUpdate').on('input', '.qty-input', function () {
             let val = parseInt($(this).val(), 10);
             if (isNaN(val) || val < 1) {
-                $(this).val(''); // invalid value clear करा
+                $(this).val('');
+            }
+        });
+    }
+
+    // ✅ Single “Save All” button
+    $(document).on("click", "#btnSaveAllUpdates", function () {
+        let updatedRows = itemTableUpdate.rows().data().toArray();
+        let allUpdates = [];
+
+        // Collect updated data
+        $('#ItemTableUpdate tbody tr').each(function (i) {
+            let qty = parseInt($(this).find('.qty-input').val(), 10);
+            if (!isNaN(qty) && qty > 0) {
+                let rowData = updatedRows[i];
+                allUpdates.push({
+                    PRItemId: rowData.PRItemId,
+                    requiredQuantity: qty
+                });
             }
         });
 
-    }
-
-    // Save button handler inside table
-    $(document).on("click", ".save-item-btn", function () {
-        var row = $(this).closest("tr");
-        var prItemId = itemTableUpdate.row(row).data().PRItemId;
-        var requiredQuantity = parseInt(row.find(".qty-input").val(), 10);
-
-        // Validation: quantity must be at least 1
-        if (isNaN(requiredQuantity) || requiredQuantity < 1) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Invalid Quantity!',
-                text: 'Quantity must be greater than 0.',
-                showConfirmButton: true
-            });
-            return; // Save process थांबवा
+        if (allUpdates.length === 0) {
+            Swal.fire("No Changes", "Please update at least one quantity before saving.", "info");
+            return;
         }
 
-        $.ajax({
-            url: '/Purchase/UpdateItemQuantitySP',
-            type: 'POST',
-            data: { PRItemId: prItemId, RequiredQuantity: requiredQuantity },
-            success: function (res) {
-                if (res.success) {
+        Swal.fire({
+            title: "Confirm Save",
+            text: "Do you want to save all updated quantities?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Save",
+            cancelButtonText: "Cancel",
+            customClass: {
+                confirmButton: 'btn btn-success mx-2',
+                cancelButton: 'btn btn-danger mx-2'
+            },
+            buttonsStyling: false 
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            let updatePromises = allUpdates.map(item =>
+                $.ajax({
+                    url: '/Purchase/UpdateItemQuantitySP',
+                    type: 'POST',
+                    data: { PRItemId: item.PRItemId, requiredQuantity: item.requiredQuantity }
+                })
+            );
+
+            Promise.all(updatePromises)
+                .then(() => {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Updated!',
-                        text: 'Item updated successfully!',
+                        icon: "success",
+                        title: "Saved!",
+                        text: "All quantities updated successfully!",
                         showConfirmButton: false,
                         timer: 2000
                     }).then(() => {
                         $('#updateModal').modal('hide');
                     });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Failed!',
-                        text: 'Failed to update!',
-                        showConfirmButton: true
-                    });
-                }
-            },
-            error: function () {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'Error while updating!',
-                    showConfirmButton: true
+                })
+                .catch(() => {
+                    Swal.fire("Error", "Some updates failed. Please try again.", "error");
                 });
-            }
         });
     });
+
 </script>

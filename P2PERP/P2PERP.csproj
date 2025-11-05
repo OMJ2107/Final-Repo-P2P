@@ -5593,7 +5593,6 @@
     <Content Include="Views\Purchase\SelectedQuotationListShowOK.cshtml" />
     <Content Include="Views\Purchase\VenderManagementOK.cshtml" />
     <Content Include="Views\Inventory\WHIndex.cshtml" />
-    <Content Include="Views\Inventory\_BinSK.cshtml" />
     <Content Include="Views\Inventory\_RackSK.cshtml" />
     <Content Include="Views\Inventory\_RowSK.cshtml" />
     <Content Include="Views\Inventory\_SectionSK.cshtml" />

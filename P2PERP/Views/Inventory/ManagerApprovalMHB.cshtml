@@ -206,11 +206,11 @@
                     <div class="row mb-3 ">
                         <div class="col-md-6">
                             <label>From Date:<span class="required-star">*</span></label>
-                            <input type="date" class="form-control" id="editFromDate" />
+                            <input type="date" class="form-control" id="editFromDate"  min="@DateTime.Now.ToString("yyyy-MM-dd")"/>
                         </div>
                         <div class="col-md-6">
                             <label>To Date:<span class="required-star">*</span></label>
-                            <input type="date" class="form-control" id="editToDate" />
+                            <input type="date" class="form-control" id="editToDate"  min="@DateTime.Now.ToString("yyyy-MM-dd")"/>
                         </div>
                     </div>
 
@@ -669,19 +669,37 @@
                  
                 $('#modalPlanName').text(data.PlanName || '');
                 $('#modalPlanCode').text(data.MRPCode || '');
-                $('#modalPlanyear').text(data.Year || '');
-                function formatDate(dateStr) {
-                    if (!dateStr) return "";
-                    let d = new Date(dateStr);
-                    if (isNaN(d)) return dateStr; // fallback if invalid
-                    let day = String(d.getDate()).padStart(2, '0');
-                    let month = String(d.getMonth() + 1).padStart(2, '0');
-                    let year = String(d.getFullYear()).slice(-4); // last 2 digits
-                    return `${day}/${month}/${year}`;
+                $('#modalPlanyear').text(data.Year || '');  
+                
+       
+                //$('#modalfromdate').text(data.FromDate);
+                //$('#modaltodate').text(data.ToDate);
+
+                function formatDateOnly(dateString) {
+                    if (!dateString) return '';
+
+                    // Handle both "dd/mm/yyyy hh:mm:ss" and ISO date formats
+                    const parts = dateString.split(' ')[0].split(/[-/]/); // works with '-' or '/'
+
+                    if (parts.length === 3) {
+                        // Detect if it's yyyy-mm-dd or dd-mm-yyyy
+                        let day, month, year;
+                        if (parts[0].length === 4) {
+                            // yyyy-mm-dd
+                            [year, month, day] = parts;
+                        } else {
+                            // dd-mm-yyyy
+                            [day, month, year] = parts;
+                        }
+                        return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+                    }
+                    return '';
                 }
 
-                $('#modalfromdate').text(formatDate(data.FromDate || ''));
-                $('#modaltodate').text(formatDate(data.ToDate || ''));
+                // ✅ Apply to your elements
+                $('#modalfromdate').text(formatDateOnly(data.FromDate));
+                $('#modaltodate').text(formatDateOnly(data.ToDate));
+
 
                
                 const tbody = $('#modalItemTableBody');
@@ -1083,8 +1101,51 @@
             data: { MRPcode: mrpCode },
             success: function (data) {
                 $('#editYear').val(data.Year || '');
-                $('#editFromDate').val(formatDate(data.FromDate));
-                $('#editToDate').val(formatDate(data.ToDate));
+
+               
+                function formatDateForInput(dateString) {
+                    // This one is for <input type="date">
+                    if (!dateString) return '';
+
+                    let day, month, year;
+
+                    if (dateString.includes('-')) {
+                        const parts = dateString.split(' ')[0].split('-');
+                        [day, month, year] = parts;
+                        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`; // ✅ yyyy-MM-dd
+                    } else if (dateString.includes('-')) {
+                        return dateString.split('T')[0]; // already yyyy-MM-dd
+                    }
+
+                    return '';
+                }
+      
+                $('#editFromDate').val(formatDateForInput(data.FromDate));
+                $('#editToDate').val(formatDateForInput(data.ToDate));
+
+                 $(document).ready(function () {
+        const today = new Date().toISOString().split("T")[0];
+        $('#editFromDate').attr("min", today);
+        $('#editToDate').attr("min", today);
+
+        // When From Date changes, set To Date min accordingly
+        $('#editFromDate').on('change', function () {
+            const fromDate = $(this).val();
+            $('#editToDate').attr("min", fromDate);
+
+            // Optional: Clear To Date if it's before the new From Date
+            const toDate = $('#editToDate').val();
+            if (toDate && toDate < fromDate) {
+                $('#editToDate').val('');
+            }
+        });
+    });
+
+               
+
+              
+
+
 
                 const tbody = $('#editItemTableBody');
                 tbody.empty();
@@ -1158,11 +1219,46 @@
         const reqType = $('#editRequestType').val();
         const description = $('#editItemDescription').val() || '–';
 
-        if (!itemName || !itemCode || !qty || !uom || !reqType) {
-            alert("⚠️ Fill all fields before adding.");
+
+        if (!itemName || !itemCode ||  !uom || !reqType) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'please Select Item ',
+                text: '⚠️ Please fill in all required fields before adding.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
             return;
+
+        }
+        if ( !qty) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Please Fill Quantity',
+                text: '⚠️ Please fill required fields Quantity.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+            return;
+
         }
 
+        // ✅ Duplicate check (based on ItemCode or ItemName)
+        let duplicateFound = false;
+        $('#editItemTableBody tr').each(function () {
+            const existingItemName = $(this).find('td:eq(0)').text().trim();
+            const existingItemCode = $(this).find('td:eq(1)').text().trim();
+            if (existingItemName === itemName || existingItemCode === itemCode) {
+                duplicateFound = true;
+                return false; // stop loop
+            }
+        });
+
+        if (duplicateFound) {
+            Swal.fire('Duplicate', 'This item is already added.', 'warning');
+            return;
+        }
+      
         $('#editItemTableBody').append(`
             <tr>
                 <td>${itemName}</td>
@@ -1188,26 +1284,8 @@
     }
 
 
-
-
-
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toISOString().split('T')[0];
-    }
-    //function populateItemDropdown() {
-    //    $.ajax({
-    //        url: '/Inventory/GetItemListMHB', // Your endpoint
-    //        type: 'GET',
-    //        success: function (items) {
-    //            $('#editItemName').empty().append('<option value="">Select</option>');
-    //            items.forEach(item => {
-    //                $('#editItemName').append(`<option value="${item.ItemId}">${item.ItemName}</option>`);
-    //            });
-
-    //        }
-    //    });
-    //}
+ 
+    
     function populateItemDropdown() {
         $.ajax({
             url: '/Inventory/GetItemListMHB', // Your endpoint
@@ -1263,7 +1341,7 @@
                 $('#editRequestType').val('MRPItems');
             },
             error: function () {
-                alert("⚠️ Failed to fetch item details.");
+                Swal.fire("⚠️ Failed to fetch item details.");
             }
         });
     });
@@ -1294,6 +1372,9 @@
         // ✅ Prepare the payload
         let payload = {
             MRPCode: $('#editMRPCode').val(),
+            Fromdate: $('#editFromDate').val(),
+            ToDate: $('#editToDate').val(),
+
             ItemList: items
         };
 

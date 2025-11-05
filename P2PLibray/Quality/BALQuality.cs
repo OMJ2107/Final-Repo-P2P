@@ -330,7 +330,8 @@ namespace P2PLibray.Quality
 			return await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
 		}
 
-		#endregion Prashant
+        #endregion Prashant
+
 
 
 
@@ -373,11 +374,11 @@ namespace P2PLibray.Quality
         /// </summary>
         /// <param name="id">GRN Code</param>
         /// <returns>List of <see cref="Quality"/> items linked to the GRN.</returns>
-        public async Task<List<Quality>> ItemByGRNCodeRG(string id)
+        public async Task<List<Quality>> ItemByGRNCodeRG()
         {
             Dictionary<string, string> dic = new Dictionary<string, string>();
             dic.Add("@Flag", "ItemsBYGRNCodeRG");
-            dic.Add("@GRNCode", id);
+
             var ds = await obj.ExecuteStoredProcedureReturnDS("QualityCheckProcedure", dic);
             List<Quality> lst = new List<Quality>();
             foreach (DataRow row in ds.Tables[0].Rows)
@@ -514,7 +515,7 @@ namespace P2PLibray.Quality
             dc.Add("@statusId", 14);
             dc.Add("@Inspectionfrequency", Inf);
             dc.Add("@AddedBy", staffcode);
-            dc.Add("@AddedDate", DateTime.Now);
+            dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             dc.Add("@SampleQualityChecked", sqc);
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
@@ -569,7 +570,7 @@ namespace P2PLibray.Quality
             dc.Add("@statusId", 15);
             dc.Add("@Inspectionfrequency", int.Parse(INF));
             dc.Add("@AddedBy", staffcode);
-            dc.Add("@AddedDate", DateTime.Now);
+            dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             dc.Add("@SampleQualityChecked", long.Parse(SQC));
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
@@ -648,7 +649,7 @@ namespace P2PLibray.Quality
         /// <param name="STF">Sample Tested Failed</param>
         /// <param name="ROR">Reason of Rejection</param>
 
-        public async Task insertQFitemsRG(string FQC, string QC, string STF, string ROR)
+        public async Task insertQFitemsRG(string FQC, string QC, string STF, string ROR, string staffcode)
         {
 
             Dictionary<string, object> dc = new Dictionary<string, object>();
@@ -658,8 +659,8 @@ namespace P2PLibray.Quality
             dc.Add("@QualityheckCode", QC);
             dc.Add("@SampleTestedFailed", long.Parse(STF));
             dc.Add("@Reason", ROR);
-            dc.Add("@AddedBy", "STF014");
-            dc.Add("@AddedDate", DateTime.Now);
+            dc.Add("@AddedBy", staffcode);
+            dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
 
@@ -681,7 +682,7 @@ namespace P2PLibray.Quality
             {
                 lst.Add(new Quality
                 {
-                    //GRNCode = row["GRNCode"].ToString(),
+                    GRNCode = row["GRNCode"].ToString(),
                     ItemCode = row["ItemCode"].ToString(),
                     ItemName = row["ItemName"].ToString(),
                     ItemType = row["ItemType"].ToString(),

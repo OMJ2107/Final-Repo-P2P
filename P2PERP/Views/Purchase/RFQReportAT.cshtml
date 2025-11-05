@@ -86,7 +86,7 @@
                                 <td>@item.FinalOutcomePOCode</td>
                                 <td>
                                     <button id="btnview" type="button"
-                                            class="btn btn-sm btn-primary view-vendors"
+                                            class="btn btn-sm btn-primary view-vendors rounded-2"
                                             data-rfqcode="@item.RFQCode">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -107,17 +107,38 @@
 @*Modal View*@
 
 
-<div class="modal fade" data-bs-backdrop="true" id="rfqVendorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+@*<div class="modal fade" data-bs-backdrop="true" id="rfqVendorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-lg rounded-3">
+            <div class="modal-header bg-primary text-white py-2 d-flex justify-content-center align-items-center rounded-top p-1">
                 <div class="w-100 text-center">
-                    <h5 class="modal-title text-white mb-3">RFQ Vendor Responses</h5>
-                </div>
-                <button type="button" class="btn-close btn-close-white mb-2" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title text-white mb-3 fs-5 p-1 fw-bold">RFQ Vendor Responses</h5>
+            </div>
+            <button type="button" class="btn-close btn-close-white mb-2" data-bs-dismiss="modal"></button>
+        </div>*@
+<div class="modal fade" id="rfqVendorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-lg rounded-3">
+            <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">
+                <!-- Modal title -->
+                <h5 class="modal-title fw-bold text-white mb-0 fs-5">RFQ Vendor Responses</h5>
+                <!-- Close button -->
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
+
+
             <div class="modal-body">
+
+                <style>
+                    th {
+                        white-space: nowrap; /* Keep text in one line */
+                    }
+
+                    .table-wider th {
+                        min-width: 150px; /* Adjust width as needed */
+                    }
+                </style>
                 <table id="rfqVendorTable" class="table table-striped table-bordered w-100">
                     <thead class="table-dark">
                         <tr>
@@ -126,6 +147,7 @@
                             <th class="text-center">Vendor Name</th>
                             <th class="text-center">Days to Receive Quotation</th>
                             <th class="text-center">Days to Approve Quotation</th>
+                            <th class="text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -522,7 +544,7 @@
                     extend: 'excelHtml5',
                     title: 'RFQ List',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
-                    messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY') ,
+                    messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY'),
 
                     exportOptions: {
                         rows: function (idx, data, node) {
@@ -544,7 +566,6 @@
                             }
                         }
                     },
-                    
                     action: function (e, dt, button, config) {
                         var selected = dt.rows().nodes().to$().find('input.row-select:checked').length;
                         var btnApi = dt.button(button);
@@ -820,86 +841,53 @@
 
         //modal table
 
-    //    $(document).on('click', '.view-vendors', function () {
-    //        var rfqCode = $(this).data('rfqcode');
-
-    //        $.ajax({
-    //            url: '/Purchase/GetRFQVendorResponses',
-    //            type: 'GET',
-    //            data: { rfqCode: rfqCode },
-    //            success: function (res) {
-    //                if (res.success) {
-    //                    var tbody = $('#rfqVendorTable tbody');
-    //                    tbody.empty();
-
-    //                    $.each(res.data, function (i, item) {
-    //                        tbody.append(`
-    //    <tr>
-    //        <td>${i + 1}</td> <!-- Serial number -->
-    //        <td>${item.RegisterQuotationCode}</td>
-    //        <td>${item.VendorName}</td>
-    //        <td>${item.DaysToReceiveQuotation}</td>
-    //        <td>${item.DaysToApproveQuotation}</td>
-    //    </tr>
-    //`);
-    //                    });
-
-
-    //                    $('#rfqVendorModal').modal('show');
-    //                } else {
-    //                    toastr.error(res.message || 'No data found.');
-    //                }
-    //            },
-    //            error: function () {
-    //                toastr.error('Error loading vendor responses.');
-    //            }
-    //        });
-    //    });
-        // Modal table for RFQ Vendor Responses
         $(document).on('click', '.view-vendors', function () {
             var rfqCode = $(this).data('rfqcode');
 
             $.ajax({
                 url: '/Purchase/GetRFQVendorResponses',
                 type: 'GET',
-                data: { rfqCode: rfqCode },
+                data: { rfqCode: rfqCode, _: new Date().getTime() }, // 🧠 cache buster
                 success: function (res) {
                     if (res.success) {
-                        var tbody = $('#rfqVendorTable tbody');
-                        tbody.empty();
+                        var $table = $('#rfqVendorTable');
+                        var $tbody = $table.find('tbody');
+                        $tbody.empty(); // clear old rows
 
+                        // 🔹 Destroy existing DataTable cleanly
+                        if ($.fn.DataTable.isDataTable($table)) {
+                            $table.DataTable().clear().destroy();
+                            $table.find('thead th').removeClass('sorting sorting_asc sorting_desc');
+                        }
+
+                        // 🔹 Add new rows
                         $.each(res.data, function (i, item) {
-                            tbody.append(`
+                            $tbody.append(`
                         <tr>
-                            <td>${i + 1}</td> <!-- Serial number -->
+                            <td>${i + 1}</td>
                             <td>${item.RegisterQuotationCode}</td>
                             <td>${item.VendorName}</td>
                             <td>${item.DaysToReceiveQuotation}</td>
                             <td>${item.DaysToApproveQuotation}</td>
+                            <td>${item.StatusName}</td>
                         </tr>
                     `);
                         });
 
-                        // Destroy existing DataTable before reinitializing
-                        if ($.fn.DataTable.isDataTable('#rfqVendorTable')) {
-                            $('#rfqVendorTable').DataTable().destroy();
-                        }
-
-                        // Initialize DataTable with search, pagination, and responsive design
-                        $('#rfqVendorTable').DataTable({
-                            searching: true,      // ✅ enables search box
-                            paging: true,         // ✅ enables pagination
-                            info: true,           // ✅ shows "Showing X of Y entries"
-                            lengthChange: false,  // ❌ hides entries-per-page dropdown
-                            ordering: false,       // ✅ enables sorting
-                            responsive: true,
-                            language: {
-                                search: "Search:", // optional custom search label
-                                zeroRecords: "No matching vendors found"
-                            }
+                        // 🔹 Reinitialize DataTable (with desired settings)
+                        $table.DataTable({
+                            scrollX: true,
+                            paging: false,
+                            searching: false,
+                            ordering: false,
+                            info: false,
+                            destroy: true,
+                            columnDefs: [
+                                { className: 'text-center', targets: '_all' }
+                            ]
                         });
 
-                        // Show the modal after table initialization
+                        // 🔹 Finally, show modal
                         $('#rfqVendorModal').modal('show');
                     } else {
                         toastr.error(res.message || 'No data found.');
@@ -910,7 +898,6 @@
                 }
             });
         });
-
 
     });
 </script>

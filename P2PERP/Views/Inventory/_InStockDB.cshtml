@@ -5,74 +5,50 @@
 
 
 <style>
-    .modal-header {
-        border-bottom: 2px solid rgba(255,255,255,0.2);
+    /*  Apply compact styling only to Instock Table */
+    .instockTable thead th,
+    .instockTable tbody td {
+        padding: 0.35rem 0.5rem !important;
+        font-size: 0.78rem !important;
+        vertical-align: middle !important;
+        text-align: center !important;
     }
 
-    .card {
-        border-radius: 0.5rem;
-    }
+        /*  Item Code & Item Name Left aligned like Transfer UI */
+        .instockTable tbody td:nth-child(2),
+        .instockTable tbody td:nth-child(3) {
+            text-align: left !important;
+        }
 
-    .card-header {
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-
-    .table th {
+    /*  Table Header consistency */
+    .instockTable thead th {
         border-top: none;
-        font-weight: 600;
-        font-size: 0.875rem;
+        font-weight: 600 !important;
+        font-size: 0.78rem !important;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
     }
 
-    .table td {
-        vertical-align: middle;
-        padding: 0.75rem;
+    /*  Reduce padding inside large cell content (Storage Allocation block) */
+    .instockTable .p-3 {
+        padding: 0.4rem !important;
     }
 
-    .form-control, .form-select {
-        border-radius: 0.375rem;
-        transition: all 0.2s ease;
+    /*  Ensure dropdown labels look small & aligned */
+    .instockTable label.form-label-sm {
+        font-size: 0.72rem !important;
+        margin-bottom: 0.1rem;
     }
 
-        .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
-            border-color: #86b7fe;
-        }
-
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.35em 0.65em;
+    /*  Fix width overflow behavior gracefully */
+    .instockTable td {
+        white-space: nowrap;
     }
 
-    .progress {
-        border-radius: 1rem;
+    td,th{
+        text-align: center !important;
     }
 
-    .btn {
-        border-radius: 0.375rem;
-        font-weight: 500;
-    }
-
-    /* Responsive adjustments */
-    @@media (max-width: 768px) {
-        .modal-body {
-            padding: 1rem;
-        }
-
-        .table-responsive {
-            font-size: 0.875rem;
-        }
-
-        .card-body .row.g-0 > .col-md-6 {
-            border-right: none !important;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-            .card-body .row.g-0 > .col-md-6:last-child {
-                border-bottom: none;
-            }
-    }
 </style>
 
 <div class="modal fade" id="InStockModal" tabindex="-1" aria-labelledby="grnModalLabel" aria-hidden="true">
@@ -80,12 +56,14 @@
         <div class="modal-content shadow-lg rounded-3">
 
             <!-- Header -->
-            <div class="modal-header bg-primary text-white justify-content-center position-relative py-3">
-                <h3 class="modal-title fw-bold text-white text-center m-0 fs-4" id="grnModalLabel">
-                   In-Stocks Management
+            <div class="modal-header bg-primary text-white d-flex justify-content-center align-items-center rounded-top p-1 ">
+                <h3 class="modal-title fw-bold text-white mb-0 fs-5" id="grnModalLabel">
+                    In-Stocks Management
                 </h3>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
 
             <!-- Body -->
             <div class="modal-body p-4">
@@ -99,33 +77,35 @@
                                 <!-- Left Column -->
                                 <div class="col-md-6 p-3 border-end">
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">GRN No</label>
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted ">GRN No</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0 fw-semibold" name="GRNCode" value="@Model.GRNCode" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0 fw-semibold" name="GRNCode" value="@Model.GRNCode" readonly />
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">PO Reference</label>
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted ">PO Reference</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="POReference" value="@Model.POReference" readonly />
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Vendor Code</label>
-                                        <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="VendorCode" value="@Model.VendorCode" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="POReference" value="@Model.POReference" readonly />
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Invoice No</label>
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted">Vendor Code</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="InvoiceCode" value="@Model.InvoiceCode" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="VendorCode" value="@Model.VendorCode" readonly />
                                         </div>
                                     </div>
+
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Warehouse Code</label>
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted">Invoice No</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="StorId" value="@Model.WareHouseCode" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="InvoiceCode" value="@Model.InvoiceCode" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted small">Warehouse Code</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="StorId" value="@Model.WareHouseCode" readonly />
                                         </div>
                                     </div>
                                 </div>
@@ -133,33 +113,33 @@
                                 <!-- Right Column -->
                                 <div class="col-md-6 p-3">
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">GRN Date</label>
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted ">GRN Date</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" value="@Model.GRNDate.ToString("dd/MM/yyyy")" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" value="@Model.GRNDate.ToString("dd/MM/yyyy")" readonly />
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">PO Contact Info</label>
+                                        <label class="col-sm-4 col-form-label form-control-sm fw-bold text-muted ">PO Contact Info</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="POContactInfo" value="@Model.ContactNo" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="POContactInfo" value="@Model.ContactNo" readonly />
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Vendor Name</label>
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted ">Vendor Name</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="VendorName" value="@Model.VendorName" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="VendorName" value="@Model.VendorName" readonly />
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Invoice Date</label>
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted ">Invoice Date</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="InvoiceDate" value="@Model.InvoiceDate" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="InvoiceDate" value="@Model.InvoiceDate" readonly />
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <label class="col-sm-4 col-form-label fw-bold text-muted small">Warehouse Name</label>
+                                        <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted ">Warehouse Name</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control bg-light border-0" name="WareHouseName" value="@Model.WarehouseName" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="WareHouseName" value="@Model.WarehouseName" readonly />
                                         </div>
                                     </div>
                                 </div>
@@ -205,10 +185,10 @@
                                                 <td class="text-center">
                                                     <span class="badge bg-light text-dark border">@item.UOMName</span>
                                                 </td>
-                                                <td class="text-center fw-semibold">@item.Quantity</td>
+                                                <td class="text-center fw-semibold Quantity">@item.Quantity</td>
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center">
-                                                        <span class="fw-semibold @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
+                                                        <span class="fw-semibold QuantityStored @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
                                                         @if (!isComplete)
                                                         {
                                                             <div class="progress mt-1" style="height: 5px; width: 60px;">
@@ -228,26 +208,26 @@
                                                         <!-- Storage Location Selectors -->
                                                         <div class="row g-2 mb-3">
                                                             <div class="col-sm-6 col-lg-3">
-                                                                <label class="form-label small fw-semibold text-muted">Area</label>
-                                                                <select class="form-select form-select-sm area-ddl" @(isComplete ? "disabled" : "")>
+                                                                <label class="form-label-sm fw-semibold text-muted">Area</label>
+                                                                <select class="form-select form-select-sm area-ddl bg-white text-dark" @(isComplete ? "disabled" : "")>
                                                                     <option value="">Select Area</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-sm-6 col-lg-3">
-                                                                <label class="form-label small fw-semibold text-muted">Rack</label>
-                                                                <select class="form-select form-select-sm rack-ddl" @(isComplete ? "disabled" : "")>
+                                                                <label class="form-label-sm fw-semibold text-muted">Rack</label>
+                                                                <select class="form-select form-select-sm rack-ddl bg-white text-dark" @(isComplete ? "disabled" : "")>
                                                                     <option value="">Select Rack</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-sm-6 col-lg-3">
-                                                                <label class="form-label small fw-semibold text-muted">Row</label>
-                                                                <select class="form-select form-select-sm row-ddl" @(isComplete ? "disabled" : "")>
+                                                                <label class="form-label-sm fw-semibold text-muted">Row</label>
+                                                                <select class="form-select form-select-sm row-ddl bg-white text-dark" @(isComplete ? "disabled" : "")>
                                                                     <option value="">Select Row</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-sm-6 col-lg-3">
-                                                                <label class="form-label small fw-semibold text-muted">Bin</label>
-                                                                <select class="form-select form-select-sm bin-ddl" @(isComplete ? "disabled" : "")>
+                                                                <label class="form-label-sm fw-semibold text-muted">Bin</label>
+                                                                <select class="form-select form-select-sm bin-ddl bg-white text-dark" @(isComplete ? "disabled" : "")>
                                                                     <option value="">Select Bin</option>
                                                                 </select>
                                                             </div>
@@ -267,7 +247,7 @@
                                                                 </span>
                                                             </div>
                                                             <div class="d-flex align-items-center gap-2">
-                                                                <label class="form-label small fw-semibold text-muted mb-0">Assign Qty:</label>
+                                                                <label class="form-label-sm fw-semibold text-muted mb-0">Assign Qty:</label>
                                                                 <input type="number" class="form-control form-control-sm bg-white text-dark assign-qty" style="width: 150px;" min="0" font-size="14px" ; placeholder="Enter quantity" @(isComplete ? "disabled" : "") />
                                                             </div>
                                                         </div>
@@ -284,8 +264,8 @@
                     <!-- Footer Buttons -->
                     <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
 
-                        <button type="button" class="btn btn-success px-4 btnAssign">
-                            <i class="bi bi-check-circle me-2"></i>Assign Bin
+                        <button type="button" class="btn btn-success btn-sm px-4 btnAssign">
+                            <i class="bi bi-check-circle me-2"></i>Assign Quantity
                         </button>
                     </div>
 
@@ -441,6 +421,7 @@ $(document).ready(function () {
         const current = selected.data("current") || 0;
 
         $row.find(".current-items").text(current);
+        $row.find(".Quantity").text();
         $row.find(".max-capacity").text(max);
         $row.find(".assign-qty").val(0);
         $row.find(".remaining").text(max - current);
@@ -450,37 +431,55 @@ $(document).ready(function () {
     $(document).off("input", ".assign-qty").on("input", ".assign-qty", function () {
         const $input = $(this);
         const $row = $input.closest("tr");
-        const assignQty = parseInt($input.val());
+        const assignQty = parseInt($input.val()) || 0;
         const current = parseInt($row.find(".current-items").text()) || 0;
         const max = parseInt($row.find(".max-capacity").text()) || 0;
-        let remaining = max - (current + (assignQty || 0));
+        const totalItemQty = parseInt($row.find(".Quantity").text()) || 0;
+        const QuantityStored = parseInt($row.find(".QuantityStored").text()) || 0;
+        const Total = totalItemQty - QuantityStored;
+        let remaining = max - (current + assignQty);
 
-        // --- Negative value validation (only show if actual negative entered) ---
+        // --- Error message placeholder ---
         let $errorMsg = $row.find(".assign-qty-error");
         if ($errorMsg.length === 0) {
             $errorMsg = $('<div class="text-danger small mt-1 assign-qty-error"></div>');
             $input.after($errorMsg);
         }
 
-        if (assignQty < 0) { // only trigger for actual negative
-            $errorMsg.text("Quantity cannot be negative or zero.");
+        // --- 1️⃣ Negative value check ---
+        if (assignQty <= 0) {
+            $errorMsg.text("Quantity must be greater than zero.");
             $input.addClass("is-invalid");
-            $row.find(".remaining").text(max - current); // keep remaining consistent
-            return; // stop further calculation
-        } else {
-            $errorMsg.text("");
-            $input.removeClass("is-invalid");
+            $row.find(".remaining").text(max - current);
+            return;
         }
 
-        // --- Existing Bin Capacity logic ---
-        if ((assignQty || 0) > 0 && remaining < 0) {
-            toastr.warning("Bin Capacity Exceeded...!");
+        // --- 2️⃣ Exceeding item quantity check ---
+        if (assignQty > totalItemQty - QuantityStored) {
+            $errorMsg.text("Assigned quantity cannot exceed total item quantity (" + Total + ").");
+            toastr.error("Assigned quantity exceeds available quantity!");
+            $input.addClass("is-invalid");
+            $input.val(totalItemQty); // reset to max allowed
+            $row.find(".remaining").text(max - current);
+            return;
+        }
+
+        // --- 3️⃣ Bin capacity exceeded check ---
+        if (remaining < 0) {
+            $errorMsg.text("Bin capacity exceeded!");
+            toastr.warning("Bin capacity exceeded!");
+            $input.addClass("is-invalid");
             $input.val(0);
-            remaining = max - current;
+            $row.find(".remaining").text(max - current);
+            return;
         }
 
+        // --- 4️⃣ Valid input ---
+        $errorMsg.text("");
+        $input.removeClass("is-invalid");
         $row.find(".remaining").text(remaining);
     });
+
 
 
     // Save Assignments

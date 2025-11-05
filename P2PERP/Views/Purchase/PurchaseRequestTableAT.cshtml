@@ -67,7 +67,7 @@
                                 <td>@item.StatusName</td>
                                 <td>
                                     <button id="btnview" type="button"
-                                            class="btn btn-sm btn-primary view-items"
+                                            class="btn btn-sm btn-primary view-items rounded-2"
                                             data-prcode="@item.PRCode">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -86,12 +86,21 @@
 
 @*Modal View*@
 
-<div class="modal fade" data-bs-backdrop="true" id="prItemsModal" tabindex="-1" aria-hidden="true">
+@*<div class="modal fade" data-bs-backdrop="true" id="prItemsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title text-white w-100 text-center mb-2">Purchase Requisition Items</h5>
+                <h5 class="modal-title text-white w-100 text-center mb-2 fw-bold fs-5 p-1" >Purchase Requisition Items</h5>
                 <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3 mb-2" data-bs-dismiss="modal"></button>
+            </div>*@
+<div class="modal fade" id="prItemsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-lg rounded-3">
+            <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">
+                <!-- Modal title -->
+                <h5 class="modal-title fw-bold text-white mb-0 fs-5">Purchase Requisition Items</h5>
+                <!-- Close button -->
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
@@ -912,46 +921,6 @@
 
 
 
-        //// click event for view items
-        //$(document).on('click', '.view-items', function () {
-        //    var prCode = $(this).data('prcode');
-
-        //    // clear previous table rows
-        //    $('#prItemsTable tbody').empty();
-
-        //    $.ajax({
-        //        url: '/Purchase/GetPRItems',  // adjust controller name if needed
-        //        type: 'GET',
-        //        data: { prCode: prCode },
-        //        success: function (data) {
-        //            if (data && data.length > 0) {
-        //                data.forEach(function (item, index) {
-        //                    $('#prItemsTable tbody').append(
-        //                        `<tr>
-        //        <td class="text-center">${index + 1}</td>  <!-- 🆕 Serial number -->
-        //        <td class="text-center">${item.PRCode}</td>
-        //        <td class="text-center">${item.ItemName}</td>
-        //        <td class="text-center">₹${item.UnitRates}</td>
-        //        <td class="text-center">${item.RequiredQuantity}</td>
-        //    </tr>`
-        //                    );
-        //                });
-        //            }
-        //            else {
-        //                $('#prItemsTable tbody').append(
-        //                    `<tr><td colspan="4" class="text-center text-muted">No items found.</td></tr>`
-        //                );
-        //            }
-
-        //            // finally show the modal
-        //            $('#prItemsModal').modal('show');
-        //        },
-        //        error: function () {
-        //            toastr.error("Error fetching PR items", "Error");
-        //        }
-        //    });
-        //});
-
         // click event for view items
         $(document).on('click', '.view-items', function () {
             var prCode = $(this).data('prcode');
@@ -960,46 +929,28 @@
             $('#prItemsTable tbody').empty();
 
             $.ajax({
-                url: '/Purchase/GetPRItems',
+                url: '/Purchase/GetPRItems',  // adjust controller name if needed
                 type: 'GET',
                 data: { prCode: prCode },
                 success: function (data) {
                     if (data && data.length > 0) {
                         data.forEach(function (item, index) {
-                            $('#prItemsTable tbody').append(`
-                        <tr>
-                            <td class="text-center">${index + 1}</td>
-                            <td class="text-center">${item.PRCode}</td>
-                            <td class="text-center">${item.ItemName}</td>
-                            <td class="text-center">₹${item.UnitRates}</td>
-                            <td class="text-center">${item.RequiredQuantity}</td>
-                        </tr>
-                    `);
+                            $('#prItemsTable tbody').append(
+                                `<tr>
+                <td class="text-center">${index + 1}</td>  <!-- 🆕 Serial number -->
+                <td class="text-center">${item.PRCode}</td>
+                <td class="text-center">${item.ItemName}</td>
+                <td class="text-center">₹${item.UnitRates}</td>
+                <td class="text-center">${item.RequiredQuantity}</td>
+            </tr>`
+                            );
                         });
-                    } else {
+                    }
+                    else {
                         $('#prItemsTable tbody').append(
-                            `<tr><td colspan="5" class="text-center text-muted">No items found.</td></tr>`
+                            `<tr><td colspan="4" class="text-center text-muted">No items found.</td></tr>`
                         );
                     }
-
-                    // Destroy existing DataTable before reinitializing
-                    if ($.fn.DataTable.isDataTable('#prItemsTable')) {
-                        $('#prItemsTable').DataTable().destroy();
-                    }
-
-                    // Initialize DataTable with search, pagination, and responsive design
-                    $('#prItemsTable').DataTable({
-                        searching: true,      // ✅ enables search box
-                        paging: true,         // ✅ enables pagination
-                        info: true,           // ✅ shows "Showing X of Y entries"
-                        lengthChange: false,  // ❌ hides entries-per-page dropdown
-                        ordering: false,       // ✅ enables sorting
-                        responsive: true,
-                        language: {
-                            search: "Search:", // optional custom search label
-                            zeroRecords: "No matching items found"
-                        }
-                    });
 
                     // finally show the modal
                     $('#prItemsModal').modal('show');
@@ -1009,7 +960,6 @@
                 }
             });
         });
-
 
 
         // Helper function to recalc SrNo for export across all pages
