@@ -1183,8 +1183,8 @@ namespace P2PLibray.Purchase
                             CompanyName = row["CompanyName"].ToString(),
                             TotalAmount = row["TotalAmount"].ToString(),
 
-                            ExpectedDate = row["ExpectedDate"] != DBNull.Value
-                                ? Convert.ToDateTime(row["ExpectedDate"]).ToString("dd/MM/yyyy")
+                            ExpectedDate = row["RequiredDate"] != DBNull.Value
+                                ? Convert.ToDateTime(row["RequiredDate"]).ToString("dd/MM/yyyy")
                                 : string.Empty,
                             VendorDeliveryDate = row["VendorDeliveryDate"] != DBNull.Value
                                 ? Convert.ToDateTime(row["VendorDeliveryDate"]).ToString("dd/MM/yyyy")
