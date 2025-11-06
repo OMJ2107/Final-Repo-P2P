@@ -100,7 +100,7 @@
     });
 
 
-    //Nc buton code for update status and some fields 
+    //Nc buton code for update status and some fields
     function finalnc() {
 
 
@@ -185,7 +185,7 @@
             hasError = true;
         }
 
-        if (hasError)  return; // Stop if validation failed
+        if (hasError) return; // Stop if validation failed
 
 
         INF = $('#Inf').val(),
@@ -203,8 +203,25 @@
                 setTimeout(() => {
                     bootstrap.Modal.getInstance(document.getElementById('ncModal'))?.hide();
                     window.parent.closeModal?.();
-                    window.parent.openTask?.(GRNCode,"completed");
-                
+                    window.parent.openTask?.(GRNCode, "completed");
+
+
+
+                    const grnCode = $("#GRN").val();
+                    if (grnCode) {
+                        window.parent.$("#grnGridSection").hide();
+                        window.parent.$("#taskSection").show();
+                        // ✅ Directly load Completed tab with GRNCode
+                        new bootstrap.Tab($('#completed-task-tab')).show();
+
+                        // Refresh the completed task grid
+                        window.parent.$('#completedTaskContent').load(`/Quality/CompletedTaskListRG?id=${GRNCode}`);
+
+                        // Reinitialize completed tasks if available
+                        window.parent.initCompleted?.();
+
+                    }
+
                 }, 1600);
             })
             .fail(() => Swal.fire({ icon: 'error', title: 'Failed', text: 'Something went wrong. Please try again!', showConfirmButton: false, timer: 2000 }));
