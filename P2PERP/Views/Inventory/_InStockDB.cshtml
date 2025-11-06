@@ -539,5 +539,25 @@ $(document).ready(function () {
     });
 
 
+    if (ItemId) {
+        $.ajax({
+            type: "GET",
+            url: "/Inventory/GetBinNameItemDRB",
+            data: { itemcode: ItemId },
+            dataType: "json",
+            success: function (response) {
+                if (response && response.length > 0) {
+                    $.each(response, function (i, emp) {
+
+                       
+                    });
+                } else {
+                    $BinSelect.append('<option value="">No Bin found</option>');
+                }
+            }
+        });
+    }
+
+
 });
 </script>
