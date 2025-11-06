@@ -3449,21 +3449,26 @@ namespace P2PLibray.Purchase
 
             foreach (var vendorId in model.Vendors)
             {
+                // Skip if the value looks like a PR or RFQ code instead of vendor code
+                if (vendorId.StartsWith("PR", StringComparison.OrdinalIgnoreCase) ||
+                    vendorId.StartsWith("RFQ", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 var para = new Dictionary<string, string>
-        {
-            { "@Flag", "SaveRFQVendorSJ" },
-            { "@RFQCode", model.RFQCode },
-            { "@VendorCode", vendorId.ToString() },
-            { "@StaffCode", staffCode ?? "" }, 
-            { "@AddedDate", addedDate ?? "" },
-            { "@ExpectedDate", ExpectedDate.ToString("yyyy-MM-dd")}
+                    {
+                        { "@Flag", "SaveRFQVendorSJ" },
+                        { "@RFQCode", model.RFQCode },
+                        { "@VendorCode", vendorId },
+                        { "@StaffCode", staffCode ?? "" },
+                        { "@AddedDate", addedDate ?? "" },
+                        { "@ExpectedDate", ExpectedDate.ToString("yyyy-MM-dd") }
                     };
 
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
-
-                if (ds != null)
-                    rowsAffected++;
+                if (ds != null) rowsAffected++;
             }
+
+
 
             return rowsAffected;
         }
