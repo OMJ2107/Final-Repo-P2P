@@ -1112,7 +1112,7 @@
         let checkedRows = allRows.filter(row => $(row).find('input.row-select').prop('checked'));
         // Find the position of this row in the checkedRows array
         let sr = checkedRows.findIndex(row => tbl.row(row).index() === rowIdx) + 1;
-        return sr; // consecutive Sr.No
+        return sr; // consecutive Sr.no
     }
 </script>
 </body>
