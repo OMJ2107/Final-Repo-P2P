@@ -721,11 +721,17 @@ namespace P2PERP.Controllers
         //send pdf code Amg
         private async Task SendPurchaseOrderEmailAsync(Purchase po, byte[] pdfBytes)
         {
-            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
-            string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
 
-            string subject = $"Purchase Order {po.POCode} Approved";
-            string body = $@"
+            try
+            {
+                var newemail = WebConfigurationManager.AppSettings["MainEmail"].ToString();
+                var newpass = WebConfigurationManager.AppSettings["AppPassword"].ToString();
+
+                var fromAddress = new MailAddress(newemail.ToString(), "Procurement System");
+                string fromPassword = "lhrlntigzidizmju"; // Gmail app password
+                string vemail = po.Email.ToString();
+                string subject = $"Purchase Order {po.POCode} Approved";
+                string body = $@"
     <p>Dear {po.VendorName},</p>
     <p> kindly find attached purchase order for your immediate refernce.In return of this mail,
          kindaly share your acceptance of the po ,and We are pleased to inform you that Purchase Order:<strong>{po.POCode}</strong> has been approved.</p>
@@ -734,23 +740,29 @@ namespace P2PERP.Controllers
     <p> Best Regards,<br/>{po.CompanyName}</p>
 ";
 
-            using (var smtp = new SmtpClient("smtp.gmail.com", 587)
-            {
-                EnableSsl = true,
-                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
-            })
-            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com"))
-            {
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            })
-            {
-                var attachment = new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{po.POCode}.pdf", "application/pdf");
-                message.Attachments.Add(attachment);
+                using (var smtp = new SmtpClient("smtp.gmail.com", 587)
+                {
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential(newemail, newpass)
+                })
+                using (var message = new MailMessage(fromAddress, new MailAddress(vemail))
+                {
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                })
+                {
+                    var attachment = new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{po.POCode}.pdf", "application/pdf");
+                    message.Attachments.Add(attachment);
 
-                await smtp.SendMailAsync(message);
+                    await smtp.SendMailAsync(message);
+                }
             }
+            catch (Exception ex)
+            {
+                 new Exception("Error in Sending email", ex);
+            }
+            
         }
 
         // Reject purchase order
@@ -848,7 +860,7 @@ namespace P2PERP.Controllers
 
         private async Task SendForApprovalEmailAsync(Purchase po, byte[] pdfBytes)
         {
-            var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "Procurement System");
+            var fromAddress = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
             string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
 
             string subject = $"Purchase Order Approval Required — PO No: {po.POCode}";
@@ -905,36 +917,7 @@ namespace P2PERP.Controllers
 
 
 
-        //    // Call BLL to send PO for approval
-        //    var emailBody = $"PO {poCode} is sent for your approval.Please approve";
-        //    var result = await bal.SendForApprovalNAM(poCode);
-        //    SendEmailForApprovalNAM("mullanurjaha02@gmail.com", "admin approval", emailBody);
-        //    // Return result and message
-        //    return Json(new
-        //    {
-        //        success = result,
-        //        message = result ? $"PO {poCode} sent for higher approval." : "Failed to send PO for approval."
-        //    }, JsonRequestBehavior.AllowGet);
-        //}
-
-        //private void SendEmailForApprovalNAM(string toEmail, string subject, string body)
-        //{
-        //    var fromAddress = new MailAddress("sandeshjatti5329@gmail.com", "admin approval");
-        //    string fromPassword = "pbji sngj tkgz ylow";
-
-        //    using (var smtp = new SmtpClient("smtp.gmail.com", 587)
-        //    {
-        //        EnableSsl = true,
-        //        Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
-        //    })
-        //    using (var message = new MailMessage(fromAddress, new MailAddress(toEmail))
-        //    {
-        //        Subject = subject,
-        //        Body = body
-        //    })
-        //        smtp.Send(message);
-
-        //}
+     
 
 
         #endregion Vaibhavi
