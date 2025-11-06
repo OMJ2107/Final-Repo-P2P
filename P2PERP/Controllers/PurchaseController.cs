@@ -1793,18 +1793,18 @@ namespace P2PERP.Controllers
         {
             //Create PO Code 
             //fetch Max Id For PO Code
-            int pomaxid = 0;
+          //  int pomaxid = 0;
 
             string quotationID = Session["quotationID"].ToString();
             DataSet ds = await bal.GetQuotationAllDataOK(quotationID);
 
-            for (int i = 0; i < ds.Tables[4].Rows.Count; i++)
-            {
-                pomaxid = Convert.ToInt32(ds.Tables[4].Rows[i]["MAXID"].ToString());
-            }
+            //for (int i = 0; i < ds.Tables[4].Rows.Count; i++)
+            //{
+            //    pomaxid = Convert.ToInt32(ds.Tables[4].Rows[i]["MAXID"].ToString());
+            //}
 
             //Create PO Code
-            string POcode = "PO" + (pomaxid + 1).ToString("D3");
+           // string POcode = "PO" + (pomaxid + 1).ToString("D3");
 
             // 1️⃣ Quotation Header
             List<Purchase> lstHeader = new List<Purchase>();
