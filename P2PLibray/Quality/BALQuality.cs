@@ -428,7 +428,7 @@ namespace P2PLibray.Quality
                     InspectionType = row["InspectionType"].ToString(),
                     PlanName = row["PlanName"].ToString(),
                     strAddedDate = row["AssignedDate"] != DBNull.Value
-                    ? Convert.ToDateTime(row["AssignedDate"]).ToString("dd-MM-yyyy") : string.Empty,
+                    ? Convert.ToDateTime(row["AssignedDate"]).ToString("dd/MM/yyyy") : string.Empty,
                     Parameters = row["Parametersc"].ToString(),
                     Quantity = int.Parse(row["Quantity"].ToString()),
                     GrnItemCode = row["GRNItemcode"].ToString(),
