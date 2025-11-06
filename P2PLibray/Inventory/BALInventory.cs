@@ -1224,7 +1224,6 @@ namespace P2PLibray.Inventory
 
                     list = dt.AsEnumerable().Select(r => new ReceivedMaterialReport
                     {
-                        ReceiveMaterialId = r.Field<int>("ReceiveMaterialId"),
                         ReceivedDate = r.Field<DateTime>("ReceivedDate").ToString("yyyy-MM-dd"),
                         GRNCode = r["GRNCode"]?.ToString(),
                         POCode = r["POCode"]?.ToString(),
