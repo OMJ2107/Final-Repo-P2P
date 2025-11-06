@@ -10,6 +10,9 @@
         font-size: 0.78rem !important;
         vertical-align: middle;
     }
+    td, th {
+        text-align: center !important;
+    }
 
     /* Small action buttons */
     .btn-delete {
@@ -205,7 +208,7 @@
                 },
                 columns: [
                     { data: null, render: function () { return '<input type="checkbox" class="rowCheckbox"/>'; } },
-                    { data: null, render: function (d, t, r, meta) { return meta.row + 1; } }, // S.No (index 1)
+                    { data: null, className: 'text-center', render: function (d, t, r, meta) { return meta.row + 1; } }, // S.No (index 1)
                     { data: 'POCode', className: 'text-center' }, // index 2
                     { data: 'RQNO', className: 'text-center' },   // index 3
                     { data: 'VendorName', className: 'text-center' }, // index 4
