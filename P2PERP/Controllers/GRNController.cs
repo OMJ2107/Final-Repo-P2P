@@ -1201,8 +1201,15 @@ namespace P2PERP.Controllers
         {
             try
             {
-                DateTime? from = string.IsNullOrEmpty(fromDate) ? (DateTime?)null : DateTime.Parse(fromDate);
-                DateTime? to = string.IsNullOrEmpty(toDate) ? (DateTime?)null : DateTime.Parse(toDate);
+                DateTime? from = null;
+                DateTime? to = null;
+
+                if (!string.IsNullOrEmpty(fromDate))
+                    from = DateTime.ParseExact(fromDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                if (!string.IsNullOrEmpty(toDate))
+                    to = DateTime.ParseExact(toDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
                 DataSet ds = await bal.ShowGRNListSSG();
                 List<GRN> grnList = new List<GRN>();
 
@@ -1210,10 +1217,13 @@ namespace P2PERP.Controllers
                 {
                     foreach (DataRow row in ds.Tables[0].Rows)
                     {
-                        DateTime? grnDate = row["GRNDate"] != DBNull.Value ? Convert.ToDateTime(row["GRNDate"]) : (DateTime?)null;
+                        DateTime? grnDate = row["GRNDate"] != DBNull.Value
+                            ? Convert.ToDateTime(row["GRNDate"])
+                            : (DateTime?)null;
 
-                        if (from.HasValue && grnDate < from) continue;
-                        if (to.HasValue && grnDate > to) continue;
+                        // ✅ Compare only date part, ignore time
+                        if (from.HasValue && grnDate.HasValue && grnDate.Value.Date < from.Value.Date) continue;
+                        if (to.HasValue && grnDate.HasValue && grnDate.Value.Date > to.Value.Date) continue;
 
                         grnList.Add(new GRN
                         {
@@ -1235,6 +1245,7 @@ namespace P2PERP.Controllers
                 return Json(new { data = new List<GRN>(), error = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
 
 
 
@@ -1368,7 +1379,7 @@ namespace P2PERP.Controllers
                     ViewBag.GRNCode = row["GRNCode"].ToString();
                     ViewBag.POCode = row["POCode"].ToString();
                     ViewBag.PODate = row["PODate"] != DBNull.Value
-                        ? Convert.ToDateTime(row["PODate"]).ToString("yyyy-MM-dd") : "";
+                        ? Convert.ToDateTime(row["PODate"]).ToString("dd-MM-yyyy") : "";
                     ViewBag.VendorName = row["VenderName"].ToString();
                     ViewBag.InvoiceNo = row["InvoiceNo"].ToString();
                     ViewBag.InvoiceDate = row["GRNDate"] != DBNull.Value
