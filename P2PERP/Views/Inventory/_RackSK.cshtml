@@ -2,7 +2,7 @@
     <div class="flex-grow-1 text-center">
         <h4 class="mb-0 h3 text-primary">Rack List</h4>
     </div>
-    <button class="btn btn-success" id="btnAddrack">
+    <button class="btn btn-sm btn-success" id="btnAddrack">
         <i class="bi bi-plus-circle"></i> Add Rack
     </button>
 </div>
@@ -37,7 +37,7 @@
                 <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="addRackModalTitle" style="line-height: 1.2;">
                     Add Rack
                 </h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                <button type="button" class="btn-close btn-sm btn-close-white position-absolute end-0 me-3"
                         data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -85,7 +85,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="submit" form="addRackForm" class="btn btn-success px-4" id="addRackModalSubmitBtn">
+                <button type="submit" form="addRackForm" class="btn btn-sm btn-success px-4" id="addRackModalSubmitBtn">
                     Save
                 </button>
             </div>
@@ -102,7 +102,7 @@
                 <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="updateRackModalTitle" style="line-height: 1.2;">
                     Update Rack
                 </h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                <button type="button" class="btn-close btn-sm btn-close-white position-absolute end-0 me-3"
                         data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -159,7 +159,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="submit" form="editRackForm" class="btn btn-success px-4" id="editRackModalSubmitBtn">
+                <button type="submit" form="editRackForm" class="btn btn-sm btn-success px-4" id="editRackModalSubmitBtn">
                     <i class="bi bi-check-circle me-2 text-white"></i>Update
                 </button>
             </div>
@@ -175,7 +175,7 @@
                 <h5 class="modal-title h5 text-white text-center mb-1 w-100" id="rackDetailsModalTitle" style="line-height: 1.2;">
                     Rack Details
                 </h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3"
+                <button type="button" class="btn-close btn-sm btn-close-white position-absolute end-0 me-3"
                         data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -977,8 +977,8 @@
                 cancelButtonText: "Cancel",
                 reverseButtons: false,
                 customClass: {
-                    confirmButton: "btn btn-primary me-2",
-                    cancelButton: "btn btn-danger"
+                    confirmButton: "btn btn-sm btn-primary me-2",
+                    cancelButton: "btn btn-sm btn-danger"
                 },
                 buttonsStyling: false
             }).then((result) => {
