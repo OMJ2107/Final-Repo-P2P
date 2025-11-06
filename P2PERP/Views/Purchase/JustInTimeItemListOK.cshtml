@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JIT Items</title>
     <style>
-        /* Keep readonly fields visible */
+        /* Keep readonly fields visibles */
         input[readonly],
         textarea[readonly] {
             background-color: #fff !important;
@@ -16,27 +16,16 @@
             cursor: default;
         }
 
-        /* Small button style */
-        .btn-sm {
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
         /* Equal button width inside table */
         .table td .btn {
             min-width: 80px;
         }
 
-        /* Date range picker box */
+         Date range picker box 
         .daterangepicker-container {
-            border: 1px solid #ccc;
-            padding: 6px 10px;
-            border-radius: 6px;
             cursor: pointer;
             display: inline-block;
-            min-width: 150px;
-            background: #fff;
+            min-width: 180px !important;
         }
 
         /* Export + Create PO layout */
@@ -93,10 +82,6 @@
         }
         /* Create PO button styling */
         .btn-create-po {
-            font-weight: 600;
-            border-radius: 6px;
-            padding: 8px 18px;
-            height: 42px;
             margin-top:15px;
         }
 
@@ -159,18 +144,18 @@
                 Just In Time Items List
             </h3>
 
-            <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap ps-3 pe-3">
+            <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap ps-3 pe-3 mt-0">
 
                 <!-- Left side: Date Picker + Export Buttons -->
                 <div class="d-flex flex-column gap-3 expbtndate">
                     <!-- Date Range Picker -->
-                    <div class="input-group shadow-sm rounded">
+                    <div class="input-group rounded shadow-sm">
                         <span class="input-group-text bg-primary text-white border-0">
                             <i class="bi bi-calendar-date"></i>
                         </span>
                         <input type="text" id="Selectedquotationdate"
                                class="form-control border-0 shadow-none"
-                               placeholder="Select date range" readonly style="height: 100%;" />
+                               placeholder="Select date range" readonly />
                     </div>
 
                     <!-- Export Buttons -->
@@ -180,7 +165,10 @@
                 <!-- Right side: Create PO on top + Search below -->
                 <div class="d-flex flex-column align-items-end gap-2 search-po-container">
                     <div id="searchContainer"></div>
-                    <button class="btn btn-success btn-create-po">Create PO</button>
+                    <button class="btn btn-sm btn-success btn-create-po text-white">
+                        <i class="bi bi-plus-circle me-2"></i>Create PO
+                    </button>
+
                 </div>
             </div>
 
@@ -819,6 +807,18 @@
         let startDate = null;
         let endDate = null;
 
+        // Custom filter function (persistent)
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            if (!startDate || !endDate) return true;
+
+            // Change index depending on which column to filter
+            var requiredDate = moment(data[7], 'DD/MM/YYYY'); // index 7 = RequiredDate
+
+            if (!requiredDate.isValid()) return true;
+
+            return requiredDate.isBetween(startDate, endDate, undefined, '[]');
+        });
+
         $('#Selectedquotationdate').daterangepicker({
             autoUpdateInput: false,
             opens: 'center',
@@ -829,35 +829,26 @@
             },
             ranges: {
                 'Today': [moment(), moment()],
-                //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
                 'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
                 'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
                 'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
-                //'This Month': [moment().startOf('month'), moment().endOf('month')],
-               // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
             }
         }, function (start, end) {
             startDate = start;
             endDate = end;
             $('#Selectedquotationdate').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-
-            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                var quotationDate = moment(data[7], 'DD/MM/YYYY'); // adjust the column index if needed
-                if (!startDate || !endDate) return true;
-                return quotationDate.isBetween(startDate, endDate, undefined, '[]');
-            });
-
-            tblJITItems.draw();
-            $.fn.dataTable.ext.search.pop();
+            tblJITItems.draw(); // redraw table with filter applied
         });
 
         $('#Selectedquotationdate').on('cancel.daterangepicker', function () {
             startDate = null;
             endDate = null;
             $(this).val('');
-            tblJITItems.draw();
+            tblJITItems.draw(); // clear filter
         });
+
+
 
 
         // View quotation details

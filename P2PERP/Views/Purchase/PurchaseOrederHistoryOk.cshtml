@@ -14,19 +14,27 @@
             justify-content: end;
             margin-right: 20px;
         }
-/*        .dt-search {
-            display: none;
-        }*/
-
         .daterangepicker-container {
-            border: 1px solid #ccc;
-            padding: 6px 10px;
+            border: 1px solid #ccc !important;
             border-radius: 6px;
-            cursor: pointer;
-            display: inline-block;
-            min-width: 200px;
-            background: #fff;
+            overflow: hidden; /* ensures the border applies cleanly around input-group */
+            background-color: #fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
+
+            .daterangepicker-container .form-control:focus {
+                box-shadow: none;
+            }
+
+            .daterangepicker-container .input-group-text {
+                background-color: #7357ff !important; /* match your theme */
+                color: #fff !important;
+            }
+
+        #Purchasedatepicker {
+            cursor: pointer;
+        }
+
 
         #exportContainer .dt-buttons {
             display: flex;
@@ -80,21 +88,23 @@
             </h3>
 
             <div class="d-flex justify-content-between align-items-start mb-5 flex-wrap">
-                <!-- Left side -->
                 <div class="d-flex flex-column gap-3 expbtndate">
                     <!-- Date Range Picker -->
-                    <div class="input-group shadow-sm rounded">
-                        <span class="input-group-text bg-primary text-white border-0">
+                    <div class="daterangepicker-container input-group">
+                        <span class="input-group-text bg-primary text-white border-0 rounded-start">
                             <i class="bi bi-calendar-date"></i>
                         </span>
-                        <input type="text" id="Purchasedatepicker"
-                               class="form-control border-0 shadow-none"
-                               placeholder="Select date range" readonly style="height: 100%;" />
+                        <input type="text"
+                               id="Purchasedatepicker"
+                               class="form-control border-0"
+                               placeholder="Select date range"
+                               readonly />
                     </div>
 
                     <!-- Export Buttons -->
                     <div id="exportContainer" class="d-flex align-items-center gap-2"></div>
                 </div>
+
 
                 <!-- Right side -->
                 <div id="searchContainer"></div>
@@ -304,15 +314,17 @@
                     data: null,
                     render: function (data, type, row) {
                         return `
-                            <button class="btn btn-sm btn-primary btn-view"
-                                    data-row='${JSON.stringify(row)}'
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="View PO">
-                                <i class="bi bi-eye-fill"></i>
-                            </button>`;
+                        <button type="button" 
+                                class="btn btn-primary btn-view square-pill d-inline-flex align-items-center px-2 py-1"
+                                data-row='${JSON.stringify(row)}'
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="View PO">
+                            <i class="bi bi-eye-fill fs-6"></i>
+                        </button>`;
                     }
                 }
+
             ],
             paging: true,
             searching: true,
@@ -756,7 +768,7 @@
                 $.fn.dataTable.ext.search.pop();
             });
 
-            // Clear date picker when cancelled
+            // Clear date picker when cancell
             $('#Purchasedatepicker').on('cancel.daterangepicker', function () {
                 $(this).val('');
                 tblPOHistory.draw();
