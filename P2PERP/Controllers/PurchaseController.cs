@@ -3241,7 +3241,7 @@ namespace P2PERP.Controllers
                     Description = dr["Description"]?.ToString(),
                     RequiredQuantity = Convert.ToDecimal(dr["RequiredQuantity"]),
                     UOMNamee = dr["UOMName"]?.ToString()
-                }).ToList());
+                }).ToList(),request.ExpectedDate);
 
                 if (string.IsNullOrEmpty(pdfPath) || !System.IO.File.Exists(pdfPath))
                     return Json(new { success = false, message = "Failed to generate RFQ PDF." });
@@ -3250,7 +3250,7 @@ namespace P2PERP.Controllers
                 string staffCode = Session["StaffCode"]?.ToString() ?? "";
                 string addedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-                int savedCount = await bal.SaveRFQVendorsSJ(header, staffCode, addedDate);
+                int savedCount = await bal.SaveRFQVendorsSJ(header, staffCode, addedDate,request.ExpectedDate);
                 if (savedCount == 0)
                     return Json(new { success = false, message = "Failed to save RFQ-Vendor mapping." });
 
@@ -3353,7 +3353,7 @@ Procurement Team
 
 
         //For generate pdf for vendors
-        private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items)
+        private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items,DateTime expdate)
         {
             string filePath = Path.Combine(
                 Path.GetTempPath(),
@@ -3396,6 +3396,9 @@ Procurement Team
                     string requiredDateStr = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
                     headerTable.AddCell(new Phrase(requiredDateStr, normalFont));
 
+                    headerTable.AddCell(new Phrase("Expected Date:", normalFont));
+                   // string expdate = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
+                    headerTable.AddCell(new Phrase(expdate.ToString("dd/MM/yyyy"), normalFont));
 
                     headerTable.AddCell(new Phrase("Delivery Address:", normalFont));
                     headerTable.AddCell(new Phrase(header.Address, normalFont));
