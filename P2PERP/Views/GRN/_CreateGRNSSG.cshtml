@@ -1,7 +1,11 @@
 ﻿@{
     Layout = null;
 }
-
+<style>
+    #itemTable thead th {
+        padding: 0.10rem 0.11rem !important;
+    }
+</style>
 <div class="card shadow p-3">
     <!-- 🔹 PO & GRN Information -->
     <div class="border rounded-3 p-3 mb-3 bg-light-subtle">
@@ -9,18 +13,18 @@
 
         <div class="row g-3">
             <div class="col-md-4">
-                <label class="fw-semibold">PO No:</label>
-                <input type="text" id="txtPOCode" class="form-control form-control-sm bg-light" value="@ViewBag.POCode" readonly>
+                <label class="form-label fw-bold text-dark">PO No:</label>
+                <input type="text" id="txtPOCode" class="form-control form-control-sm text-dark shadow-sm bg-light" value="@ViewBag.POCode" readonly>
             </div>
             <div class="col-md-4">
-                <label class="fw-semibold">GRN No:</label>
-                <input type="text" id="txtGRNCode" class="form-control form-control-sm bg-light" value="@ViewBag.GRNCode" readonly>
+                <label class="form-label fw-bold">GRN No:</label>
+                <input type="text" id="txtGRNCode" class="form-control form-control-sm text-dark shadow-sm bg-light" value="@ViewBag.GRNCode" readonly>
             </div>
             <div class="col-md-4">
-                <label class="fw-semibold">PO Date:</label>
+                <label class="form-label fw-bold">PO Date:</label>
                 <input type="text"
                        id="txtPODate"
-                       class="form-control form-control-sm bg-light"
+                       class="form-control form-control-sm text-dark shadow-sm bg-light"
                        value="@Convert.ToDateTime(ViewBag.PODate).ToString("dd\\/MM\\/yyyy")"
                        readonly>
             </div>
@@ -28,20 +32,20 @@
 
         <div class="row g-3 mt-1">
             <div class="col-md-4">
-                <label class="fw-semibold">Vendor Name:</label>
-                <input type="text" id="txtVendorName" class="form-control form-control-sm bg-light" value="@ViewBag.VendorName" readonly>
+                <label class="form-label fw-bold">Vendor Name:</label>
+                <input type="text" id="txtVendorName" class="form-control form-control-sm text-dark shadow-sm bg-light" value="@ViewBag.VendorName" readonly>
             </div>
             <div class="col-md-4">
-                <label class="fw-semibold">Company Address:</label>
+                <label class="form-label fw-bold">Company Address:</label>
                 <textarea id="txtCompanyAddress"
-                          class="form-control form-control-sm bg-light"
+                          class="form-control form-control-sm text-dark shadow-sm bg-light"
                           rows="2"
                           readonly>@ViewBag.CompanyAddress</textarea>
             </div>
             <div class="col-md-4">
-                <label class="fw-semibold">Billing Address:</label>
+                <label class="form-label fw-bold">Billing Address:</label>
                 <textarea id="txtBillingAddress"
-                          class="form-control form-control-sm bg-light"
+                          class="form-control form-control-sm text-dark shadow-sm bg-light"
                           rows="2"
                           readonly>@ViewBag.BillingAddress</textarea>
             </div>
@@ -49,10 +53,10 @@
 
         <div class="row g-3 mt-1">
             <div class="col-md-4">
-                <label class="fw-semibold">Warehouse Name:</label>
+                <label class="form-label fw-bold">Warehouse Name:</label>
                 <input type="text"
                        id="txtWarehouseName"
-                       class="form-control form-control-sm bg-light"
+                       class="form-control form-control-sm text-dark shadow-sm bg-light"
                        readonly
                        value="@ViewBag.WarehouseName" />
             </div>
@@ -60,87 +64,90 @@
 
             <!-- 🔹 Invoice No -->
             <div class="col-md-4">
-                <label class="fw-semibold">Invoice No:<span class="text-danger">*</span></label>
+                <label class="form-label fw-bold">Invoice No:<span class="text-danger">*</span></label>
                 <input type="text"
                        id="txtInvoiceNo"
-                       class="form-control form-control-sm bg-white"
+                       class="form-control form-control-sm text-dark shadow-sm bg-white"
                        placeholder="Enter Invoice Number">
                 <span id="invoiceNoError" class="text-danger small fw-semibold"></span>
             </div>
 
             <!-- 🔹 Invoice Date -->
             <div class="col-md-4">
-                <label class="fw-semibold">Invoice Date:<span class="text-danger">*</span></label>
+                <label class="form-label fw-bold">Invoice Date:<span class="text-danger">*</span></label>
                 <input type="date"
                        id="txtInvoiceDate"
-                       class="form-control form-control-sm bg-white"
-                       max="@DateTime.Now.ToString("yyyy-MM-dd")">
+                       class="form-control form-control-sm text-dark shadow-sm bg-white"
+                       min="@Convert.ToDateTime(ViewBag.PODate).ToString("yyyy-MM-dd")"
+                       max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                       value=""
+                       placeholder="dd-mm-yyyy">
                 <span id="invoiceDateError" class="text-danger small fw-semibold"></span>
             </div>
         </div>
     </div>
 
     <!-- 🔹 Add Item Details -->
-    <div class="border rounded-3 p-3 bg-light-subtle">
+    <div class="border rounded-3 m-2 p-3 bg-light-subtle">
         <h6 class="fw-bold text-dark mb-2">Add Item Details</h6>
 
         <div class="row g-3">
             <!-- 🔸 Item Dropdown -->
             <div class="col-md-4">
-                <label class="fw-semibold">Item Name:<span class="text-danger">*</span></label>
-                <select id="itemDropdown" class="form-select form-select-sm bg-white">
+                <label class="form-label fw-bold">Item Name:<span class="text-danger">*</span></label>
+                <select id="itemDropdown" class="form-select form-select-sm item-select shadow-sm bg-white">
                     <option value="">Select Item</option>
                 </select>
                 <span id="itemError" class="text-danger small fw-semibold"></span>
             </div>
 
             <div class="col-md-4">
-                <label class="fw-semibold">Quantity:<span class="text-danger">*</span></label>
-                <input type="number" id="txtQty" class="form-control form-control-sm bg-white" placeholder="Enter Quantity">
+                <label class="form-label fw-bold">Quantity:<span class="text-danger">*</span></label>
+                <input type="number" id="txtQty" class="form-control form-control-sm text-dark shadow-sm bg-white" placeholder="Enter Quantity">
                 <span id="qtyError" class="text-danger small fw-semibold"></span> <!-- Inline error -->
             </div>
 
             <!-- 🔸 Unit Rate -->
             <div class="col-md-4">
-                <label class="fw-semibold">Unit Rate (₹):</label>
-                <input type="text" id="txtUnitRate" class="form-control form-control-sm bg-light" readonly>
+                <label class="form-label fw-bold">Unit Rate (₹):</label>
+                <input type="text" id="txtUnitRate" class="form-control form-control-sm text-dark shadow-sm bg-light" readonly>
             </div>
         </div>
 
 
         <div class="row g-3 mt-1">
             <div class="col-md-4">
-                <label class="fw-semibold">Discount (%):</label>
-                <input type="text" id="txtDiscount" class="form-control form-control-sm bg-light" readonly>
+                <label class="form-label fw-bold">Discount (%):</label>
+                <input type="text" id="txtDiscount" class="form-control form-control-sm text-dark shadow-sm bg-light" readonly>
             </div>
             <div class="col-md-4">
-                <label class="fw-semibold">GST (%):</label>
-                <input type="text" id="txtGST" class="form-control form-control-sm bg-light" readonly>
+                <label class="form-label fw-bold">GST (%):</label>
+                <input type="text" id="txtGST" class="form-control form-control-sm text-dark shadow-sm bg-light" readonly>
             </div>
             <div class="col-md-4">
-                <label class="fw-semibold">Amount (₹):</label>
-                <input type="text" id="txtAmount" class="form-control form-control-sm bg-light" readonly>
+                <label class="form-label fw-bold">Amount (₹):</label>
+                <input type="text" id="txtAmount" class="form-control form-control-sm text-dark shadow-sm bg-light" readonly>
             </div>
         </div>
 
         <div class="row g-3 mt-1">
             <div class="col-md-4">
-                <label class="fw-semibold">UOM:</label>
-                <input type="text" id="txtUOM" class="form-control form-control-sm bg-light" readonly>
+                <label class="form-label fw-bold">UOM:</label>
+                <input type="text" id="txtUOM" class="form-control form-control-sm text-dark shadow-sm bg-light" readonly>
             </div>
             <div class="col-md-4">
-                <label class="fw-semibold">Quality Check:</label>
-                <input type="text" id="txtQC" class="form-control form-control-sm bg-light" readonly>
+                <label class="form-label fw-bold">Quality Check:</label>
+                <input type="text" id="txtQC" class="form-control form-control-sm text-dark shadow-sm bg-light" readonly>
             </div>
             <div class="col-md-4">
-                <label class="fw-semibold">Item Description:</label>
-                <textarea id="txtItemDesc" class="form-control form-control-sm bg-light" readonly rows="2"></textarea>
+                <label class="form-label fw-bold">Item Description:</label>
+                <textarea id="txtItemDesc" class="form-control form-control-sm text-dark shadow-sm bg-light" readonly rows="2"></textarea>
             </div>
         </div>
 
         <div class="text-end mt-3">
-            <button type="button" id="btnAddItem" class="btn btn-success btn-sm px-4">
-                <i class="bi bi-plus-circle"></i> Add Item
+            <button type="button" id="btnAddItem" class="btn btn-success me-2 fw-bold btn-sm px-4">
+                <i class="bi bi-plus-circle"></i>&nbsp;Add Item
             </button>
         </div>
     </div>
@@ -154,9 +161,9 @@
                     <th>Item Name</th>
                     <th>Description</th>
                     <th>Quantity</th>
-                    <th>Unit Rate (₹)</th>
+                    <th>Unit Rate</th>
                     <th>Discount</th>
-                    <th>GST %</th>
+                    <th>GST</th>
                     <th>Amount</th>
                     <th>Action</th>
                     <th>WarehouseId</th>
@@ -185,11 +192,7 @@
 </style>
 
 <script>
-/* -------------------------
-   Defensive global helper
-   ------------------------- */
 window.setLoaderTimeout = function(ms) {
-    // safe guard if some other script expects this function to call setMaxTimeout on some loader object
     try {
         if (window.pageLoader && typeof window.pageLoader.setMaxTimeout === 'function') {
             window.pageLoader.setMaxTimeout(ms);
@@ -199,7 +202,6 @@ window.setLoaderTimeout = function(ms) {
             window.someLoader.setMaxTimeout(ms);
             return;
         }
-        // if no loader, silently warn (no exception)
         console.warn('setLoaderTimeout: loader not available', ms);
     } catch (err) {
         console.warn('setLoaderTimeout error', err);
@@ -208,7 +210,6 @@ window.setLoaderTimeout = function(ms) {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    // Defensive: element txtInvoiceDateDisplay may not exist in markup.
     const txtDisplay = document.getElementById("txtInvoiceDateDisplay");
     const txtHidden = document.getElementById("txtInvoiceDate");
 
@@ -246,17 +247,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
 $(document).ready(function () {
 
-    /* SAFE tooltip initializer - idempotent, defensive */
     function initTooltips() {
-        // Use try/catch so tooltip issues won't break other JS
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
             try {
-                // dispose existing via public API if exists
                 const existing = bootstrap.Tooltip.getInstance(el);
                 if (existing && typeof existing.dispose === 'function') {
                     existing.dispose();
                 }
-                // create new instance (getOrCreateInstance if available)
                 if (typeof bootstrap.Tooltip.getOrCreateInstance === 'function') {
                     bootstrap.Tooltip.getOrCreateInstance(el, {
                         template: '<div class="tooltip" role="tooltip">' +
@@ -265,7 +262,6 @@ $(document).ready(function () {
                                   '</div>'
                     });
                 } else {
-                    // fallback for older bootstrap versions
                     new bootstrap.Tooltip(el, {
                         template: '<div class="tooltip" role="tooltip">' +
                                   '<div class="tooltip-arrow"></div>' +
@@ -287,33 +283,28 @@ $(document).ready(function () {
 
     const loadPOItems = (code) => {
         if(!code) {
-            // no PO code: clear dropdown
             POItems = [];
             refreshItemDropdown();
             return;
         }
         $.get('/GRN/POItemsSSG', { POCode: code }, function(res){
-            // Defensive: support different shapes of response
             try {
                 if (!res) {
                     POItems = [];
                     console.warn('POItemsSSG returned empty response');
                 } else if (Array.isArray(res)) {
-                    // if API returned array directly
                     POItems = res;
                 } else if (Array.isArray(res.data)) {
                     POItems = res.data;
                 } else if (Array.isArray(res.items)) {
                     POItems = res.items;
                 } else {
-                    // try to find a likely array property
                     POItems = res.data || res.items || [];
                 }
             } catch (err) {
                 console.warn('Error processing POItemsSSG response', err, res);
                 POItems = [];
             }
-            // Ensure POItems is an array
             if (!Array.isArray(POItems)) POItems = [];
 
             refreshItemDropdown();
@@ -329,7 +320,6 @@ $(document).ready(function () {
     function refreshItemDropdown() {
         const dropdown = $('#itemDropdown').empty().append('<option value="">Select Item</option>');
         POItems.forEach(item => {
-            // defensive: ensure item and ItemCode/ItemName exist
             if (!item) return;
             const code = item.ItemCode || item.itemCode || item.Code || '';
             const name = item.ItemName || item.itemName || item.Name || item.Item || '';
@@ -343,6 +333,8 @@ $(document).ready(function () {
     const itemTable = $('#itemTable').DataTable({
         ordering: false,
         responsive: true,
+        paging: false,
+        info:false,
         dom: '<"row mb-2"<"col-md-6"><"col-md-6 d-flex justify-content-end"f>>t<"row mt-2"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>',
         columns: [
             { data: null, render: (data, type, row, meta) => meta.row + 1, className: 'text-center' },
@@ -373,19 +365,25 @@ $(document).ready(function () {
         });
 
         $('#totalAmount').remove();
+
         $('#itemTable_wrapper').after(`
-            <div id="totalAmount" class="d-flex justify-content-end mt-2 mb-2">
-                <div class="fw-bold p-2 bg-primary text-white rounded">
-                    Total Amount: ₹${total.toFixed(2)}
+        <div id="totalAmount" class="d-flex justify-content-end mt-2 mb-2">
+            <div class="d-flex align-items-center px-3 py-1 bg-light rounded-3 shadow-sm">
+                <label class="fw-semibold text-dark mb-0 me-2" style="font-size: 0.9rem;">
+                    Total Amount:
+                </label>
+                <div class="px-3 py-1 bg-primary text-white fw-bold rounded-2 shadow-sm" 
+                     style="font-size: 0.9rem; min-width: 110px; text-align: center;">
+                    ₹${total.toFixed(2)}
                 </div>
             </div>
-        `);
+        </div>
+    `);
     };
 
     $('#itemDropdown').change(function () {
         const sel = $(this).val();
         if (!sel) {
-            // clear fields if no selection
             $('#txtQty').val('');
             $('#txtUnitRate').val('');
             $('#txtDiscount').val('');
@@ -396,7 +394,6 @@ $(document).ready(function () {
             $('#txtUOM').val('');
             return;
         }
-        // robust find: account for different property names
         const item = POItems.find(x => x && (x.ItemCode == sel || x.itemCode == sel || x.Code == sel));
         if (!item) return;
 

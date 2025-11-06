@@ -141,11 +141,11 @@
                             let buttons = '';
 
                             if (amount < 500000) {
-                                buttons += `<button class="btn btn-sm btn-success btn-approve square-pill d-inline-flex align-items-center px-2 py-1 " data-pocode="${pocode}"><i class="bi bi-check-circle text-white fs-6"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="top"
-                  title="Approve"
-                  style="cursor:pointer; font-size:18px;"
+                                buttons += `<button class="btn btn-sm btn-success btn-approve" data-pocode="${pocode}"><i class="bi bi-check-circle text-white" 
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="top" 
+                  title="Approve" 
+                  style="cursor:pointer; font-size:18px;" 
                   "></i></button>`;
                             }
 
@@ -447,7 +447,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
 
-
+                    
                     Swal.fire({
                         title: 'Sending POS...',
                         text: 'Please wait while email is sending to Vendor .',
@@ -457,21 +457,21 @@
                         }
                     });
 
-
+                   
                     $.post('/Purchase/ApprovePONAM', { poCode }, function (res) {
 
-
+                      
                         Swal.close();
 
                         if (res.success) {
-
+                            
                             Swal.fire({
                                 icon: 'success',
                                 title: 'PO ' + poCode + ' approved!',
                                 showConfirmButton: false,
                                 timer: 2000
                             }).then(() => {
-
+                                
                                 Swal.fire({
                                     icon: 'info',
                                     title: 'Email sent to vendor',

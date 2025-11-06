@@ -568,7 +568,7 @@ namespace P2PLibray.Account
                     id = rfq.IdCode,
                     title = $"Request For Quotation Is Added By {rfq.AddedBy}",
                     start = rfq.AddedDate.ToString("yyyy-MM-dd"),
-                    end = ((rfq.EndDate.Date.AddDays(1) - rfq.AddedDate.Date).TotalDays > 7 ? rfq.AddedDate.Date.AddDays(7) : rfq.EndDate.Date.AddDays(-2)).ToString("yyyy-MM-dd"),
+                    end = rfq.EndDate.ToString("yyyy-MM-dd"),
                     color = "#17a2b8",
                     extendedProps = new
                     {
@@ -678,7 +678,7 @@ namespace P2PLibray.Account
                 {
                     id = $"RQ-{rq.AddedDate:yyyyMMdd}",
                     title = $"{rq.Count} Quotation{(rq.Count != 1 ? "s" : "")} {(rq.Count != 1 ? "Are" : "Is")} Registerd By {rq.AddedBy}",
-                    start = rq.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    start = rq.AddedDate.ToString("yyyy-MM-dd"),
                     color = "#6f42c1",
 
                     extendedProps = new
@@ -1186,7 +1186,7 @@ namespace P2PLibray.Account
                 {
                     id = $"QC-{qc.AddedDate:yyyyMMdd}",
                     title = $"{qc.Count} Items Has {(qc.Status == "Confirmed" ? "Passed" : "Failed")} Quality Check",
-                    start = qc.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    start = qc.AddedDate.ToString("yyyy-MM-dd"),
                     color = "#dc3545",
                     extendedProps = new
                     {
@@ -1218,8 +1218,7 @@ namespace P2PLibray.Account
                     {
                         Count = dr.IsDBNull(dr.GetOrdinal("ItemCount")) ? 0 : dr.GetInt32(dr.GetOrdinal("ItemCount")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate")),
-                        AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
-                        Code = dr.IsDBNull(dr.GetOrdinal("AddedBy")) ? string.Empty : dr.GetString(dr.GetOrdinal("AddedBy")),
+                        AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName"))
                     });
                 }
             }
@@ -1300,7 +1299,7 @@ namespace P2PLibray.Account
                 {
                     id = $"RQ-{isr.AddedDate:yyyyMMdd}",
                     title = $"{isr.Count} Item Stock Refill Request{(isr.Count != 1 ? "s":"")} {(isr.Count != 1 ? "Are" : "Is")} Registerd By {isr.AddedBy}",
-                    start = isr.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    start = isr.AddedDate.ToString("yyyy-MM-dd"),
                     color = "#6610f2",
                     extendedProps = new
                     {
@@ -1415,7 +1414,7 @@ namespace P2PLibray.Account
                 {
                     id = $"RQ-{jit.AddedDate:yyyyMMdd}",
                     title = $"{jit.Count} Just In Time Request{(jit.Count != 1 ? "s" : "")} {(jit.Count != 1 ? "Are" : "Is")} Registerd By {jit.AddedBy}",
-                    start = jit.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    start = jit.AddedDate.ToString("yyyy-MM-dd"),
                     color = "#0d6efd",
                     extendedProps = new
                     {

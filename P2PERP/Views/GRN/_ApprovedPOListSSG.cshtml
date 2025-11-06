@@ -1,11 +1,14 @@
 ﻿@{
     Layout = "";
 }
-
+<style>
+    #approvedPoTable thead th {
+        padding: 0.3rem 0.4rem !important;
+    }
+</style>
 
 <!-- Approved PO List Card -->
-<div class="table-responsive card shadow p-3 bg-white rounded">
-    <h4 class="text-primary text-center fw-bolder">Approved PO List</h4>
+<div >
 
     <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap pe-3">
         <!-- Date Range Picker -->
@@ -37,19 +40,21 @@
     </table>
 </div>
 
+
 <!-- Create GRN Modal -->
 <div class="modal fade" id="createGrnModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-primary py-2 px-3" style="min-height:50px;">
-                <h5 class="modal-title m-0 flex-grow-1 text-center fs-5 text-white">Create GRN</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content shadow-lg rounded-3">
+            <div class="card-header bg-primary text-white d-flex justify-content-center align-items-center rounded-top p-1">
+                <h3 class="modal-title fw-bold text-white mb-0 fs-5">Create GRN</h3>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
             </div>
-
             <div class="modal-body" id="grnModalBody"></div>
+
         </div>
     </div>
 </div>
+
 <style>
     button.dt-button.processing,
     div.dt-button.processing {
@@ -140,7 +145,7 @@ $(document).ready(function () {
                 data: 'POCode',
                 className: 'text-center',
                 render: data => `
-        <button class="btn btn-success btn-sm createGRNBtn"
+        <button class="btn btn-success square-pill d-inline-flex align-items-center px-2 py-1 btn-sm createGRNBtn"
                 data-bs-toggle="tooltip"
                 data-bs-placement="top"
                 title="Create GRN for: ${data}">
@@ -155,7 +160,7 @@ $(document).ready(function () {
             // --- PRINT ---
             {
                 extend: 'print',
-                text: '<i class="bi bi-printer-fill fs-5"></i>',
+                text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
                 title: '',
                 exportOptions: {
                     columns: [2, 3, 4, 5, 6],
@@ -237,9 +242,9 @@ $(document).ready(function () {
                         headerCell.bold = true;
                     });
                     doc.content[2].table.body.forEach(function (row, idx) {
-                        if (idx === 0) return; 
+                        if (idx === 0) return;
                         row.forEach(function (cell) {
-                            if (cell.text) cell.alignment = 'center'; 
+                            if (cell.text) cell.alignment = 'center';
                         });
                     });
                     doc.content[2].table.alignment = 'center';
@@ -356,7 +361,7 @@ $(document).ready(function () {
                             var $c = $(this);
                             var col = $c.attr('r').replace(/[0-9]/g, '');
                             if (col === 'G' || col === 'H') {
-                                $c.attr('t', 'inlineStr'); 
+                                $c.attr('t', 'inlineStr');
                                 var v = $c.find('v').text();
                                 $c.empty().append(`<is><t>${v}</t></is>`);
                             }
@@ -421,7 +426,7 @@ $(document).ready(function () {
         table.draw();
     });
 
-    //  Row checkbox, select all 
+    //  Row checkbox, select all
     $(document).on('change', '.rowCheckboxApprovedPO', function () {
         const poCode = $(this).val();
         $(this).is(':checked') ? selectedPOs.add(poCode) : selectedPOs.delete(poCode);

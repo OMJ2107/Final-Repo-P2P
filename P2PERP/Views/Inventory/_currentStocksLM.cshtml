@@ -1,4 +1,17 @@
 ﻿<style>
+   /* .circular-glass-btn {
+        width: 40px;
+        height: 38px;
+        border-radius: 5px;
+        backdrop-filter: blur(4px);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.30);
+    }*/
     #currentStockTable thead th {
         text-align: center;
         vertical-align: middle;
@@ -7,11 +20,6 @@
     #currentStockTable td {
         text-align: center;
         vertical-align: middle;
-    }
-
-    div.dt-buttons {
-        margin-top: 10px;
-        margin-bottom: 10px;
     }
 
     /* Buffer on export icon proccess remove */
@@ -25,6 +33,7 @@
         button.dt-button.processing:after {
             content: none !important;
         }
+
 </style>
 
 <div class="container mt-4 card shadow-sm">
@@ -53,7 +62,7 @@
         <!-- Added modal-dialog-centered -->
         <div class="modal-content">
             <div class="modal-header bg-primary justify-content-center position-relative" style="padding-top: 0.7rem; padding-bottom: 0.7rem;">
-                <h4 class="modal-title text-white text-center" id="viewModalLabel">View Item</h4>
+                <h4 class="modal-title text-white text-center fs-5 p-1" id="viewModalLabel">View Item</h4>
                 <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -96,7 +105,6 @@
                     </thead>
                     <tbody id="modalBinTable"></tbody>
                 </table>
-
             </div>
         </div>
     </div>

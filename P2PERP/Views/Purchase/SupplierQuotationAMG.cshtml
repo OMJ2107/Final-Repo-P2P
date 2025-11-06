@@ -8,7 +8,9 @@
         border: 1px solid ;
         margin-right: 5px;
     }
-
+    thead th {
+        white-space: nowrap !important;
+    }
 /*        .nav-pills .nav-link.active {
             background-color: #0d6efd !important;
             color: #fff !important;
@@ -66,10 +68,9 @@
 <div class="modal fade" id="quotationModal" tabindex="-1" aria-labelledby="quotationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white justify-content-center">
-                <h5 class="modal-title text-center text-white w-100 fw-bold mb-3" id="quotationModalLabel">Quotation Details</h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3 mb-3" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+            <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">
+                <h5 class="modal-title fw-bold text-white mb-0 fs-5" id="quotationModalLabel">Quotation Details</h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>            </div>
 
             <div class="modal-body">
                 <!-- Header Section -->
