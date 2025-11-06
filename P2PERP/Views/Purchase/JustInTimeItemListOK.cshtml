@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JIT Items</title>
     <style>
-        /* Keep readonly fields visible */
+        /* Keep readonly fields visibles */
         input[readonly],
         textarea[readonly] {
             background-color: #fff !important;
@@ -16,27 +16,16 @@
             cursor: default;
         }
 
-        /* Small button style */
-        .btn-sm {
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
         /* Equal button width inside table */
         .table td .btn {
             min-width: 80px;
         }
 
-        /* Date range picker box */
+         Date range picker box 
         .daterangepicker-container {
-            border: 1px solid #ccc;
-            padding: 6px 10px;
-            border-radius: 6px;
             cursor: pointer;
             display: inline-block;
-            min-width: 150px;
-            background: #fff;
+            min-width: 180px !important;
         }
 
         /* Export + Create PO layout */
@@ -93,10 +82,6 @@
         }
         /* Create PO button styling */
         .btn-create-po {
-            font-weight: 600;
-            border-radius: 6px;
-            padding: 8px 18px;
-            height: 42px;
             margin-top:15px;
         }
 
@@ -164,13 +149,13 @@
                 <!-- Left side: Date Picker + Export Buttons -->
                 <div class="d-flex flex-column gap-3 expbtndate">
                     <!-- Date Range Picker -->
-                    <div class="input-group shadow-sm rounded">
+                    <div class="input-group rounded shadow-sm">
                         <span class="input-group-text bg-primary text-white border-0">
                             <i class="bi bi-calendar-date"></i>
                         </span>
                         <input type="text" id="Selectedquotationdate"
                                class="form-control border-0 shadow-none"
-                               placeholder="Select date range" readonly style="height: 100%;" />
+                               placeholder="Select date range" readonly />
                     </div>
 
                     <!-- Export Buttons -->
@@ -180,7 +165,10 @@
                 <!-- Right side: Create PO on top + Search below -->
                 <div class="d-flex flex-column align-items-end gap-2 search-po-container">
                     <div id="searchContainer"></div>
-                    <button class="btn btn-success btn-create-po">Create PO</button>
+                    <button class="btn btn-sm btn-success btn-create-po text-white">
+                        <i class="bi bi-plus-circle me-2"></i>Create PO
+                    </button>
+
                 </div>
             </div>
 
