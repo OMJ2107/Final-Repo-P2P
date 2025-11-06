@@ -577,6 +577,38 @@ namespace P2PLibray.Inventory
             
         }
 
+        public async Task<List<InventoryBinDRB>> GetBinsName(string itemcode)
+        {
+            List<InventoryBinDRB> inventoryBinDRBs = new List<InventoryBinDRB>();
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("@Flag", "GetBinsNameDRB");
+            param.Add("@GRNItemCode", itemcode);
+            SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("InventoryProcedure", param);
+            if (dr != null)
+            {
+                while (dr.Read())
+                {
+                    InventoryBinDRB obj = new InventoryBinDRB
+                    {
+                        BinCode = dr["BinCode"].ToString(),
+                        BinName = dr["BinName"].ToString(),
+                        CurrentItems = dr["QuantityStored"].ToString()
+
+                    };
+
+                    inventoryBinDRBs.Add(obj);
+                }
+
+                return inventoryBinDRBs;
+
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
         /// <summary>
         /// Gets list of departments from database.
         /// Returns a DataSet containing department data.
@@ -2964,7 +2996,9 @@ namespace P2PLibray.Inventory
                         { "@flag", "insertMRPItemMHB" },
                         { "@MRPCode", model.MRPCode },
                         { "@ItemCode", item.ItemCode },
-                        { "@Quantity", item.QuantityMRP }
+                        { "@Quantity", item.QuantityMRP },
+                        {"@fromDate",model.FromDate },
+                         {"@toDate",model.ToDate},
                     };
 
                     await obj.ExecuteStoredProcedureReturnDS("InventoryProcedure", insertParams);

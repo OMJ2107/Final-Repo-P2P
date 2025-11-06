@@ -377,6 +377,15 @@ namespace P2PERP.Controllers
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // RFQ Registered Quotation List
+        //[HttpGet]
+        //public async Task<ActionResult> GetRFQVendorResponses(string rfqCode)
+        //{
+        //    if (string.IsNullOrEmpty(rfqCode))
+        //        return Json(new { success = false, message = "RFQCode is required" }, JsonRequestBehavior.AllowGet);
+
+        //    var items = await bal.GetRFQVendorResponsesAT(rfqCode);
+        //    return Json(new { success = true, data = items }, JsonRequestBehavior.AllowGet);
+        //}
         [HttpGet]
         public async Task<ActionResult> GetRFQVendorResponses(string rfqCode)
         {
@@ -1767,18 +1776,18 @@ namespace P2PERP.Controllers
         {
             //Create PO Code 
             //fetch Max Id For PO Code
-            int pomaxid = 0;
+          //  int pomaxid = 0;
 
             string quotationID = Session["quotationID"].ToString();
             DataSet ds = await bal.GetQuotationAllDataOK(quotationID);
 
-            for (int i = 0; i < ds.Tables[4].Rows.Count; i++)
-            {
-                pomaxid = Convert.ToInt32(ds.Tables[4].Rows[i]["MAXID"].ToString());
-            }
+            //for (int i = 0; i < ds.Tables[4].Rows.Count; i++)
+            //{
+            //    pomaxid = Convert.ToInt32(ds.Tables[4].Rows[i]["MAXID"].ToString());
+            //}
 
             //Create PO Code
-            string POcode = "PO" + (pomaxid + 1).ToString("D3");
+           // string POcode = "PO" + (pomaxid + 1).ToString("D3");
 
             // 1️⃣ Quotation Header
             List<Purchase> lstHeader = new List<Purchase>();
@@ -3215,7 +3224,7 @@ namespace P2PERP.Controllers
                     Description = dr["Description"]?.ToString(),
                     RequiredQuantity = Convert.ToDecimal(dr["RequiredQuantity"]),
                     UOMNamee = dr["UOMName"]?.ToString()
-                }).ToList());
+                }).ToList(),request.ExpectedDate);
 
                 if (string.IsNullOrEmpty(pdfPath) || !System.IO.File.Exists(pdfPath))
                     return Json(new { success = false, message = "Failed to generate RFQ PDF." });
@@ -3224,7 +3233,7 @@ namespace P2PERP.Controllers
                 string staffCode = Session["StaffCode"]?.ToString() ?? "";
                 string addedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-                int savedCount = await bal.SaveRFQVendorsSJ(header, staffCode, addedDate);
+                int savedCount = await bal.SaveRFQVendorsSJ(header, staffCode, addedDate,request.ExpectedDate);
                 if (savedCount == 0)
                     return Json(new { success = false, message = "Failed to save RFQ-Vendor mapping." });
 
@@ -3327,7 +3336,7 @@ Procurement Team
 
 
         //For generate pdf for vendors
-        private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items)
+        private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items,DateTime expdate)
         {
             string filePath = Path.Combine(
                 Path.GetTempPath(),
@@ -3370,6 +3379,9 @@ Procurement Team
                     string requiredDateStr = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
                     headerTable.AddCell(new Phrase(requiredDateStr, normalFont));
 
+                    headerTable.AddCell(new Phrase("Expected Date:", normalFont));
+                   // string expdate = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
+                    headerTable.AddCell(new Phrase(expdate.ToString("dd/MM/yyyy"), normalFont));
 
                     headerTable.AddCell(new Phrase("Delivery Address:", normalFont));
                     headerTable.AddCell(new Phrase(header.Address, normalFont));

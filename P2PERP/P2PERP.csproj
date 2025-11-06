@@ -2255,6 +2255,7 @@
     <Content Include="Content\dataTables.bootstrap5.min.css" />
     <Content Include="Content\dataTables.dataTables.min.css" />
     <Content Include="Content\daterangepicker.css" />
+    <Content Include="Content\fixedHeader.dataTables.min.css" />
     <Content Include="Content\font-family-inter.css" />
     <Content Include="Content\form-validation.css" />
     <Content Include="Content\images\avatars\1.png" />
@@ -5405,12 +5406,14 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\bootstrap5%406.1.19_index.global.min.js" />
     <Content Include="Scripts\bootstrap5.js" />
+    <Content Include="Scripts\buttons.bootstrap5.min.js" />
     <Content Include="Scripts\buttons.html5.min.js" />
     <Content Include="Scripts\buttons.print.min.js" />
     <Content Include="Scripts\Calendar-modal.js" />
     <Content Include="Scripts\dashboards-analytics.js" />
     <Content Include="Scripts\dataTables.bootstrap5.min.js" />
     <Content Include="Scripts\dataTables.buttons.min.js" />
+    <Content Include="Scripts\dataTables.fixedHeader.min.js" />
     <Content Include="Scripts\dataTables.min.js" />
     <Content Include="Scripts\daterangepicker.min.js" />
     <Content Include="Scripts\exporting.js" />

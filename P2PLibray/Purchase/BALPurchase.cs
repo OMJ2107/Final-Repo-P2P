@@ -370,9 +370,6 @@ namespace P2PLibray.Purchase
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
         /// <summary>
         /// RFQ Registered Quotation List
         /// </summary>
@@ -402,7 +399,8 @@ namespace P2PLibray.Purchase
                                                                     ? row["VenderName"]?.ToString()
                                                                     : row["VendorName"]?.ToString(),
                         DaysToReceiveQuotation = row["DaysToReceiveQuotation"]?.ToString(),
-                        DaysToApproveQuotation = row["DaysToApproveQuotation"]?.ToString()
+                        DaysToApproveQuotation = row["DaysToApproveQuotation"]?.ToString(),
+                        StatusName = row["StatusName"]?.ToString()
                     });
                 }
             }
@@ -1277,8 +1275,8 @@ namespace P2PLibray.Purchase
                             CompanyName = row["CompanyName"].ToString(),
                             TotalAmount = row["TotalAmount"].ToString(),
 
-                            ExpectedDate = row["ExpectedDate"] != DBNull.Value
-                                ? Convert.ToDateTime(row["ExpectedDate"]).ToString("dd/MM/yyyy")
+                            ExpectedDate = row["RequiredDate"] != DBNull.Value
+                                ? Convert.ToDateTime(row["RequiredDate"]).ToString("dd/MM/yyyy")
                                 : string.Empty,
                             VendorDeliveryDate = row["VendorDeliveryDate"] != DBNull.Value
                                 ? Convert.ToDateTime(row["VendorDeliveryDate"]).ToString("dd/MM/yyyy")
@@ -1473,7 +1471,9 @@ namespace P2PLibray.Purchase
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error while approving quotation {quotationCode}.", ex);
+                throw new Exception();
+
+               // throw new Exception($"Error while approving quotation {quotationCode}.", ex);
             }
         }
 
@@ -2746,7 +2746,8 @@ namespace P2PLibray.Purchase
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
                         p.FullName = row["FullName"].ToString();
-                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
                         //p.StatusName = row["StatusName"].ToString();
                         p.Priority = row["Priority"].ToString();
                         lst.Add(p);
@@ -2789,7 +2790,9 @@ namespace P2PLibray.Purchase
                         p.PRCode = row["PRCode"].ToString();
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
-                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
+                       // p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
                         //p.StatusName = row["StatusName"].ToString();
                         p.ApprovedRejectedDate = Convert.ToDateTime(row["ApproveRejectedDate"].ToString());
                         p.ApprovedRejectedDateString = p.ApprovedRejectedDate.ToString("dd-MM-yyyy");
@@ -2879,8 +2882,8 @@ namespace P2PLibray.Purchase
                         Purchase p = new Purchase();
                         p.RFQCode = row["RFQCode"].ToString();
                         p.PRCode = row["PRCode"].ToString();
-                        p.ExpectedDate = Convert.ToDateTime(row["ExpectedDate"].ToString());
-                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
+                        //p.ExpectedDate = Convert.ToDateTime(row["ExpectedDate"].ToString());
+                        //p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
                         p.FullName = row["FullName"].ToString();
@@ -3235,7 +3238,6 @@ namespace P2PLibray.Purchase
                 ["@RFQCode"] = model.RFQCode ?? "",
                 ["@ContactPersonId"] = model.ContactPerson ?? "",
                 ["@PRCode"] = model.PRCode ?? "",
-                ["@ExpectedDate"] = model.ExpectedDate.ToString("yyyy-MM-dd"),
                 ["@WarehouseCode"] = model.Warehouse ?? "",
                 ["@Note"] = model.Note ?? "",
                 ["@StaffCode"] = staffCode ?? "",   // ✅ Passed as string
@@ -3441,7 +3443,7 @@ namespace P2PLibray.Purchase
         /// <summary>
         /// Save the RFQ and vendors code 
         /// </summary>
-        public async Task<int> SaveRFQVendorsSJ(Purchase model, string staffCode, string addedDate)
+        public async Task<int> SaveRFQVendorsSJ(Purchase model, string staffCode, string addedDate,DateTime ExpectedDate)
         {
             if (model == null || model.Vendors == null || model.Vendors.Count == 0)
                 return 0;
@@ -3450,20 +3452,26 @@ namespace P2PLibray.Purchase
 
             foreach (var vendorId in model.Vendors)
             {
+                // Skip if the value looks like a PR or RFQ code instead of vendor code
+                if (vendorId.StartsWith("PR", StringComparison.OrdinalIgnoreCase) ||
+                    vendorId.StartsWith("RFQ", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 var para = new Dictionary<string, string>
-        {
-            { "@Flag", "SaveRFQVendorSJ" },
-            { "@RFQCode", model.RFQCode },
-            { "@VendorCode", vendorId.ToString() },
-            { "@StaffCode", staffCode ?? "" }, 
-            { "@AddedDate", addedDate ?? "" }    
-        };
+                    {
+                        { "@Flag", "SaveRFQVendorSJ" },
+                        { "@RFQCode", model.RFQCode },
+                        { "@VendorCode", vendorId },
+                        { "@StaffCode", staffCode ?? "" },
+                        { "@AddedDate", addedDate ?? "" },
+                        { "@ExpectedDate", ExpectedDate.ToString("yyyy-MM-dd") }
+                    };
 
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", para);
-
-                if (ds != null)
-                    rowsAffected++;
+                if (ds != null) rowsAffected++;
             }
+
+
 
             return rowsAffected;
         }
