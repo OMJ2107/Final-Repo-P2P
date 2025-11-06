@@ -16,6 +16,7 @@
                     <th>PR Code</th>
                     <th>Added Date</th>
                     <th>Added By</th>
+                    <th>REQUIRED DATE</th>
                     <th>Priority</th>
                 </tr>
             </thead>
@@ -118,6 +119,8 @@ const endDate = "@ViewBag.EndDate";
 
                     data.forEach((item, index) => {
                         const addedDate = item.AddedDate ? moment(item.AddedDate).format("DD/MM/YYYY") : "";
+                        const expectedDate = item.ExpectedDate ? moment(item.ExpectedDate).format("DD/MM/YYYY") : "";
+
                         const priorityBadge = item.Priority
                             ? `<span class="${item.Priority.toLowerCase() === 'cold' ? 'badge bg-success' :
                                 item.Priority.toLowerCase() === 'warm' ? 'badge bg-warning text-dark' :
@@ -133,6 +136,7 @@ const endDate = "@ViewBag.EndDate";
                                 <td>${item.PRCode}</td>
                                 <td>${addedDate}</td>
                                 <td>${item.FullName}</td>
+                                 <td>${expectedDate}</td>
                                 <td>${priorityBadge}</td>
                             </tr>
                         `);

@@ -15,7 +15,7 @@
                     <th>Sr No.</th>
                     <th>RFQ Code</th>
                     <th>PR Code</th>
-                    <th>Expected Date</th>
+                    @*<th>Expected Date</th>*@
                     <th>Warehouse Name</th>
                     <th>Added By</th>
                     <th>Added Date</th>
@@ -137,7 +137,7 @@
                                 <td>${index + 1}</td>
                                 <td>${i.RFQCode}</td>
                                 <td>${i.PRCode}</td>
-                                <td>${expectedDate}</td>
+                               
                                 <td>${i.WarehouseName}</td>
                                 <td>${i.FullName}</td>
                                 <td>${addedDate}</td>
@@ -147,7 +147,7 @@
                             </tr>
                         `);
                     });
-
+                   // <td>${expectedDate}</td>
                     // Initialize Bootstrap tooltips
                     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                     tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
