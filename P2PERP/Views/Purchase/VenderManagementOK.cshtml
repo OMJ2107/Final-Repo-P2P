@@ -81,6 +81,7 @@
             padding: 0px;
             margin-left: -10px;
         }
+
         /* ============================= */
         /* Remove green border for valid */
         /* ============================= */
@@ -346,227 +347,105 @@
 
 
             <!-- Pending Vendor Approval -->
+            <!--<div class="tab-content p-0 ps-1 pe-1 mt-2" id="approval">
+        <!-- Toolbar -->
+            <!--<div class="table-toolbar d-flex justify-content-between align-items-center mb-1 mt-7 ps-3 pe-3">-->
+            <!-- Left Section: Date Picker + Export Buttons -->
+            <!--<div class="d-flex align-items-center flex-column gap-3 flex-wrap expbtndate">-->
+            <!-- Date Range Picker -->
+            <!--<div class="input-group border-1 border-gray">
+        <span class="input-group-text bg-primary text-white border-0">
+            <i class="bi bi-calendar-date"></i>
+        </span>
+        <input type="text" id="vendorcreateddate"
+               class="form-control shadow-none ms-0 border"
+               placeholder="Select date range" readonly
+               style="height:100%; border-color: #ced4da;" />
+    </div>-->
+            <!-- Export Buttons -->
+            <!--<div id="exportContainer" class="d-flex align-items-center gap-2 ps-0 ms-0">
+        </div>
+    </div>-->
+            <!-- Right Section: Search Box -->
+            <!--<div id="searchContainer">-->
+            @*<i class="ri-search-line text-primary me-2"></i>*@
+            <!-- DataTables search input will be injected here -->
+            <!--</div>
+    </div>-->
+
+
+
             <div class="tab-content p-0 ps-1 pe-1 mt-2" id="approval">
-                <!-- Toolbar -->
-                <div class="table-toolbar d-flex justify-content-between align-items-center mb-1 mt-7 ps-3 pe-3">
 
-                    <!-- Left Section: Date Picker + Export Buttons -->
-                    <div class="d-flex align-items-center flex-column gap-3 flex-wrap expbtndate">
+                <!-- ✅ Toolbar -->
+                <div class="table-toolbar d-flex justify-content-between align-items-center flex-wrap mb-2 mt-4 px-3">
 
-                        <!-- Date Range Picker -->
-                        <div class="input-group border-1 border-gray">
-                            <span class="input-group-text bg-primary text-white border-0">
-                                <i class="bi bi-calendar-date"></i>
-                            </span>
-                            <input type="text" id="vendorcreateddate"
-                                   class="form-control shadow-none ms-0 border"
-                                   placeholder="Select date range" readonly
-                                   style="height:100%; border-color: #ced4da;" />
-                        </div>
+                    <!-- ✅ Left Section: Date Picker + Export Buttons -->
+                    <div class="row d-flex align-items-center flex-wrap gap-3">
 
-                        <!-- Export Buttons -->
-                        <div id="exportContainer" class="d-flex align-items-center gap-2 ps-0 ms-0">
-                        </div>
-                    </div>
-
-
-                    <!-- Right Section: Search Box -->
-                    <div id="searchContainer">
-                        @*<i class="ri-search-line text-primary me-2"></i>*@
-                        <!-- DataTables search input will be injected here -->
-                    </div>
-                </div>
-
-
-
-
-
-                <!--Pending Vendor Table -->
-                <div class="table-container">
-                    <table class="table table-striped table-bordered text-center align-middle erp-table" id="tblVendor">
-                        <thead class="table-dark text-center align-middle">
-                            <tr>
-                                <th>
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <input type="checkbox" id="selectAllVendor" class="me-1">
-                                        @*<label for="selectAllVendor" class="m-0">Select All</label>*@
-                                    </div>
-                                </th>
-                                <th>SRNO</th>
-                                <th class="d-none">VendorId</th>
-                                <th>Vendor Name</th>
-                                <th class="text-center">Mobile No</th>
-                                <th class="d-none">Company Name</th>
-                                <th class="d-none">Industry Type</th>
-                                <th>Added By</th>
-                                <th>Added Date</th>
-                                <th class="d-none">Alternate No</th>
-                                <th class="d-none">Email</th>
-                                <th class="d-none">Address</th>
-                                <th class="d-none">Company Email</th>
-                                <th class="d-none">Company Mobile No</th>
-                                <th class="d-none">Company Alternate No</th>
-                                <th class="d-none">Company Address</th>
-                                <th class="d-none">Industry Type Id</th>
-                                <th class="d-none">City Id</th>
-                                <th class="d-none">Bank Name</th>
-                                <th class="d-none">Swift Code</th>
-                                <th class="d-none">Branch Name</th>
-                                <th class="d-none">IFSC Code</th>
-                                <th class="d-none">Account Number</th>
-                                <th class="d-none">Country Code</th>
-                                <th class="d-none">State Code</th>
-                                <th class="d-none">City Name</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-
-
-
-
-            <!-- =======================View pending Vendor MODAL ======================= -->
-            <!--<div class="modal fade" id="viewvendorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="d-flex justify-content-center text-center ms-auto text-white">
-                    Vendor Details
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">-->
-            <!-- Vendor Registration Form inside Modal -->
-            <!--<form id="Vendorform" class="row g-3 needs-validation" novalidate>-->
-            <!-- Personal Details -->
-            <!--<div class="form-section">
-    <h5 class="text-dark">Personal Details</h5>
-    <div class="row">-->
-            <!-- Full Name -->
-            <!--<div class="col-md-6">
-        <label for="FullName" class="form-label form-label-sm fw-bold text-dark">Full Name</label>
-        <input type="text" class="form-control form-control-sm text-dark shadow-sm" id="FullName" name="VendorName" placeholder="Enter Full Name" readonly>
-    </div>-->
-            <!-- Mobile -->
-            <!--<div class="col-md-6">
-        <label for="Mobile" class="form-label form-label-sm fw-bold text-dark">Mobile Number</label>
-        <input type="tel" class="form-control form-control-sm text-dark shadow-sm" id="Mobile" name="MobileNo" placeholder="Enter Mobile Number" readonly>
-    </div>
-    <div class="col-md-6">
-        <label for="AltMobile" class="form-label form-label-sm fw-bold text-dark">Alternate Mobile</label>
-        <input type="tel"  class="form-control form-control-sm text-dark shadow-sm" id="AltMobile" name="AlternateNo" placeholder="Enter Alternate Mobile" readonly>
-    </div>
-
-    <div class="col-md-6">
-        <label for="PersonalEmail" class="form-label fw-bold text-dark">Personal Email</label>
-        <input type="email" class="form-control form-control-sm text-dark shadow-sm" id="PersonalEmail" name="Email" placeholder="Enter Email Address" readonly>
-    </div>-->
-            <!-- Address -->
-            <!--<div class="col-12">
-                <label for="Address" class="form-label fw-bold text-dark">Address</label>
-                <textarea class="form-control form-control-sm text-dark shadow-sm" id="Address" name="Address" rows="2" placeholder="Enter Address" readonly></textarea>
-            </div>
-        </div>
-    </div>
-
-    <div class="form-section">
-        <h5 class="text-dark">Communication Details</h5>
-        <div class="row">-->
-            <!-- Company Email -->
-            <!--<div class="col-md-6">
-        <label for="CompanyEmail" class="form-label fw-bold text-dark">Company Email</label>
-        <input type="email" class="form-control form-control-sm text-dark shadow-sm" id="companyEmail" name="CompanyEmail" placeholder="Enter Company Email" readonly>
-    </div>
-    <div class="col-md-6">
-        <label for="CompanyName" class="form-label fw-bold text-dark">Company Name</label>
-        <input type="text" class="form-control form-control-sm text-dark shadow-sm" id="CompanyName" name="CompanyName" placeholder="Enter Company Name" readonly>
-    </div>-->
-            <!-- Alternate Mobile -->
-            <!--<div class="col-md-6">
-        <label for="CompanyEmail" class="form-label fw-bold text-dark">Company Mobile Number</label>
-        <input type="tel" class="form-control form-control-sm text-dark shadow-sm" name="CompanyAlternateNo" placeholder="AlternateMobile Number" readonly>
-    </div>-->
-            <!-- Alternate Mobile -->
-            <!--<div class="col-md-6">
-        <label for="CompanyEmail" class="form-label fw-bold text-dark">AlternateMobile Number</label>
-        <input type="tel" class="form-control form-control-sm text-dark shadow-sm" id="companyAlternateNo" name="CompanyAlternateNo" placeholder="AlternateMobile Number" readonly>
-    </div>-->
-            <!-- Company Name -->
-            <!--<div class="col-md-6">
-        <label for="CompanyName" class="form-label fw-semibold">Company Name</label>
-        <input type="text" class="form-control" id="CompanyName" name="CompanyName" placeholder="Enter Company Name" readonly>
-    </div>-->
-            <!-- Company Address -->
-            <!--<div class="col-md-6">
-        <label for="CompanyName" class="form-label fw-bold text-dark">Company Address</label>
-        <input type="text" class="form-control form-control-sm text-dark shadow-sm" id="CompanyAddress" name="CompanyAddress" placeholder="Company Address" readonly>
-    </div>
-    <div class="row g-3">-->
-            <!-- Industry Type -->
-            <!--<div class="col-md-6">
-        <label for="industryType" class="form-label fw-bold text-dark">Industry Type</label>
-        <input type="text" class="form-control" id="IndustryType" name="IndustryTypeId" placeholder="Enter Company Email" readonly>
-    </div>-->
-            <!-- Country -->
-            <!--<div class="col-md-6">
-        <label for="Country" class="form-label fw-semibold">Country</label>
-        <input type="text" class="form-control" id="Country" readonly placeholder="Enter Country">
-    </div>-->
-            <!-- State -->
-            <!--<div class="col-md-6">
-        <label for="State" class="form-label fw-semibold">State</label>
-        <input type="text" class="form-control" id="State" readonly placeholder="Enter State">
-    </div>-->
-            <!-- City -->
-            <!--<div class="col-md-6">
-                    <label for="City" class="form-label fw-semibold">City</label>
-                    <input type="text" class="form-control" id="City" readonly placeholder="Enter City">
-                </div>
-
-            </div>
-
-        </div>
-    </div>-->
-            <!-- Payment Details -->
-            <!--<div class="form-section">
-    <h5>Payment Details</h5>
-    <div class="row">-->
-            <!-- Bank Name -->
-            <!--<div class="col-md-6">
-        <label for="BankName" class="form-label fw-semibold">Bank Name</label>
-        <input type="text" class="form-control" id="BankName" name="BankName" placeholder="Enter Bank Name" readonly>
-    </div>-->
-            <!-- Branch -->
-            <!--<div class="col-md-6">
-        <label for="Branch" class="form-label fw-semibold">Branch</label>
-        <input type="text" class="form-control" id="BranchName" name="Branch" placeholder="Enter Branch Name" readonly>
-    </div>-->
-            <!-- Account Number -->
-            <!--<div class="col-md-6">
-        <label for="AccountNumber" class="form-label fw-semibold">Account Number</label>
-        <input type="text" class="form-control" id="AccountNumber" name="AccountNumber" placeholder="Enter Account Number" readonly>
-    </div>-->
-            <!-- IFSC -->
-            <!--<div class="col-md-6">
-                                    <label for="IFSC" class="form-label fw-semibold">IFSC Code</label>
-                                    <input type="text" class="form-control" id="Ifsc" name="IFSC" placeholder="Enter IFSC Code" readonly>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="IFSC" class="form-label fw-semibold">Swift Code</label>
-                                    <input type="text" class="form-control" id="Swift" name="SwiftCode" placeholder="Enter IFSC Code" readonly>
-                                </div>
-
+                        <!-- ✅ Date Picker Column -->
+                        <div class="col-6 p-0">
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="bi bi-calendar-event"></i>
+                                </span>
+                                <input type="text" id="vendorcreateddate" class="form-control" placeholder="Select Date Range" readonly />
                             </div>
                         </div>
-                    </form>
 
+                        <!-- ✅ Export Buttons -->
+                        <div id="exportContainer" class="d-flex align-items-center gap-2"></div>
+                    </div>
+
+                    <!-- ✅ Right Section: Search Box -->
+                    <div id="searchContainer" class="d-flex align-items-center ps-1"></div>
                 </div>
             </div>
+
+
+            <!--Pending Vendor Table -->
+            <div class="table-container">
+                <table class="table table-striped table-bordered text-center align-middle erp-table" id="tblVendor">
+                    <thead class="table-dark text-center align-middle">
+                        <tr>
+                            <th>
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <input type="checkbox" id="selectAllVendor" class="me-1">
+                                    @*<label for="selectAllVendor" class="m-0">Select All</label>*@
+                                </div>
+                            </th>
+                            <th>SRNO</th>
+                            <th class="d-none">VendorId</th>
+                            <th>Vendor Name</th>
+                            <th class="text-center">Mobile No</th>
+                            <th class="d-none">Company Name</th>
+                            <th class="d-none">Industry Type</th>
+                            <th>Added By</th>
+                            <th>Added Date</th>
+                            <th class="d-none">Alternate No</th>
+                            <th class="d-none">Email</th>
+                            <th class="d-none">Address</th>
+                            <th class="d-none">Company Email</th>
+                            <th class="d-none">Company Mobile No</th>
+                            <th class="d-none">Company Alternate No</th>
+                            <th class="d-none">Company Address</th>
+                            <th class="d-none">Industry Type Id</th>
+                            <th class="d-none">City Id</th>
+                            <th class="d-none">Bank Name</th>
+                            <th class="d-none">Swift Code</th>
+                            <th class="d-none">Branch Name</th>
+                            <th class="d-none">IFSC Code</th>
+                            <th class="d-none">Account Number</th>
+                            <th class="d-none">Country Code</th>
+                            <th class="d-none">State Code</th>
+                            <th class="d-none">City Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
-    </div>-->
+
             <!-- Vendor Details Modal -->
             <div class="modal fade" id="viewvendorModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -702,7 +581,7 @@
 
 
         </div>
-    </div>
+   
     <script>
         // SweetAlert2 configuration with Bootstrap button styles
         const swalWithBootstrapButtons = Swal.mixin({
@@ -1039,63 +918,36 @@
                 { data: "CountryCode", className: "text-center",visible: false },
                 { data: "StateCode", className: "text-center",visible: false },
                 { data: "CityName", className: "text-center",visible: false },
-
-                // Action column
-                //{
-                //    data: null,
-                //    className: "text-center",
-                //    render: function (data, type, row) {
-                //        return `
-                //            <div class="d-flex gap-2 justify-content-center">
-                //                <!-- View Button with tooltip -->
-                //                <button class="btn btn-sm btn-primary btn-view"
-                //                        data-row='${JSON.stringify(row)}'
-                //                        data-bs-toggle="tooltip"
-                //                        data-bs-placement="top"
-                //                        title="View Vendor">
-                //                    <i class="bi bi-eye-fill"></i>
-                //                </button>
-                //                <button class="btn btn-sm btn-success btn-approve"
-                //                        onclick="ApproveVendor(${row.VendorId})"
-                //                        data-bs-toggle="tooltip"
-                //                        data-bs-placement="top"
-                //                        title="Approve">
-                //                    <i class="bi bi-person-check-fill"></i>
-                //                </button>
-                //            </div>
-                //        `;
-                //    }
-                //},
                 // ✅ Action column with applied custom styling
                 {
                     data: null,
                     className: "text-center",
                     render: function (data, type, row) {
                         return `
-            <div class="d-flex gap-2 justify-content-center">
+                            <div class="d-flex gap-2 justify-content-center">
                 
-                <!-- View Button -->
-                <button type="button" 
-                        class="btn btn-primary square-pill d-inline-flex align-items-center px-2 py-1 shadow-InStock btn-view"
-                        data-row='${JSON.stringify(row)}'
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="View Vendor">
-                    <i class="bi bi-eye-fill fs-6"></i>
-                </button>
+                                <!-- View Button -->
+                                <button type="button" 
+                                        class="btn btn-primary square-pill d-inline-flex align-items-center px-2 py-1 shadow-InStock btn-view"
+                                        data-row='${JSON.stringify(row)}'
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="View Vendor">
+                                    <i class="bi bi-eye-fill fs-6"></i>
+                                </button>
 
-                <!-- Approve Button -->
-                <button type="button" 
-                        class="btn btn-success square-pill d-inline-flex align-items-center px-2 py-1 shadow-InStock btn-approve"
-                        onclick="ApproveVendor(${row.VendorId})"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Approve">
-                    <i class="bi bi-person-check-fill fs-6"></i>
-                </button>
+                                <!-- Approve Button -->
+                                <button type="button" 
+                                        class="btn btn-success square-pill d-inline-flex align-items-center px-2 py-1 shadow-InStock btn-approve"
+                                        onclick="ApproveVendor(${row.VendorId})"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Approve">
+                                    <i class="bi bi-person-check-fill fs-6"></i>
+                                </button>
 
-            </div>
-        `;
+                            </div>
+                        `;
                     }
                 },
             ],
@@ -1206,10 +1058,10 @@
                     }
                 },
 
-                // PDF Export button
+                // PDF Export button 
                 {
                     extend: 'pdfHtml5',
-                    text: '<i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>',
+                    text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                     titleAttr: 'PDF',
                     title: 'Vendor List',
                     orientation: 'landscape',
@@ -1269,7 +1121,7 @@
                 // Excel Export button
                 {
                     extend: 'excelHtml5',
-                    text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
+                    text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     titleAttr: 'Excel',
                     title: ' ', //Vendor List
                     exportOptions: {
