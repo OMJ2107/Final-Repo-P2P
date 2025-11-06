@@ -43,11 +43,13 @@
         <div class="modal-content">
 
             <!--  Modal Header with Centered Title -->
-            <div class="modal-header bg-primary text-white justify-content-center py-3">
-                <!-- Added py-3 for vertical padding -->
-                <h5 class="modal-title text-white fw-bold text-center w-100" id="viewDetailsModalLabel">Non-Confirm Items</h5> 
-                <button type="button" class="btn-close btn-close-white position-absolute end-0me-1 mt-2 mb-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white justify-content-center p-1">
+                <h5 class="modal-title text-white  text-center w-100 fs-5" id="viewDetailsModalLabel">
+                    Non-Confirm Items
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-1 mt-2 mb-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
 
             <!-- GRN Code in Box -->
             <div class="px-4 py-3">
@@ -74,7 +76,7 @@
                             <th>Item Name</th>
                             <th>Failure Reason</th>
                             <th>Failed QC Code</th>
-                            <th>QualityCheackDate</th>
+                            <th>Quality Cheack Date</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -169,7 +171,7 @@
             "timeOut": "3000"
         };
 
-        //  UPDATED: Date Range Picker with DD-MM-YYYY format
+        // ✅ FIXED: Date Range Picker with proper event handling
         $('#Tabledate').daterangepicker({
             autoUpdateInput: false,
             alwaysShowCalendars: false,
@@ -194,6 +196,8 @@
             $('#Tabledate').data('start', start);
             $('#Tabledate').data('end', end);
 
+            console.log('Date range selected:', start.format('DD/MM/YYYY'), 'to', end.format('DD/MM/YYYY'));
+
             // Trigger table redraw
             $('#Non-confirmItemTable').DataTable().draw();
         });
@@ -202,13 +206,14 @@
         $('#Tabledate').on('cancel.daterangepicker', function () {
             $(this).val('Select Date Range');
             $(this).removeData('start').removeData('end');
+            console.log('Date filter cleared');
             $('#Non-confirmItemTable').DataTable().draw();
         });
 
         // Set initial placeholder value
         $('#Tabledate').val('Select Date Range');
 
-        // FIXED: Custom Search Filter for BOTH AddDate AND QualityCheckDate - UPDATED for DD-MM-YYYY
+        // ✅ FIXED: Simple Date Filter - Only check AddDate column (index 4)
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             if (settings.nTable.id !== 'Non-confirmItemTable') return true;
 
@@ -216,34 +221,30 @@
             const end = $('#Tabledate').data('end');
 
             // If no date range selected, show all rows
-            if (!start || !end) return true;
+            if (!start || !end) {
+                return true;
+            }
 
-            // Get both date columns
-            const addDateStr = data[4]; 
-            const qualityCheckDateStr = data[5]; 
+            // Get only AddDate column (index 4)
+            const addDateStr = data[4]; // Add Date column
 
-            //  Check if EITHER AddDate OR QualityCheckDate falls within the selected range
-            let addDateInRange = false;
-            let qualityCheckDateInRange = false;
+            console.log('Checking date:', addDateStr, 'for range:', start.format('DD/MM/YYYY'), 'to', end.format('DD/MM/YYYY'));
 
-            // Check Add Date - PRIORITIZE DD-MM-YYYY format
+            // Check Add Date - Use strict DD/MM/YYYY format
             if (addDateStr && addDateStr.trim() !== '') {
-                const addDate = moment(addDateStr, ['DD-MM-YYYY', 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'], true);
+                const addDate = moment(addDateStr, 'DD/MM/YYYY', true);
                 if (addDate.isValid()) {
-                    addDateInRange = addDate.isSameOrAfter(start) && addDate.isSameOrBefore(end);
+                    const isInRange = addDate.isSameOrAfter(start) && addDate.isSameOrBefore(end);
+                    console.log('Date is valid, in range:', isInRange);
+                    return isInRange;
+                } else {
+                    console.log('Invalid date format:', addDateStr);
                 }
+            } else {
+                console.log('Empty or invalid date string');
             }
 
-            // Check Quality Check Date - PRIORITIZE DD-MM-YYYY format
-            if (qualityCheckDateStr && qualityCheckDateStr.trim() !== '') {
-                const qualityCheckDate = moment(qualityCheckDateStr, ['DD-MM-YYYY', 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'], true);
-                if (qualityCheckDate.isValid()) {
-                    qualityCheckDateInRange = qualityCheckDate.isSameOrAfter(start) && qualityCheckDate.isSameOrBefore(end);
-                }
-            }
-
-            //  Return true if EITHER date falls within the range
-            return addDateInRange || qualityCheckDateInRange;
+            return false;
         });
 
         // 🔹 Main DataTable Initialization
@@ -282,7 +283,15 @@
                 },
                 { data: "GRNCode", orderable: false, className: "dt-center" },
                 { data: "VenderName", orderable: false, className: "dt-center" },
-                { data: "AddDate", orderable: false, className: "dt-center" },
+                {
+                    data: "AddDate",
+                    orderable: false,
+                    className: "dt-center",
+                    render: function (data, type, row) {
+                        // Ensure date is properly formatted
+                        return data || '';
+                    }
+                },
                 {
                     data: null,
                     className: "dt-center",
@@ -293,7 +302,7 @@
                 data-bs-toggle="tooltip"
                 data-bs-placement="top"
                 title="View Details">
-            <i class="bi bi-eye-fill"></i>
+            <i class="btn-sm bi-eye-fill"></i>
         </button>`;
                     }
                 }
@@ -313,13 +322,13 @@
                         format: {
                             body: function (data, row, column, node) {
                                 // ✅ Sequential serial numbers for selected rows
-                                if (column === 1) { 
+                                if (column === 1) {
                                     const $node = $(node);
                                     if ($node.closest('tr').find('.row-select').prop('checked')) {
                                         const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
                                         const currentRow = $node.closest('tr');
                                         const currentIndex = selectedRows.index(currentRow.find('.row-select'));
-                                        return currentIndex + 1; 
+                                        return currentIndex + 1;
                                     }
                                     return ''; // Empty for non-selected
                                 }
@@ -360,7 +369,7 @@
             </style>
         `);
 
-                        //  FIXED: Single header with title and date 
+                        //  FIXED: Single header with title and date
                         $body.prepend(`
             <div style="text-align: center; margin-bottom: 20px;">
                 <h2>Non-Confirm Item List</h2>
@@ -381,7 +390,7 @@
                         });
 
                         //  REMOVE DUPLICATE TITLE THAT APPEARS ABOVE TABLE
-                        $body.find('h1').remove(); 
+                        $body.find('h1').remove();
                     }
                 },
 
@@ -421,7 +430,7 @@
                         $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                     },
                     customize: function (doc) {
-                        doc.pageMargins = [40, 60, 40, 40]; 
+                        doc.pageMargins = [40, 60, 40, 40];
 
                         //  FIXED: Single title with generated date
                         doc.content[0] = {
@@ -458,10 +467,10 @@
                             let serialNo = 1;
                             table.table.body.forEach((row, rowIndex) => {
                                 if (rowIndex > 0) {
-                                    row[0].text = serialNo++; 
+                                    row[0].text = serialNo++;
                                 }
                                 row.forEach(cell => {
-                                    cell.alignment = 'center'; 
+                                    cell.alignment = 'center';
                                 });
                             });
 
@@ -475,7 +484,7 @@
                     }
                 },
 
-                //  EXCEL - Main Table 
+                //  EXCEL - Main Table
                 {
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
@@ -547,7 +556,7 @@
                     extend: 'csvHtml5',
                     text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
                     title: 'Non-Confirm Item List',
-                    message: 'Generated Date: ' + moment().format("DD/MM/YYYY"), 
+                    message: 'Generated Date: ' + moment().format("DD/MM/YYYY"),
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -556,7 +565,7 @@
                         format: {
                             body: function (data, row, column, node) {
                                 // ✅ Sequential serial numbers for selected rows
-                                if (column === 1) { 
+                                if (column === 1) {
                                     const $node = $(node);
                                     if ($node.closest('tr').find('.row-select').prop('checked')) {
                                         const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
@@ -767,7 +776,7 @@
                                         $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                                     },
                                     customize: function (doc) {
-                                        doc.pageMargins = [40, 80, 40, 40]; 
+                                        doc.pageMargins = [40, 80, 40, 40];
 
                                         //  FIXED: Single title for modal PDF
                                         doc.content[0] = {
@@ -807,7 +816,7 @@
                                                     row[0].text = serialNo++;
                                                 }
                                                 row.forEach(cell => {
-                                                    cell.alignment = 'center'; 
+                                                    cell.alignment = 'center';
                                                 });
                                             });
 
@@ -821,7 +830,7 @@
                                     }
                                 },
 
-                                //  EXCEL 
+                                //  EXCEL
                                 {
                                     extend: 'excelHtml5',
                                     text: '<i class="bi bi-file-earmark-excel text-success fs-6"></i>',
@@ -888,12 +897,12 @@
                                     }
                                 },
 
-                                // CSV 
+                                // CSV
                                 {
                                     extend: 'csvHtml5',
                                     text: '<i class="bi bi-filetype-csv text-success fs-6"></i>',
-                                    title: 'Failed Items Details - ' + $('#modalGRNCodeNonConfirm').text(), 
-                                    message: 'Generated Date: ' + moment().format("DD/MM/YYYY"), 
+                                    title: 'Failed Items Details - ' + $('#modalGRNCodeNonConfirm').text(),
+                                    message: 'Generated Date: ' + moment().format("DD/MM/YYYY"),
                                     exportOptions: {
                                         rows: function (idx, data, node) {
                                             return $(node).find('.item-row-select').prop('checked');
@@ -902,7 +911,7 @@
                                         format: {
                                             body: function (data, row, column, node) {
                                                 // ✅ Sequential serial numbers for selected modal items
-                                                if (column === 1) { 
+                                                if (column === 1) {
                                                     const $node = $(node);
                                                     if ($node.closest('tr').find('.item-row-select').prop('checked')) {
                                                         const selectedRows = $('.item-row-select:checked');
@@ -956,16 +965,31 @@
             new bootstrap.Modal(document.getElementById('viewDetailsModal')).show();
         });
 
-        //  Debug function to check date formats
+        // ✅ FIXED: Debug function to check date formats and filtering
         table.on('draw', function () {
             console.log('Table redrawn with date filter');
             const start = $('#Tabledate').data('start');
             const end = $('#Tabledate').data('end');
+            const visibleRows = table.rows({ filter: 'applied' }).count();
+            const totalRows = table.rows().count();
+
+            console.log('Total rows:', totalRows, 'Visible rows:', visibleRows);
+
             if (start && end) {
                 console.log('Active date filter:', {
                     start: start.format('DD/MM/YYYY'),
                     end: end.format('DD/MM/YYYY')
                 });
+            } else {
+                console.log('No active date filter - showing all rows');
+            }
+        });
+
+        // ✅ FIXED: Add debug info for data received
+        table.on('xhr.dt', function (e, settings, json, xhr) {
+            console.log('Data received from server:', json);
+            if (json && json.data && json.data.length > 0) {
+                console.log('Sample row data:', json.data[0]);
             }
         });
 
