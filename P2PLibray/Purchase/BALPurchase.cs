@@ -2746,7 +2746,8 @@ namespace P2PLibray.Purchase
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
                         p.FullName = row["FullName"].ToString();
-                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
                         //p.StatusName = row["StatusName"].ToString();
                         p.Priority = row["Priority"].ToString();
                         lst.Add(p);
@@ -2789,7 +2790,9 @@ namespace P2PLibray.Purchase
                         p.PRCode = row["PRCode"].ToString();
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
-                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
+                       // p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
                         //p.StatusName = row["StatusName"].ToString();
                         p.ApprovedRejectedDate = Convert.ToDateTime(row["ApproveRejectedDate"].ToString());
                         p.ApprovedRejectedDateString = p.ApprovedRejectedDate.ToString("dd-MM-yyyy");
@@ -2879,8 +2882,8 @@ namespace P2PLibray.Purchase
                         Purchase p = new Purchase();
                         p.RFQCode = row["RFQCode"].ToString();
                         p.PRCode = row["PRCode"].ToString();
-                        p.ExpectedDate = Convert.ToDateTime(row["ExpectedDate"].ToString());
-                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
+                        //p.ExpectedDate = Convert.ToDateTime(row["ExpectedDate"].ToString());
+                        //p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
                         p.FullName = row["FullName"].ToString();
