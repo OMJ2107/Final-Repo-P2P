@@ -54,6 +54,10 @@
     <script src="~/Scripts/buttons.html5.min.js"></script>
     <script src="~/Scripts/buttons.print.min.js"></script>
 
+    <!-- FixedHeader Extension -->
+    <script src="https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.dataTables.min.css" />
+
     <!-- Validation -->
     <script src="~/Scripts/jquery.validate.min.js"></script>
     <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
@@ -323,6 +327,56 @@
                         transform: translateY(-2px);
                     }*/
             </style>*@
+    <!-- ✅ Modern DataTable + Buttons (Bootstrap 5) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.2/css/buttons.bootstrap5.min.css">
+
+    <script src="https://cdn.datatables.net/2.1.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.2/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+
+    <style>
+
+
+
+        /* Enhanced Toast Styles */
+        .toast-success {
+            background-color: #28a745 !important;
+            color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .toast-error {
+            background-color: #dc3545 !important;
+            color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .toast-info {
+            background-color: #17a2b8 !important;
+            color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+        }
+
+        .toast-warning {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+
+
+    </style>
 
 
 </head>
@@ -928,7 +982,7 @@
                 </nav>
                 <!-- / Navbar -->
                 <!-- Content wrapper -->
-                <div class="content-wrapper mt-5">
+                <div class="content-wrapper">
                     @RenderBody()
                     <!-- Footer -->
                     <footer class="content-footer footer bg-footer-theme">
