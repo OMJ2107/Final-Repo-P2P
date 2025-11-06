@@ -27,6 +27,26 @@
         #termsCondition li {
             padding: 2px 0;
         }
+
+        thead th {
+            white-space: nowrap !important;
+        }
+
+        /* ✅ Center all table headers and body data */
+        #poItemsTable thead th,
+        #poItemsTable tbody td {
+            text-align: center !important;
+            vertical-align: middle;
+        }
+
+        /* ✅ Keep footer totals right-aligned */
+        #poItemsTable tfoot th,
+        #poItemsTable tfoot td {
+            text-align: right !important;
+            vertical-align: middle;
+        }
+
+
     </style>
 </head>
 
@@ -43,23 +63,23 @@
                 <div class="col-md-6">
                     <h6 class="fw-bold mb-3">Invoice To</h6>
                     <div class="mb-2">
-                        <label class="form-label">PO No</label>
+                        <label class="form-label fw-bold text-dark">PO No</label>
                         <input id="po_no" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">PO Date</label>
+                        <label class="form-label fw-bold text-dark">PO Date</label>
                         <input id="po_date" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Company Name</label>
+                        <label class="form-label fw-bold text-dark">Company Name</label>
                         <input id="companyName" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Delivery Address</label>
+                        <label class="form-label fw-bold text-dark">Delivery Address</label>
                         <textarea id="deliveryAddress" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" rows="3" readonly></textarea>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Terms & Conditions</label>
+                        <label class="form-label fw-bold text-dark">Terms & Conditions</label>
                         <div id="termsCondition" class="small text-muted border rounded p-2 bg-light"></div>
                     </div>
                 </div>
@@ -68,25 +88,25 @@
                 <div class="col-md-6">
                     <h6 class="fw-bold mb-3">Vendor Details</h6>
                     <div class="mb-2 row">
-                        <label class="col-sm-4 col-form-label col-form-label-sm">Vendor Name</label>
+                        <label class="form-label fw-bold text-dark">Vendor Name</label>
                         <div class="col-sm-8">
                             <input id="vendorName" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                         </div>
                     </div>
                     <div class="mb-2 row">
-                        <label class="col-sm-4 col-form-label col-form-label-sm">Vendor Company</label>
+                        <label class="form-label fw-bold text-dark">Vendor Company</label>
                         <div class="col-sm-8">
                             <input id="vendorCompany" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                         </div>
                     </div>
                     <div class="mb-2 row">
-                        <label class="col-sm-4 col-form-label col-form-label-sm">Vendor Contact</label>
+                        <label class="form-label fw-bold text-dark">Vendor Contact</label>
                         <div class="col-sm-8">
                             <input id="vendorContact" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                         </div>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Vendor Address</label>
+                        <label class="form-label fw-bold text-dark">Vendor Address</label>
                         <textarea id="vendorAddress" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" rows="3" readonly></textarea>
                     </div>
                 </div>
