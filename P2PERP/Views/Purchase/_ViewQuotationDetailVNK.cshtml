@@ -5,24 +5,51 @@
 <html>
 <head>
     <style>
+
+        thead th {
+            white-space: nowrap !important;
+        }
+
         #grid thead th {
             text-align: center !important;
             vertical-align: middle;
             font-weight: 600;
         }
 
+
+        #grid td.text-end {
+            text-align: center !important; 
+        }
+
         #grid tbody td {
             font-size: 14px;
             vertical-align: middle;
+            text-align :center;
         }
 
-        #grid tfoot th, #grid tfoot td {
+
+
+        /* Compact and aligned footer rows */
+        #grid tfoot th,
+        #grid tfoot td {
             font-weight: 600;
-            font-size: 14px;
-            padding: 4px 6px;
-            line-height: 1.2;
+            font-size: 13px;
+            padding: 2px 6px; /* Reduced vertical padding */
+            line-height: 1; /* Tighter spacing */
             text-align: right;
+            vertical-align: middle;
+            white-space: nowrap; /* Prevent ₹ overlap */
         }
+
+        #grid tfoot tr {
+            height: 24px; /* Compact row height */
+        }
+
+       
+
+         
+
+
 
         #grid td.text-end {
             white-space: nowrap;
@@ -46,32 +73,32 @@
             <!-- Header Details -->
             <div class="row g-3 mb-4">
                 <div class="col-md-2">
-                    <label class="form-label">RFQ No</label>
-                    <input  id="RFQCode" class="form-control small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
+                    <label class="form-label fw-bold text-dark">RFQ No</label>
+                    <input  id="RFQCode" class="form-control form-control-sm small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Register Quotation Code</label>
-                    <input id="RegisterQuotationCode" class="form-control  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
+                    <label class="form-label fw-bold text-dark">Register Quotation Code</label>
+                    <input id="RegisterQuotationCode" class="form-control form-control-sm text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">VQ Date</label>
-                    <input id="SystemDate" class="form-control  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
+                    <label class="form-label fw-bold text-dark">VQ Date</label>
+                    <input id="SystemDate" class="form-control form-control-sm text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Vendor Name</label>
-                    <input id="VendorName" class="form-control  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
+                    <label class="form-label fw-bold text-dark">Vendor Name</label>
+                    <input id="VendorName" class="form-control form-control-sm text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Vendor Code</label>
-                    <input id="VendorCode" class="form-control  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
+                    <label class="form-label fw-bold text-dark">Vendor Code</label>
+                    <input id="VendorCode" class="form-control form-control-sm text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Vendor Company</label>
-                    <input id="CompanyName" class="form-control  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
+                    <label class="form-label fw-bold text-dark">Vendor Company</label>
+                    <input id="CompanyName" class="form-control form-control-sm text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Vendor Expected Delivery Date</label>
-                    <input id="VendorDeliveryDate" class="form-control  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
+                    <label class="form-label fw-bold text-dark">Vendor Expected Delivery Date</label>
+                    <input id="VendorDeliveryDate" class="form-control form-control-sm text-muted border rounded p-2 bg-light mb-2 mt-2" readonly />
                 </div>
             </div>
 
