@@ -67,7 +67,7 @@
                                 <td>@item.StatusName</td>
                                 <td>
                                     <button id="btnview" type="button"
-                                            class="btn btn-sm btn-primary view-items"
+                                            class="btn btn-sm btn-primary view-items rounded-2"
                                             data-prcode="@item.PRCode">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -86,12 +86,21 @@
 
 @*Modal View*@
 
-<div class="modal fade" data-bs-backdrop="true" id="prItemsModal" tabindex="-1" aria-hidden="true">
+@*<div class="modal fade" data-bs-backdrop="true" id="prItemsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white position-relative">
-                <h5 class="modal-title text-white w-100 text-center mb-2">Purchase Requisition Items</h5>
+                <h5 class="modal-title text-white w-100 text-center mb-2 fw-bold fs-5 p-1" >Purchase Requisition Items</h5>
                 <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3 mb-2" data-bs-dismiss="modal"></button>
+            </div>*@
+<div class="modal fade" id="prItemsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-lg rounded-3">
+            <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">
+                <!-- Modal title -->
+                <h5 class="modal-title fw-bold text-white mb-0 fs-5">Purchase Requisition Items</h5>
+                <!-- Close button -->
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
