@@ -193,7 +193,7 @@
                                     <i class="ri ri-grid-line icon-24px"></i>
                                 </span>
                             </div>
-                            <h4 class="mb-0 fw-bold text-info" id="Sections">56</h4>
+                            <h4 class="mb-0 fw-bold text-info" id="Section">56</h4>
                         </div>
                         <h6 class="mb-0 fw-normal">Sections</h6>
                         <p class="mb-0">
@@ -1382,10 +1382,12 @@
         var bin = $("#Bins");
         var Rack = $("#Rack");
         var WareHouse = $("#WareHouse");
+        var Section = $("#Section");
 
         bin.text(data.Bin);
         Rack.text(data.Rack);
         WareHouse.text(data.WareHouse);
+        Section.text(data.Section);
 
     });
 

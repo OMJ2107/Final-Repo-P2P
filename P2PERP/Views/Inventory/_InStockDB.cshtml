@@ -249,6 +249,17 @@
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <label class="form-label-sm fw-semibold text-muted mb-0">Assign Qty:</label>
                                                                 <input type="number" class="form-control form-control-sm bg-white text-dark assign-qty" style="width: 150px;" min="0" font-size="14px" ; placeholder="Enter quantity" @(isComplete ? "disabled" : "") />
+                                                                <!-- Your info icon with tooltip -->
+                                                                <!-- Info icon (per item row) -->
+                                                                <i class="bi bi-info-circle-fill text-primary fs-6 ms-1 item-info-icon"
+                                                                   role="button"
+                                                                   data-itemcode="@item.ItemCode"
+                                                                   data-bs-toggle="tooltip"
+                                                                   data-bs-html="true"
+                                                                   data-bs-placement="top"
+                                                                   title="Hover to load bin details..."></i>
+
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -549,7 +560,7 @@ $(document).ready(function () {
                 if (response && response.length > 0) {
                     $.each(response, function (i, emp) {
 
-                       
+
                     });
                 } else {
                     $BinSelect.append('<option value="">No Bin found</option>');
@@ -557,6 +568,62 @@ $(document).ready(function () {
             }
         });
     }
+
+    //------------------------------------------------------------
+
+// === Dynamic Tooltip for Bin Names ===
+$(document).off("mouseenter", ".item-info-icon").on("mouseenter", ".item-info-icon", function () {
+    const $icon = $(this);
+    const itemCode = $icon.data("itemcode");
+
+    // Prevent duplicate requests (cache per icon)
+    if ($icon.data("loaded")) return;
+
+    // AJAX call to get bins for that item
+    $.ajax({
+        url: '@Url.Action("GetBinNameItemDRB", "Inventory")',
+        type: 'GET',
+        data: { itemcode: itemCode },
+        success: function (bins) {
+            let tooltipHtml = "";
+
+            if (bins && bins.length > 0) {
+                tooltipHtml += `<div class='text-start'><b>Bins for Item:</b><br>`;
+                $.each(bins, function (i, bin) {
+                    tooltipHtml += `
+                        <div class='mb-1'>
+                            <i class="bi bi-box-seam text-success"></i>
+                            <span class="fw-semibold">${bin.BinName}</span>
+                            <small class="text-muted ms-1">(Current: ${bin.CurrentItems || 0})</small>
+                        </div>`;
+                });
+                tooltipHtml += "</div>";
+            } else {
+                tooltipHtml = "<span class='text-muted'>No bins found for this item.</span>";
+            }
+
+            // Update tooltip content
+            $icon.attr("data-bs-title", tooltipHtml);
+
+            // Initialize Bootstrap tooltip (with HTML)
+            bootstrap.Tooltip.getOrCreateInstance($icon[0], {
+                html: true,
+                container: 'body',
+                placement: 'top'
+            });
+
+            $icon.data("loaded", true); // mark as loaded
+        },
+        error: function () {
+            $icon.attr("data-bs-title", "<span class='text-danger'>Error loading bin info.</span>");
+        }
+    });
+});
+
+// Initialize all tooltips (fallback)
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el, { html: true }));
+
 
 
 });

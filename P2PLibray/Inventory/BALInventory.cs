@@ -516,6 +516,19 @@ namespace P2PLibray.Inventory
             }
             drMostStock.Close();
 
+            // ----------------- Section Count -----------------
+            Dictionary<string, string> Section = new Dictionary<string, string>
+            {
+                { "@Flag", "TotalSectionCountHSB" }
+            };
+
+            SqlDataReader drSectionStock = await obj.ExecuteStoredProcedureReturnDataReader("InventoryProcedure", Section);
+            if (drSectionStock.HasRows && await drSectionStock.ReadAsync())
+            {
+                model.Section = Convert.ToInt32(drSectionStock["Section"]);
+            }
+            drSectionStock.Close();
+
             return model;
         }
         #endregion
