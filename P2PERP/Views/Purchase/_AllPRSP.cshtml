@@ -85,11 +85,11 @@
         <h3 class="text-center fw-bold text-primary">All Purchase Requisition</h3>
         <!-- Date Filters -->
         <div class="mb-3 d-flex gap-2">
-            <div class="input-group" style="max-width: 280px;">
+            <div class="input-group" style="max-width: 230px;">
                 <span class="input-group-text bg-primary text-white">
                     <i class="bi bi-calendar-date"></i><!-- Calendar Icon -->
                 </span>
-                <input type="text" id="Rejectedrange" placeholder="Select date Range" class="form-control form-control-sm text-center shadow-sm text-dark" readonly />
+                <input type="text" id="Rejectedrange" placeholder="Select date Range" class="form-control form-control-sm  shadow-sm text-dark" readonly />
             </div>
         </div>
 
@@ -407,7 +407,7 @@
             data-bs-toggle="modal"
             data-bs-target="#updateModal"
             title="Update PR">
-        <i class="bi bi-pencil"></i>
+        <i class="bi bi-pencil "></i>
     </button>
    <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
             data-id="${row.PRCode}"
@@ -973,28 +973,28 @@
                     title: '',
                     customize: function (win) {
                         // Info (DetailsPartialSP values)
-                        let prCode = $("#PRCODE").text();
-                        let reqDate = $("#RequiredDate").text();
-                        let fullName = $("#FullName").text();
-                        let status = $("#Status").text();
+                        let prCode = $("#PRCODE").val();
+                        let reqDate = $("#RequiredDate").val();
+                        let fullName = $("#FullName").val();
+                        let status = $("#Status").val();
 
                         // Custom Header HTML
                         let headerHtml = `
-        <h3 style="text-align:center; margin-bottom:5px;">Purchase Requisition Details</h3>
-        <div style="text-align:center; margin-bottom:10px; font-size:11pt; font-style:italic;">
-            Generated Date: ${moment().format("DD/MM/YYYY")}
-        </div>
-        <table style="width:100%; margin-bottom:15px; border-collapse: collapse;" border="0">
-            <tr>
-                <td><b>PR CODE :</b> ${prCode}</td>
-                <td><b>Required Date :</b> ${reqDate}</td>
-            </tr>
-            <tr>
-                <td><b>Created By :</b> ${fullName}</td>
-                <td><b>Status :</b> ${status}</td>
-            </tr>
-        </table>
-    `;
+<h3 style="text-align:center; margin-bottom:5px;">Purchase Requisition Details</h3>
+<div style="text-align:center; margin-bottom:10px; font-size:11pt; font-style:italic;">
+    Generated Date: ${moment().format("DD/MM/YYYY")}
+</div>
+<table style="width:100%; margin-bottom:15px; border-collapse: collapse;" border="0">
+    <tr>
+        <td><b>PR CODE :</b> ${prCode}</td>
+        <td><b>Required Date :</b> ${reqDate}</td>
+    </tr>
+    <tr>
+        <td><b>Created By :</b> ${fullName}</td>
+        <td><b>Status :</b> ${status}</td>
+    </tr>
+</table>
+`;
 
                         // Prepend header
                         $(win.document.body).prepend(headerHtml);
@@ -1004,27 +1004,25 @@
 
                         // Force table borders
                         table.css('border-collapse', 'collapse');
-                        table.find('thead th, tbody td').each(function () {
-                            $(this).css({
-                                'border': '1px solid #000',
-                                'padding': '5px',
-                                'border-collapse': 'collapse'
-                            });
+                        table.find('thead th, tbody td').css({
+                            'border': '1px solid #000',
+                            'padding': '5px'
                         });
 
-                        // Style header
-                        table.find('thead').css({
-                            'background-color': '#343a40',
-                            'color': '#fff'
+                        // Stronger Header Dark Styling (Individual TH)
+                        table.find('thead th').css({
+                            'background-color': '#212529 !important',
+                            'color': '#fff !important',
+                            'font-weight': 'bold',
+                            'text-align': 'center'
                         });
 
                         // Optional: center-align first column (SR.NO)
-                        table.find('tbody tr').each(function (i) {
-                            $(this).find('td:first').css('text-align', 'center');
-                        });
+                        table.find('tbody tr td:first-child').css('text-align', 'center');
                     }
                 }
             ],
+
             columnDefs: [
                 { className: "text-center", targets: "_all" }
             ],
