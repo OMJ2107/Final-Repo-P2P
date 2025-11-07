@@ -1002,6 +1002,7 @@ namespace P2PERP.Controllers
                     GRNCode = dr["GRNCode"].ToString(),
                     ItemName = dr["ItemName"].ToString(),
                     Quantity = Convert.ToInt32(dr["Quantity"]),
+                    IsQuality = dr["ISQuality"].ToString(),
                 });
             }
 
