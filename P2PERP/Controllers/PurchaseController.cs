@@ -1263,7 +1263,7 @@ namespace P2PERP.Controllers
             /// Returns all available items for requisition creation.
             /// </summary>
             [HttpGet]
-            public async Task<JsonResult> NewItemPartialSP(int itemcatagoryid)
+            public async Task<JsonResult> NewItemPartialSP(int itemcatagoryid = 0)
             {
                 BALPurchase bal = new BALPurchase();
                 var items = await bal.GetItemsSP(itemcatagoryid); // pass the category id
