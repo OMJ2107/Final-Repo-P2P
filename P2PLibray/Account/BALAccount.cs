@@ -1185,7 +1185,7 @@ namespace P2PLibray.Account
                 events.Add(new
                 {
                     id = $"QC-{qc.AddedDate:yyyyMMdd}",
-                    title = $"{qc.Count} Items Has {(qc.Status == "Confirmed" ? "Passed" : "Failed")} Quality Check",
+                    title = $"{qc.Count} Items Has {(qc.Status == "Confirmed" ? "Passed" : (qc.Status == "Non-Confirmed" ? "Failed" : "Pending"))} Quality Check",
                     start = qc.AddedDate.ToString("yyyy-MM-dd"),
                     color = "#dc3545",
                     extendedProps = new
@@ -1218,7 +1218,8 @@ namespace P2PLibray.Account
                     {
                         Count = dr.IsDBNull(dr.GetOrdinal("ItemCount")) ? 0 : dr.GetInt32(dr.GetOrdinal("ItemCount")),
                         AddedDate = dr.IsDBNull(dr.GetOrdinal("AddedDate")) ? DateTime.MinValue : dr.GetDateTime(dr.GetOrdinal("AddedDate")),
-                        AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName"))
+                        AddedBy = dr.IsDBNull(dr.GetOrdinal("EmployeeName")) ? string.Empty : dr.GetString(dr.GetOrdinal("EmployeeName")),
+                        Code = dr.IsDBNull(dr.GetOrdinal("AddedBy")) ? string.Empty : dr.GetString(dr.GetOrdinal("AddedBy")),
                     });
                 }
             }
