@@ -81,11 +81,11 @@
 
         <!-- Date Filters -->
         <div class="mb-3 d-flex gap-2">
-            <div class="input-group" style="max-width: 280px;">
+            <div class="input-group" style="max-width: 230px;">
                 <span class="input-group-text bg-primary text-white">
                     <i class="bi bi-calendar-date"></i> <!-- Calendar Icon -->
                 </span>
-                <input type="text" id="Rejectedrange3" placeholder="Select date Range" class="form-control form-control-sm text-center shadow-sm text-dark" readonly />
+                <input type="text" id="Rejectedrange3" placeholder="Select date Range" class="form-control form-control-sm  shadow-sm text-dark" readonly />
             </div>
         </div>
 
@@ -894,51 +894,67 @@
                     text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
                     title: '',
                     customize: function (win) {
-                        // Info (DetailsPartialSP values)
-                        let prCode = $("#PRCODE3").text();
-                        let reqDate = $("#RequiredDate3").text();
-                        let fullName = $("#FullName3").text();
-                        let status = $("#Status3").text();
 
-                        // Custom Header HTML
+                        // ✅ Inject CSS into Printed Document (MOST IMPORTANT)
+                        $(win.document.head).append(`
+                <style>
+                    table.dataTable {
+                        border-collapse: collapse !important;
+                        width: 100% !important;
+                        font-size: 11pt !important;
+                    }
+                    table.dataTable thead th {
+                        background-color: #212529 !important;
+                        color: #fff !important;
+                        font-weight: bold !important;
+                        text-align: center !important;
+                        border: 1px solid black !important;
+                        padding: 6px !important;
+                    }
+                    table.dataTable tbody td {
+                        border: 1px solid black !important;
+                        padding: 6px !important;
+                    }
+                    table.table-borderless td {
+                        padding: 4px !important;
+                    }
+                </style>
+            `);
+
+                        // Read values
+                        let prCode = $("#PRCODE3").val();
+                        let reqDate = $("#RequiredDate3").val();
+                        let fullName = $("#FullName3").val();
+                        let status = $("#Status3").val();
+
+                        // Header HTML
                         let headerHtml = `
-        <h3 class="text-center mb-2">Purchase Requisition Details</h3>
-        <div style="text-align:center; margin-bottom:10px; font-size:11pt; font-style:italic;">
-            Generated Date: ${moment().format("YYYY-MM-DD")}
-        </div>
-        <table class="table table-borderless mb-3">
-            <tr>
-                <td><b>PR CODE :</b> ${prCode}</td>
-                <td><b>Required Date :</b> ${reqDate}</td>
-            </tr>
-            <tr>
-                <td><b>Created By :</b> ${fullName}</td>
-                <td><b>Status :</b> ${status}</td>
-            </tr>
-        </table>
-    `;
+<h3 style="text-align:center; margin-bottom:5px;">Purchase Requisition Details</h3>
+<div style="text-align:center; margin-bottom:10px; font-size:11pt; font-style:italic;">
+    Generated Date: ${moment().format("YYYY-MM-DD")}
+</div>
+<table style="width:100%; margin-bottom:15px; border-collapse: collapse;" class="table table-borderless">
+    <tr>
+        <td><b>PR CODE :</b> ${prCode}</td>
+        <td><b>Required Date :</b> ${reqDate}</td>
+    </tr>
+    <tr>
+        <td><b>Created By :</b> ${fullName}</td>
+        <td><b>Status :</b> ${status}</td>
+    </tr>
+</table>
+`;
 
-                        // Prepend info section
+                        // Insert header at top
                         $(win.document.body).prepend(headerHtml);
 
-                        // DataTable table formatting
-                        let table = $(win.document.body).find('table.dataTable');
-
-                        // Apply borders forcefully using !important
-                        table.css('border-collapse', 'collapse');
-                        table.find('thead th, tbody td').each(function () {
-                            $(this).css({
-                                'border': '1px solid #000',
-                                'padding': '5px',
-                                'border-collapse': 'collapse'
-                            });
-                        });
-
-                        // Header styling
-                        table.find('thead').css('background-color', '#343a40').css('color', '#fff');
+                        // Center align 1st column (SR.No)
+                        $(win.document.body).find('table.dataTable tbody tr td:first-child')
+                            .css('text-align', 'center');
                     }
                 }
             ],
+
             language: {
                 lengthMenu: ""
             }
