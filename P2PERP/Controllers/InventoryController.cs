@@ -267,6 +267,14 @@ namespace P2PERP.Controllers
             return Json(bins,JsonRequestBehavior.AllowGet);
         }
 
+        // Loads the Issue In-House view
+        [HttpGet]
+        public async Task<JsonResult> GetBinNameItemDRB(string itemcode)
+        {
+            var bins = await bal.GetBinsName(itemcode);
+            return Json(bins, JsonRequestBehavior.AllowGet);
+        }
+
         // Gets the list of Departments from DB and returns JSON
         [HttpGet]
         public async Task<JsonResult> GetDepartmentsDRB()
@@ -366,6 +374,9 @@ namespace P2PERP.Controllers
         }
 
 
+        // Gets the list of Bins for a given Row
+       
+
         // Gets the Issue In-House items based on Status Id
         [HttpGet]
         public async Task<JsonResult> IssueINHouseItemDRB(int StatusId)
@@ -433,6 +444,9 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+
+
 
         #endregion
 
