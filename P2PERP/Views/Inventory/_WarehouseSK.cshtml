@@ -85,7 +85,7 @@
 </div>
 
 <!-- Add/Edit Warehouse Modal -->
-<!-- Add Warehouse Modal -->
+
 <div class="modal fade" id="addWarehouseModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content shadow-lg rounded-3">
@@ -102,7 +102,7 @@
                 <form id="addWarehouseForm" class="row g-3">
                     <div class="col-md-6">
                         <label for="WarehouseCode" class="form-label fw-bold text-dark">Warehouse Code <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light" id="WarehouseCode" name="WarehouseCode" readonly>
+                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light" id="WarehouseCode" placeholder="Warehouse Code" name="WarehouseCode" readonly>
                     </div>
 
                     <div class="col-md-6">
@@ -172,85 +172,85 @@
 </div>
 
 <!-- View Warehouse Modal -->
+
 <div class="modal fade" id="viewWarehouseModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white position-relative py-2">
-                <h5 class="modal-title h5 text-white text-center mb-1 w-100" style="line-height: 1.2;">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-lg rounded-3">
+
+            <!-- Header -->
+            <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">
+                <h5 class="modal-title fw-bold text-white mb-0 fs-5" id="warehouseViewTitle">
                     Warehouse Details
                 </h5>
-                <button type="button" class="btn-close btn-sm btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <!-- Body -->
             <div class="modal-body">
                 <form class="row g-3">
-                    <div class="col-md-6">
-                        <label for="vwCode">Warehouse Code</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <input type="text" class="form-control" id="vwCode" readonly>
 
-                        </div>
-                    </div>
                     <div class="col-md-6">
-                        <label for="vwName">Warehouse Name</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <input type="text" class="form-control" id="vwName" readonly>
-
-                        </div>
+                        <label for="vwCode" class="form-label fw-bold text-dark">Warehouse Code</label>
+                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light"
+                               id="vwCode" readonly>
                     </div>
+
+                    <div class="col-md-6">
+                        <label for="vwName" class="form-label fw-bold text-dark">Warehouse Name</label>
+                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light"
+                               id="vwName" readonly>
+                    </div>
+
                     <div class="col-12">
-                        <label for="vwAddress">Address</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <textarea class="form-control" id="vwAddress" rows="2" readonly></textarea>
-
-                        </div>
+                        <label for="vwAddress" class="form-label fw-bold text-dark">Address</label>
+                        <textarea class="form-control form-control-sm text-dark shadow-sm bg-light"
+                                  id="vwAddress" rows="2" readonly></textarea>
                     </div>
+
                     <div class="col-md-6">
-                        <label for="vwCity">City</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <input type="text" class="form-control" id="vwCity" readonly>
-
-                        </div>
+                        <label for="vwCity" class="form-label fw-bold text-dark">City</label>
+                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light"
+                               id="vwCity" readonly>
                     </div>
+
                     <div class="col-md-6">
-                        <label for="vwPhone">Phone</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <input type="text" class="form-control" id="vwPhone" readonly>
-
-                        </div>
+                        <label for="vwPhone" class="form-label fw-bold text-dark">Phone</label>
+                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light"
+                               id="vwPhone" readonly>
                     </div>
+
                     <div class="col-md-6">
-                        <label for="vwEmail">Email</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <input type="text" class="form-control" id="vwEmail" readonly>
-
-                        </div>
+                        <label for="vwEmail" class="form-label fw-bold text-dark">Email</label>
+                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light"
+                               id="vwEmail" readonly>
                     </div>
+
                     <div class="col-12">
-                        <label for="vwDesc">Description</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <textarea class="form-control" id="vwDesc" rows="2" readonly></textarea>
-
-                        </div>
+                        <label for="vwDesc" class="form-label fw-bold text-dark">Description</label>
+                        <textarea class="form-control form-control-sm text-dark shadow-sm bg-light"
+                                  id="vwDesc" rows="2" readonly></textarea>
                     </div>
+
                     <div class="col-md-6">
-                        <label for="vwAddedDates">Added Date</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <input type="text" class="form-control" id="vwAddedDates" readonly>
-
-                        </div>
+                        <label for="vwAddedDates" class="form-label fw-bold text-dark">Added Date</label>
+                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light"
+                               id="vwAddedDates" readonly>
                     </div>
+
                     <div class="col-md-6">
-                        <label for="vwAddedBy">Added By</label>
-                        <div class="form-floating form-floating-outline mb-3">
-                            <input type="text" class="form-control" id="vwAddedBy" readonly>
-
-                        </div>
+                        <label for="vwAddedBy" class="form-label fw-bold text-dark">Added By</label>
+                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light"
+                               id="vwAddedBy" readonly>
                     </div>
+
                 </form>
             </div>
+
         </div>
     </div>
 </div>
+
 
 
 <script>
