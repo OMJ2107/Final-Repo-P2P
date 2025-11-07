@@ -282,6 +282,16 @@ document.addEventListener('DOMContentLoaded', function () {
         modalTitle.textContent = "Register Quotation";
 
         let html = `
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <strong>Added By:</strong> ${safe(props.Items[0].AddedBy)}
+                    </div>
+                    <div class="col-sm-6">
+                        <strong>Added Date:</strong> ${safe(props.Items[0].AddedDate)}
+                    </div>
+                </div>
+            </div>
     <table id="rqTable" class="table table-striped table-bordered" style="width:100%">
         <thead class="table-dark text-uppercase">
             <tr>
@@ -290,9 +300,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 <th>RFQ Code</th>
                 <th>Vendor Name</th>
                 <th>Status</th>
-                <th>Added By</th>
+                <th class="d-none">Added By</th>
                 <th>Delivery Date</th>
-                <th>Added Date</th>
+                <th class="d-none">Added Date</th>
                 <th>Approved By</th>
                 <th>Approved Date</th>
                 <th>Shipping Charges</th>
@@ -320,11 +330,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 { data: "RFQCode", render: safe },
                 { data: "VendorName", render: safe },
                 { data: "StatusName", render: safe },
-                { data: "AddedBy", render: safe },
+                { data: "AddedBy", visible: false },
                 { data: "DeliveryDate", render: safe },
-                { data: "AddedDate", render: safe },
+                { data: "AddedDate", visible: false },
                 { data: "ApprovedBy", render: safe },
-                { data: "ApprovedDate", render: safe },
+                {
+                    data: "ApprovedDate",
+                    render: function (data, type, row) {
+                        if (!row.ApprovedBy || row.ApprovedBy === null || row.ApprovedBy === "") {
+                            return "-";
+                        }
+                        return safe(data);
+                    }
+                },
                 {
                     data: "ShippingCharges",
                     render: function (data, type, row) {
@@ -674,6 +692,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const modalTitle = document.querySelector('#eventModal .modal-title');
         modalTitle.textContent = "Quality Check";
         let html = `
+        <div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <strong>QC Added By:</strong> ${safe(props.Items[0].QCAddedBy)}
+                    </div>
+                    <div class="col-sm-6">
+                        <strong>QC Added Date:</strong> ${safe(props.Items[0].QCAddedDate)}
+                    </div>
+                    <div class="col-sm-6">
+                        <strong>QC Status:</strong> ${safe(props.Items[0].StatusName)}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr/>
         <table id="qcItemsTable" class="table table-striped table-bordered" style="width:100%">
             <thead class="table-dark text-uppercase">
                 <tr>
@@ -685,10 +719,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     <th>Quantity</th>
                     <th>Inspection Frequency</th>
                     <th>Sample Checked</th>
-                    <th>Status</th>
+                    <th class="d-none">Status</th>
                     <th>Sample Failed</th>
-                    <th>QC Added By</th>
-                    <th>QC Added Date</th>
+                    <th class="d-none">QC Added By</th>
+                    <th class="d-none">QC Added Date</th>
                     <th>QC Failed By</th>
                     <th>QC Failed Date</th>
                     <th>Reason</th>
@@ -697,6 +731,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </table>`;
 
         document.querySelector('#eventModal .modal-body').innerHTML = html;
+        console.log(props);
 
         if (props.Items && props.Items.length > 0) {
             let table = new DataTable('#qcItemsTable', {
@@ -717,10 +752,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     { data: "Quantity", render: safe },
                     { data: "InspectionFrequency", render: safe },
                     { data: "SampleQualityChecked", render: safe },
-                    { data: "StatusName", render: safe },
+                    { data: "StatusName", visible: false },
                     { data: "SampleTestFailed", render: safe },
-                    { data: "QCAddedBy", render: safe },
-                    { data: "QCAddedDate", render: safe },
+                    { data: "QCAddedBy", visible: false },
+                    { data: "QCAddedDate", visible: false },
                     { data: "QCFailedAddedBy", render: safe },
                     { data: "QCFailedDate", render: safe },
                     { data: "Reason", render: safe }
@@ -731,13 +766,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 language: {
                     lengthMenu: ""
                 },
+                initComplete: function () {
+                    if (props.Items[0].StatusName === "Confirmed") {
+                        this.api().columns([9, 12, 13, 14]).visible(false);
+                    }
+                }
             });
-
-            if (props.Items[0].StatusName === "Confirmed") {
-                table.column(11).visible(false);
-                table.column(12).visible(false);
-                table.column(13).visible(false);
-            }
         }
     }
 

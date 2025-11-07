@@ -113,7 +113,7 @@
     <input type="text" id="reportrange" style="display:none;" />
 
     <!-- Stats Cards -->
-    <div class="py-4">
+    <div class="pb-4">
         <!-- Warehouse / Rack / Bin / Section Cards -->
         <div class="row g-6">
 
@@ -999,6 +999,7 @@
     });
 
     // === Inventory Stocks - Modern Bar Chart ===
+    // === Inventory Stocks - Modern Bar Chart ===
     const inventoryChart = Highcharts.chart('inventoryStocks', {
         chart: {
             type: 'bar',
@@ -1017,6 +1018,14 @@
         title: false,
         xAxis: {
             categories: ['Total Item', 'Low In Stock', 'Most In Stock'],
+            title: {
+                text: 'Inventory Status',
+                style: {
+                    color: '#444',
+                    fontWeight: '600',
+                    fontSize: '13px'
+                }
+            },
             labels: {
                 style: {
                     color: '#555',
@@ -1027,7 +1036,14 @@
         },
         yAxis: {
             min: 0,
-            title: { text: null },
+            title: {
+                text: 'Number of Items',
+                style: {
+                    color: '#444',
+                    fontWeight: '600',
+                    fontSize: '13px'
+                }
+            },
             gridLineColor: 'rgba(0,0,0,0.05)'
         },
         legend: { enabled: false },
@@ -1072,8 +1088,8 @@
                     color: {
                         linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
                         stops: [
-                            [0, '#36D1DC'],   // Aqua Blue
-                            [1, '#5B86E5']    // Ocean Blue
+                            [0, '#36D1DC'],
+                            [1, '#5B86E5']
                         ]
                     }
                 },
@@ -1082,8 +1098,8 @@
                     color: {
                         linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
                         stops: [
-                            [0, '#F7971E'],   // Sunset Orange
-                            [1, '#FFD200']    // Warm Yellow
+                            [0, '#F7971E'],
+                            [1, '#FFD200']
                         ]
                     }
                 },
@@ -1092,8 +1108,8 @@
                     color: {
                         linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
                         stops: [
-                            [0, '#56ab2f'],   // Fresh Green
-                            [1, '#a8e063']    // Lime Green
+                            [0, '#56ab2f'],
+                            [1, '#a8e063']
                         ]
                     }
                 }

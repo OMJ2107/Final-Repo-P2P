@@ -4,7 +4,7 @@
 
 
 <div class="main-content d-flex justify-content-center" style="min-height:auto;">
-    <div class="shadow-sm rounded bg-white p-3" style="width:1200px;">
+     <div class="shadow-sm rounded bg-white p-3 w-100" style="max-width:1400px;">
 
         <div class="main-content">
             <!-- Nav Pills -->
@@ -65,10 +65,10 @@
 <!-- Modal -->
 <div class="modal fade" id="prModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white justify-content-center">
-                <h5 class="modal-title fw-bold mb-4 text-white">Pending Purchase Requisition Items</h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+        <div class="modal-content shadow-lg rounded-3">
+            <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">>
+                <h5 class="modal-title fw-bold text-white mb-0 fs-5">Pending Purchase Requisition Items</h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="prModalBody"></div>
         </div>
@@ -148,6 +148,10 @@
         button.dt-button.processing:after {
             content: none !important;
         }
+
+    thead th {
+        white-space: nowrap !important;
+    }
 </style>
 
 <script>
@@ -401,7 +405,7 @@
                             return `<span class="${badgeClass}">${data}</span>`;
                         }
                     },
-                    { data: 'PRCode', orderable: false, className: 'text-center', render: d => `<button class="btn btn-sm btn-primary btnAction" data-id="${d}" data-bs-toggle="tooltip" title="View Details"><i class="bi bi-eye-fill"></i></button>` }
+                    { data: 'PRCode', orderable: false, className: 'text-center', render: d => `<button class="btn btn-sm btn-primary btnAction" data-id="${d}" data-bs-toggle="tooltip" title="View Details"><i class="bi bi-eye-fill fs-5"></i></button>` }
                 ]
             });
         }
