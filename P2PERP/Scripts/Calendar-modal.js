@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 renderISRorJITModal("Just-In-Time Request", props);
                 break;
             case "MaterialReqPlanningInfo":
-                debugger;
                 renderMRPModal(props);
                 break;
             default:
@@ -731,7 +730,6 @@ document.addEventListener('DOMContentLoaded', function () {
         </table>`;
 
         document.querySelector('#eventModal .modal-body').innerHTML = html;
-        console.log(props);
 
         if (props.Items && props.Items.length > 0) {
             let table = new DataTable('#qcItemsTable', {
@@ -778,8 +776,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderISRorJITModal(title, props) {
         const modalTitle = document.querySelector('#eventModal .modal-title');
         const modalBody = document.querySelector('#eventModal .modal-body');
-        debugger;
         modalTitle.textContent = title;
+        console.log(props);
         modalBody.innerHTML = `
         <table id="isrJitTable" class="table table-striped table-bordered w-100">
             <thead class="table-dark">
