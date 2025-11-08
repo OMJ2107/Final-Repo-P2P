@@ -1151,9 +1151,10 @@ namespace P2PLibray.Purchase
             {
 
                 Dictionary<string, string> dic = new Dictionary<string, string>();
-                dic.Add("@Flag", "ApprovePoNAM");
+                dic.Add("@Flag", "ApprovePONAM");
                 dic.Add("@ApprovedRejectedBy", staffcode);
                 dic.Add("@ApprovedRejectedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                
                 dic.Add("@POCode", poCode);
 
 
@@ -1182,15 +1183,17 @@ namespace P2PLibray.Purchase
         /// <returns>
         /// True if the purchase order was rejected successfully; otherwise, false.
         /// </returns>
-        public async Task<bool> RejectPONAM(string poCode, string staffcode)
+        public async Task<bool> RejectPONAM(string poCode, string staffcode, string note)
         {
             try
             {
 
                 Dictionary<string, string> dic = new Dictionary<string, string>();
-                dic.Add("@Flag", "RejectPoNAM");
+                dic.Add("@Flag", "RejectPONAM");
                 dic.Add("@ApprovedRejectedBy", staffcode);
                 dic.Add("@ApprovedRejectedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                dic.Add("@Note", note);
+
                 dic.Add("@POCode", poCode);
 
 
@@ -1205,6 +1208,10 @@ namespace P2PLibray.Purchase
                 throw new Exception("Error in RejectPONAM", ex);
             }
         }
+
+
+
+      
 
 
         /// <summary>
@@ -1238,6 +1245,23 @@ namespace P2PLibray.Purchase
                 throw new Exception("Error in SendForApprovalNAM", ex);
             }
         }
+
+
+        public async Task<string> GetAdminEmails()
+        {
+            string emails = string.Empty;
+
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("@Flag", "SendforapprovalEmail");
+            SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("PurchaseProcedure", param);
+            while (await dr.ReadAsync())
+            {
+                emails = dr.IsDBNull(dr.GetOrdinal("Emails")) ? string.Empty : dr.GetString(dr.GetOrdinal("Emails"));
+            }
+
+            return emails;
+        }
+
 
 
         #endregion Vaibhavi

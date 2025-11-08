@@ -16,26 +16,49 @@
         background: none !important;
     }
 
+
+
+
         button.dt-button.processing:after {
             content: none !important;
         }
 
-   
+
+
     body {
         background-color: #f6f7fb;
         font-family: 'Segoe UI', sans-serif;
     }
 
     /* --- Dashboard Container --- */
+
+
+
     .dashboard-container {
         display: flex;
-        justify-content: center;
-        align-items: stretch;
+        justify-content: space-between;
         gap: 20px;
-        flex-wrap: nowrap;
-        margin: 40px auto;
         max-width: 1100px;
+        margin: 0 auto; /* centers dashboard cards perfectly */
+        padding: 0 20px; /* gives equal left-right breathing space */
     }
+
+    .chart-container {
+        background: #fff;
+        border-radius: 16px;
+        padding: 30px 40px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        margin: 30px auto 0 auto;
+        max-width: 1100px; /* same width as dashboard cards */
+        width: calc(100% - 40px); /* perfectly matches container padding */
+    }
+
+
+
+
+
+
+
 
     /* --- Card Base --- */
     .stat-card {
@@ -87,6 +110,7 @@
         align-items: flex-start;
     }
 
+
     .count {
         font-size: 28px;
         font-weight: 600;
@@ -99,6 +123,13 @@
         color: #555;
         font-weight: 500;
         margin-bottom: 3px;
+    }
+
+
+    .stat-icon {
+        padding: 20px;
+        margin: 1px;
+        background-color: aliceblue;
     }
 
     /* --- Color Themes --- */
@@ -174,13 +205,7 @@
         flex-wrap: wrap;
     }
 
-    .chart-container {
-        position: relative;
-        flex: 1 1 45%;
-        max-width: 600px;
-        margin: 0 auto;
-        height: 300px;
-    }
+
 
 
     .chartparent {
@@ -282,10 +307,6 @@
         position: relative;
         z-index: 1055;
     }
-
-
-
-
 </style>
 
 <!-- ✅ Dashboard Section -->
@@ -305,6 +326,7 @@
             <div class="label">Confirm Items Count</div>
         </div>
     </div>
+
 
     <div class="stat-card nonconfirm-card">
         <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
@@ -346,14 +368,14 @@
 
 
 <!-- Confirm Modal -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px; width: 95%; min-height: 600px;">
-        <div class="modal-content" style="min-height: 600px;">
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width: 1200px; width: 95%">
+        <div class="modal-content shadow-lg rounded-3">
 
             <!-- Modal Header -->
-            <div class="modal-header bg-purple justify-content-center">
-                <h5 class="modal-title w-100 text-center text-white  mb-3">Confirm List</h5>
-                <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+            <div class="card-header bg-primary text-white d-flex justify-content-center align-items-center rounded-top p-1">
+                <h3 class="modal-title fw-bold text-white mb-0 fs-5">Confirm List</h3>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Modal Body -->
@@ -383,17 +405,17 @@
 </div>
 
 <!-- Pending Modal -->
-<div class="modal" id="PendingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px; width: 95%; min-height: 600px;">
-        <div class="modal-content" style="min-height: 600px;">
+<div class="modal" id="PendingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width: 1200px; width: 95%">
+        <div class="modal-content shadow-lg rounded-3">
 
 
             <!-- Modal Header -->
-            <div class="modal-header bg-purple justify-content-center">
-                <h5 class="modal-title w-100 text-center text-white  mb-3">
+            <div class="card-header bg-primary text-white d-flex justify-content-center align-items-center rounded-top p-1">
+                <h3 class="modal-title fw-bold text-white mb-0 fs-5">
                     Pending List
-                </h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+                </h3>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Modal Body -->
@@ -422,34 +444,32 @@
 </div>
 
 <!-- NonConfirm Modal -->
-<div class="modal fade" id="NonconfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 1200px; width: 95%; min-height: 600px;">
-        <div class="modal-content" style="min-height: 600px;">
+<div class="modal fade" id="NonconfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width: 1200px; width: 95% ">
+        <div class="modal-content shadow-lg rounded-3">
 
             <!-- Modal Header -->
-            <div class="modal-header bg-purple justify-content-center">
-                <h5 class="modal-title w-100 text-center text-white ">Non-Confirm List</h5>
-                <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+            <div class="card-header bg-primary text-white d-flex justify-content-center align-items-center rounded-top p-1">
+                <h3 class="modal-title fw-bold text-white mb-0 fs-5">Non-Confirm List</h3>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Modal Body -->
-            <div class="modal-body Nonconfirm-list-body" style="max-height: 500px; overflow-y: auto;">
-
-                <!-- Table -->
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover table-bordered" id="NonconfirmTable">
-                        <thead class="table-dark">
+            <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+                <div class="table-responsive shadow-sm rounded">
+                    <table id="NonconfirmTable" class="table table-striped table-hover table-bordered align-middle">
+                        <thead class="table-dark text-center">
                             <tr>
-                                <th class="text-center"><input type="checkbox" id="selectAllNonConfirm" /></th>
-                                <th class="text-center">Sr.No</th>
-                                <th class="text-center">QualityCheckCode</th>
-                                <th class="text-center">ItemName</th>
-                                <th class="text-center">Quantity</th>
-                                <th class="text-center">Added By</th>
-                                <th class="text-center">Added Date</th>
+                                <th><input type="checkbox" id="selectAllNonConfirm" data-bs-toggle="tooltip" title="Select All Rows" /></th>
+                                <th>Sr No</th>
+                                <th>QualityCheckCode</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Added By</th>
+                                <th>Added Date</th>
                             </tr>
                         </thead>
-                        <tbody id="NonconfirmListTable"></tbody>
+                        <tbody id="NonconfirmListTable" class="text-center"></tbody>
                     </table>
                 </div>
             </div>
@@ -545,6 +565,7 @@
         });
     }
 
+
     // === Dashboard Data ===
     function loadDashboardData(startDate = null, endDate = null) {
         let requestData = {};
@@ -571,8 +592,7 @@
         });
     }
 
-   
-    // === Bar Chart ===
+
     function renderDoughnutChart(c, n, p) {
         Highcharts.chart('doughnutChart', {
             chart: {
@@ -616,11 +636,12 @@
             },
             plotOptions: {
                 bar: {
+                    borderRadius: 6, // rounded look
                     dataLabels: {
                         enabled: true,
                         style: {
                             fontWeight: 'bold',
-                            color: 'black'
+                            color: '#333'
                         }
                     },
                     cursor: 'pointer',
@@ -644,9 +665,9 @@
                 name: 'Count',
                 colorByPoint: true,
                 data: [
-                    { name: 'Confirm', y: c, color: 'green' },
-                    { name: 'Non Confirm', y: n, color: 'red' },
-                    { name: 'Pending', y: p, color: 'orange' }
+                    { name: 'Confirm', y: c, color: '#7BD88F' },   // soft green
+                    { name: 'Non Confirm', y: n, color: '#FF6B6B' }, // soft red
+                    { name: 'Pending', y: p, color: '#FFC75F' }    // soft orange/yellow
                 ]
             }]
         });
@@ -1313,7 +1334,7 @@
                </tr>`;
                     });
                 }
-                else r = '<tr><td colspan="6" class="text-center">No Records</td></tr>';
+                else r = '<tr><td colspan="" class="text-center">No Records</td></tr>';
                 $('#confirmListTable').html(r);
                 if ($.fn.DataTable.isDataTable('#confirmTable')) $('#confirmTable').DataTable().destroy();
                 let t = $('#confirmTable').DataTable({

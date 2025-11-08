@@ -643,6 +643,7 @@ namespace P2PERP.Controllers
             try
             {
                 var staffcode = Session["StaffCode"] as string;
+               
 
                 if (string.IsNullOrEmpty(staffcode))
                     return Json(new { success = false, message = "Staff code not found in session. Please login again." });
@@ -719,7 +720,7 @@ namespace P2PERP.Controllers
                 var newpass = WebConfigurationManager.AppSettings["AppPassword"].ToString();
 
                 var fromAddress = new MailAddress(newemail.ToString(), "Procurement System");
-                string fromPassword = "lhrlntigzidizmju"; // Gmail app password
+                string fromPassword = newpass; // Gmail app password
                 string vemail = po.Email.ToString();
                 string subject = $"Purchase Order {po.POCode} Approved";
                 string body = $@"
@@ -758,7 +759,7 @@ namespace P2PERP.Controllers
 
         // Reject purchase order
         [HttpPost]
-        public async Task<JsonResult> RejectPONAM(string poCode)
+        public async Task<JsonResult> RejectPONAM(string poCode,string reason)
         {
             try
             {
@@ -767,7 +768,7 @@ namespace P2PERP.Controllers
                 if (string.IsNullOrEmpty(staffcode))
                     return Json(new { success = false, message = "Staff code not found in session. Please login again." });
 
-                var result = await bal.RejectPONAM(poCode, staffcode);
+                var result = await bal.RejectPONAM(poCode, staffcode, reason);
                 return Json(new { success = result, message = result ? "Purchase Order rejected successfully." : "Failed to reject Purchase Order." });
             }
             catch (Exception ex)
@@ -849,10 +850,13 @@ namespace P2PERP.Controllers
             }
         }
 
+
         private async Task SendForApprovalEmailAsync(Purchase po, byte[] pdfBytes)
         {
             var fromAddress = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
             string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
+
+            string ToEmail =  await bal.GetAdminEmails();
 
             string subject = $"Purchase Order Approval Required — PO No: {po.POCode}";
 
@@ -890,7 +894,8 @@ namespace P2PERP.Controllers
                 EnableSsl = true,
                 Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
             })
-            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com")) // <-- Replace with admin email
+
+            using (var message = new MailMessage(fromAddress, new MailAddress(ToEmail)) // <-- Replace with admin email
             {
                 Subject = subject,
                 Body = body,
