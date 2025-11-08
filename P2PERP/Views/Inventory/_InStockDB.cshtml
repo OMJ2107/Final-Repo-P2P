@@ -569,14 +569,19 @@ $(document).ready(function () {
         });
     }
 
-    //------------------------------------------------------------
 
+
+});
+
+
+
+    //------------------------------------------------------------
 // === Dynamic Tooltip for Bin Names ===
 $(document).off("mouseenter", ".item-info-icon").on("mouseenter", ".item-info-icon", function () {
     const $icon = $(this);
     const itemCode = $icon.data("itemcode");
 
-    // Prevent duplicate requests (cache per icon)
+    // If tooltip is already loaded once, show cached data
     if ($icon.data("loaded")) return;
 
     // AJAX call to get bins for that item
@@ -602,29 +607,40 @@ $(document).off("mouseenter", ".item-info-icon").on("mouseenter", ".item-info-ic
                 tooltipHtml = "<span class='text-muted'>No bins found for this item.</span>";
             }
 
-            // Update tooltip content
+            // Dispose old tooltip (if any)
+            const existing = bootstrap.Tooltip.getInstance($icon[0]);
+            if (existing) existing.dispose();
+
+            // Set updated HTML content
             $icon.attr("data-bs-title", tooltipHtml);
 
-            // Initialize Bootstrap tooltip (with HTML)
-            bootstrap.Tooltip.getOrCreateInstance($icon[0], {
+            // Re-initialize tooltip with HTML enabled
+            new bootstrap.Tooltip($icon[0], {
                 html: true,
                 container: 'body',
-                placement: 'top'
+                placement: 'top',
+                trigger: 'hover'
             });
 
-            $icon.data("loaded", true); // mark as loaded
+            // Mark tooltip as loaded to prevent repeated AJAX calls
+            $icon.data("loaded", true);
         },
         error: function () {
-            $icon.attr("data-bs-title", "<span class='text-danger'>Error loading bin info.</span>");
+            const errorHtml = "<span class='text-danger'>Error loading bin info.</span>";
+
+            // Dispose any existing tooltip before reapplying
+            const existing = bootstrap.Tooltip.getInstance($icon[0]);
+            if (existing) existing.dispose();
+
+            $icon.attr("data-bs-title", errorHtml);
+            new bootstrap.Tooltip($icon[0], { html: true, container: 'body', placement: 'top' });
         }
     });
 });
 
-// Initialize all tooltips (fallback)
+// Initialize fallback tooltips globally
 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el, { html: true }));
 
 
-
-});
 </script>
