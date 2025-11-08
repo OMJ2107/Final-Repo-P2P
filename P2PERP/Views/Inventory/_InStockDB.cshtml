@@ -550,24 +550,7 @@ $(document).ready(function () {
     });
 
 
-    if (ItemId) {
-        $.ajax({
-            type: "GET",
-            url: "/Inventory/GetBinNameItemDRB",
-            data: { itemcode: ItemId },
-            dataType: "json",
-            success: function (response) {
-                if (response && response.length > 0) {
-                    $.each(response, function (i, emp) {
-
-
-                    });
-                } else {
-                    $BinSelect.append('<option value="">No Bin found</option>');
-                }
-            }
-        });
-    }
+   
 
 
 
@@ -575,6 +558,7 @@ $(document).ready(function () {
 
 
 
+    debugger;
     //------------------------------------------------------------
 // === Dynamic Tooltip for Bin Names ===
 $(document).off("mouseenter", ".item-info-icon").on("mouseenter", ".item-info-icon", function () {
