@@ -2555,6 +2555,61 @@ namespace P2PERP.Controllers
             }
         }
 
+
+
+        [HttpGet]
+        public async Task<JsonResult> GetRejectedPODetailsOK(string POCode)
+        {
+            DataSet ds = await bal.FetchPODetailsByPOCodeForOPDFOK(POCode);
+
+            if (ds == null || ds.Tables.Count < 2 || ds.Tables[0].Rows.Count == 0)
+                return Json(new { success = false, message = "No data found." }, JsonRequestBehavior.AllowGet);
+
+            // ===== PO Main Details =====
+            var row = ds.Tables[0].Rows[0];
+            var po = new
+            {
+                CompanyName = row["CompanyName"].ToString(),
+                CompanyAddress = row["CompanyAddress"].ToString(),
+                CompanyPhone = row["CompanyPhone"].ToString(),
+                CompanyEmail = row["CompanyEmail"].ToString(),
+                Website = row["Website"].ToString(),
+                POCode = row["POCode"].ToString(),
+                AddedDate = Convert.ToDateTime(row["AddedDate"]).ToString("yyyy-MM-dd"),
+                ShippingCharges = Convert.ToDecimal(row["ShippingCharges"]),
+                ApprovedBy = row["ApprovedRejectedByName"].ToString(),
+                ApprovedRejectedDate = Convert.ToDateTime(row["ApprovedRejectedDate"]).ToString("yyyy-MM-dd"),
+                Note = row["Note"].ToString(),
+                VendorName = row["VenderName"].ToString(),
+                VendorAddress = row["VendorAddress"].ToString(),
+                VendorPhone = row["VendorPhone"].ToString(),
+                VendorEmail = row["VendorEmail"].ToString(),
+                WarehouseName = row["WarehouseName"].ToString(),
+                WarehouseAddress = row["WarehouseAddress"].ToString(),
+                WarehousePhone = row["WarehousePhone"].ToString(),
+                WarehouseEmail = row["WarehouseEmail"].ToString(),
+                SubAmount = Convert.ToDecimal(row["SubAmount"]),
+                GrandTotal = Convert.ToDecimal(row["GrandTotal"])
+            };
+
+            // ===== Item Details =====
+            var poItems = ds.Tables[1].AsEnumerable().Select(dr => new
+            {
+                ItemCode = dr["ItemCode"].ToString(),
+                ItemName = dr["ItemName"].ToString(),
+                Quantity = Convert.ToInt32(dr["Quantity"]),
+                Description = dr["Description"].ToString(),
+                UOM = dr["UOMName"].ToString(),
+                CostPerUnit = Convert.ToDecimal(dr["CostPerUnit"]),
+                Discount = dr["Discount"].ToString(),
+                GST = dr["GST"].ToString(),
+                Amount = Convert.ToDecimal(dr["Amount"])
+            }).ToList();
+
+            return Json(new { success = true, po, poItems }, JsonRequestBehavior.AllowGet);
+        }
+
+
         #endregion
 
         #region prathamesh
