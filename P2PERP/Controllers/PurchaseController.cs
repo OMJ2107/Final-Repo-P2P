@@ -2607,18 +2607,39 @@ namespace P2PERP.Controllers
 
 
         // Get all PR list (JSON)
-        public async Task<ActionResult> ShowAllPRK()
+        public async Task<ActionResult> ShowAllPRK(DateTime startDate, DateTime endDate)
         {
 
-            var data = await bal.ShowAllPRPRK();
+            var data = await bal.ShowAllPRPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for all PR
-        public ActionResult ShowAllPRPartialPRK()
+        public ActionResult ShowAllPRPartialPRK(DateTime? startDate, DateTime? endDate)
         {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowAllPRPartialPRK");
         }
+
+        // Get all PO list (JSON)
+        public async Task<ActionResult> ShowAllPOPRK(DateTime startDate, DateTime endDate)
+        {
+
+            var data = await bal.ShowAllPOPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        // Partial view for all PO
+        public ActionResult ShowAllPOPartialPRK(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowAllPOPartialPRK");
+        }
+
+
+
 
         // Pending PR main view
         public ActionResult ShowPendingPRPRK()
@@ -2648,34 +2669,79 @@ namespace P2PERP.Controllers
 
       
 
-        // Rejected PR main view
-        public ActionResult ShowRejectedPRPRK()
-        {
-            if (Session["StaffCode"] == null)
-                return RedirectToAction("MainLogin", "Account");
+       
 
-            return View();
+      
+
+        // Partial view for rejected PR
+        public ActionResult ShowRejectedPRPartialPRK(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowRejectedPRPartialPRK");
         }
 
-        // Get rejected PR list (JSON)
-        public async Task<ActionResult> ShowRejectPRK()
+
+        // Get rejected PO list (JSON)
+        public async Task<ActionResult> ShowRejectPOPRK(DateTime startDate, DateTime endDate)
         {
-            var data = await bal.ShowRejectedPRPRK();
+            var data = await bal.ShowRejectedPOPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         // Partial view for rejected PR
-        public ActionResult ShowRejectedPRPartialPRK()
+        public ActionResult ShowRejectedOPartialPRK(DateTime? startDate, DateTime? endDate)
         {
-            return PartialView("_ShowRejectedPRPartialPRK");
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            return PartialView("_ShowRejectedOPartialPRK");
         }
 
-        // Rejected PR items partial (by PRCode)
-        public ActionResult ShowRejectedPRItemPRK(string prCode)
+        ////////////////////////////////////////////
+
+
+
+        //// Rejected PR main view
+        //public ActionResult ShowRejectedPRPRK()
+        //{
+        //    if (Session["StaffCode"] == null)
+        //        return RedirectToAction("MainLogin", "Account");
+
+        //    return View();
+        //}
+
+        //// Get rejected PR list (JSON)
+        //public async Task<ActionResult> ShowRejectPRK()
+        //{
+        //    var data = await bal.ShowRejectedPRmainPRK();
+        //    return Json(data, JsonRequestBehavior.AllowGet);
+        //}
+
+
+
+        //// Rejected PR items partial (by PRCode)
+        //public ActionResult ShowRejectedPRItemPRK(string prCode)
+        //{
+        //    ViewBag.PRCode = prCode;
+        //    return PartialView("_ShowRejectedPRItemPRK");
+        //}
+
+
+
+        // Pending PR main view
+        public ActionResult ShowRejectedPRPRK()
         {
-            ViewBag.PRCode = prCode;
-            return PartialView("_ShowRejectedPRItemPRK");
+            return View();
         }
+
+        // Get pending PR list (JSON)
+        public async Task<ActionResult> ShowRejectPRK()
+        {
+            var data = await bal.ShowRejectedPRmainPRK();
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+
 
         // Get rejected PR items (JSON by PRCode)
         public async Task<ActionResult> ShowRejectedPRItemsPRK(string prCode)
@@ -2699,10 +2765,13 @@ namespace P2PERP.Controllers
         }
 
         // Partial view for rejected PR items
-        public ActionResult ShowRejectedPRItemPartialPRK()
+        public ActionResult ShowRejectedPRItemPartialPRK(string prCode)
         {
+
+            ViewBag.PRCode = prCode;
             return PartialView("_ShowRejectedPRItemPartialPRK");
         }
+
 
         // Pending PR items partial (by PRCode)
         public ActionResult ShowPendingPRItemPRK(string prCode)
