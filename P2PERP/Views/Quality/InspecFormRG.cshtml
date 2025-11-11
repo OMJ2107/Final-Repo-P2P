@@ -48,7 +48,7 @@
 
         <div class="card shadow-lg border-0 rounded-4">
             <div class="card-body p-4">
-                <form id="inspectionForm"class="row g-4">
+                <form id="inspectionForm" class="row g-4">
                     <input type="hidden" id="itemcode" value="@ViewBag.ItemCode" />
                     <input type="hidden" id="GRNItemCode" value="@ViewBag.GRNItemCode" />
 
@@ -141,7 +141,7 @@
                         <h3 class="modal-title fw-bold text-white mb-0 fs-5 p-1" id="ncModalLabel">
                             Non Confirmation Form
                         </h3>
-                        <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="ncModalBody">
                         <div class="text-center text-muted">Loading...</div>
@@ -149,6 +149,10 @@
                 </div>
             </div>
         </div>
+
+       
+
+
     </div>
 
     @* Scripts *@
