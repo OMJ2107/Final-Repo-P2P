@@ -385,49 +385,42 @@
                         return '<span class="badge bg-success">' + data + '</span>';
                     }
                 },
-                {   // Action Buttons
+                {
                     data: null,
                     title: "Action",
-                    className: 'no-export',
+                    className: "no-export text-center",
                     orderable: false,
                     render: function (data, type, row) {
+
+                        let html = `<div class="d-flex gap-1 justify-content-center">`;
+
+                        // Update Button (Only for Pending status)
                         if (row.Status === "Pending") {
-                            // Show both Update and View buttons inline
-                            return `
-<div class="d-flex gap-1">
-    <button class="btn btn-sm btn-secondary update-btn2 square-pill d-inline-flex align-items-center px-2 py-1 shadow-Update" data-bs-toggle="tooltip"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#updatependingModal"
-            title="Update PR">
-        <i class="bi bi-pencil"></i>
-    </button>
-  <button class="btn btn-sm btn-primary view-btn2 square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
+                            html += `
+<button class="btn btn-sm btn-secondary update-btn2 square-pill d-inline-flex align-items-center px-2 py-1 shadow-Update"
         data-id="${row.PRCode}"
         data-bs-toggle="modal"
-        data-bs-target="#pendingModal"
-        data-bs-title="View PR"
-        title="View PR">
-    <i class="bi bi-eye"></i>
-</button>
-</div>`;
-                        } else if (row.Status === "Approved" || row.Status === "Rejected") {
-                            // Show only View button
-                            return `
+        data-bs-target="#updatependingModal"
+        data-bs-title="Update PR"
+        title="Update PR">
+    <i class="bi bi-pencil"></i>
+</button>`;
+                        }
+
+                        // View Button (Always second)
+                        html += `
 <button class="btn btn-sm btn-primary view-btn2 square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
         data-id="${row.PRCode}"
+        data-bs-title="View PR"
         data-bs-toggle="modal"
-        data-bs-target="#pendingModal"
-        data-bs-title
-        title="View PR">
+        data-bs-target="#pendingModal">
     <i class="bi bi-eye"></i>
 </button>`;
-                        } else {
-                            return ''; // Optional: no buttons for other statuses
-                        }
+
+                        html += `</div>`;
+                        return html;
                     }
                 }
-
             ],
             columnDefs: [
                 { className: "text-center", targets: "_all" }
@@ -769,37 +762,47 @@
         });
 
 
-        // Initialize tooltips globally
         function initTooltips() {
-            // Select elements that should have tooltips
-            var selector = '[data-bs-title], [data-bs-toggle="tooltip"]';
-            var els = document.querySelectorAll(selector);
+            const selector = '[data-bs-title]';  // Tooltip only when data-bs-title exists
+            const elements = document.querySelectorAll(selector);
 
-            els.forEach(function (el) {
-                // Dispose if tooltip exists already
-                var existing = bootstrap.Tooltip.getInstance(el);
+            elements.forEach(el => {
+                // Remove previous tooltip instance
+                const existing = bootstrap.Tooltip.getInstance(el);
                 if (existing) existing.dispose();
 
-                // Only initialize if we have a non-empty data-bs-title
-                var hasDataTitle = el.getAttribute('data-bs-title')?.trim() !== '';
-                if (hasDataTitle) {
-                    new bootstrap.Tooltip(el);
+                // Initialize only when data-bs-title present
+                if (el.getAttribute('data-bs-title')?.trim() !== "") {
+                    new bootstrap.Tooltip(el, { container: 'body', trigger: 'hover' });
                 }
             });
         }
 
-        // Initialize tooltips when page loads
+        // Initialize on load
         initTooltips();
 
-        // Re-initialize after DataTable redraw (dynamic rows)
-        $('#TablePending').on('draw.dt', function () {
-            initTooltips();
+        // Re-init after DataTable draw
+        $('#TablePending').on('draw.dt', initTooltips);
+
+        // Re-init inside modals
+        $('#pendingModal, #updatependingModal').on('shown.bs.modal', initTooltips);
+
+        // ✅ Dispose tooltip when clicking View/Update Button
+        $(document).on("click", ".view-btn2, .update-btn2", function () {
+
+            const tip = bootstrap.Tooltip.getInstance(this);
+            if (tip) {
+                tip.dispose();
+            }
+
+            // In case tooltip was on icon
+            const icon = this.querySelector('i');
+            const iconTip = bootstrap.Tooltip.getInstance(icon);
+            if (iconTip) {
+                iconTip.dispose();
+            }
         });
 
-        // Re-initialize inside modals (optional but recommended)
-        $('#updatependingModal, #pendingModal').on('shown.bs.modal', function () {
-            initTooltips();
-        });
 
 
         //  Date Range Filter (Applied on column 5)

@@ -395,49 +395,49 @@
                         return '<span class="badge bg-success">' + data + '</span>';
                     }
                 },
-                {   // Action Buttons
+                {
                     data: null,
                     title: "Action",
                     className: 'no-export',
                     orderable: false,
                     render: function (data, type, row) {
                         if (row.Status === "Pending") {
-                            // Show both Update and View buttons inline
                             return `
 <div class="d-flex gap-1">
-    <button class="btn btn-sm btn-secondary update-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-Update" data-bs-toggle="tooltip"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#updateModal"
-            title="Update PR">
-        <i class="bi bi-pencil "></i>
+    <!-- Update Button -->
+    <button class="btn btn-sm btn-secondary update-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-Update"
+        data-id="${row.PRCode}"
+        data-bs-toggle="tooltip"
+        data-bs-title="Update PR"
+        onclick="$('#updateModal').modal('show')">
+        <i class="bi bi-pencil"></i>
     </button>
-   <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#purchaseRequisitionModal"
-            data-bs-title="View PR"
-            title="View PR">
+
+    <!-- View Button -->
+    <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
+        data-id="${row.PRCode}"
+        data-bs-toggle="tooltip"
+        data-bs-title="View PR"
+        onclick="$('#purchaseRequisitionModal').modal('show')">
         <i class="bi bi-eye"></i>
     </button>
 </div>`;
-                        } else if (row.Status === "Approved" || row.Status === "Rejected") {
-                            // Show only View button
+                        }
+
+                        if (row.Status === "Approved" || row.Status === "Rejected") {
                             return `
 <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#purchaseRequisitionModal"
-            data-bs-title="View PR"
-            title="View PR">
-        <i class="bi bi-eye"></i>
-    </button>`;
-                        } else {
-                            return ''; // Optional: no buttons for other statuses
+    data-id="${row.PRCode}"
+    data-bs-toggle="tooltip"
+    data-bs-title="View PR"
+    onclick="$('#purchaseRequisitionModal').modal('show')">
+    <i class="bi bi-eye"></i>
+</button>`;
                         }
+
+                        return '';
                     }
                 }
-
             ],
             columnDefs: [
                 { className: "text-center", targets: "_all" }
@@ -772,32 +772,32 @@
         });
 
         function initTooltips() {
-            var selector = '[data-bs-title], [data-bs-toggle="tooltip"]';
-            var els = document.querySelectorAll(selector);
-
-            els.forEach(function (el) {
-                var existing = bootstrap.Tooltip.getInstance(el);
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                const existing = bootstrap.Tooltip.getInstance(el);
                 if (existing) existing.dispose();
 
-                var hasDataTitle = el.getAttribute('data-bs-title')?.trim() !== '';
-                if (hasDataTitle) {
-                    new bootstrap.Tooltip(el);
+                const title = el.getAttribute('data-bs-title')?.trim();
+                if (title) {
+                    new bootstrap.Tooltip(el, { container: 'body' });
                 }
             });
         }
 
-        // Initialize on first load
         initTooltips();
+        $('#requisitionTable').on('draw.dt', initTooltips);
+        $('#purchaseRequisitionModal, #updateModal').on('shown.bs.modal', initTooltips);
 
-        // Re-initialize after DataTable draw
-        $('#requisitionTable').on('draw.dt', function () {
-            initTooltips();
+        $(document).on("click", ".update-btn, .view-btn", function () {
+            const instance = bootstrap.Tooltip.getInstance(this);
+            if (instance) {
+                instance.hide();
+                instance.dispose();
+            }
         });
 
-        // Re-initialize inside modals
-        $('#purchaseRequisitionModal, #updateModal').on('shown.bs.modal', function () {
-            initTooltips();
-        });
+
+
+
 
 
 

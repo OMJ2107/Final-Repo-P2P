@@ -1166,10 +1166,28 @@ namespace P2PERP.Controllers
                 return Json(new { success = true, data = pr }, JsonRequestBehavior.AllowGet);
             }
 
-            /// <summary>
-            /// Returns requisition item details for given PR code.
-            /// </summary>
-            public async Task<JsonResult> ItemPartialSP(string id)
+        /// <summary>
+        /// Returns requisition header details for given PR code.
+        /// </summary>
+        public async Task<JsonResult> DescriptionSP(string id)
+        {
+
+            if (string.IsNullOrEmpty(id))
+                return Json(new { success = false, message = "PR not found" }, JsonRequestBehavior.AllowGet);
+
+            BALPurchase bal = new BALPurchase();
+            var pr = await bal.GetPRByCodeDesSP(id);
+
+            if (pr == null)
+                return Json(new { success = false, message = "PR not found" }, JsonRequestBehavior.AllowGet);
+
+            return Json(new { success = true, data = pr }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Returns requisition item details for given PR code.
+        /// </summary>
+        public async Task<JsonResult> ItemPartialSP(string id)
             {
 
                 if (string.IsNullOrEmpty(id))
@@ -1225,11 +1243,31 @@ namespace P2PERP.Controllers
                     return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
                 }
             }
+        /// <summary>
+        /// Returns all approved requisitions (status = 1).
+        /// </summary>
+        public async Task<JsonResult> GetRejectedPRSP()
+        {
+            try
+            {
+                var list = await Task.Run(() => bal.GetPendingPRSP(2));
 
-            /// <summary>
-            /// Updates item quantity in requisition based on PRItemId.
-            /// </summary>
-            [HttpPost]
+                if (list == null)
+                    list = new List<Purchase>();
+
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        /// Updates item quantity in requisition based on PRItemId.
+        /// </summary>
+        [HttpPost]
             public async Task<JsonResult> UpdateItemQuantitySP(int PRItemId, int requiredQuantity)
             {
                 await bal.UpdateItemQuantitySP(PRItemId, requiredQuantity);
