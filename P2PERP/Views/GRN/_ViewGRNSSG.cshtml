@@ -2,85 +2,97 @@
     Layout = null;
 }
 
-<div class="card shadow p-4">
-    <!-- Header info -->
+<style>
+    #tblGRNItemsUnique thead th {
+        padding: 0.10rem 0.11rem !important;
+    }
+</style>
+    <!-- 🔹 PO & GRN Information -->
+<div class="border rounded-3 p-4 mb-3 bg-light-subtle">
+    <h5 class="fw-bold text-dark mb-3">PO & GRN Information</h5>
+
     <div class="row mb-2">
         <div class="col-md-4">
-            <label class="fw-semibold">PONO:</label>
-            <input type="text" class="form-control form-control-sm bg-light" id="txtPONumberUnique" value="@ViewBag.POCode" readonly>
+            <label class="fw-bold text-dark d-block mb-1">PONO:</label>
+            <span class="text-secondary">@ViewBag.POCode</span>
         </div>
         <div class="col-md-4">
-            <label class="fw-semibold">PODATE:</label>
-            <input type="date" class="form-control form-control-sm bg-light" id="txtPODateUnique" value="@ViewBag.PODate" readonly>
+            <label class="fw-bold text-dark d-block mb-1">PODATE:</label>
+            <span class="text-secondary">@Convert.ToDateTime(ViewBag.PODate).ToString("dd-MM-yyyy")</span>
         </div>
         <div class="col-md-4">
-            <label class="fw-semibold">VENDOR NAME:</label>
-            <input type="text" class="form-control form-control-sm bg-light" id="txtVendorNameUnique" value="@ViewBag.VendorName" readonly>
+            <label class="fw-bold text-dark d-block mb-1">VENDOR NAME:</label>
+            <span class="text-secondary">@ViewBag.VendorName</span>
         </div>
     </div>
 
-    <!-- GRN / Invoice info -->
     <div class="row mb-2">
         <div class="col-md-4">
-            <label class="fw-semibold">GRNNO:</label>
-            <input type="text" class="form-control form-control-sm bg-light" id="txtGRNNumberUnique" value="@ViewBag.GRNCode" readonly>
+            <label class="fw-bold text-dark d-block mb-1">GRN NO:</label>
+            <span class="text-secondary">@ViewBag.GRNCode</span>
         </div>
         <div class="col-md-4">
-            <label class="fw-semibold">INVOICE NO:</label>
-            <input type="text" class="form-control form-control-sm bg-light" id="txtInvoiceNumberUnique" value="@ViewBag.InvoiceNo" readonly>
+            <label class="fw-bold text-dark d-block mb-1">INVOICE NO:</label>
+            <span class="text-secondary">@ViewBag.InvoiceNo</span>
         </div>
         <div class="col-md-4">
-            <label class="fw-semibold">INVOICE DATE:</label>
-            <input type="date" class="form-control form-control-sm bg-light" id="txtInvoiceDateUnique" value="@ViewBag.InvoiceDate" readonly>
+            <label class="fw-bold text-dark d-block mb-1">INVOICE DATE:</label>
+            <span class="text-secondary">@Convert.ToDateTime(ViewBag.InvoiceDate).ToString("dd-MM-yyyy")</span>
         </div>
     </div>
 
-    <!-- Addresses -->
-    <div class="row mb-2">
-        <div class="col-md-6">
-            <label class="fw-semibold">COMPANY ADDRESS:</label>
-            <textarea class="form-control form-control-sm bg-light" rows="2" id="txtCompanyAddressUnique" readonly>@ViewBag.CompanyAddress</textarea>
+    <div class="row mb-1">
+        <div class="col-md-4">
+            <label class="fw-bold text-dark d-block mb-1">COMPANY ADDRESS:</label>
+            <span class="text-secondary">@ViewBag.CompanyAddress</span>
         </div>
-        <div class="col-md-6">
-            <label class="fw-semibold">BILLING ADDRESS:</label>
-            <textarea class="form-control form-control-sm bg-light" rows="2" id="txtBillingAddressUnique" readonly>@ViewBag.BillingAddress</textarea>
+        <div class="col-md-4">
+            <label class="fw-bold text-dark d-block mb-1">BILLING ADDRESS:</label>
+            <span class="text-secondary">@ViewBag.BillingAddress</span>
         </div>
     </div>
+</div>
 
-    <h4 class="mb-3">GRN Items</h4>
-
-    <div class="table-responsive p-2 bg-white rounded">
-        <table class="table table-bordered table-striped text-center align-middle" id="tblGRNItemsUnique">
-            <thead class="table-dark">
-                <tr>
-                    <th><input type="checkbox" id="chkSelectAllUnique" /></th>
-                    <th>Sr. No.</th>
-                    <th>Item Name</th>
-                    <th>Quality Check</th>
-                    <th>PO Qty</th>
-                    <th>GRN Qty</th>
-                    <th>Remaining Qty</th>
-                    <th>Unit Rate</th>
-                    <th>Discount %</th>
-                    <th>GST %</th>
-                    <th>Amount (₹)</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-
-    <div class="row mt-2">
-        <div class="col-md-3 offset-md-9">
-            <div class="p-2 rounded-3 text-center" style="background-color:#8a4fff; color:white; font-size:1rem; font-weight:500;">
-                Total Amount : ₹<span id="txtTotalAmountUniqueDisplay">0.00</span>
+    <!-- 🔹 GRN Items Section -->
+    <div class="border rounded-3 p-3 bg-light-subtle">
+        <h4 class="mb-3 pt-2 pb-0 fw-bold text-bold">GRN Items</h4>
+            <table class="table table-bordered table-striped text-center align-middle mb-0" id="tblGRNItemsUnique">
+                <thead class="table-dark">
+                    <tr>
+                        <th><input type="checkbox" id="chkSelectAllUnique" /></th>
+                        <th>Sr. No.</th>
+                        <th>Item Name</th>
+                        <th>Quality Check</th>
+                        <th>PO Qty</th>
+                        <th>GRN Qty</th>
+                        <th>Remaining Qty</th>
+                        <th>Unit Rate</th>
+                        <th>Discount</th>
+                        <th>GST</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        <!-- 🔹 Total Amount -->
+        <div class="container-fluid px-4 mt-4">
+            <div class="row justify-content-end">
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-around align-items-center p-2 bg-light rounded shadow-sm mb-4 border border-secondary-subtle">
+                        <label class="fw-bold text-dark mb-0 fs-6">Total Amount:</label>
+                        <span id="txtTotalAmountUniqueDisplay"
+                              class="form-control form-control-sm text-center fw-semibold fs-6 bg-success text-white border-0 shadow-sm"
+                              style="width: 130px; display: inline-block;">
+                            0.00
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+   
 
-</div>
 <style>
     button.dt-button.processing,
     div.dt-button.processing {
@@ -102,7 +114,12 @@ $(document).ready(function () {
 
     // Initialize DataTable
     const tableUnique = $('#tblGRNItemsUnique').DataTable({
-          ordering: false,
+        paging: false,       // ✅ pagination disabled
+        info: false,
+        ordering: false,
+        searching: true,
+        responsive: true,
+        autoWidth: false,
 
         ajax: {
             url: '/GRN/GetGRNItemsSSG',
@@ -130,7 +147,7 @@ $(document).ready(function () {
             {
                 data: "UnitRate",
                 className: 'text-center',
-                render: d => `₹ ${parseNum(d).toFixed(2)}`  
+                render: d => `₹ ${parseNum(d).toFixed(2)}`
             },            { data: "Discount", className: 'text-center', render: d => parseNum(d).toFixed(2) + " %" },
             { data: "GST", className: 'text-center', render: d => parseNum(d).toFixed(2) + " %" },
             {
@@ -150,15 +167,15 @@ $(document).ready(function () {
 
         ],
 
-        dom:'<"row mb-3"<"col-md-6 d-flex gap-2 align-items-center"B><"col-md-6 d-flex justify-content-end"f>>t<"row mt-3"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>',
+        dom: '<"row mb-3"<"col-md-6 d-flex gap-2 align-items-center"B><"col-md-6 d-flex justify-content-end"f>>t<"row mt-3"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>',
          buttons: [
              // --- PRINT ---
              {
                  extend: 'print',
-                 text: '<i class="bi bi-printer-fill fs-5"></i>',
-                 title: '', 
+                 text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
+                 title: '',
                  exportOptions: {
-                     columns: [2, 3, 4, 5, 6, 7, 8, 9, 10], 
+                     columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
                      rows: (idx, data, node) => $(node).find('.chkRowUnique').is(':checked')
                  },
                  customize: function (win) {
@@ -248,7 +265,7 @@ $(document).ready(function () {
                      });
 
                      table.body.forEach((row, i) => {
-                         if (i === 0) return; 
+                         if (i === 0) return;
                          row.unshift({
                              text: (++sn).toString(),
                              alignment: 'center',
@@ -295,11 +312,11 @@ $(document).ready(function () {
              {
                  extend: 'excelHtml5',
                  text: '<i class="bi bi-file-earmark-excel fs-5 text-success"></i>',
-                 title: '', 
+                 title: '',
                  filename: `GRN_Items_List_${moment().format("DD-MM-YYYY")}`,
                  exportOptions: {
-                     columns: [2, 3, 4, 5, 6, 7, 8, 9, 10], 
-                     rows: (idx, data, node) => $(node).find('.chkRowUnique').is(':checked') 
+                     columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
+                     rows: (idx, data, node) => $(node).find('.chkRowUnique').is(':checked')
                  },
                  customize: function (xlsx) {
                      var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -307,7 +324,7 @@ $(document).ready(function () {
 
                      var colCount = $('row:first c', sheet).length;
                      if (colCount === 0) colCount = 5;
-                     var lastCol = String.fromCharCode(64 + colCount); 
+                     var lastCol = String.fromCharCode(64 + colCount);
 
                      var title = 'GRN Items List';
                      var generatedDate = 'Generated Date: ' + moment().format('DD/MM/YYYY');
@@ -343,7 +360,7 @@ $(document).ready(function () {
 
                      var sn = 0;
                      var updatedRows = $('row', sheet);
-                     var header = updatedRows.eq(2); 
+                     var header = updatedRows.eq(2);
                      header.prepend('<c r="A3" t="inlineStr"><is><t>Sr.No.</t></is></c>');
                      updatedRows.each(function (i) {
                          if (i <= 2) return;
@@ -353,7 +370,7 @@ $(document).ready(function () {
 
                      updatedRows.each(function () {
                          var rowNum = $(this).attr('r');
-                         var colCode = 65; 
+                         var colCode = 65;
                          $('c', this).each(function () {
                              $(this).attr('r', String.fromCharCode(colCode) + rowNum);
                              colCode++;
@@ -420,7 +437,7 @@ $(document).ready(function () {
              }
         ],
 
-        order:[[1,'asc']], paging:true, searching:true, info:false, lengthChange:false, responsive:true
+        order:[[1,'asc']], searching:true, info:false, lengthChange:false, responsive:true
     });
 
     function updateTotalAmountUnique() {
@@ -439,7 +456,7 @@ $(document).ready(function () {
         });
 
         // Update span with formatted value
-        $('#txtTotalAmountUniqueDisplay').text(total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        $('#txtTotalAmountUniqueDisplay').text('₹ ' + total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     }
 
 

@@ -445,7 +445,9 @@ namespace P2PLibray.Purchase
                                 : 0,
                             HasApproved = row.Table.Columns.Contains("HasApproved") && row["HasApproved"] != DBNull.Value
                                 ? Convert.ToInt32(row["HasApproved"])
-                                : 0
+                                : 0,
+                            ExpDate =row["ExpectedDate"].ToString()
+
 
                         });
 
@@ -908,7 +910,7 @@ namespace P2PLibray.Purchase
         /// <returns>List of POItem objects</returns>
         public async Task<List<POItem>> GetPOItemsByCodeVNK(string poCode)
         {
-            try
+            try 
             {
                 var dic = new Dictionary<string, string>
                 {
@@ -1275,8 +1277,8 @@ namespace P2PLibray.Purchase
                             CompanyName = row["CompanyName"].ToString(),
                             TotalAmount = row["TotalAmount"].ToString(),
 
-                            ExpectedDate = row["ExpectedDate"] != DBNull.Value
-                                ? Convert.ToDateTime(row["ExpectedDate"]).ToString("dd/MM/yyyy")
+                            ExpectedDate = row["RequiredDate"] != DBNull.Value
+                                ? Convert.ToDateTime(row["RequiredDate"]).ToString("dd/MM/yyyy")
                                 : string.Empty,
                             VendorDeliveryDate = row["VendorDeliveryDate"] != DBNull.Value
                                 ? Convert.ToDateTime(row["VendorDeliveryDate"]).ToString("dd/MM/yyyy")
@@ -2746,7 +2748,8 @@ namespace P2PLibray.Purchase
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
                         p.FullName = row["FullName"].ToString();
-                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
                         //p.StatusName = row["StatusName"].ToString();
                         p.Priority = row["Priority"].ToString();
                         lst.Add(p);
@@ -2789,7 +2792,9 @@ namespace P2PLibray.Purchase
                         p.PRCode = row["PRCode"].ToString();
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
-                        p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDate = Convert.ToDateTime(row["RequiredDate"].ToString());
+                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
+                       // p.RequiredDate = Convert.ToDateTime(row["RequiredDate"].ToString());
                         //p.StatusName = row["StatusName"].ToString();
                         p.ApprovedRejectedDate = Convert.ToDateTime(row["ApproveRejectedDate"].ToString());
                         p.ApprovedRejectedDateString = p.ApprovedRejectedDate.ToString("dd-MM-yyyy");
@@ -2879,8 +2884,8 @@ namespace P2PLibray.Purchase
                         Purchase p = new Purchase();
                         p.RFQCode = row["RFQCode"].ToString();
                         p.PRCode = row["PRCode"].ToString();
-                        p.ExpectedDate = Convert.ToDateTime(row["ExpectedDate"].ToString());
-                        p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
+                        //p.ExpectedDate = Convert.ToDateTime(row["ExpectedDate"].ToString());
+                        //p.ExpectedDateString = p.ExpectedDate.ToString("dd-MM-yyyy");
                         p.AddedDate = Convert.ToDateTime(row["AddedDate"].ToString());
                         p.AddedDateString = p.AddedDate.ToString("dd-MM-yyyy");
                         p.FullName = row["FullName"].ToString();
