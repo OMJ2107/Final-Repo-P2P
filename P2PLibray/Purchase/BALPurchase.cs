@@ -1615,6 +1615,33 @@ namespace P2PLibray.Purchase
         }
 
         /// <summary>
+        /// Returns requisition header details by PR code.
+        /// </summary>
+        public async Task<Purchase> GetPRByCodeDesSP(string prCode)
+        {
+            Purchase pr = null;
+
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("@Flag", "GetPRByCodeDesSP");
+            param.Add("@PRCode", prCode);
+
+            using (SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("PurchaseProcedure", param))
+            {
+                if (await dr.ReadAsync())
+                {
+                    pr = new Purchase();
+
+                    pr.PRCode = dr["PRCode"].ToString();
+                    pr.RequiredDate = Convert.ToDateTime(dr["RequiredDate"]);
+                    pr.FullName = dr["FullName"].ToString();
+                    pr.Status = dr["StatusName"].ToString();
+                    pr.Description = dr["Description"].ToString();
+                }
+            }
+            return pr;
+        }
+
+        /// <summary>
         /// Returns all items of a requisition by PR code.
         /// </summary>
         public async Task<List<Purchase>> GetPRItemsSP(string prCode)

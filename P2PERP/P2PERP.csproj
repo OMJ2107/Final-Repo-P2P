@@ -5639,11 +5639,7 @@
     <Content Include="Views\Purchase\_ApprovedPOsPartialVNK.cshtml" />
     <Content Include="Views\Purchase\JustInTimeItemListOK.cshtml" />
     <Content Include="Views\Shared\SendMailHSB.cshtml" />
-    <Content Include="Views\Inventory\_BinSK.cshtml" />
-    <Content Include="Views\Purchase\_ShowRejectedPRPartialPRK.cshtml" />
-    <Content Include="Views\Purchase\_ShowAllPOPartialPRK.cshtml" />
-    <Content Include="Views\Purchase\_ShowRejectedOPartialPRK.cshtml" />
-    <Content Include="Views\Purchase\ShowRejectedPRPRK.cshtml" />
+    <Content Include="Views\Purchase\_Rejectpr.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
