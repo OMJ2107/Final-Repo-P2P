@@ -20,6 +20,8 @@ namespace P2PERP.Controllers
     {
         BALInventory bal = new BALInventory();
         // GET: InventoryP2P
+        [Route("Inventory/InventoryDashboard")]
+        [HttpGet]
         public ActionResult Index()
         {
             var RoleId = Convert.ToInt32(Session["RoleId"]);

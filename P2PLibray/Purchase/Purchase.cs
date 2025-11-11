@@ -224,6 +224,7 @@ namespace P2PLibray.Purchase
         public string VendorContact { get; set; }
         public string VendorAddress { get; set; }
         public string InvoiceToCompanyName { get; set; }
+        public decimal ShippingCharges { get; set; }
 
 
     }
@@ -370,7 +371,9 @@ namespace P2PLibray.Purchase
 
         #region vaibhavi
         public string AddedDateVK { get; set; }
-    
+        public string ExpDate { get; set; }
+
+
         public int HasUnregisteredVendors { get; set; }
 
         public int AnyVendor { get; set; }
