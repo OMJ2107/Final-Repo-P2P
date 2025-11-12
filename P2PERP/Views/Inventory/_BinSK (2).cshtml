@@ -251,7 +251,7 @@
                             <option value="">-- Select Item --</option>
                         </select>
                         <span id="editItemHelp" class="form-text text-muted d-none">
-                           
+
                         </span>
                     </div>
 
@@ -336,67 +336,67 @@
 
             <!-- Body -->
             <div class="modal-body">
-                <form class="row g-3">
+                <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="vBinCode" class="form-label fw-bold text-dark">Bin Code</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vBinCode" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Bin Code</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vBinCode">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vBinName" class="form-label fw-bold text-dark">Bin Name</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vBinName" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Bin Name</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vBinName">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vWarehouse" class="form-label fw-bold text-dark">Warehouse</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vWarehouse" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Warehouse</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vWarehouse">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vSection" class="form-label fw-bold text-dark">Section</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vSection" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Section</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vSection">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vRack" class="form-label fw-bold text-dark">Rack</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vRack" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Rack</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vRack">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vRow" class="form-label fw-bold text-dark">Row</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vRow" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Row</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vRow">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vItem" class="form-label fw-bold text-dark">Item</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vItem" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Item</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vItem">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vMaxQuantity" class="form-label fw-bold text-dark">Max Quantity</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vMaxQuantity" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Max Quantity</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vMaxQuantity">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vCurrentItems" class="form-label fw-bold text-dark">Current Items</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vCurrentItems" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Current Items</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vCurrentItems">-</div>
                     </div>
 
                     <div class="col-12">
-                        <label for="vBDescription" class="form-label fw-bold text-dark">Description</label>
-                        <textarea class="form-control form-control-sm bg-light shadow-sm" id="vBDescription" rows="2" readonly></textarea>
+                        <label class="form-label fw-bold text-dark mb-1">Description</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vBDescription">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="vBAddedDate" class="form-label fw-bold text-dark">Added Date</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vBAddedDate" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Added Date</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="vBAddedDate">-</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="demo" class="form-label fw-bold text-dark">Added By</label>
-                        <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="demo" readonly>
+                        <label class="form-label fw-bold text-dark mb-1">Added By</label>
+                        <div class="text-muted p-2 border rounded bg-light" id="demo">-</div>
                     </div>
-                </form>
+                </div>
             </div>
 
         </div>
@@ -1009,18 +1009,18 @@
 
         // Populate view modal
         populateViewModal: function (data) {
-            $("#vBinCode").val(data.BinCode || '');
-            $("#vBinName").val(data.BinName || '');
-            $("#vRow").val(data.RowName || '');
-            $("#vRack").val(data.RackName || '');
-            $("#vSection").val(data.SectionName || '');
-            $("#vWarehouse").val(data.WarehouseName || '');
-            $("#vItem").val(data.ItemName || '');
-            $("#vMaxQuantity").val(data.MaxQuantity || '');
-            $("#demo").val(data.AddedBy || '');
-            $("#vCurrentItems").val(data.CurrentItems || '');
-            $("#vBDescription").val(data.Description || "-");
-            $("#vBAddedDate").val(this.formatDate(data.AddedDate));
+            $("#vBinCode").text(data.BinCode || '-');
+            $("#vBinName").text(data.BinName || '-');
+            $("#vRow").text(data.RowName || '-');
+            $("#vRack").text(data.RackName || '-');
+            $("#vSection").text(data.SectionName || '-');
+            $("#vWarehouse").text(data.WarehouseName || '-');
+            $("#vItem").text(data.ItemName || '-');
+            $("#vMaxQuantity").text(data.MaxQuantity || '-');
+            $("#demo").text(data.AddedBy || '-');
+            $("#vCurrentItems").text(data.CurrentItems || '-');
+            $("#vBDescription").text(data.Description || '-');
+            $("#vBAddedDate").text(this.formatDate(data.AddedDate) || '-');
         },
 
         // Form validation
@@ -1151,7 +1151,8 @@
                 showCancelButton: showCancel,
                 confirmButtonColor: '#0d6efd',
                 cancelButtonColor: '#dc3545',
-                confirmButtonText: "Yes",
+
+                //confirmButtonText: "",
                 timer: showCancel ? null : 2000,
                 showConfirmButton: !showCancel
             });
