@@ -18,19 +18,31 @@
         position: absolute;
         bottom: 0;
         left: 0;
-        height: 1px;
+        height: 3px;
         width: 100%;
         border-radius: 0 0 12px 12px !important;
         filter: brightness(1.35); /* ✅ lighter initially */
-        transition: filter .3s ease;
+        transition: filter .1s ease;
     }
+
+    .card-left-line {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 5px; /* thickness */
+        height: 100%; /* full height */
+    }
+
 
     .materio-card:hover .card-bottom-line {
         filter: brightness(0.85); /* ✅ darker */
     }
+    .materio-card:hover h6 {
+        font-weight: 700 !important;  /* bold */
+    }
 
     .materio-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-10px);
         box-shadow: 0 8px 16px rgba(0,0,0,0.12);
     }
 
@@ -45,15 +57,14 @@
     }
 
     /* Title font size */
-    .materio-card h3 {
+/*    .materio-card h3 {
         font-size: 24px;
-    }
+    }*/
 
-
-     bottom colored strip 
-    .card-bottom-line {
-        height: 4px;
-        width: 100%;
+    .materio-card h6 {
+        font-weight:normal;
+        font-size:15px;
+       
     }
 
 
@@ -81,10 +92,10 @@
 <body class="bg-light">
     <div class="main-content">
         <div class="container py-4">
-            <div class="shadow-sm rounded bg-white p-4">
-                <div class="text-center mb-4">
+            <div class="shadow-sm rounded  p-4">
+                @*<div class="text-center mb-4">
                     <h3 class="text-primary fw-bold">Purchase Requisition Manager Dashboard</h3>
-                </div>
+                </div>*@
 
                 <!-- Cards section -->
                 <div class="row g-3 mb-4">
@@ -106,7 +117,7 @@
                     {
                         <div class="col-sm-6 col-lg-3">
                             <div id="@card.Id"
-                                 class="card materio-card h-100 shadow-sm border-0 text-start position-relative p-3"
+                                 class="card materio-card h-100 shadow-sm border-0 text-start position-relative p-6"
                                  style="cursor:pointer; overflow:hidden;">
 
                                 <!-- Icon + Count -->
@@ -126,11 +137,12 @@
 
                                 <!-- Title -->
                                 <div class="mt-2">
-                                    <h6 class="mb-0 fw-semibold">@card.Title</h6>
+                                    <h6 class="mb-0">@card.Title</h6>
                                 </div>
 
                                 <!-- ✅ Bottom color line -->
                                 <div class="card-bottom-line" style="background:@card.Bg"></div>
+                                <div class="card-left-line" style="background:@card.Bg"></div>
 
                             </div>
                         </div>

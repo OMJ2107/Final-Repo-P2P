@@ -2697,36 +2697,7 @@ namespace P2PERP.Controllers
             return PartialView("_ShowRejectedOPartialPRK");
         }
 
-        ////////////////////////////////////////////
-
-
-
-        //// Rejected PR main view
-        //public ActionResult ShowRejectedPRPRK()
-        //{
-        //    if (Session["StaffCode"] == null)
-        //        return RedirectToAction("MainLogin", "Account");
-
-        //    return View();
-        //}
-
-        //// Get rejected PR list (JSON)
-        //public async Task<ActionResult> ShowRejectPRK()
-        //{
-        //    var data = await bal.ShowRejectedPRmainPRK();
-        //    return Json(data, JsonRequestBehavior.AllowGet);
-        //}
-
-
-
-        //// Rejected PR items partial (by PRCode)
-        //public ActionResult ShowRejectedPRItemPRK(string prCode)
-        //{
-        //    ViewBag.PRCode = prCode;
-        //    return PartialView("_ShowRejectedPRItemPRK");
-        //}
-
-
+       
 
         // Pending PR main view
         public ActionResult ShowRejectedPRPRK()
