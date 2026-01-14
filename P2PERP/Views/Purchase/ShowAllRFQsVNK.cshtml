@@ -201,6 +201,26 @@
             margin-bottom: 0.1rem !important; /* or 0 if you want zero spacing */
         }
 
+        /* Add bottom margin below export buttons + search box */
+        .dt-toolbar {
+            margin-bottom: 8px !important; /* space below the top toolbar */
+        }
+
+        /* For extra reliability in case DataTables overrides styles */
+        div.dt-buttons {
+            margin-bottom: 8px !important;
+        }
+
+        /* Optional: adjust alignment spacing for search box if needed */
+        .dataTables_filter {
+            margin-bottom: 8px !important;
+        }
+
+        .hidcoln{
+            display:none;
+        }
+
+
     </style>
 
 </head>
@@ -236,6 +256,7 @@
                                 <th>Sr No</th>
                                 <th>RFQ Code</th>
                                 <th>Added Date</th>
+                                <th class="hidcoln">ExpDate</th>
                                 <th>Added By</th>
                                 <th>Description</th>
                                 <th>Action</th>
@@ -266,6 +287,7 @@
         $(document).ready(function () {
             // Initialize tooltips
             $('[data-bs-toggle="tooltip"]').tooltip();
+            const today = new Date();
 
 
             function formatDateOnly(dateValue) {
@@ -610,6 +632,8 @@
                     { data: null, className: "text-center", orderable: false, render: (d, t, r, meta) => meta.row + 1 },
                     { data: 'RFQCode' },
                     { data: 'AddedDateVK', render: (d) => formatDateOnly(d) },
+                    { data: 'ExpDate', render: (d) => formatDateOnly(d),visible:false },
+
                     { data: 'FullName' },
                     { data: 'Description', render: (d) => `<span data-bs-toggle="tooltip" title="${d}">${d}</span>` },
                     {
@@ -618,7 +642,7 @@
                             console.log(row)
                             let registerBtn = '';
                             let viewBtn = ''
-                            if (row.HasUnregisteredVendors && Number(row.HasUnregisteredVendors) === 1 && Number(row.HasApproved) == 0) {
+                            if (row.HasUnregisteredVendors && Number(row.HasUnregisteredVendors) === 1 && Number(row.HasApproved) == 0 && formatDateOnly(row.ExpDate) > formatDateOnly(today)) {
                                 registerBtn = `<a class="btn btn-sm btn-success fs-5 ms-1 square-pill d-inline-flex align-items-center px-2 py-1 shadow"
                                         href="/Purchase/RegisterQuotationVNK?rfqCode=${encodeURIComponent(row.RFQCode)}&prCode=${encodeURIComponent(row.PRCode)}"
                                         title="Register Quotation" data-bs-toggle="tooltip">
@@ -627,7 +651,7 @@
                             }
                             if (row.AnyVendor && Number(row.AnyVendor) === 1) {
                                 viewBtn = `<a href="javascript:void(0)"
-                                    class="btn btn-sm btn-view fs-5  btn-icon-square btn-primary fs-6 square-pill d-inline-flex align-items-center px-2 py-1 shadow btn-view-quotation"
+                                    class="btn btn-sm btn-view fs-5 square-pill d-inline-flex align-items-center px-2 py-1 shadow  btn-icon-square btn-primary btn-view-quotation"
                                     data-rfq="${row.RFQCode}" data-pr="${row.PRCode}" data-unreg="${row.HasUnregisteredVendors}"
                                     data-bs-toggle="tooltip" title="View Quotation">
                                     <i class="bi bi-eye-fill fs-5"></i>

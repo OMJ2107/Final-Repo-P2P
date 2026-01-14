@@ -446,7 +446,9 @@ namespace P2PLibray.Purchase
                                 : 0,
                             HasApproved = row.Table.Columns.Contains("HasApproved") && row["HasApproved"] != DBNull.Value
                                 ? Convert.ToInt32(row["HasApproved"])
-                                : 0
+                                : 0,
+                            ExpDate =row["ExpectedDate"].ToString()
+
 
                         });
 
@@ -909,7 +911,7 @@ namespace P2PLibray.Purchase
         /// <returns>List of POItem objects</returns>
         public async Task<List<POItem>> GetPOItemsByCodeVNK(string poCode)
         {
-            try
+            try 
             {
                 var dic = new Dictionary<string, string>
                 {

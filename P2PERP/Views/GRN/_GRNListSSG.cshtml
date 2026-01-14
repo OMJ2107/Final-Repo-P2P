@@ -450,15 +450,18 @@ $(document).ready(function () {
 
 // ✅ View GRN details
 $(document).on("click", ".btnViewGRN", function () {
-    let grn = $(this).data("grn");
-    $("#grnDetailsModalBody").html("<p class='text-center py-3'>Loading...</p>");
+    let grnCode = $(this).data("grn");
+    console.log("GrnCode", grnCode);
+    // Open the PDF in new tab
+    window.open('/GRN/GenerateGRNPDF?GRNCode=' + grnCode, '_blank');
+    @*$("#grnDetailsModalBody").html("<p class='text-center py-3'>Loading...</p>");
 
     $("#grnModalTitle").text("View GRN");
 
     let url = '@Url.Action("ViewGRNSSG","GRN")' + '?GRNCode=' + grn;
     bootstrap.Modal.getOrCreateInstance(document.getElementById('grnDetailsModal')).show();
     $.get(url, html => $("#grnDetailsModalBody").html(html))
-        .fail(() => showError("Failed to load GRN details"));
+        .fail(() => showError("Failed to load GRN details"));*@
 });
 
 // ✅ Assign QC
