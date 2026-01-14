@@ -5,6 +5,8 @@
 @model IEnumerable<P2PLibray.Purchase.Purchase>
 
 <div class="main-content" id="pageContent">
+    <h3 id="reportHeading" class="text-center text-primary fw-bold mb-4"></h3>
+
     <div class="container mt-5">
         <!-- ✅ Date Range Picker -->
         <div class="row mb-3">
@@ -825,40 +827,71 @@
 
         // ✅ Date range picker with predefined ranges and placeholder
         $('#dateRange').daterangepicker({
-            autoUpdateInput: false, // keep placeholder until user picks something
-            alwaysShowCalendars: false, // calendars show only on Custom Range
+            autoUpdateInput: false,
             locale: {
                 cancelLabel: 'Clear',
                 format: 'DD/MM/YYYY',
-                applyLabel: 'Apply',
-                customRangeLabel: 'Custom Range'
+                applyLabel: 'Apply'
             },
             ranges: {
                 'Today': [moment(), moment()],
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
-                'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
-                'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
+                'Last 1 Month': [moment().subtract(1, 'months'), moment()],
+                'Last 3 Months': [moment().subtract(3, 'months'), moment()],
+                'Last 1 Year': [moment().subtract(12, 'months'), moment()]
             }
         }, function (start, end, label) {
-            // Fires after a range is selected (predefined or custom)
+
             startDate = start.toDate();
             endDate = end.toDate();
-            $('#dateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-            table.draw();
-        });
 
-        // ✅ Clear selection on cancel
-        $('#dateRange').on('cancel.daterangepicker', function () {
-            $(this).val('Select Date Range'); // restore placeholder
-            startDate = null;
-            endDate = null;
+            // Input value
+            $('#dateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+
+            // 🔹 Dynamic Heading Logic
+            let headingText = '';
+
+            if (label === 'This Month') {
+                headingText = start.format('MMMM YYYY');
+            }
+            else if (label === 'Last Month') {
+                headingText = start.format('MMMM YYYY');
+            }
+            else if (label === 'Last 7 Days') {
+                headingText = 'Last 7 Days';
+            }
+            else if (label === 'Last 30 Days') {
+                headingText = 'Last 30 Days';
+            }
+            else if (label === 'Last 6 Months') {
+                headingText = start.format('MMM YYYY') + ' - ' + end.format('MMM YYYY');
+            }
+            else if (label === 'Last 1 Year') {
+                headingText = start.format('YYYY');
+            }
+            else {
+                // Custom range
+                headingText = start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY');
+            }
+
+            $('#reportHeading').text(headingText);
+
             table.draw();
         });
 
         // ✅ Set initial placeholder text
         $('#dateRange').val('Select Date Range');
 
+        // 🔹 Set default range = Current Month
+        var now = moment();
+        startDate = now.clone().startOf('month').toDate();
+        endDate = now.clone().endOf('month').toDate();
+
+        // Apply default filter
+        table.draw();
+
+        // Set default heading
+        $('#reportHeading').text(now.format('MMMM YYYY'));
 
         //function for buildchart
         function buildChart(data, totalPR) {

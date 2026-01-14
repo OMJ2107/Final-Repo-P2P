@@ -23,6 +23,7 @@
             <div class="col-md-12">
                 <div class="card p-3 shadow h-100">
                     <h4 class="text-primary fw-bold text-center mb-3">RFQ Vendors Invited vs Responded</h4>
+                    <h5 id="reportHeading" class="text-center text-primary fw-bold mb-3"></h5>
                     <div id="rfqBarChart" style="height:350px;"></div>
                 </div>
             </div>
@@ -116,7 +117,7 @@
                 <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div class="mb-0 ms-5 mt-5" >
+            <div class="mb-0 ms-5 mt-5">
                 <h6 class="fw-bold">
                     RFQ: <span id="lblRFQCode" class="text-primary"></span>
                 </h6>
@@ -256,6 +257,12 @@
     var startDate = null, endDate = null;
 
     $(document).ready(function () {
+
+
+
+
+
+
         table = $('#purchaseTable').DataTable({
             scrollX: false,
             autoWidth: false,
@@ -272,7 +279,7 @@
             ],
 
 
-            
+
 
 
             //createdRow: function (row, data, dataIndex) {
@@ -315,7 +322,7 @@
                 }
             },
 
-            
+
 
             order: [[2, 'asc']],
             buttons: [
@@ -727,6 +734,18 @@
 
             return true;
         });
+        // 🔹 Default to current month
+        var now = moment();
+
+        startDate = now.clone().startOf('month').toDate();
+        endDate = now.clone().endOf('month').toDate();
+
+        // Set heading → January 2026
+        $('#reportHeading').text(now.format('MMMM YYYY'));
+
+        // Apply filter
+        table.draw();
+        updateChart();
 
         // ✅ Checkbox logic
         $(document).on('change', '#selectAll', function () {
@@ -758,23 +777,48 @@
                 customRangeLabel: 'Custom Range'
             },
             ranges: {
-                'Today': [moment(), moment()],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
-                'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
-                'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [
+                    moment().subtract(1, 'month').startOf('month'),
+                    moment().subtract(1, 'month').endOf('month')
+                ],
+                'Last 6 Months': [moment().subtract(6, 'months'), moment()],
+                'Last 1 Year': [moment().subtract(1, 'year'), moment()]
             }
         }, function (start, end) {
+
             startDate = start.toDate();
             endDate = end.toDate();
-            $('#dateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-            table.draw();
-            updateChart();
-        });
 
-        $('#dateRange').on('cancel.daterangepicker', function () {
-            $(this).val('Select Date Range');
-            startDate = null; endDate = null;
+            $('#dateRange').val(
+                start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY')
+            );
+
+            // ✅ REAL selected range name
+            let rangeLabel = this.chosenLabel;
+            let headingText = '';
+
+            if (rangeLabel === 'This Month') {
+                headingText = start.format('MMMM YYYY');
+            }
+            else if (rangeLabel === 'Last Month') {
+                headingText = start.format('MMMM YYYY');
+            }
+            else if (rangeLabel === 'Last 6 Months') {
+                headingText =
+                    start.format('MMM YYYY') + ' - ' + end.format('MMM YYYY');
+            }
+            else if (rangeLabel === 'Last 1 Year') {
+                headingText = start.format('YYYY');
+            }
+            else {
+                // Custom Range
+                headingText =
+                    start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY');
+            }
+
+            $('#reportHeading').text(headingText);
+
             table.draw();
             updateChart();
         });
@@ -869,6 +913,17 @@
         }
 
 
+        $('#dateRange').on('cancel.daterangepicker', function () {
+            var now = moment();
+
+            startDate = now.clone().startOf('month').toDate();
+            endDate = now.clone().endOf('month').toDate();
+
+            $('#reportHeading').text(now.format('MMMM YYYY'));
+
+            table.draw();
+            updateChart();
+        });
 
 
         //modal table
@@ -900,15 +955,15 @@
                         $.each(res.data, function (i, item) {
                             let statusBadge = `
         <span class="${item.StatusName === 'Approved' ? 'badge bg-success' :
-                                item.StatusName === 'Pending' ? 'badge bg-warning' :
-                                    item.StatusName === 'Escalated' ? 'badge bg-primary' :
-                                        item.StatusName === 'Rejected' ? 'badge bg-danger' :
-                                            'badge bg-secondary'
+                                    item.StatusName === 'Pending' ? 'badge bg-warning' :
+                                        item.StatusName === 'Escalated' ? 'badge bg-primary' :
+                                            item.StatusName === 'Rejected' ? 'badge bg-danger' :
+                                                'badge bg-secondary'
                                 }">
             ${item.StatusName}
         </span>
                             `;
-                            
+
 
                             $tbody.append(`
                         <tr>
