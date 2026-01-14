@@ -227,16 +227,43 @@
                 { targets: 1, orderable: false, searchable: false }  // serial col
             ],
 
-            createdRow: function (row, data, dataIndex) {
-                var status = data[9]; // Status column index (0-based)
-                var $cell = $('td', row).eq(9);
+            //createdRow: function (row, data, dataIndex) {
+            //    var status = data[9]; // Status column index (0-based)
+            //    var $cell = $('td', row).eq(9);
 
+            //    if (status === "Approved") {
+            //        $cell.html('<span class="status-badge text-white bg-success">Approved</span>');
+            //    } else if (status === "Pending") {
+            //        $cell.html('<span class="status-badge text-white bg-warning">Pending</span>');
+            //    }
+            //    else if (status === "Rejected") {
+            //        $cell.html('<span class="status-badge text-white bg-danger">Rejected</span>');
+            //    }
+            //},
+
+            createdRow: function (row, data, dataIndex) {
+
+                var status = data[9];        // Status column
+                var converted = data[5];     // Converted To RFQ column
+
+                // ---- STATUS BADGE ----
+                var $statusCell = $('td', row).eq(9);
                 if (status === "Approved") {
-                    $cell.html('<span class="status-badge text-white bg-success">Approved</span>');
+                    $statusCell.html('<span class="status-badge text-white bg-success">Approved</span>');
+                } else if (status === "Pending") {
+                    $statusCell.html('<span class="status-badge text-white bg-warning">Pending</span>');
                 } else if (status === "Rejected") {
-                    $cell.html('<span class="status-badge text-white bg-danger">Rejected</span>');
+                    $statusCell.html('<span class="status-badge text-white bg-danger">Rejected</span>');
+                }
+
+                // ---- RFQ NA LOGIC ----
+                if (converted === "No") {
+                    $('td', row).eq(6).html('<span class="text-muted">NA</span>'); // RFQ Code
+                    $('td', row).eq(7).html('<span class="text-muted">NA</span>'); // RFQ Created Date
+                    $('td', row).eq(8).html('<span class="text-muted">NA</span>'); // Days To Convert
                 }
             },
+
 
 
 

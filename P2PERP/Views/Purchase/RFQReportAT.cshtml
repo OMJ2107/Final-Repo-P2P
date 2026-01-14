@@ -271,16 +271,52 @@
                 { targets: 4, visible: false }                       // 🔥 hide "Added By" column
             ],
 
+
+            
+
+
+            //createdRow: function (row, data, dataIndex) {
+            //    var status = data[3]; // Status column index (0-based)
+            //    var $cell = $('td', row).eq(3);
+
+            //    if (status === "Requested") {
+            //        $cell.html('<span class="status-badge text-white bg-success">Requested</span>');
+            //    } else if (status === "Pending") {
+            //        $cell.html('<span class="status-badge text-white bg-warning">Pending</span>');
+            //    }
+            //},
             createdRow: function (row, data, dataIndex) {
-                var status = data[3]; // Status column index (0-based)
-                var $cell = $('td', row).eq(3);
+
+                // ---- EXISTING STATUS LOGIC (unchanged) ----
+                var status = data[3];
+                var $statusCell = $('td', row).eq(3);
 
                 if (status === "Requested") {
-                    $cell.html('<span class="status-badge text-white bg-success">Requested</span>');
+                    $statusCell.html('<span class="status-badge text-white bg-success">Requested</span>');
                 } else if (status === "Pending") {
-                    $cell.html('<span class="status-badge text-white bg-warning">Pending</span>');
+                    $statusCell.html('<span class="status-badge text-white bg-warning">Pending</span>');
+                }
+
+                //// ---- ONLY REQUIRED CHECK ----
+                //var vendorsInvited = parseInt(data[5], 9);
+                //var responses = parseInt(data[6], 9);
+
+                //if (vendorsInvited == 0 && responses == 0) {
+                //    $('td', row).eq(7).html('<span class="text-muted">NA</span>'); // Response Rate
+                //    $('td', row).eq(8).html('<span class="text-muted">NA</span>'); // Generated PO
+                //}
+                // ---- NA LOGIC (SIMILAR TO RFQ EXAMPLE) ----
+                var vendorsInvited = parseInt(data[6], 10); // Vendors Invited
+                var responses = parseInt(data[7], 10);      // Responses
+
+                if (vendorsInvited === 0 && responses === 0) {
+                    $('td', row).eq(8).html('<span class="text-muted">NA</span>'); // Response Rate
+                    $('td', row).eq(7).html('<span class="text-muted">NA</span>'); // Generated PO
                 }
             },
+
+            
+
             order: [[2, 'asc']],
             buttons: [
 
@@ -656,6 +692,7 @@
             ]
 
         });
+
 
         // ✅ Serial numbers in sequence
         table.on('draw.dt', function () {
