@@ -30,6 +30,7 @@ using iTextRectangle = iTextSharp.text.Rectangle;
 
 namespace P2PERP.Controllers
 {
+   
     public class PurchaseController : Controller
     {
         BALPurchase bal = new BALPurchase();
@@ -2754,7 +2755,7 @@ namespace P2PERP.Controllers
         // Get pending PR items (JSON by PRCode)
         public async Task<ActionResult> ShowPendingPRItemsPRK(string prCode)
         {
-            var data = await bal.ShowPendingPRItemPRK(prCode);
+            var data = await bal.ShowPendingItemPRPRK(prCode);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
