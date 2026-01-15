@@ -446,7 +446,7 @@
                                 data: null, orderable: false, render: function (data, type, row) {
                                     let quotationCode = row.RegisterQuotationCode || ''; // fallback if null 
                                     let amount = parseFloat(row.TotalAmount);
-                                    let isHighAmount = amount > 500000;
+                                    let isHighAmount = amount > 5000000;
                                     let approveIcon = isHighAmount
                                         ? `<i class="bi bi-send-fill text-white fs-6" 
                   data-bs-toggle="tooltip" 
@@ -518,9 +518,9 @@
             var row = $(this).closest('tr');
             var amountText = row.find('td').eq(6).text().replace(/[^\d.]/g, '');
             var amount = parseFloat(amountText);
-            var url = amount > 500000 ? "/Purchase/ApproveRequestAdminAMG" : "/Purchase/ApproveQuotAMG";
+            var url = amount > 5000000 ? "/Purchase/ApproveRequestAdminAMG" : "/Purchase/ApproveQuotAMG";
             var vname = row.find('td').eq(5).text();
-            var msg = amount > 500000
+            var msg = amount > 5000000
                 ? `Send quotation <b>${id}</b> for admin approval?`
                 : `Approve quotation <b>${id}</b> ?`;
 

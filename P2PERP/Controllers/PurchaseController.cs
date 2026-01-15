@@ -3285,11 +3285,11 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         //}
 
         //// Get rejected PR list (JSON)
-        //public async Task<ActionResult> ShowRejectPRK()
-        //{
-        //    var data = await bal.ShowRejectedPRmainPRK();
-        //    return Json(data, JsonRequestBehavior.AllowGet);
-        //}
+        public async Task<ActionResult> ShowRejectPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowRejectedPRPRK(startDate,endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
 
 
 
@@ -3309,7 +3309,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         }
 
         // Get pending PR list (JSON)
-        public async Task<ActionResult> ShowRejectPRK()
+        public async Task<ActionResult> ShowRejectPPRK()
         {
             var data = await bal.ShowRejectedPRmainPRK();
             return Json(data, JsonRequestBehavior.AllowGet);
