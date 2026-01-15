@@ -20,7 +20,7 @@ namespace P2PERP.Controllers
     {
         BALInventory bal = new BALInventory();
         // GET: InventoryP2P
-        [Route("InventoryDashboard")]
+        [Route("Inventory/InventoryDashboard")]
         [HttpGet]
         public ActionResult Index()
         {
