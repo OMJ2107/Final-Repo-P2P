@@ -211,8 +211,9 @@
         let selectedStartDate, selectedEndDate;
 
         function initDateRangePicker() {
-            const start = moment().startOf('year');
-            const end = moment().endOf('year');
+
+            const start = moment().subtract(1, 'year'); // ✅ last 1 year from today
+            const end = moment();                       // ✅ today
 
             $('#reportrange').daterangepicker({
                 startDate: start,
@@ -222,14 +223,14 @@
                 parentEl: 'body',
                 alwaysShowCalendars: false,
                 autoUpdateInput: true,
-                autoApply: false, // Needed for Apply/Cancel
+                autoApply: false,
                 showDropdowns: true,
                 ranges: {
                     'Today': [moment(), moment()],
                     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                    'Last 1 Month': [moment().startOf('month'), moment().endOf('month')],
-                    'Last 3 Month': [moment().subtract(3, 'month').startOf('month'), moment().subtract(3, 'month').endOf('month')],
-                    'Last 1 Year': [moment().startOf('year'), moment().endOf('year')]
+                    'Last 1 Month': [moment().subtract(1, 'month'), moment()],
+                    'Last 3 Month': [moment().subtract(3, 'month'), moment()],
+                    'Last 1 Year': [moment().subtract(1, 'year'), moment()]
                 },
                 locale: {
                     cancelLabel: 'Clear',
@@ -238,36 +239,24 @@
                 }
             });
 
-            // Set initial value in field
-            $('#reportrange').val(start.format('DD-MM-YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+            $('#reportrange').val(
+                start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY')
+            );
 
             // Initial dashboard load
             onDateChange(start, end);
 
-            // Handle Apply
             $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
-                selectedStartDate = picker.startDate.format('YYYY-MM-DD');
-                selectedEndDate = picker.endDate.format('YYYY-MM-DD');
-
-                const displayStartDate = picker.startDate.format('DD/MM/YYYY');
-                const displayEndDate = picker.endDate.format('DD/MM/YYYY');
-
-                $(this).val(displayStartDate + ' - ' + displayEndDate);
-
                 onDateChange(picker.startDate, picker.endDate);
             });
 
-            // Handle Clear
             $('#reportrange').on('cancel.daterangepicker', function () {
-                $(this).val('');
-
-                // Reset to default
-                const start = moment().startOf('year');
-                const end = moment().endOf('year');
-
+                const start = moment().subtract(1, 'year');
+                const end = moment();
                 onDateChange(start, end);
             });
         }
+
 
         function onDateChange(start, end) {
             selectedStartDate = start.format('YYYY-MM-DD');
