@@ -16,7 +16,12 @@ using static P2PLibray.Purchase.Purchase;
 
 namespace P2PLibray.Purchase
 {
-    public class BALPurchase
+    public abstract class BalBase
+    {
+        public abstract Task<DataSet> AllQuationListSJ();
+
+    }
+    public class BALPurchase : BalBase
     {
         MSSQL obj = new MSSQL();
 
@@ -3294,7 +3299,7 @@ namespace P2PLibray.Purchase
         /// <returns>
         /// Return PR list
         /// </returns>
-        public async Task<DataSet> AllQuationListSJ()
+        public override async Task<DataSet> AllQuationListSJ()
         {
             Dictionary<string, string> para = new Dictionary<string, string>();
             para.Add("@Flag", "AllQListSJ");
