@@ -32,6 +32,7 @@ using iTextRectangle = iTextSharp.text.Rectangle;
 
 namespace P2PERP.Controllers
 {
+   
     public class PurchaseController : Controller
     {
         BALPurchase bal = new BALPurchase();
@@ -3271,36 +3272,13 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             return PartialView("_ShowRejectedOPartialPRK");
         }
 
-        ////////////////////////////////////////////
+       
+        public async Task<ActionResult>ShowRejectPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowRejectedPRPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
 
-
-
-        //// Rejected PR main view
-        //public ActionResult ShowRejectedPRPRK()
-        //{
-        //    if (Session["StaffCode"] == null)
-        //        return RedirectToAction("MainLogin", "Account");
-
-        //    return View();
-        //}
-
-        //// Get rejected PR list (JSON)
-        //public async Task<ActionResult> ShowRejectPRK()
-        //{
-        //    var data = await bal.ShowRejectedPRmainPRK();
-        //    return Json(data, JsonRequestBehavior.AllowGet);
-        //}
-
-
-
-        //// Rejected PR items partial (by PRCode)
-        //public ActionResult ShowRejectedPRItemPRK(string prCode)
-        //{
-        //    ViewBag.PRCode = prCode;
-        //    return PartialView("_ShowRejectedPRItemPRK");
-        //}
-
-
+        }
 
         // Pending PR main view
         public ActionResult ShowRejectedPRPRK()
@@ -3309,7 +3287,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         }
 
         // Get pending PR list (JSON)
-        public async Task<ActionResult> ShowRejectPRK()
+        public async Task<ActionResult> ShowRejectPPRK()
         {
             var data = await bal.ShowRejectedPRmainPRK();
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -3357,7 +3335,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         // Get pending PR items (JSON by PRCode)
         public async Task<ActionResult> ShowPendingPRItemsPRK(string prCode)
         {
-            var data = await bal.ShowPendingPRItemPRK(prCode);
+            var data = await bal.ShowPendingItemPRPRK(prCode);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 

@@ -2511,7 +2511,7 @@ namespace P2PLibray.Purchase
         /// This Function Show Pending PR List
         /// </summary>
         /// <returns>List of Pending PR </returns>
-        public async Task<List<Purchase>> ShowPendingPRPRK()
+        public  async Task<List<Purchase>> ShowPendingPRPRK() 
         {
             try
             {
@@ -2551,7 +2551,7 @@ namespace P2PLibray.Purchase
         /// This Function Show Pending PR Items
         /// </summary>
         /// <returns>List Of Show Pending PR Items</returns>
-        public async Task<List<Purchase>> ShowPendingPRItemPRK(string prCode)
+        public async Task<List<Purchase>> ShowPendingItemPRPRK(string prCode)
         {
             try
             {
@@ -2595,7 +2595,7 @@ namespace P2PLibray.Purchase
         /// This Function Show Approved PR List
         /// </summary>
         /// <returns>Approved PR List</returns>
-        public async Task<List<Purchase>> ShowApprovedPRPRK()
+        public  async Task<List<Purchase>> ShowApprovedPRPRK()
         {
             try
             {
@@ -2729,7 +2729,7 @@ namespace P2PLibray.Purchase
                 List<Purchase> lst = new List<Purchase>();
                 Dictionary<string, string> paradic = new Dictionary<string, string> {
                     { "@Flag", "ViewRejectedmainPRPRK" }
-                    
+                   
 
                 };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
