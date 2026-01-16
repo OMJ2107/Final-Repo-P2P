@@ -3233,6 +3233,12 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         }
 
        
+        public async Task<ActionResult>ShowRejectPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowRejectedPRPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
+
+        }
 
         // Pending PR main view
         public ActionResult ShowRejectedPRPRK()
@@ -3241,7 +3247,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         }
 
         // Get pending PR list (JSON)
-        public async Task<ActionResult> ShowRejectPRK()
+        public async Task<ActionResult> ShowRejectPPRK()
         {
             var data = await bal.ShowRejectedPRmainPRK();
             return Json(data, JsonRequestBehavior.AllowGet);

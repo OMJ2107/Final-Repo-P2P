@@ -2698,7 +2698,7 @@ namespace P2PLibray.Purchase
                 List<Purchase> lst = new List<Purchase>();
                 Dictionary<string, string> paradic = new Dictionary<string, string> {
                     { "@Flag", "ViewRejectedmainPRPRK" }
-                    
+                   
 
                 };
                 DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", paradic);
