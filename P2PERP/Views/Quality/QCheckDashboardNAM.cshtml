@@ -165,9 +165,11 @@
         color: #3498db;
     }
 
+
     .totalqc-card::after {
         background: #3498db;
     }
+
 
 
     /* ---- Chart Container ---- */
@@ -178,6 +180,7 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         margin-top: 20px;
     }
+
 
     /* Chart title & alignment */
     .chart-title {
@@ -707,6 +710,7 @@
                 r = '<tr><td colspan="7" class="text-center">No Records</td></tr>';
             }
 
+
             $('#PendingListTable').html(r);
 
             if ($.fn.DataTable.isDataTable('#PendingTable')) $('#PendingTable').DataTable().destroy();
@@ -729,6 +733,7 @@
                                 showToast("Please select at least one row to print!", "warning");
                                 return;
                             }
+
                             $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
                         },
                         exportOptions: {
@@ -872,6 +877,7 @@
                                             : data)
                             }
                         },
+
                         customize: function (xlsx) {
                             const sheet = xlsx.xl.worksheets['sheet1.xml'];
                             const today = new Date();
@@ -889,20 +895,21 @@
                                 });
                             });
 
+
                             // Add Title & Date Row at top (center aligned)
                             const titleRow = `
-<row r="1">
-        <c t="inlineStr" r="A1" s="51"><is><t>Pending Quality List</t></is></c>
-</row>`;
+                          <row r="1">
+                          <c t="inlineStr" r="A1" s="51"><is><t>Pending Quality List</t></is></c>
+                          </row>`;
                             const dateRow = `
-<row r="2">
+               <row r="2">
         <c t="inlineStr" r="A2" s="51"><is><t>Genrated Date: ${dateStr}</t></is></c>
-</row>`;
+       </row>`;
 
                             // ✅ Merge cells (extended range to include Added Date column if more columns)
                             const mergeCells = `
-<mergeCells count="2">
-        <mergeCell ref="A1:G1"/>
+                      <mergeCells count="2">
+           <mergeCell ref="A1:G1"/>
         <mergeCell ref="A2:G2"/>
 </mergeCells>`;
 
@@ -954,20 +961,25 @@
                 ],
 
 
+
             });
 
             $("#PendingModal").modal("show");
         });
 
+
         $('#selectAllPending').on('click', function () {
             var checked = this.checked;
             $('#PendingTable .Pending-row-select').prop('checked', checked);
         });
+
+
         // Uncheck "Select All" if any single checkbox is unchecked
         $('#PendingTable').on('change', '.Pending-row-select', function () {
             // If any unchecked → uncheck header checkbox
             if (!this.checked) {
                 $('#selectAllPending').prop('checked', false);
+
             } else {
                 // If all checked → check header checkbox automatically
                 const allChecked = $('.Pending-row-select:checked').length === $('.Pending-row-select').length;
@@ -1011,6 +1023,7 @@
             </tr>`;
                     });
                 }
+
                 else r = '<tr><td colspan="6" class="text-center">No Records</td></tr>';
                 $('#NonconfirmListTable').html(r);
                 if ($.fn.DataTable.isDataTable('#NonconfirmTable')) $('#NonconfirmTable').DataTable().destroy();
@@ -1054,6 +1067,7 @@
                                     })()
                                 }
                             },
+
                             title: '',
                             customize: function (win) {
                                 const today = new Date();
@@ -1096,6 +1110,7 @@
                                     showToast("Please select at least one row to export!", "warning");
                                     return;
                                 }
+
                                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                                 dt.processing(false); // ✅ remove spinner
                             },

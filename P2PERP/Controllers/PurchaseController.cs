@@ -867,7 +867,7 @@ namespace P2PERP.Controllers
             A new Purchase Order (<strong>PO No: {po.POCode}</strong>) amounting to 
             <strong>₹ {po.Amount:N2}</strong> has been created and requires your approval 
             since it exceeds the ₹5,00,000 limit.
-        </p>
+         </p>
 
         <p>
             Kindly review the attached Purchase Order for your consideration and approval.
