@@ -1629,10 +1629,28 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 return Json(new { success = true, data = pr }, JsonRequestBehavior.AllowGet);
             }
 
-            /// <summary>
-            /// Returns requisition item details for given PR code.
-            /// </summary>
-            public async Task<JsonResult> ItemPartialSP(string id)
+        /// <summary>
+        /// Returns requisition header details for given PR code.
+        /// </summary>
+        public async Task<JsonResult> DescriptionSP(string id)
+        {
+
+            if (string.IsNullOrEmpty(id))
+                return Json(new { success = false, message = "PR not found" }, JsonRequestBehavior.AllowGet);
+
+            BALPurchase bal = new BALPurchase();
+            var pr = await bal.GetPRByCodeDesSP(id);
+
+            if (pr == null)
+                return Json(new { success = false, message = "PR not found" }, JsonRequestBehavior.AllowGet);
+
+            return Json(new { success = true, data = pr }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Returns requisition item details for given PR code.
+        /// </summary>
+        public async Task<JsonResult> ItemPartialSP(string id)
             {
 
                 if (string.IsNullOrEmpty(id))
@@ -1688,11 +1706,31 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                     return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
                 }
             }
+        /// <summary>
+        /// Returns all approved requisitions (status = 1).
+        /// </summary>
+        public async Task<JsonResult> GetRejectedPRSP()
+        {
+            try
+            {
+                var list = await Task.Run(() => bal.GetPendingPRSP(2));
 
-            /// <summary>
-            /// Updates item quantity in requisition based on PRItemId.
-            /// </summary>
-            [HttpPost]
+                if (list == null)
+                    list = new List<Purchase>();
+
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        /// Updates item quantity in requisition based on PRItemId.
+        /// </summary>
+        [HttpPost]
             public async Task<JsonResult> UpdateItemQuantitySP(int PRItemId, int requiredQuantity)
             {
                 await bal.UpdateItemQuantitySP(PRItemId, requiredQuantity);
@@ -2993,9 +3031,10 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 using (MailMessage mail = new MailMessage())
                 {
                     //mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
-                    mail.From = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
+                   // mail.From = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
+                    mail.From = new MailAddress(WebConfigurationManager.AppSettings["MainEmail"], "Procurement System");
                     mail.To.Add(vendorEmail);
-                   // mail.To.Add("kumbharomkar765@gmail.com"); // Test email
+                   // mail.To.Add("kumbharomkar765@gmail.com"w); // Test email
                     mail.Subject = $"Purchase Order - {POCode}";
                     mail.Body = $"Dear {vendorName},\n\nPlease find attached the Purchase Order #{POCode}.\n\nThank you.\n\nRegards,\nYour Company";
                     mail.IsBodyHtml = false;
@@ -3005,7 +3044,8 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
                     using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                     {
-                        smtp.Credentials = new NetworkCredential("gstprocurmenterp@gmail.com", "lhrlntigzidizmju");
+                       // smtp.Credentials = new NetworkCredential("gstprocurmenterp@gmail.com", "lhrlntigzidizmju");
+                        smtp.Credentials = new NetworkCredential(WebConfigurationManager.AppSettings["MainEmail"], WebConfigurationManager.AppSettings["AppPassword"]);
                         smtp.EnableSsl = true;
                         await smtp.SendMailAsync(mail);
                     }

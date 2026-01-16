@@ -190,16 +190,23 @@
                                                         <span class="fw-semibold QuantityStored @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
                                                         @if (!isComplete)
                                                         {
-                                                            <div class="progress mt-1" style="height: 5px; width: 60px;">
-                                                                <div class="progress-bar @(progressPercent == 100 ? "bg-success" : "bg-warning")"
-                                                                     role="progressbar" style="width: @progressPercent;"
-                                                                     aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            <div class="progress mt-1" style="height: 6px; width: 80px;">
+                                                                <div class="progress-bar @(progressPercent >= 100 ? "bg-success" : "bg-warning")"
+                                                                     role="progressbar"
+                                                                     style="width: @progressPercent%;"
+                                                                     aria-valuenow="@progressPercent"
+                                                                     aria-valuemin="0"
+                                                                     aria-valuemax="100">
+                                                                </div>
                                                             </div>
+
+                                                            <small class="text-muted mt-1">@progressPercent.ToString("0")%</small>
                                                         }
                                                         else
                                                         {
                                                             <span class="badge bg-success mt-1">Complete</span>
                                                         }
+
                                                     </div>
                                                 </td>
                                                 <td>

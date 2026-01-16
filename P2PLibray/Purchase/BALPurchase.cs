@@ -16,8 +16,12 @@ using static P2PLibray.Purchase.Purchase;
 
 namespace P2PLibray.Purchase
 {
-   
-    public class BALPurchase
+    public abstract class BalBase
+    {
+        public abstract Task<DataSet> AllQuationListSJ();
+
+    }
+    public class BALPurchase : BalBase
     {
         MSSQL obj = new MSSQL();
 
@@ -1610,6 +1614,33 @@ namespace P2PLibray.Purchase
                     pr.RequiredDate = Convert.ToDateTime(dr["RequiredDate"]);
                     pr.FullName = dr["FullName"].ToString();
                     pr.Status = dr["StatusName"].ToString();
+                }
+            }
+            return pr;
+        }
+
+        /// <summary>
+        /// Returns requisition header details by PR code.
+        /// </summary>
+        public async Task<Purchase> GetPRByCodeDesSP(string prCode)
+        {
+            Purchase pr = null;
+
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("@Flag", "GetPRByCodeDesSP");
+            param.Add("@PRCode", prCode);
+
+            using (SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("PurchaseProcedure", param))
+            {
+                if (await dr.ReadAsync())
+                {
+                    pr = new Purchase();
+
+                    pr.PRCode = dr["PRCode"].ToString();
+                    pr.RequiredDate = Convert.ToDateTime(dr["RequiredDate"]);
+                    pr.FullName = dr["FullName"].ToString();
+                    pr.Status = dr["StatusName"].ToString();
+                    pr.Description = dr["Description"].ToString();
                 }
             }
             return pr;
@@ -3268,7 +3299,7 @@ namespace P2PLibray.Purchase
         /// <returns>
         /// Return PR list
         /// </returns>
-        public async Task<DataSet> AllQuationListSJ()
+        public override async Task<DataSet> AllQuationListSJ()
         {
             Dictionary<string, string> para = new Dictionary<string, string>();
             para.Add("@Flag", "AllQListSJ");
