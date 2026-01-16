@@ -42,44 +42,43 @@
         <!-- GRN Info -->
         <div class="d-flex justify-content-between align-items-center position-relative mb-3 mt-4" style="min-height: 50px;">
             <!-- Date Picker (Left) -->
-            <div class="input-group" style="width: 280px;">
-                <span class="input-group-text bg-primary text-white">
-                    <i class="bi bi-calendar-date"></i>
-                </span>
-                <input type="text" id="grnlistdatepicker" class="form-control" placeholder="Select date range" readonly />
+            <div class="mb-3 d-flex gap-2">
+                <div class="input-group" style="max-width: 230px;">
+                    <span class="input-group-text bg-primary text-white">
+                        <i class="bi bi-calendar-date"></i>
+                    </span>
+                    <input type="text" id="grnlistdatepicker" class="form-control form-control-sm shadow-sm" placeholder="Select date range" readonly />
+                </div>
+              </div>
+
+                
             </div>
 
-            <!-- Header (Centered) -->
-            <h3 class="position-absolute start-50 translate-middle-x mb-0 fw-bolder text-center text-primary">
-                Check Quality
-            </h3>
+            <input type="hidden" id="grnno" value="@ViewBag.GRN" name="GRNCode" class="form-control w-auto bg-light" readonly />
+
+
+            <!-- Task Grid -->
+
+            <div class="table-responsive">
+                <table id="newTaskTable" class="table table-striped table-hover table-bordered align-middle text-center mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><input type="checkbox" id="selectAllNewTask" /></th>
+                            <th>Sr.No</th>
+                            <th>GRNCode</th>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Item Type</th>
+                            <th>Inspection Type</th>
+                            <th>Plan Name</th>
+                            <th>Assigned Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-
-        <input type="hidden" id="grnno" value="@ViewBag.GRN" name="GRNCode" class="form-control w-auto bg-light" readonly />
-
-
-        <!-- Task Grid -->
-
-        <div class="table-responsive">
-            <table id="newTaskTable" class="table table-striped table-hover table-bordered align-middle text-center mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th><input type="checkbox" id="selectAllNewTask"/></th>
-                        <th>Sr.No</th>
-                        <th>GRNCode</th>
-                        <th>Item Code</th>
-                        <th>Item Name</th>
-                        <th>Item Type</th>
-                        <th>Inspection Type</th>
-                        <th>Plan Name</th>
-                        <th>Assigned Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
 </div>
 
 
@@ -241,7 +240,7 @@
                     {
                         data: 'GrnItemcode',
                         render: function (data, type, row) {
-                            return `<button class="btn btn-sm btn-primary  open-inspec square-pill d-inline-flex align-items-center px-2 py-1 bi bi-box-seam fs-6"
+                            return `<button class="btn btn-sm btn-primary  open-inspec square-pill d-inline-flex align-items-center px-2 py-1  fs-6"
                                 onclick="openInspecForm('${row.GrnItemCode}')"
                                 data-bs-toggle="tooltip"
                                 title="Open Inspection Form">

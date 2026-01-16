@@ -497,6 +497,7 @@ namespace P2PERP.Controllers
             return View();
         }
 
+        [Route("Quality/QCheckDashboard")]
         // GET: Quality Dashboard for NAM
         public ActionResult QCheckDashboardNAM()
         {

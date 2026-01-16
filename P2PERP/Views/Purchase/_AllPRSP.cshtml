@@ -2,6 +2,7 @@
 
 
 <style>
+/*   table style */
     #ViewItems thead th {
         padding: 0.3rem 0.4rem !important;
     }
@@ -18,7 +19,7 @@
 
         .form-control:focus, .form-select:focus {
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-            border-color: #86b7fe;
+            border-color: #86b7fe;; , 
         }
 
     .btn {
@@ -85,11 +86,11 @@
         <h3 class="text-center fw-bold text-primary">All Purchase Requisition</h3>
         <!-- Date Filters -->
         <div class="mb-3 d-flex gap-2">
-            <div class="input-group" style="max-width: 280px;">
+            <div class="input-group" style="max-width: 230px;">
                 <span class="input-group-text bg-primary text-white">
                     <i class="bi bi-calendar-date"></i><!-- Calendar Icon -->
                 </span>
-                <input type="text" id="Rejectedrange" placeholder="Select date Range" class="form-control form-control-sm text-center shadow-sm text-dark" readonly />
+                <input type="text" id="Rejectedrange" placeholder="Select date Range" class="form-control form-control-sm  shadow-sm text-dark" readonly />
             </div>
         </div>
 
@@ -139,27 +140,29 @@
                                 <div class="row g-2 text-center">
 
                                     <div class="col">
-                                        <label class="form-label form-label-sm fw-bold text-dark">PR CODE :</label>
-                                        <input id="PRCODE" class="form-control form-control-sm text-center text-dark shadow-sm bg-light" type="text" readonly />
+                                        <label class="fw-bold text-dark">PR CODE :</label><br />
+                                        <span id="PRCODE" ></span>
                                     </div>
 
                                     <div class="col">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Required Date :</label>
-                                        <input id="RequiredDate" class="form-control form-control-sm text-center text-dark shadow-sm bg-light" type="text" readonly />
+                                        <label class="fw-bold text-dark">Required Date :</label><br />
+                                        <span id="RequiredDate" ></span>
                                     </div>
 
                                     <div class="col">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Created By :</label>
-                                        <input id="FullName" class="form-control form-control-sm text-center text-dark shadow-sm bg-light" type="text" readonly />
+                                        <label class="fw-bold text-dark">Created By :</label><br />
+                                        <span id="FullName" ></span>
                                     </div>
 
                                     <div class="col">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Status :</label>
-                                        <input id="Status" class="form-control form-control-sm text-center text-dark shadow-sm bg-light" type="text" readonly />
+                                        <label class="fw-bold text-dark">Status :</label><br />
+                                        <span id="Status" ></span>
                                     </div>
+
 
                                 </div>
                             </div>
+
 
 
 
@@ -213,29 +216,29 @@
                     <div class="card-body p-3">
 
                         <!-- Requisition Info Section -->
-                        <div class="container mb-3">
-
+                        <div class="container mb-3 fw-bold fs-6">
                             <div class="row g-2 text-center">
 
-                                <div class="col-3">
-                                    <label class="form-label form-label-sm fw-bold text-dark">PR CODE :</label>
-                                    <input id="PRCODEUpdate" class="form-control form-control-sm text-center shadow-sm text-dark bg-light" type="text" readonly />
+                                <div class="col">
+                                    <label class="fw-bold text-dark">PR CODE :</label><br />
+                                    <span id="PRCODEUpdate"></span>
                                 </div>
 
-                                <div class="col-3">
-                                    <label class="form-label form-label-sm fw-bold text-dark">Required Date :</label>
-                                    <input id="RequiredDateUpdate" class="form-control form-control-sm text-center shadow-sm text-dark bg-light" type="text" readonly />
+                                <div class="col">
+                                    <label class="fw-bold text-dark">Required Date :</label><br />
+                                    <span id="RequiredDateUpdate"></span>
                                 </div>
 
-                                <div class="col-3">
-                                    <label class="form-label form-label-sm fw-bold text-dark">Created By :</label>
-                                    <input id="FullNameUpdate" class="form-control form-control-sm text-center shadow-sm text-dark bg-light" type="text" readonly />
+                                <div class="col">
+                                    <label class="fw-bold text-dark">Created By :</label><br />
+                                    <span id="FullNameUpdate"></span>
                                 </div>
 
-                                <div class="col-3">
-                                    <label class="form-label form-label-sm fw-bold text-dark">Status :</label>
-                                    <input id="StatusUpdate" class="form-control form-control-sm text-center shadow-sm text-dark bg-light" type="text" readonly />
+                                <div class="col">
+                                    <label class="fw-bold text-dark">Status :</label><br />
+                                    <span id="StatusUpdate"></span>
                                 </div>
+
 
                             </div>
 
@@ -392,49 +395,49 @@
                         return '<span class="badge bg-success">' + data + '</span>';
                     }
                 },
-                {   // Action Buttons
+                {
                     data: null,
                     title: "Action",
                     className: 'no-export',
                     orderable: false,
                     render: function (data, type, row) {
                         if (row.Status === "Pending") {
-                            // Show both Update and View buttons inline
                             return `
 <div class="d-flex gap-1">
-    <button class="btn btn-sm btn-secondary update-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-Update" data-bs-toggle="tooltip"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#updateModal"
-            title="Update PR">
+    <!-- Update Button -->
+    <button class="btn btn-sm btn-secondary update-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-Update"
+        data-id="${row.PRCode}"
+        data-bs-toggle="tooltip"
+        data-bs-title="Update PR"
+        onclick="$('#updateModal').modal('show')">
         <i class="bi bi-pencil"></i>
     </button>
-   <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#purchaseRequisitionModal"
-            data-bs-title="View PR"
-            title="View PR">
+
+    <!-- View Button -->
+    <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
+        data-id="${row.PRCode}"
+        data-bs-toggle="tooltip"
+        data-bs-title="View PR"
+        onclick="$('#purchaseRequisitionModal').modal('show')">
         <i class="bi bi-eye"></i>
     </button>
 </div>`;
-                        } else if (row.Status === "Approved" || row.Status === "Rejected") {
-                            // Show only View button
+                        }
+
+                        if (row.Status === "Approved" || row.Status === "Rejected") {
                             return `
 <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#purchaseRequisitionModal"
-            data-bs-title="View PR"
-            title="View PR">
-        <i class="bi bi-eye"></i>
-    </button>`;
-                        } else {
-                            return ''; // Optional: no buttons for other statuses
+    data-id="${row.PRCode}"
+    data-bs-toggle="tooltip"
+    data-bs-title="View PR"
+    onclick="$('#purchaseRequisitionModal').modal('show')">
+    <i class="bi bi-eye"></i>
+</button>`;
                         }
+
+                        return '';
                     }
                 }
-
             ],
             columnDefs: [
                 { className: "text-center", targets: "_all" }
@@ -768,6 +771,34 @@
             ]
         });
 
+        function initTooltips() {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                const existing = bootstrap.Tooltip.getInstance(el);
+                if (existing) existing.dispose();
+
+                const title = el.getAttribute('data-bs-title')?.trim();
+                if (title) {
+                    new bootstrap.Tooltip(el, { container: 'body' });
+                }
+            });
+        }
+
+        initTooltips();
+        $('#requisitionTable').on('draw.dt', initTooltips);
+        $('#purchaseRequisitionModal, #updateModal').on('shown.bs.modal', initTooltips);
+
+        $(document).on("click", ".update-btn, .view-btn", function () {
+            const instance = bootstrap.Tooltip.getInstance(this);
+            if (instance) {
+                instance.hide();
+                instance.dispose();
+            }
+        });
+
+
+
+
+
 
 
         //  Date Range Filter (Applied on column 5)
@@ -874,10 +905,10 @@
                 if (response.success) {
                     var formattedDate = moment(response.data.RequiredDate).format("DD/MM/YYYY");
 
-                    $("#PRCODE").val(response.data.PRCode);
-                    $("#RequiredDate").val(formattedDate);
-                    $("#FullName").val(response.data.FullName);
-                    $("#Status").val(response.data.Status);
+                    $("#PRCODE").text(response.data.PRCode);
+                    $("#RequiredDate").text(formattedDate);
+                    $("#FullName").text(response.data.FullName);
+                    $("#Status").text(response.data.Status);
 
                 }
             },
@@ -928,15 +959,15 @@
                     data: "Description", title: "DESCRIPTION",
                     createdCell: function (td, cellData) {
                         if (cellData) {
-                            // truncate text if too long
                             let shortText = cellData.length > 25 ? cellData.substring(0, 25) + "..." : cellData;
                             $(td)
                                 .text(shortText)
-                                .attr("title", cellData)
+                                .attr("data-bs-title", cellData)   // ✅ use this instead of title
                                 .attr("data-bs-toggle", "tooltip")
                                 .attr("data-bs-placement", "top");
                         }
-                    } },
+                    }
+                },
                 { data: "RequiredQuantity", title: "QTY" },
                 {
                     data: "UnitRate",
@@ -980,21 +1011,21 @@
 
                         // Custom Header HTML
                         let headerHtml = `
-        <h3 style="text-align:center; margin-bottom:5px;">Purchase Requisition Details</h3>
-        <div style="text-align:center; margin-bottom:10px; font-size:11pt; font-style:italic;">
-            Generated Date: ${moment().format("DD/MM/YYYY")}
-        </div>
-        <table style="width:100%; margin-bottom:15px; border-collapse: collapse;" border="0">
-            <tr>
-                <td><b>PR CODE :</b> ${prCode}</td>
-                <td><b>Required Date :</b> ${reqDate}</td>
-            </tr>
-            <tr>
-                <td><b>Created By :</b> ${fullName}</td>
-                <td><b>Status :</b> ${status}</td>
-            </tr>
-        </table>
-    `;
+<h3 style="text-align:center; margin-bottom:5px;">Purchase Requisition Details</h3>
+<div style="text-align:center; margin-bottom:10px; font-size:11pt; font-style:italic;">
+    Generated Date: ${moment().format("DD/MM/YYYY")}
+</div>
+<table style="width:100%; margin-bottom:15px; border-collapse: collapse;" border="0">
+    <tr>
+        <td><b>PR CODE :</b> ${prCode}</td>
+        <td><b>Required Date :</b> ${reqDate}</td>
+    </tr>
+    <tr>
+        <td><b>Created By :</b> ${fullName}</td>
+        <td><b>Status :</b> ${status}</td>
+    </tr>
+</table>
+`;
 
                         // Prepend header
                         $(win.document.body).prepend(headerHtml);
@@ -1004,27 +1035,25 @@
 
                         // Force table borders
                         table.css('border-collapse', 'collapse');
-                        table.find('thead th, tbody td').each(function () {
-                            $(this).css({
-                                'border': '1px solid #000',
-                                'padding': '5px',
-                                'border-collapse': 'collapse'
-                            });
+                        table.find('thead th, tbody td').css({
+                            'border': '1px solid #000',
+                            'padding': '5px'
                         });
 
-                        // Style header
-                        table.find('thead').css({
-                            'background-color': '#343a40',
-                            'color': '#fff'
+                        // Stronger Header Dark Styling (Individual TH)
+                        table.find('thead th').css({
+                            'background-color': '#212529 !important',
+                            'color': '#fff !important',
+                            'font-weight': 'bold',
+                            'text-align': 'center'
                         });
 
                         // Optional: center-align first column (SR.NO)
-                        table.find('tbody tr').each(function (i) {
-                            $(this).find('td:first').css('text-align', 'center');
-                        });
+                        table.find('tbody tr td:first-child').css('text-align', 'center');
                     }
                 }
             ],
+
             columnDefs: [
                 { className: "text-center", targets: "_all" }
             ],
@@ -1049,10 +1078,10 @@
             success: function (response) {
                 if (response.success) {
                     var formattedDate = moment(response.data.RequiredDate).format("DD/MM/YYYY");
-                    $("#PRCODEUpdate").val(response.data.PRCode);
-                    $("#RequiredDateUpdate").val(formattedDate);
-                    $("#FullNameUpdate").val(response.data.FullName);
-                    $("#StatusUpdate").val(response.data.Status);
+                    $("#PRCODEUpdate").text(response.data.PRCode);
+                    $("#RequiredDateUpdate").text(formattedDate);
+                    $("#FullNameUpdate").text(response.data.FullName);
+                    $("#StatusUpdate").text(response.data.Status);
 
                 }
             }
@@ -1084,14 +1113,14 @@
                 { data: 'ItemCode' },
                 { data: 'ItemName' },
                 {
-                    data: 'Description',
+                    data: "Description",
                     createdCell: function (td, cellData) {
                         if (cellData) {
                             let shortText = cellData.length > 25 ? cellData.substring(0, 25) + "..." : cellData;
                             $(td)
                                 .text(shortText)
-                                .attr("title", cellData)
-                                .attr("data-bs-toggle", "tooltip")
+                                .attr("data-bs-title", cellData)
+                                .attr("data-bs-toggle", "tooltip") 
                                 .attr("data-bs-placement", "top");
                         }
                     }

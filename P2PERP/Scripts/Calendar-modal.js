@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 renderISRorJITModal("Just-In-Time Request", props);
                 break;
             case "MaterialReqPlanningInfo":
-                debugger;
                 renderMRPModal(props);
                 break;
             default:
@@ -130,10 +129,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="col-sm-6">
                             <strong>${props.StatusName == 'Rejected' ? 'Rejected Date' : 'Approved Date'}:</strong> ${safe(props.ApprovedDate)}
                         </div>
-                        <div class="col-sm-12 mb-3">
-                            <strong>Description:</strong> ${safe(props.Description)}
-                        </div>`
-                    : ''}
+                        ${(props.StatusName === 'Rejected') ?
+                            `<div class="col-sm-12 mb-3">
+                                <strong>Description:</strong> ${safe(props.Description)}
+                            </div>`: ''}
+                    `: ''}
                 </div>
             </div>
             <hr/>
@@ -402,9 +402,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="col-sm-6">
                         <strong>Status:</strong> ${safe(props.StatusName)}
                     </div>
-                    <div class="col-sm-12">
+                    <div class="col-sm-6">
                         <strong>Billing Address:</strong> ${safe(props.BillingAddress)}
                     </div>
+                    ${(props.StatusName === 'Rejected') ? 
+                        `<div class="col-sm-6">
+                            <strong>Note:</strong> ${safe(props.Description)}
+                        </div>` : ''
+                    }
                     <div class="col-sm-12 mb-3">
                         <strong>Term Conditions:</strong> ${termList}
                     </div>
@@ -731,7 +736,6 @@ document.addEventListener('DOMContentLoaded', function () {
         </table>`;
 
         document.querySelector('#eventModal .modal-body').innerHTML = html;
-        console.log(props);
 
         if (props.Items && props.Items.length > 0) {
             let table = new DataTable('#qcItemsTable', {
@@ -778,7 +782,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderISRorJITModal(title, props) {
         const modalTitle = document.querySelector('#eventModal .modal-title');
         const modalBody = document.querySelector('#eventModal .modal-body');
-        debugger;
         modalTitle.textContent = title;
         modalBody.innerHTML = `
         <table id="isrJitTable" class="table table-striped table-bordered w-100">
