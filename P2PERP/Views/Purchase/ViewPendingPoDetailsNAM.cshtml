@@ -267,7 +267,7 @@
                 const grandTotal = subtotal + shipping;
                 $("#ftGrandTotal").text(`₹${grandTotal.toFixed(2)}`);
 
-                if (grandTotal > 500000) {
+                if (grandTotal > 2000000) {
                     $("#btnApprove").prop("disabled", true);
                     $("#btnSendApproval").prop("disabled", false);
                 } else {

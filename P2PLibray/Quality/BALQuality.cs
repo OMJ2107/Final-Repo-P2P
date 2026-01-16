@@ -32,6 +32,8 @@ namespace P2PLibray.Quality
 
         //GRN count method//
 
+
+
         public async Task<SqlDataReader> GRNAllPR(string startDate = null, string endDate = null)
         {
             var param = new Dictionary<string, string>
@@ -121,50 +123,54 @@ namespace P2PLibray.Quality
 
 
 
-        //Non confirm item GRN list method//
-        public async Task<List<QualityNonConfirmItemPR>> NonConfirmItemGrnPR()
-        {
-            List<QualityNonConfirmItemPR> list = new List<QualityNonConfirmItemPR>();
-            try
-            {
-                Dictionary<string, string> param = new Dictionary<string, string>();
-                param.Add("@Flag", "Non-ConfirmItemGRNPR");
+		// Non confirm item GRN list method
+		public async Task<List<QualityNonConfirmItemPR>> NonConfirmItemGrnPR()
+		{
+			List<QualityNonConfirmItemPR> list = new List<QualityNonConfirmItemPR>();
+			try
+			{
+				Dictionary<string, string> param = new Dictionary<string, string>();
+				param.Add("@Flag", "Non-ConfirmItemGRNPR");
 
-                SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
+				SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
 
-                if (dr.HasRows)
-                {
-                    while (await dr.ReadAsync())
-                    {
-                        list.Add(new QualityNonConfirmItemPR
-                        {
-                            GRNCode = dr["GRNCode"].ToString(),
-                            VenderName = dr["VenderName"].ToString(),
-                            AddDate = dr["Add Date"] == DBNull.Value
-                                ? ""
-                                : Convert.ToDateTime(dr["Add Date"]).ToString("dd/MM/yyyy"),
-                            
-                        });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log error or debug here
-                throw new Exception("Error in NonConfirmItemListAsync: " + ex.Message);
-            }
+				if (dr.HasRows)
+				{
+					while (await dr.ReadAsync())
+					{
+						list.Add(new QualityNonConfirmItemPR
+						{
+							GRNCode = dr["GRNCode"].ToString(),
+							VenderName = dr["VenderName"].ToString(),
+							AddDate = dr["Add Date"] == DBNull.Value
+								? ""
+								: Convert.ToDateTime(dr["Add Date"]).ToString("dd/MM/yyyy"),
+							QualityCheckDate = dr["Quality Check Date"] == DBNull.Value
+								? ""
+								: Convert.ToDateTime(dr["Quality Check Date"]).ToString("dd/MM/yyyy"),
+							QCFailedDate = dr["QC Failed Date"] == DBNull.Value
+								? ""
+								: Convert.ToDateTime(dr["QC Failed Date"]).ToString("dd/MM/yyyy")
+						});
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				// Log error or debug here
+				throw new Exception("Error in NonConfirmItemListAsync: " + ex.Message);
+			}
 
-            return list;
-        }
+			return list;
+		}
 
 
 
 
 
+		// Non-confirm item details method by GRNCode
 
-        // Non-confirm item details method by GRNCode
-
-        public async Task<List<FailedItemDetailPR>> NonConfirmItemListPR(string grnCode)
+		public async Task<List<FailedItemDetailPR>> NonConfirmItemListPR(string grnCode)
         {
             Dictionary<string, string> param = new Dictionary<string, string>
     {
@@ -330,7 +336,8 @@ namespace P2PLibray.Quality
 			return await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
 		}
 
-		#endregion Prashant
+        #endregion Prashant
+
 
 
 
@@ -373,11 +380,11 @@ namespace P2PLibray.Quality
         /// </summary>
         /// <param name="id">GRN Code</param>
         /// <returns>List of <see cref="Quality"/> items linked to the GRN.</returns>
-        public async Task<List<Quality>> ItemByGRNCodeRG(string id)
+        public async Task<List<Quality>> ItemByGRNCodeRG()
         {
             Dictionary<string, string> dic = new Dictionary<string, string>();
             dic.Add("@Flag", "ItemsBYGRNCodeRG");
-            dic.Add("@GRNCode", id);
+
             var ds = await obj.ExecuteStoredProcedureReturnDS("QualityCheckProcedure", dic);
             List<Quality> lst = new List<Quality>();
             foreach (DataRow row in ds.Tables[0].Rows)
@@ -427,7 +434,7 @@ namespace P2PLibray.Quality
                     InspectionType = row["InspectionType"].ToString(),
                     PlanName = row["PlanName"].ToString(),
                     strAddedDate = row["AssignedDate"] != DBNull.Value
-                    ? Convert.ToDateTime(row["AssignedDate"]).ToString("dd-MM-yyyy") : string.Empty,
+                    ? Convert.ToDateTime(row["AssignedDate"]).ToString("dd/MM/yyyy") : string.Empty,
                     Parameters = row["Parametersc"].ToString(),
                     Quantity = int.Parse(row["Quantity"].ToString()),
                     GrnItemCode = row["GRNItemcode"].ToString(),
@@ -648,7 +655,7 @@ namespace P2PLibray.Quality
         /// <param name="STF">Sample Tested Failed</param>
         /// <param name="ROR">Reason of Rejection</param>
 
-        public async Task insertQFitemsRG(string FQC, string QC, string STF, string ROR)
+        public async Task insertQFitemsRG(string FQC, string QC, string STF, string ROR, string staffcode)
         {
 
             Dictionary<string, object> dc = new Dictionary<string, object>();
@@ -658,7 +665,7 @@ namespace P2PLibray.Quality
             dc.Add("@QualityheckCode", QC);
             dc.Add("@SampleTestedFailed", long.Parse(STF));
             dc.Add("@Reason", ROR);
-            dc.Add("@AddedBy", "STF014");
+            dc.Add("@AddedBy", staffcode);
             dc.Add("@AddedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             await obj.ExecuteStoredProcedure("QualityCheckProcedure", dc);
         }
@@ -681,7 +688,7 @@ namespace P2PLibray.Quality
             {
                 lst.Add(new Quality
                 {
-                    //GRNCode = row["GRNCode"].ToString(),
+                    GRNCode = row["GRNCode"].ToString(),
                     ItemCode = row["ItemCode"].ToString(),
                     ItemName = row["ItemName"].ToString(),
                     ItemType = row["ItemType"].ToString(),
@@ -706,7 +713,7 @@ namespace P2PLibray.Quality
         /// <summary>
         /// Updates the status of a GRN after inspection.
         /// </summary>
-        /// <param name="id">GRN Code</param>c
+        /// <param name="id">GRN Code</param>
         public async Task UpdateGRNStatusRG(string id)
         {
             Dictionary<string, object> dic = new Dictionary<string, object>();

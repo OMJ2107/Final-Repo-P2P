@@ -74,9 +74,9 @@
             
 
             <!-- Card Header -->
-            <div class="card-header bg-primary text-white d-flex justify-content-center align-items-center rounded-top p-1">
-                <h3 class="modal-title fw-bold text-white mb-0 fs-5">Pending Purchase Order Details</h3>
-                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white justify-content-center">
+                <h5 class="modal-title fw-bold w-100 text-center mb-3 text-white">Pending Purchase Order Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Card Body -->
@@ -145,8 +145,8 @@
                             let amount = parseFloat(row.POCost);
                             let buttons = '';
 
-                            if (amount < 500000) {
-                                buttons += `<button class="btn btn-sm btn-success btn-approve square-pill d-inline-flex align-items-center px-2 py-1 " data-pocode="${pocode}"><i class="bi bi-check-circle text-white fs-6" 
+                            if (amount < 5000000) {
+                                buttons += `<button class="btn btn-sm btn-success btn-approve" data-pocode="${pocode}"><i class="bi bi-check-circle text-white" 
                   data-bs-toggle="tooltip" 
                   data-bs-placement="top" 
                   title="Approve" 
@@ -501,7 +501,7 @@
             });
         });
 
-      
+
         // ✅ Date filter with custom ranges for Pending PO
         $(document).off('focus', '#PendingDatepicker').on('focus', '#PendingDatepicker', function () {
             if (!$(this).data('daterangepicker')) {

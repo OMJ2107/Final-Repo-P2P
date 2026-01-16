@@ -224,6 +224,7 @@ namespace P2PLibray.Purchase
         public string VendorContact { get; set; }
         public string VendorAddress { get; set; }
         public string InvoiceToCompanyName { get; set; }
+        public decimal ShippingCharges { get; set; }
 
 
     }
@@ -304,6 +305,8 @@ namespace P2PLibray.Purchase
 
         #region prathamesh
         public int AllPR { get; set; }
+        public int AllPO { get; set; }
+        public int RejectedPO { get; set; }
         public int Rejected { get; set; }
         public int PendingPR { get; set; }
         public int ApprovedPR { get; set; }
@@ -315,15 +318,11 @@ namespace P2PLibray.Purchase
         public int PendingRFQ { get; set; }
         public string StaffCode { get; set; }
         public string WarehouseName { get; set; }
-       // public string RFQCode { get; set; }
         public string RQCode { get; set; }
         public string VenderName { get; set; }
-        //public string CompanyName { get; set; }
         public DateTime ExpectedDate { get; set; }
         public string PRCode { get; set; }
         public decimal TotalAmount { get; set; }
-       // public string POCode { get; set; }
-        //public DateTime AddedDate { get; set; }
         public string FullName { get; set; }
         public string StatusName { get; set; }
         public string Priority { get; set; }
@@ -331,11 +330,7 @@ namespace P2PLibray.Purchase
 
         public string ItemName { get; set; }
         public string UnitRates { get; set; }
-       // public int RequiredQuantity { get; set; }
-
-        //public DateTime RequiredDate { get; set; }
         public string Description { get; set; }
-       // public string AddedDateString { get; set; }
 
         public string ApprovedRejectedDateString { get; set; }
 
@@ -347,10 +342,7 @@ namespace P2PLibray.Purchase
         #endregion
 
         #region Ashutosh
-        //public string PRCode { get; set; }
-        //public string PRCreatedDate { get; set; }
         public DateTime? PRCreatedDate { get; set; }
-        //public string PRApprovedDate { get; set; }
         public DateTime? PRApprovedDate { get; set; }
         public string ConvertedToRFQ { get; set; }
         public DateTime? RFQCreatedDate { get; set; }
@@ -361,28 +353,17 @@ namespace P2PLibray.Purchase
         public string AddedByName { get; set; }
         public string ApprovedRejectedByName { get; set; }
         public DateTime? ApprovedRejectedDateAT { get; set; }
-        // public string ApprovedRejectedDate { get; set; }
-        // public string ItemName { get; set; } 
-        //public string StatusName { get; set; }
         public string RFQCode { get; set; }
-        // public string WarehouseName { get; set; }
          public DateTime? AddedDateAT { get; set; }
         public string RegisterQuotationCode { get; set; }
-        //public decimal TotalAmount { get; set; }
-
         public string AddedBy { get; set; }
         public string VendorsInvited { get; set; }
         public string VendorsResponded { get; set; }
         public string ResponseRatePercent { get; set; }
         public string FinalOutcomePOCode { get; set; }
         public string UnitQuantity { get; set; }
-        //public string CostPerUnit { get; set; }
-        //public string Discount { get; set; }
         public string TaxRate { get; set; }
         public string FinalAmount { get; set; }
-        //public string RequiredQuantity { get; set; }
-        //public string UnitRates { get; set; }
-        //public string RegisterQuotationCode { get; set; }
         public string DaysToReceiveQuotation { get; set; }
         public string DaysToApproveQuotation { get; set; }
         public List<Purchase> Items { get; set; }
@@ -390,7 +371,9 @@ namespace P2PLibray.Purchase
 
         #region vaibhavi
         public string AddedDateVK { get; set; }
-    
+        public string ExpDate { get; set; }
+
+
         public int HasUnregisteredVendors { get; set; }
 
         public int AnyVendor { get; set; }
@@ -541,6 +524,6 @@ namespace P2PLibray.Purchase
         public List<string> Vendors { get; set; }
         #endregion
 
-      
+
     }
 }

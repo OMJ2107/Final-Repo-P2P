@@ -20,6 +20,8 @@ namespace P2PERP.Controllers
     {
         BALInventory bal = new BALInventory();
         // GET: InventoryP2P
+        [Route("Inventory/InventoryDashboard")]
+        [HttpGet]
         public ActionResult Index()
         {
             var RoleId = Convert.ToInt32(Session["RoleId"]);
@@ -215,6 +217,7 @@ namespace P2PERP.Controllers
                     InventoryDRB ReceiveMaterial = new InventoryDRB
                     {
                         GRNCode = dr["GRNCode"].ToString(),
+                        SupplierName = dr["SupplierName"].ToString(),
                         AddedDate = Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy"),
                     };
 
@@ -265,6 +268,14 @@ namespace P2PERP.Controllers
         {
             var bins = await bal.GetBins(itemcode);
             return Json(bins,JsonRequestBehavior.AllowGet);
+        }
+
+        // Loads the Issue In-House view
+        [HttpGet]
+        public async Task<JsonResult> GetBinNameItemDRB(string itemcode)
+        {
+            var bins = await bal.GetBinsName(itemcode);
+            return Json(bins, JsonRequestBehavior.AllowGet);
         }
 
         // Gets the list of Departments from DB and returns JSON
@@ -366,6 +377,9 @@ namespace P2PERP.Controllers
         }
 
 
+        // Gets the list of Bins for a given Row
+       
+
         // Gets the Issue In-House items based on Status Id
         [HttpGet]
         public async Task<JsonResult> IssueINHouseItemDRB(int StatusId)
@@ -433,6 +447,9 @@ namespace P2PERP.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+
+
 
         #endregion
 
