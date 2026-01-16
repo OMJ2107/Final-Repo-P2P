@@ -6,6 +6,7 @@
 
 
 <div id="pagecontent" class="main-content">
+
     <div class="container mt-5">
         <!-- Date Range Picker -->
         <div class="row mb-3">
@@ -24,6 +25,8 @@
             <div class="col-md-12">
                 <div class="card p-3 shadow h-100">
                     <h4 class="text-primary fw-bold text-center mb-3">Purchase Orders by Vendor</h4>
+                    @*<h5 id="monthReportTitle" class="text-center text-muted fw-semibold mb-2"></h5>*@
+                    <h5 id="monthReportTitle" class="text-center text-primary fw-bold mb-3"></h5>
                     <div id="poBarChart" style="height:400px;"></div>
                 </div>
             </div>
@@ -178,6 +181,7 @@
 
 
 <script>
+
 
 
     // Clear processing state for all DataTable buttons
@@ -799,6 +803,23 @@
             $('#selectAll').prop('checked', $('.rowCheckbox:checked').length === $('.rowCheckbox').length);
         });
 
+        // 🔹 DEFAULT = CURRENT MONTH
+        var now = moment();
+
+        startDate = now.clone().startOf('month').toDate();
+        endDate = now.clone().endOf('month').toDate();
+
+        // Heading → January 2026
+        $('#monthReportTitle').text(now.format('MMMM YYYY'));
+
+        // Apply filter + chart
+        table.draw();
+        updateBarChart();
+
+
+
+
+
         // Date Range Picker
         $('#dateRange').daterangepicker({
             autoUpdateInput: false,
@@ -815,17 +836,60 @@
                 'Last 1 Year': [moment().subtract(12, 'months'), moment()]
             }
         }, function (start, end) {
+
             startDate = start.toDate();
             endDate = end.toDate();
-            $('#dateRange').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+
+            $('#dateRange').val(
+                start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY')
+            );
+
+            // ✅ REAL selected range label
+            let rangeLabel = this.chosenLabel;
+            let headingText = '';
+
+            if (rangeLabel === 'Today') {
+                headingText = 'Today';
+            }
+            else if (rangeLabel === 'Last 7 Days') {
+                headingText = 'Last 7 Days';
+            }
+            else if (rangeLabel === 'Last 1 Month') {
+                headingText = start.format('MMMM YYYY');
+            }
+            else if (rangeLabel === 'Last 3 Months') {
+                headingText = start.format('MMM YYYY') + ' - ' + end.format('MMM YYYY');
+            }
+            else if (rangeLabel === 'Last 1 Year') {
+                headingText = start.format('YYYY');
+            }
+            else {
+                // Custom Range
+                headingText =
+                    start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY');
+            }
+
+            $('#monthReportTitle').text(headingText);
+
             table.draw();
+            updateBarChart();
         });
-        $('#dateRange').on('cancel.daterangepicker', function () {
-            $(this).val('Select Date Range');
-            startDate = endDate = null;
-            table.draw();
-        });
+
         $('#dateRange').val('Select Date Range');
+        $('#dateRange').on('cancel.daterangepicker', function () {
+
+            var now = moment();
+
+            startDate = now.clone().startOf('month').toDate();
+            endDate = now.clone().endOf('month').toDate();
+
+            $(this).val('Select Date Range');
+
+            $('#monthReportTitle').text(now.format('MMMM YYYY'));
+
+            table.draw();
+            updateBarChart();
+        });
 
         // Highcharts Bar Chart
         function buildBarChart(data) {
