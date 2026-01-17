@@ -57,7 +57,9 @@
 </style>
 <div class="container-fluid">
     <div class="container bg-white rounded m-2 shadow p-2">
-        <h3 class="mb-4 text-center text-primary">Inhouse Transfer Report</h3>
+        @*<h3 class="mb-4 text-center text-primary">Inhouse Transfer Report</h3>*@
+        <h3 id="reportHeading" class="mb-4 text-center text-primary"></h3>
+
 
         <!-- Chart -->
         <div class="card p-3 mb-4">
@@ -79,8 +81,8 @@
                         <input type="text" id="InhouseDatepicker" class="form-control" placeholder="Select date range" readonly style="height:100%;" />
                     </div>
                     <!-- Export buttons
-                    <div id="dtButtonsContainer" class="dt-buttons"></div>
-                    -->
+                <div id="dtButtonsContainer" class="dt-buttons"></div>
+                -->
                 </div>
             </div>
 
@@ -658,6 +660,37 @@
 
 
     $(document).ready(function () {
+
+        function setReportHeading(fromDate, toDate) {
+
+            if (!fromDate || !toDate) {
+                $('#reportHeading').text("Inhouse Transfer Report");
+                return;
+            }
+
+            const from = moment(fromDate);
+            const to = moment(toDate);
+
+            // Same month → show Month + Year
+            if (from.format('MM-YYYY') === to.format('MM-YYYY')) {
+                $('#reportHeading').text(
+                    `Inhouse Transfer Report – ${from.format("MMMM YYYY")}`
+                );
+                return;
+            }
+
+            // Range → show From - To dates
+            const fromText = from.format("DD MMM YYYY");
+            const toText = to.format("DD MMM YYYY");
+
+            $('#reportHeading').text(
+                `Inhouse Transfer Report – ${fromText} to ${toText}`
+            );
+        }
+
+
+
+
         $('#InhouseDatepicker').daterangepicker({
             autoUpdateInput: false,
             opens: "center",
@@ -671,12 +704,42 @@
             },
             locale: { cancelLabel: 'Clear' }
         }, function (start, end) {
-            $('#InhouseDatepicker').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
-            loadReport(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-        });
-        $('#InhouseDatepicker').on('cancel.daterangepicker', function () { $(this).val(''); loadReport(); });
+            $('#InhouseDatepicker').val(
+                start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY')
+            );
 
-        loadReport();
+            loadReport(
+                start.format('YYYY-MM-DD'),
+                end.format('YYYY-MM-DD')
+            );
+
+            // ✅ Update heading
+            setReportHeading(start, end);
+        })
+        $('#InhouseDatepicker').on('cancel.daterangepicker', function () {
+            $(this).val('');
+            loadReport();
+            setReportHeading(null, null);   // ✅ reset heading
+        });
+
+
+        // 👉 Default: Current Month
+        const startOfMonth = moment().startOf('month');
+        const endOfMonth = moment().endOf('month');
+
+        // Load report for current month
+        loadReport(
+            startOfMonth.format('YYYY-MM-DD'),
+            endOfMonth.format('YYYY-MM-DD')
+        );
+
+        // Set heading
+        setReportHeading(startOfMonth, endOfMonth);
+
+        // Show range in datepicker
+        $('#InhouseDatepicker').val(
+            startOfMonth.format('DD-MM-YYYY') + ' - ' + endOfMonth.format('DD-MM-YYYY')
+        );
 
 
 
