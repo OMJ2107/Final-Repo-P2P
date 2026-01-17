@@ -3979,7 +3979,91 @@ Procurement Team
 
 
         //For generate pdf for vendors
-        private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items,DateTime expdate)
+        /*  private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items,DateTime expdate)
+          {
+              string filePath = Path.Combine(
+                  Path.GetTempPath(),
+                  $"RFQ_{header.RFQCode}_{DateTime.Now:yyyyMMddHHmmss}.pdf"
+              );
+
+              using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+              {
+                  using (var document = new iTextSharp.text.Document(PageSize.A4, 40f, 40f, 40f, 40f))
+                  {
+                      PdfWriter.GetInstance(document, fs);
+                      document.Open();
+
+
+                      var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
+                      var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
+
+                      Paragraph title = new Paragraph("Request for Quotation (RFQ)", titleFont);
+                      title.Alignment = Element.ALIGN_CENTER;
+                      title.SpacingAfter = 20f;
+                      document.Add(title);
+
+                      PdfPTable headerTable = new PdfPTable(2);
+                      headerTable.WidthPercentage = 100;
+                      headerTable.SetWidths(new float[] { 30f, 70f });
+
+                      headerTable.AddCell(new Phrase("Contact Person:", normalFont));
+                      headerTable.AddCell(new Phrase(header.ContactPerson, normalFont));
+
+                      headerTable.AddCell(new Phrase("Email:", normalFont));
+                      headerTable.AddCell(new Phrase(header.Email, normalFont));
+
+                      headerTable.AddCell(new Phrase("Contact No:", normalFont));
+                      PdfPCell cell = new PdfPCell(new Phrase(header.MobileNo.ToString(), normalFont));
+                      headerTable.AddCell(cell);
+
+
+
+                      headerTable.AddCell(new Phrase("Required Date:", normalFont));
+                      string requiredDateStr = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
+                      headerTable.AddCell(new Phrase(requiredDateStr, normalFont));
+
+                      headerTable.AddCell(new Phrase("Expected Date:", normalFont));
+                     // string expdate = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
+                      headerTable.AddCell(new Phrase(expdate.ToString("dd/MM/yyyy"), normalFont));
+
+                      headerTable.AddCell(new Phrase("Delivery Address:", normalFont));
+                      headerTable.AddCell(new Phrase(header.Address, normalFont));
+
+                      headerTable.AddCell(new Phrase("Note:", normalFont));
+                      headerTable.AddCell(new Phrase(header.Description, normalFont));
+
+                      headerTable.SpacingAfter = 20f;
+                      document.Add(headerTable);
+
+                      PdfPTable itemsTable = new PdfPTable(4);
+                      itemsTable.WidthPercentage = 100;
+                      itemsTable.SetWidths(new float[] { 25f, 40f, 15f, 20f });
+
+                      var boldFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
+                      itemsTable.AddCell(new PdfPCell(new Phrase("Item", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
+                      itemsTable.AddCell(new PdfPCell(new Phrase("Description", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
+                      itemsTable.AddCell(new PdfPCell(new Phrase("Quantity", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
+                      itemsTable.AddCell(new PdfPCell(new Phrase("UOM", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
+
+                      foreach (var item in items)
+                      {
+                          itemsTable.AddCell(new PdfPCell(new Phrase(item.ItemName, normalFont)));
+                          itemsTable.AddCell(new PdfPCell(new Phrase(item.Description, normalFont)));
+                          itemsTable.AddCell(new PdfPCell(new Phrase(item.RequiredQuantity.ToString("N2"), normalFont)) { HorizontalAlignment = Element.ALIGN_RIGHT });
+                          itemsTable.AddCell(new PdfPCell(new Phrase(item.UOMNamee, normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                      }
+
+                      document.Add(itemsTable);
+
+                      document.Close();
+                  }
+              }
+
+              return filePath;
+          }
+  */
+
+        private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items, DateTime expdate)
         {
             string filePath = Path.Combine(
                 Path.GetTempPath(),
@@ -3987,80 +4071,139 @@ Procurement Team
             );
 
             using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (var document = new iTextSharp.text.Document(PageSize.A4, 40f, 40f, 40f, 40f))
             {
-                using (var document = new iTextSharp.text.Document(PageSize.A4, 40f, 40f, 40f, 40f))
+                PdfWriter.GetInstance(document, fs);
+                document.Open();
+
+                // ================= FONTS =================
+                var companyFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14);
+                var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
+                var boldFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
+                var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
+
+                // ================= COMPANY HEADER =================
+                PdfPTable companyTable = new PdfPTable(2);
+                companyTable.WidthPercentage = 100;
+                companyTable.SetWidths(new float[] { 70f, 30f });
+
+                // LEFT SIDE – COMPANY DETAILS
+                PdfPCell leftCell = new PdfPCell();
+                leftCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                leftCell.AddElement(new Paragraph("TradeConnect LLP", companyFont));
+                leftCell.AddElement(new Paragraph(
+                    "676 Visakhapatnam Street, Zone-4\n" +
+                    "Phone: 8661485446\n" +
+                    "Email: branch1@example.com\n" +
+                    "Website: www.tradeconnect.in",
+                    normalFont));
+
+                companyTable.AddCell(leftCell);
+
+                // RIGHT SIDE – DATE & RFQ NO
+                PdfPTable rightTable = new PdfPTable(1);
+                rightTable.WidthPercentage = 100;
+
+                PdfPCell dateCell = new PdfPCell(new Phrase($"DATE : {DateTime.Now:dd/MM/yyyy}", normalFont));
+                dateCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                dateCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                dateCell.Padding = 5;
+                rightTable.AddCell(dateCell);
+
+                PdfPCell rfqCell = new PdfPCell(new Phrase($"RFQ # : {header.RFQCode}", normalFont));
+                rfqCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                rfqCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                rfqCell.Padding = 5;
+                rightTable.AddCell(rfqCell);
+
+                PdfPCell rightWrapper = new PdfPCell(rightTable);
+                rightWrapper.Border = iTextSharp.text.Rectangle.BOX;
+                companyTable.AddCell(rightWrapper);
+
+                document.Add(companyTable);
+                document.Add(new Paragraph("\n"));
+
+                // ================= TITLE =================
+                Paragraph title = new Paragraph("REQUEST FOR QUOTATION (RFQ)", titleFont);
+                title.Alignment = Element.ALIGN_CENTER;
+                title.SpacingAfter = 15f;
+                document.Add(title);
+
+                // ================= RFQ DETAILS =================
+                PdfPTable headerTable = new PdfPTable(2);
+                headerTable.WidthPercentage = 100;
+                headerTable.SetWidths(new float[] { 30f, 70f });
+
+                headerTable.AddCell(new Phrase("Contact Person:", boldFont));
+                headerTable.AddCell(new Phrase(header.ContactPerson, normalFont));
+
+                headerTable.AddCell(new Phrase("Email:", boldFont));
+                headerTable.AddCell(new Phrase(header.Email, normalFont));
+
+                headerTable.AddCell(new Phrase("Contact No:", boldFont));
+                headerTable.AddCell(new Phrase(header.MobileNo.ToString(), normalFont));
+
+                headerTable.AddCell(new Phrase("Item's Required Date:", boldFont));
+                headerTable.AddCell(new Phrase(header.RequiredDate.ToString("dd/MM/yyyy"), normalFont));
+
+                headerTable.AddCell(new Phrase("Quotation Expected Date:", boldFont));
+                headerTable.AddCell(new Phrase(expdate.ToString("dd/MM/yyyy"), normalFont));
+
+                headerTable.AddCell(new Phrase("Delivery Address:", boldFont));
+                headerTable.AddCell(new Phrase(header.Address, normalFont));
+
+                headerTable.AddCell(new Phrase("Note:", boldFont));
+                headerTable.AddCell(new Phrase(header.Description, normalFont));
+
+                headerTable.SpacingAfter = 15f;
+                document.Add(headerTable);
+
+                // ================= ITEMS TABLE =================
+                PdfPTable itemsTable = new PdfPTable(4);
+                itemsTable.WidthPercentage = 100;
+                itemsTable.SetWidths(new float[] { 25f, 40f, 15f, 20f });
+
+                PdfPCell h1 = new PdfPCell(new Phrase("Item", boldFont));
+                h1.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h1.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h1);
+
+                PdfPCell h2 = new PdfPCell(new Phrase("Description", boldFont));
+                h2.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h2.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h2);
+
+                PdfPCell h3 = new PdfPCell(new Phrase("Quantity", boldFont));
+                h3.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h3.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h3);
+
+                PdfPCell h4 = new PdfPCell(new Phrase("UOM", boldFont));
+                h4.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h4.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h4);
+
+                foreach (var item in items)
                 {
-                    PdfWriter.GetInstance(document, fs);
-                    document.Open();
+                    itemsTable.AddCell(new Phrase(item.ItemName, normalFont));
+                    itemsTable.AddCell(new Phrase(item.Description, normalFont));
 
+                    PdfPCell qtyCell = new PdfPCell(new Phrase(item.RequiredQuantity.ToString("N2"), normalFont));
+                    qtyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    itemsTable.AddCell(qtyCell);
 
-                    var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
-                    var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
-
-                    Paragraph title = new Paragraph("Request for Quotation (RFQ)", titleFont);
-                    title.Alignment = Element.ALIGN_CENTER;
-                    title.SpacingAfter = 20f;
-                    document.Add(title);
-
-                    PdfPTable headerTable = new PdfPTable(2);
-                    headerTable.WidthPercentage = 100;
-                    headerTable.SetWidths(new float[] { 30f, 70f });
-
-                    headerTable.AddCell(new Phrase("Contact Person:", normalFont));
-                    headerTable.AddCell(new Phrase(header.ContactPerson, normalFont));
-
-                    headerTable.AddCell(new Phrase("Email:", normalFont));
-                    headerTable.AddCell(new Phrase(header.Email, normalFont));
-
-                    headerTable.AddCell(new Phrase("Contact No:", normalFont));
-                    PdfPCell cell = new PdfPCell(new Phrase(header.MobileNo.ToString(), normalFont));
-                    headerTable.AddCell(cell);
-
-
-
-                    headerTable.AddCell(new Phrase("Required Date:", normalFont));
-                    string requiredDateStr = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
-                    headerTable.AddCell(new Phrase(requiredDateStr, normalFont));
-
-                    headerTable.AddCell(new Phrase("Expected Date:", normalFont));
-                   // string expdate = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
-                    headerTable.AddCell(new Phrase(expdate.ToString("dd/MM/yyyy"), normalFont));
-
-                    headerTable.AddCell(new Phrase("Delivery Address:", normalFont));
-                    headerTable.AddCell(new Phrase(header.Address, normalFont));
-
-                    headerTable.AddCell(new Phrase("Note:", normalFont));
-                    headerTable.AddCell(new Phrase(header.Description, normalFont));
-
-                    headerTable.SpacingAfter = 20f;
-                    document.Add(headerTable);
-
-                    PdfPTable itemsTable = new PdfPTable(4);
-                    itemsTable.WidthPercentage = 100;
-                    itemsTable.SetWidths(new float[] { 25f, 40f, 15f, 20f });
-
-                    var boldFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
-                    itemsTable.AddCell(new PdfPCell(new Phrase("Item", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
-                    itemsTable.AddCell(new PdfPCell(new Phrase("Description", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
-                    itemsTable.AddCell(new PdfPCell(new Phrase("Quantity", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
-                    itemsTable.AddCell(new PdfPCell(new Phrase("UOM", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
-
-                    foreach (var item in items)
-                    {
-                        itemsTable.AddCell(new PdfPCell(new Phrase(item.ItemName, normalFont)));
-                        itemsTable.AddCell(new PdfPCell(new Phrase(item.Description, normalFont)));
-                        itemsTable.AddCell(new PdfPCell(new Phrase(item.RequiredQuantity.ToString("N2"), normalFont)) { HorizontalAlignment = Element.ALIGN_RIGHT });
-                        itemsTable.AddCell(new PdfPCell(new Phrase(item.UOMNamee, normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
-                    }
-
-                    document.Add(itemsTable);
-
-                    document.Close();
+                    PdfPCell uomCell = new PdfPCell(new Phrase(item.UOMNamee, normalFont));
+                    uomCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    itemsTable.AddCell(uomCell);
                 }
+
+                document.Add(itemsTable);
+                document.Close();
             }
 
             return filePath;
         }
+
 
 
         private void SendEmailWithAttachmentSJ(string toEmail, string subject, string body, string attachmentPath)
