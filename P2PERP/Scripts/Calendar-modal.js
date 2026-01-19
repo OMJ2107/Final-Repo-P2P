@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderGoodsReturn(props) {
         if (!props) return;
         const modalTitle = document.querySelector('#eventModal .modal-title');
-        modalTitle.textContent = "Goods Return";
+        modalTitle.textContent = "Purchase Return";
 
         let isAssign = (props.StatusName) === 'Assign';
 

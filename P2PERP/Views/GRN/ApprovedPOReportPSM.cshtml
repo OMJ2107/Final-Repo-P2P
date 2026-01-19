@@ -219,7 +219,8 @@
                         data: "StatusName",
                         render: function (d) {
                             if (d === "Open") return '<span class="badge bg-primary fw-semibold">' + d + '</span>';
-                            if (d === "Approved") return '<span class="badge bg-success fw-semibold">' + d + '</span>';
+                            if (d === "Approved") return '<span class="badge bg-info fw-semibold">' + d + '</span>';
+                            if (d === "Close") return '<span class="badge bg-success fw-semibold">' + d + '</span>';
                             return d || '';
                         }
                     }, //8

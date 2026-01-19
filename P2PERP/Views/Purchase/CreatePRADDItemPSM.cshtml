@@ -978,13 +978,15 @@
             });
 
             // Set the date field
-            var minDateStr = earliestRequiredDate ? earliestRequiredDate.toISOString().split('T')[0] : '';
-            $('#ToDate').val(minDateStr);
-            if (minDateStr) {
-                $('#ToDate').attr('max', minDateStr);
-            } else {
-                $('#ToDate').removeAttr('max');
-            }
+            $('#FromDate').on('change', function () {
+                var fromDate = $(this).val();
+
+                if (fromDate) {
+                    $('#ToDate').attr('min', fromDate);
+                } else {
+                    $('#ToDate').removeAttr('min');
+                }
+            });
 
             // Only open modal after validation passes
             $('#createPRModal').modal('show');
