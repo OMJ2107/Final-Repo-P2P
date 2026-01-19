@@ -68,6 +68,14 @@
                     </thead>
                     <tbody class="text-center"></tbody>
                 </table>
+                <!-- FIXED TOTAL AMOUNT BOX WITH LABEL -->
+                <div class="mt-2 d-flex justify-content-end align-items-center gap-2">
+                    <label for="totalFinalAmount" class="fw-bold">Total Amount:</label>
+                    <input type="text" id="totalFinalAmount"
+                           class="form-control fw-bold text-end"
+                           style="width: 150px;"
+                           readonly placeholder="0.00" />
+                </div>
             </div>
         </div>
     </div>
@@ -93,7 +101,7 @@
             <div style="width:280px;"></div>
         </div>
 
-        <div class="row mb-4">
+        @*<div class="row mb-4">
             <div class="col-md-4 mx-auto">
                 <div class="card text-white bg-info text-center shadow-lg rounded-4" style="background: linear-gradient(135deg, #4e73df, #1cc88a);">
                     <div class="card-body p-2 bg-white">
@@ -103,27 +111,27 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>*@
 
-        <h3 class="text-primary text-center mb-1">GRN Detailed Records</h3>
-        <div class="table-responsive">
-            <table id="GRNSummaryPSM" class="table table-striped table-bordered w-100">
-                <thead class="table-dark">
-                    <tr>
-                        <th><input type="checkbox" id="selectAll" /></th>
-                        <th class="text-center">SR.No</th>
-                        <th class="text-center">GRN No</th>
-                        <th class="text-center">PO No</th>
-                        <th class="text-center">Vendor Name</th>
-                        <th class="text-center">Vendor Company</th>
-                        <th class="text-center">GRN Date</th>
-                        <th class="text-center">Amount</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center"></tbody>
-            </table>
-        </div>
+        @*<h3 class="text-primary text-center mb-1">GRN Detailed Records</h3>*@
+    <div class="table-responsive">
+        <table id="GRNSummaryPSM" class="table table-striped table-bordered w-100">
+            <thead class="table-dark">
+                <tr>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th class="text-center">SR.No</th>
+                    <th class="text-center">GRN No</th>
+                    <th class="text-center">PO No</th>
+                    <th class="text-center">Vendor Name</th>
+                    <th class="text-center">Vendor Company</th>
+                    <th class="text-center">GRN Date</th>
+                    <th class="text-center">Amount</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody class="text-center"></tbody>
+        </table>
+    </div>
     </div>
 </div>
 
@@ -1047,6 +1055,30 @@
                     }
                 }
             ],
+            drawCallback: function () {
+
+                let api = this.api();
+                let total = 0;
+
+                // Final Amount column = index 8
+                api.column(7, { page: "current" }).data().each(function (value) {
+
+                    if (value) {
+                        let cleaned = value
+                            .toString()
+                            .replace(/₹/g, "")
+                            .replace(/,/g, "")
+                            .trim();
+
+                        total += parseFloat(cleaned) || 0;
+                    }
+                });
+
+                // Put total in textbox
+                $("#totalFinalAmount").val(
+                    "₹ " + total.toLocaleString("en-IN", { minimumFractionDigits: 2 })
+                );
+            }
         });
 
         // Fixed: Add event handler for select all items checkbox

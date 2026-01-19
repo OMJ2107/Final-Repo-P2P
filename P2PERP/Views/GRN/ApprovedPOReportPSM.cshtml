@@ -53,23 +53,23 @@
 
             <div class="text-center">
                 <h3 class="text-primary mb-0">
-                   Purchase Order Count by Vendor
+                   Purchase Orders Report
                 </h3>
             </div>
             <div class="mb-1" style="width:280px;"></div>
         </div>
 
         <!-- Donut Chart -->
-        <div class="position-relative border rounded-3 p-3 shadow-sm mb-4">
+        <!--<div class="position-relative border rounded-3 p-3 shadow-sm mb-4">
             <div class="position-absolute top-0 end-0 p-3 text-end">
                 <h6 class="text-muted mb-1">Total Approved POs</h6>
                 <h2 id="poTotalCountPSM" class="text-success fw-bold mb-0">0</h2>
             </div>
             <div class="w-80" id="poDonutChartPSM" style="min-height: 250px;"></div>
-        </div>
+        </div>-->
 
         <!-- Approved PO List -->
-        <h3 class="text-primary text-center">Purchase Orders</h3>
+        @*<h3 class="text-primary text-center">Purchase Orders</h3>*@
         <div class="table-responsive">
             <table id="approvedPOListTablePSM" class="table table-striped text-center table-bordered w-100">
                 <thead class="table-dark text-center">
@@ -108,19 +108,28 @@
                     <thead class="table-dark text-center">
                         <tr>
                             <th><input type="checkbox" id="selectAllChild" /></th>
-                            <th  class="text-center">SR.No</th>
-                            <th  class="text-center">Item Name</th>
-                            <th  class="text-center">Cost Per Unit</th>
-                            <th  class="text-center">Unit Quantity</th>
-                            <th  class="text-center">Discount</th>
-                            <th  class="text-center">Tax Rate</th>
-                            <th  class="text-center">Quality Check</th>
-                            <th  class="text-center">Final Amount</th>
+                            <th class="text-center">SR.No</th>
+                            <th class="text-center">Item Name</th>
+                            <th class="text-center">Cost Per Unit</th>
+                            <th class="text-center">Unit Quantity</th>
+                            <th class="text-center">Discount</th>
+                            <th class="text-center">Tax Rate</th>
+                            <th class="text-center">Quality Check</th>
+                            <th class="text-center">Final Amount</th>
                         </tr>
                     </thead>
-                    <tbody  class="text-center"></tbody>
+                    <tbody class="text-center"></tbody>
                 </table>
+                <!-- FIXED TOTAL AMOUNT BOX WITH LABEL -->
+                <div class="mt-2 d-flex justify-content-end align-items-center gap-2">
+                    <label for="totalFinalAmount" class="fw-bold">Total Amount:</label>
+                    <input type="text" id="totalFinalAmount"
+                           class="form-control fw-bold text-end"
+                           style="width: 150px;"
+                           readonly placeholder="0.00" />
+                </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -1025,6 +1034,30 @@
                     }
                 }
             ],
+            drawCallback: function () {
+
+                let api = this.api();
+                let total = 0;
+
+                // Final Amount column = index 8
+                api.column(8, { page: "current" }).data().each(function (value) {
+
+                    if (value) {
+                        let cleaned = value
+                            .toString()
+                            .replace(/₹/g, "")
+                            .replace(/,/g, "")
+                            .trim();
+
+                        total += parseFloat(cleaned) || 0;
+                    }
+                });
+
+                // Put total in textbox
+                $("#totalFinalAmount").val(
+                    "₹ " + total.toLocaleString("en-IN", { minimumFractionDigits: 2 })
+                );
+            }
         });
 
         // child select all
@@ -1040,7 +1073,6 @@
         $('#poItemsModal').modal('show');
         loadPOItems(poCode);
     });
-
     // ------------------- DONUT CHART -------------------
     function loadPOChartPSM(fromDate, toDate) {
         $.getJSON('@Url.Action("ApprovedPOChartPSM", "GRN")', { startDate: fromDate || "", endDate: toDate || "" }, function (res) {
