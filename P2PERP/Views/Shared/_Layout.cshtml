@@ -493,7 +493,7 @@
                     {
                         if (role == "2")
                         {
-                            <li class="menu-item @(currentAction == "InventoryDashboard" ? "active" : "")">
+                            <li class="menu-item @(currentAction == "InventoryDashboard" || (currentAction == "Index" && currentController == "Inventory") ? "active" : "")">
                                 <a href="@Url.Action("InventoryDashboard", "Inventory")" class="menu-link">
                                     <i class="menu-icon tf-icons bi bi-speedometer2"></i>
                                     <div class="fw-semibold">Inventory Dashboard</div>
