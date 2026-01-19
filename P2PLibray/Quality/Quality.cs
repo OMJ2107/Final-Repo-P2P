@@ -59,12 +59,13 @@ namespace P2PLibray.Quality
     // Confirmed GRN summary
     public class QualityConfirmItemPR
     {
-        public string GRNCode { get; set; }
-        public string VenderName { get; set; }
-        public string AddDate { get; set; }
-        public string QualityCheckDate { get; set; }
+		public string GRNCode { get; set; }
+		public string VenderName { get; set; }
+		public string AddDate { get; set; }
+		public string QualityCheckDate { get; set; }
+		public int ItemCount { get; set; }
 
-    }
+	}
 
     // Detailed confirmed item
     public class ConfirmedItemDetailPSR
@@ -87,7 +88,8 @@ namespace P2PLibray.Quality
         public string QualityCheckDate { get; set; }
         public string QCFailedDate { get; set; }
 		public string Reason { get; set; }
-    }
+		public int ItemCount { get; set; }
+	}
 
     // Detailed failed item info
     public class FailedItemDetailPR

@@ -15,7 +15,7 @@
         <div class="col-md-3"></div>
     </div>
 
-    <table id="Non-confirmItemTable" class="table table-striped table-bordered wrap" style="width:100%">
+    <table id="Non-confirmItesmTable" class="table table-striped table-bordered wrap" style="width:100%">
         <thead class="table-dark">
             <tr>
                 <th><input type="checkbox" id="selectAllNonConfirm" class="small-checkbox" /></th>
@@ -23,8 +23,10 @@
                 <th>GRN Code</th>
                 <th>Vendor Name</th>
                 <th>Add Date</th>
-                <th class="dt-center ">Action</th>
+                <th>Item Count</th> 
+                <th class="dt-center">Action</th>
             </tr>
+
         </thead>
     </table>
 </div>
@@ -927,7 +929,7 @@
                 {
                     data: null,
                     title: 'Sr No',
-                    orderable: false ,
+                    orderable: false,
                     className: 'dt-center',
                     render: function (data, type, row, meta) {
                         return meta.row + 1;
@@ -935,13 +937,13 @@
                 },
                 { data: "GRNCode", orderable: false, className: "dt-center" },
                 { data: "VenderName", orderable: false, className: "dt-center" },
+                { data: "AddDate", orderable: false, className: "dt-center" },
                 {
-                    data: "AddDate",
+                    data: "ItemCount", // ✅ new column
                     orderable: false,
                     className: "dt-center",
                     render: function (data, type, row) {
-                        // Ensure date is properly formatted
-                        return data || '';
+                        return data || 0;
                     }
                 },
                 {
@@ -950,15 +952,16 @@
                     orderable: false,
                     render: function (data, type, row) {
                         return `<button class="btn btn-sm btn-primary view-details-btn"
-                data-grn="${row.GRNCode}"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                title="View Details">
-            <i class="btn-sm bi-eye"></i>
-        </button>`;
+            data-grn="${row.GRNCode}"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="View Details">
+                <i class="btn-sm bi-eye"></i>
+            </button>`;
                     }
                 }
             ],
+
             buttons: mainTableExportButtons
         });
 

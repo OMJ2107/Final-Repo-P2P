@@ -328,7 +328,7 @@
                     <div class="col-md-6">
                         <label for="vBinCode">Bin Code</label>
                         <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control" id="vBinCode" readonly>
+                            <label type="text" class="form-control" id="vBinCode" readonly ></label>
 
                         </div>
 
@@ -1033,7 +1033,7 @@
 
         // Populate view modal
         populateViewModal: function (data) {
-            $("#vBinCode").val(data.BinCode || '');
+            $("#vBinCode").text(data.BinCode || '');
             $("#vBinName").val(data.BinName || '');
             $("#vRow").val(data.RowName || '');
             $("#vRack").val(data.RackName || '');
