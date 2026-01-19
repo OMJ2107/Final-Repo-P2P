@@ -2271,8 +2271,15 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
 
         //string quotationID
-        public ActionResult CreatePOOK()
+        public async Task<ActionResult> CreatePOOK()
         {
+            string POcode = null;
+            SqlDataReader rd= await bal.CreatePOCodeOK();
+            if(rd.Read())
+            {
+                POcode=rd["POCode"].ToString();
+            }
+            ViewBag.POCode = POcode;
             HttpCookie cookie = Request.Cookies["SelectedQuotationID"];
             string quotationId = null;
 

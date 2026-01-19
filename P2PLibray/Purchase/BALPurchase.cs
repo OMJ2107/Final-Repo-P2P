@@ -2053,6 +2053,16 @@ namespace P2PLibray.Purchase
             return ds;
         }
 
+
+
+        public async Task<SqlDataReader> CreatePOCodeOK()
+        {
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("@Flag", "CreatePOCodeOK");
+            SqlDataReader rd= await obj.ExecuteStoredProcedureReturnDataReader("PurchaseProcedure", param);
+            return rd;
+        }
+
         /// <summary>
         /// Saves a purchase order with its header information and associated items.
         /// </summary>
