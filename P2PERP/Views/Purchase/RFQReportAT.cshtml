@@ -17,17 +17,18 @@
                 </div>
             </div>
         </div>
+        <h5 id="reportHeading" class="text-center text-primary fw-bold mb-3"></h5>
 
         <!-- ✅ Chart Section -->
-        <div class="row mb-4">
+        <!--<div class="row mb-4">
             <div class="col-md-12">
                 <div class="card p-3 shadow h-100">
                     <h4 class="text-primary fw-bold text-center mb-3">RFQ Vendors Invited vs Responded</h4>
-                    <h5 id="reportHeading" class="text-center text-primary fw-bold mb-3"></h5>
+
                     <div id="rfqBarChart" style="height:350px;"></div>
                 </div>
             </div>
-        </div>
+        </div>-->
 
 
 
@@ -55,6 +56,7 @@
                         <tr>
                             <th><input type="checkbox" id="selectAll" /></th> <!-- checkbox first -->
                             <th>Sr.</th> <!-- serial number second -->
+                            <th>PR Code</th>
                             <th>RFQ Code</th>
                             <th>Status</th>
                             <th>Added By</th>
@@ -72,15 +74,12 @@
                             <tr>
                                 <td><input type="checkbox" class="rowCheckbox" value="@item.RFQCode" /></td>
                                 <td></td> <!-- serial filled by JS -->
+                                <td>@item.PRCode</td>
                                 <td>@item.RFQCode</td>
                                 <td>@item.StatusName</td>
                                 <td>@item.AddedBy</td>
                                 @*<td>@(DateTime.TryParse(item.AddedDate, out var d) ? d.ToString("dd-MM-yyyy") : "-")</td>*@
-                                <td>
-                                    @(item.AddedDateAT.HasValue
-        ? item.AddedDateAT.Value.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)
-        : "")
-                                </td>
+                                <td>@(item.AddedDateAT.HasValue? item.AddedDateAT.Value.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture): "")</td>
                                 <td>@item.VendorsInvited</td>
                                 <td>@item.VendorsResponded</td>
                                 <td>@item.ResponseRatePercent</td>
@@ -140,7 +139,7 @@
                             <th class="text-center">Sr.</th>
                             <th class="text-center">RQ Code</th>
                             <th class="text-center">Vendor Name</th>
-                            <th class="text-center">Days to Receive Quotation</th>
+                            <th class="text-center">Quotation Date</th>
                             <th class="text-center">Days to Approve Quotation</th>
                             <th class="text-center">Status</th>
                         </tr>
@@ -275,7 +274,8 @@
             columnDefs: [
                 { targets: 0, orderable: false, searchable: false }, // checkbox
                 { targets: 1, orderable: false, searchable: false }, // serial
-                { targets: 4, visible: false }                       // 🔥 hide "Added By" column
+                { targets: 5, visible: false }                       // 🔥 hide "Added By" column
+
             ],
 
 
@@ -295,8 +295,8 @@
             createdRow: function (row, data, dataIndex) {
 
                 // ---- EXISTING STATUS LOGIC (unchanged) ----
-                var status = data[3];
-                var $statusCell = $('td', row).eq(3);
+                var status = data[4];
+                var $statusCell = $('td', row).eq(4);
 
                 if (status === "Requested") {
                     $statusCell.html('<span class="status-badge text-white bg-success">Requested</span>');
@@ -313,12 +313,12 @@
                 //    $('td', row).eq(8).html('<span class="text-muted">NA</span>'); // Generated PO
                 //}
                 // ---- NA LOGIC (SIMILAR TO RFQ EXAMPLE) ----
-                var vendorsInvited = parseInt(data[6], 10); // Vendors Invited
-                var responses = parseInt(data[7], 10);      // Responses
+                var vendorsInvited = parseInt(data[7], 10); // Vendors Invited
+                var responses = parseInt(data[8], 10);      // Responses
 
                 if (vendorsInvited === 0 && responses === 0) {
-                    $('td', row).eq(8).html('<span class="text-muted">NA</span>'); // Response Rate
-                    $('td', row).eq(7).html('<span class="text-muted">NA</span>'); // Generated PO
+                    $('td', row).eq(9).html('<span class="text-muted">NA</span>'); // Response Rate
+                    $('td', row).eq(10).html('<span class="text-muted">NA</span>'); // Generated PO
                 }
             },
 
@@ -335,7 +335,7 @@
                     text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
 
                     exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6, 7, 8, 9], // include Sr.No, exclude checkbox & action
+                        columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // include Sr.No, exclude checkbox & action
                         rows: function (idx, data, node) {
                             return $(node).find('input.rowCheckbox').prop('checked');
                         },
@@ -699,6 +699,8 @@
             ]
 
         });
+        // hide Days To Convert AFTER init
+        table.column(9).visible(false);
 
 
         // ✅ Serial numbers in sequence
@@ -714,25 +716,32 @@
         // ✅ Date filter
 
         $.fn.dataTable.ext.search.push(function (settings, data) {
-            var dateStr = data[5]; // Added Date column
+            var min = $('#startDate').val();
+            var max = $('#endDate').val();
+
+            var dateStr = data[6]; // Added Date column (dd/MM/yyyy)
             if (!dateStr) return true;
 
-            // Split by slash '/'
             var parts = dateStr.split("/");
             if (parts.length !== 3) return true;
 
-            var d = new Date(parts[2], parts[1] - 1, parts[0]);
-            d.setHours(0, 0, 0, 0);
+            var rowDate = new Date(parts[2], parts[1] - 1, parts[0]);
 
-            var s = startDate ? new Date(startDate) : null;
-            var e = endDate ? new Date(endDate) : null;
-            if (s) s.setHours(0, 0, 0, 0);
-            if (e) e.setHours(0, 0, 0, 0);
+            if (min) {
+                var minDate = new Date(min);
+                if (rowDate < minDate) return false;
+            }
 
-            if (s && d < s) return false;
-            if (e && d > e) return false;
+            if (max) {
+                var maxDate = new Date(max);
+                if (rowDate > maxDate) return false;
+            }
 
             return true;
+        });
+
+        $('#startDate, #endDate').on('change', function () {
+            table.draw();
         });
         // 🔹 Default to current month
         var now = moment();
@@ -745,26 +754,39 @@
 
         // Apply filter
         table.draw();
-        updateChart();
+        //updateChart();
 
         // ✅ Checkbox logic
-        $(document).on('change', '#selectAll', function () {
-            var checked = this.checked;
-            $('.rowCheckbox').prop('checked', checked);
+        //$(document).on('change', '#selectAll', function () {
+        //    var checked = this.checked;
+        //    $('.rowCheckbox').prop('checked', checked);
+        //});
+        $('#selectAll').on('change', function () {
+            $('.rowCheckbox').prop('checked', this.checked);
         });
 
+        //$(document).on('change', '.rowCheckbox', function () {
+        //    var total = $('.rowCheckbox').length;
+        //    var checkedCount = $('.rowCheckbox:checked').length;
+        //    if (checkedCount === total) {
+        //        $('#selectAll').prop('checked', true).prop('indeterminate', false);
+        //    } else if (checkedCount === 0) {
+        //        $('#selectAll').prop('checked', false).prop('indeterminate', false);
+        //    } else {
+        //        // remove minus sign completely
+        //        $('#selectAll').prop('checked', false).prop('indeterminate', false);
+        //    }
+        //});
         $(document).on('change', '.rowCheckbox', function () {
             var total = $('.rowCheckbox').length;
-            var checkedCount = $('.rowCheckbox:checked').length;
-            if (checkedCount === total) {
-                $('#selectAll').prop('checked', true).prop('indeterminate', false);
-            } else if (checkedCount === 0) {
-                $('#selectAll').prop('checked', false).prop('indeterminate', false);
-            } else {
-                // remove minus sign completely
-                $('#selectAll').prop('checked', false).prop('indeterminate', false);
-            }
+            var checked = $('.rowCheckbox:checked').length;
+
+            $('#selectAll').prop({
+                checked: checked === total,
+                indeterminate: checked > 0 && checked < total
+            });
         });
+
 
         // ✅ Date range picker
         $('#dateRange').daterangepicker({
@@ -785,7 +807,8 @@
                 'Last 6 Months': [moment().subtract(6, 'months'), moment()],
                 'Last 1 Year': [moment().subtract(1, 'year'), moment()]
             }
-        }, function (start, end) {
+        },
+        function (start, end) {
 
             startDate = start.toDate();
             endDate = end.toDate();
@@ -820,73 +843,74 @@
             $('#reportHeading').text(headingText);
 
             table.draw();
-            updateChart();
+            //updateChart();
         });
+        
 
         $('#dateRange').val('Select Date Range');
 
         // ✅ Build/Update Highcharts bar chart (same as your existing updateChart function)
-        function buildChart(rfqCodes, invitedData, respondedData, totalRFQs) {
-            rfqChart = Highcharts.chart('rfqBarChart', {
-                chart: { type: 'column' },
-                title: { text: null },
-                subtitle: {
-                    text: '<span style="font-size:32px; font-weight:bold;">Total RFQs: ' + totalRFQs + '</span>',
-                    align: 'left', verticalAlign: 'top', x: 10, y: 20, useHTML: true
-                },
-                xAxis: { categories: rfqCodes, crosshair: true },
-                yAxis: { min: 0, title: { text: 'Count' } },
-                tooltip: { shared: true },
-                plotOptions: { column: { grouping: true, shadow: false, borderWidth: 0 } },
-                series: [
-                    { name: 'Vendors Invited', data: invitedData, color: '#007bff' },
-                    { name: 'Vendors Responded', data: respondedData, color: '#28a745' }
-                ]
-            });
-        }
+        //function buildChart(rfqCodes, invitedData, respondedData, totalRFQs) {
+        //    rfqChart = Highcharts.chart('rfqBarChart', {
+        //        chart: { type: 'column' },
+        //        title: { text: null },
+        //        subtitle: {
+        //            text: '<span style="font-size:32px; font-weight:bold;">Total RFQs: ' + totalRFQs + '</span>',
+        //            align: 'left', verticalAlign: 'top', x: 10, y: 20, useHTML: true
+        //        },
+        //        xAxis: { categories: rfqCodes, crosshair: true },
+        //        yAxis: { min: 0, title: { text: 'Count' } },
+        //        tooltip: { shared: true },
+        //        plotOptions: { column: { grouping: true, shadow: false, borderWidth: 0 } },
+        //        series: [
+        //            { name: 'Vendors Invited', data: invitedData, color: '#007bff' },
+        //            { name: 'Vendors Responded', data: respondedData, color: '#28a745' }
+        //        ]
+        //    });
+        //}
 
-        function updateChart() {
-            var rfqData = [];
-            table.rows({ filter: 'applied' }).every(function () {
-                var d = this.data();
-                var addedDateStr = d[5];
-                var parts = addedDateStr.split("-");
-                var addedDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                var responded = parseInt(d[7]) || 0;
-                if (responded > 0) {
-                    rfqData.push({
-                        rfqCode: d[2],
-                        invited: parseInt(d[6]) || 0,
-                        responded: responded,
-                        date: addedDate
-                    });
-                }
-            });
+        //function updateChart() {
+        //    var rfqData = [];
+        //    table.rows({ filter: 'applied' }).every(function () {
+        //        var d = this.data();
+        //        var addedDateStr = d[6];
+        //        var parts = addedDateStr.split("-");
+        //        var addedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+        //        var responded = parseInt(d[8]) || 0;
+        //        if (responded > 0) {
+        //            rfqData.push({
+        //                rfqCode: d[3],
+        //                invited: parseInt(d[7]) || 0,
+        //                responded: responded,
+        //                date: addedDate
+        //            });
+        //        }
+        //    });
 
-            rfqData.sort((a, b) => b.date - a.date);
-            var chartData = rfqData.slice(0, 15);
+        //    rfqData.sort((a, b) => b.date - a.date);
+        //    var chartData = rfqData.slice(0, 15);
 
-            var rfqCodes = chartData.map(x => x.rfqCode);
-            var invitedData = chartData.map(x => x.invited);
-            var respondedData = chartData.map(x => x.responded);
-            var totalRFQs = table.rows({ filter: 'applied' }).count();
+        //    var rfqCodes = chartData.map(x => x.rfqCode);
+        //    var invitedData = chartData.map(x => x.invited);
+        //    var respondedData = chartData.map(x => x.responded);
+        //    var totalRFQs = table.rows({ filter: 'applied' }).count();
 
-            if (rfqChart) {
-                rfqChart.xAxis[0].setCategories(rfqCodes, false);
-                rfqChart.series[0].setData(invitedData, false);
-                rfqChart.series[1].setData(respondedData, false);
-                rfqChart.setSubtitle({
-                    text: '<span style="font-size:32px; font-weight:bold;">Total RFQs: ' + totalRFQs + '</span>',
-                    align: 'left', verticalAlign: 'top', x: 10, y: 20, useHTML: true
-                });
-                rfqChart.redraw();
-            } else {
-                buildChart(rfqCodes, invitedData, respondedData, totalRFQs);
-            }
-        }
+        //    if (rfqChart) {
+        //        rfqChart.xAxis[0].setCategories(rfqCodes, false);
+        //        rfqChart.series[0].setData(invitedData, false);
+        //        rfqChart.series[1].setData(respondedData, false);
+        //        rfqChart.setSubtitle({
+        //            text: '<span style="font-size:32px; font-weight:bold;">Total RFQs: ' + totalRFQs + '</span>',
+        //            align: 'left', verticalAlign: 'top', x: 10, y: 20, useHTML: true
+        //        });
+        //        rfqChart.redraw();
+        //    } else {
+        //        buildChart(rfqCodes, invitedData, respondedData, totalRFQs);
+        //    }
+        //}
 
-        updateChart();
-        table.on('draw', function () { updateChart(); });
+        //updateChart();
+        //table.on('draw', function () { updateChart(); });
 
 
         // ✅ Utility: show warning toast
@@ -922,7 +946,7 @@
             $('#reportHeading').text(now.format('MMMM YYYY'));
 
             table.draw();
-            updateChart();
+            //updateChart();
         });
 
 
@@ -965,16 +989,29 @@
                             `;
 
 
+                    //        $tbody.append(`
+                    //    <tr>
+                    //        <td>${i + 1}</td>
+                    //        <td>${item.RegisterQuotationCode}</td>
+                    //        <td>${item.VendorName}</td>
+                    //        <td>${item.QuotationDate
+                    //                ? moment(item.QuotationDate).format('DD/MM/YYYY')
+                    //                : ''}</td>
+                    //        <td>${item.DaysToApproveQuotation ?? ''}</td>
+                    //        <td class="text-center">${statusBadge}</td>
+                    //    </tr>
+                            //`);
                             $tbody.append(`
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${item.RegisterQuotationCode}</td>
-                            <td>${item.VendorName}</td>
-                            <td>${item.DaysToReceiveQuotation}</td>
-                            <td>${item.DaysToApproveQuotation ?? ''}</td>
-                            <td class="text-center">${statusBadge}</td>
-                        </tr>
-                    `);
+<tr>
+    <td>${i + 1}</td>
+    <td>${item.RegisterQuotationCode}</td>
+    <td>${item.VendorName}</td>
+    <td>${item.QuotationDateAT? moment(item.QuotationDateAT).format('DD/MM/YYYY'): ''}</td>
+    <td>${item.DaysToApproveQuotation ?? ''}</td>
+    <td class="text-center">${statusBadge}</td>
+</tr>
+`);
+
                         });
 
                         // 🔹 Reinitialize DataTable (with desired settings)
