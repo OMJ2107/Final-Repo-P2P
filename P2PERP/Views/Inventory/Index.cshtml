@@ -14,10 +14,10 @@
         transition: all 0.35s ease-in-out;
     }
 
-        .hover-shadow:hover {
-            transform: translateY(-6px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
-        }
+    .hover-shadow:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    }
 
     .bottom-border {
         height: 4px;
@@ -38,6 +38,10 @@
 
     .card-border-shadow-warning {
         border-left: 5px solid #f6c23e !important;
+    }
+
+    .card-border-shadow-danger {
+        border-left: 5px solid #dc3545 !important;
     }
 
     .card-border-shadow-info {
@@ -68,9 +72,9 @@
         transition: transform 0.3s ease;
     }
 
-        #dateFilterBtn:hover {
-            transform: rotate(10deg) scale(1.05);
-        }
+    #dateFilterBtn:hover {
+        transform: rotate(10deg) scale(1.05);
+    }
 
     /* Highcharts Gradient Glow */
     .highcharts-point {
@@ -97,9 +101,9 @@
         transition: all 0.3s ease;
     }
 
-        .chart-container:hover {
-            transform: scale(1.01);
-        }
+    .chart-container:hover {
+        transform: scale(1.01);
+    }
 
     /* Table Enhancements */
     #chartDataTable th {
@@ -116,75 +120,98 @@
 
     <!-- Floating Draggable Date Filter -->
     <button id="dateFilterBtn"
-            class="btn btn-primary btn-lg rounded-circle shadow-lg position-fixed d-flex align-items-center justify-content-center ripple"
-            style="top: 90px; right: 20px; width: 65px; height: 65px; z-index: 1050;">
+        class="btn btn-primary btn-lg rounded-circle shadow-lg position-fixed d-flex align-items-center justify-content-center ripple"
+        style="top: 90px; right: 20px; width: 65px; height: 65px; z-index: 1050;">
         <i class="bi bi-calendar-date fs-3"></i>
     </button>
     <input type="text" id="reportrange" style="display:none;" />
 
     <!-- ====== Statistics Cards ====== -->
     <div class="pb-4">
-        <div class="row g-4">
+        <div class="row g-4 justify-content-center">
 
-            <div class="col-sm-6 col-lg-3">
-                <div class="card card-border-shadow-primary hover-shadow position-relative">
+            <!-- Inventory Value -->
+            <div class="col-sm-6 col-lg-3" onclick="openModalWithData('InventoryValueAll', 'TotalStock')">
+                <div class="card card-border-shadow-primary hover-shadow position-relative h-100" style="cursor: pointer;">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-2">
                             <div class="avatar bg-label-primary me-3">
-                                <i class="ri ri-building-4-line text-primary fs-5"></i>
+                                <i class="bi bi-cash-stack text-primary fs-5"></i>
                             </div>
-                            <h4 id="WareHouse" class="mb-0 fw-bold text-primary">0</h4>
+                            <h5 id="inventoryValue" class="mb-0 fw-bold text-primary">0</h5>
                         </div>
-                        <h6 class="text-muted">Warehouses</h6>
+                        <h6 id="lblInventoryValue" class="text-muted small">Inventory Value</h6>
                     </div>
                     <div class="bottom-border bg-primary"></div>
                 </div>
             </div>
 
-            <div class="col-sm-6 col-lg-3">
-                <div class="card card-border-shadow-success hover-shadow position-relative">
+            <!-- High Consumption Items Value -->
+            <div class="col-sm-6 col-lg-3" onclick="openModalWithData('HighConsumption', 'MostStock')">
+                <div class="card card-border-shadow-success hover-shadow position-relative h-100" style="cursor: pointer;">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-2">
                             <div class="avatar bg-label-success me-3">
-                                <i class="ri ri-layout-column-line text-success fs-5"></i>
+                                <i class="bi bi-lightning-charge text-success fs-5"></i>
                             </div>
-                            <h4 id="Rack" class="mb-0 fw-bold text-success">0</h4>
+                            <h5 id="highConsumptionValue" class="mb-0 fw-bold text-success">0</h5>
                         </div>
-                        <h6 class="text-muted">Racks</h6>
+                        <h6 id="lblHighConsumptionValue" class="text-muted small">High Consumption Value</h6>
                     </div>
                     <div class="bottom-border bg-success"></div>
                 </div>
             </div>
 
-            <div class="col-sm-6 col-lg-3">
-                <div class="card card-border-shadow-warning hover-shadow position-relative">
+            <!-- Non Moving Items Value -->
+            <div class="col-sm-6 col-lg-3" onclick="openModalWithData('NonMoving', 'DeadStock')">
+                <div class="card card-border-shadow-danger hover-shadow position-relative h-100" style="cursor: pointer;">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="avatar bg-label-danger me-3">
+                                <i class="bi bi-x-circle text-danger fs-5"></i>
+                            </div>
+                            <h5 id="nonMovingValue" class="mb-0 fw-bold text-danger">0</h5>
+                        </div>
+                        <h6 id="lblNonMovingValue" class="text-muted small">Non Moving Items Value</h6>
+                    </div>
+                    <div class="bottom-border bg-danger"></div>
+                </div>
+            </div>
+
+
+
+            <!-- Material Received Value -->
+            @*<div class="col-sm-6 col-lg-3">
+            <div class="card card-border-shadow-info hover-shadow position-relative h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="avatar bg-label-info me-3">
+                            <i class="bi bi-box-seam text-info fs-5"></i>
+                        </div>
+                        <h5 id="receivedValue" class="mb-0 fw-bold text-info">0</h5>
+                    </div>
+                    <h6 class="text-muted small">Received Value</h6>
+                </div>
+                <div class="bottom-border bg-info"></div>
+            </div>
+        </div>*@
+
+            <!-- Material Issued Value -->
+            <div class="col-sm-6 col-lg-3" onclick="openModalWithData('IssuedValue', '')">
+                <div class="card card-border-shadow-warning hover-shadow position-relative h-100" style="cursor: pointer;">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-2">
                             <div class="avatar bg-label-warning me-3">
-                                <i class="ri ri-box-3-line text-warning fs-5"></i>
+                                <i class="bi bi-arrow-up-right-circle text-warning fs-5"></i>
                             </div>
-                            <h4 id="Bins" class="mb-0 fw-bold text-warning">0</h4>
+                            <h5 id="issuedValue" class="mb-0 fw-bold text-warning">0</h5>
                         </div>
-                        <h6 class="text-muted">Bins</h6>
+                        <h6 id="lblIssuedValue" class="text-muted small">Issued Value</h6>
                     </div>
                     <div class="bottom-border bg-warning"></div>
                 </div>
             </div>
 
-            <div class="col-sm-6 col-lg-3">
-                <div class="card card-border-shadow-info hover-shadow position-relative">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="avatar bg-label-info me-3">
-                                <i class="ri ri-grid-line text-info fs-5"></i>
-                            </div>
-                            <h4 id="Section" class="mb-0 fw-bold text-info">0</h4>
-                        </div>
-                        <h6 class="text-muted">Sections</h6>
-                    </div>
-                    <div class="bottom-border bg-info"></div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -207,7 +234,8 @@
 
         <div class="col-lg-12">
             <div class="card p-3 shadow-sm rounded-4">
-                <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Issue in House</h6>
+                <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Issue in House
+                </h6>
                 <div id="issueHouse" class="chart-container"></div>
             </div>
         </div>
@@ -218,7 +246,7 @@
 <div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white align-content-center" >
+            <div class="modal-header bg-primary text-white align-content-center">
                 <h5 id="chartModalLabel" class="modal-title w-100 text-center text-white">Details</h5>
                 <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -431,7 +459,11 @@
         let headingMap = {
             "InventoryStocks": "Inventory Stocks",
             "InventoryBreakdown": "Inventory Breakdown",
-            "IssueHouse": "Issue in House"
+            "IssueHouse": "Issue in House",
+            "InventoryValueAll": "Inventory Value Details",
+            "HighConsumption": "High Consumption Value Details",
+            "NonMoving": "Non Moving Items Value Details",
+            "IssuedValue": "Issued Value Details"
         };
 
         // Set dynamic modal heading
@@ -443,7 +475,11 @@
         let urlMap = {
             "InventoryStocks": "/Inventory/GetInventoryStockDetailsHSB",
             "InventoryBreakdown": "/Inventory/GetCategoryDetailsHSB",
-            "IssueHouse": "/Inventory/getIssueInHouseDetailsHSB"
+            "IssueHouse": "/Inventory/getIssueInHouseDetailsHSB",
+            "InventoryValueAll": "/Inventory/GetInventoryStockDetailsHSB",
+            "HighConsumption": "/Inventory/GetInventoryStockDetailsHSB",
+            "NonMoving": "/Inventory/GetCategoryDetailsHSB",
+            "IssuedValue": "/Inventory/getIssueInHouseDetailsHSB"
         };
         let url = urlMap[chartType] || "";
 
@@ -451,6 +487,12 @@
         if ($.fn.DataTable.isDataTable('#chartDataTable')) {
             $('#chartDataTable').DataTable().clear().destroy();
             $('#chartDataTable thead').empty();
+            $('#chartDataTable tfoot').remove(); // Clear footer too
+        }
+
+        // Initialize Footer if it doesn't exist
+        if ($('#chartDataTable tfoot').length === 0) {
+            $('#chartDataTable').append('<tfoot><tr></tr></tfoot>');
         }
 
         // Filters
@@ -483,15 +525,16 @@
 
 
         // Dynamic columns per chart
-        if (chartType === "InventoryStocks") {
+        if (chartType === "InventoryStocks" || chartType === "InventoryValueAll" || chartType === "HighConsumption") {
             columns.push(
                 { data: "ItemName", title: "Item Name" },
                 { data: "ItemCode", title: "Item Code" },
                 { data: "ItemsCounts", title: "Items Count" },
                 { data: "ReorderQuantity", title: "Reorder Count" },
-                { data: "BinCode", title: "Bins" }
+                { data: "BinCode", title: "Bins" },
+                { data: "TotalValue", title: "Total Value" }
             );
-        } else if (chartType === "InventoryBreakdown") {
+        } else if (chartType === "InventoryBreakdown" || chartType === "NonMoving") {
             columns.push(
                 { data: "ItemName", title: "Item Name" },
                 { data: "ItemCode", title: "Item Code" },
@@ -502,14 +545,14 @@
                     render: function (data, type, row) {
                         // Check if date is valid
                         if (!data) return "";
-                        return moment(data).format("DD/MM/YYYY"); // Change to your desired format
+                        return moment(data).format("DD/MM/YYYY");
                     }
-                }
+                },
+                { data: "TotalValue", title: "Total Value" }
             );
-        } else if (chartType === "IssueHouse") {
+        } else if (chartType === "IssueHouse" || chartType === "IssuedValue") {
             columns.push(
                 { data: "ItemName", title: "Item Name" },
-                //{ data: "BinCode", title: "Bin" },
                 { data: "ItemsCounts", title: "Quantity" },
                 {
                     data: "AddedDate",
@@ -517,9 +560,10 @@
                     render: function (data, type, row) {
                         // Check if date is valid
                         if (!data) return "";
-                        return moment(data).format("DD/MM/YYYY"); // Change to your desired format
+                        return moment(data).format("DD/MM/YYYY");
                     }
-                }
+                },
+                { data: "TotalValue", title: "Total Value" }
             );
         }
 
@@ -545,19 +589,72 @@
                     if (filterValue === "RawMaterial") return json.RawMaterial || [];
                     if (filterValue === "DeadStock") return json.DeadStock || [];
 
-                    if (chartType === "IssueHouse") return json.IssueHouse || json || [];
+                    if (chartType === "IssueHouse" || chartType === "IssuedValue") return json.IssueHouse || json || [];
+
+                    // Explicitly handle mapped types return if they fall through logic
+                    if (chartType === "InventoryValueAll") return json.TotalStock || [];
+                    if (chartType === "HighConsumption") return json.MostStock || [];
+                    if (chartType === "NonMoving") return json.DeadStock || [];
 
                     return json || [];
                 }
             },
             columns: columns,
             ordering: false,
+            footerCallback: function (row, data, start, end, display) {
+                var api = this.api();
+
+                // Helper to remove currency symbols/formatting
+                var intVal = function (i) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '') * 1 :
+                        typeof i === 'number' ?
+                            i : 0;
+                };
+
+                // Find index of "Total Value" column
+                let totalValueIndex = -1;
+                api.columns().every(function (index) {
+                    if (this.header().innerText.trim() === "Total Value") {
+                        totalValueIndex = index;
+                    }
+                });
+
+                // Clear entire footer first
+                $(api.table().footer()).empty();
+
+                if (totalValueIndex > -1) {
+                    // Calculate Total
+                    var grandTotal = api
+                        .column(totalValueIndex, { page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    // Create footer row if empty
+                    let $footerRow = $('<tr>').appendTo($(api.table().footer()));
+
+                    // Add empty cells for preceding columns
+                    for (let i = 0; i < totalValueIndex - 1; i++) {
+                        $('<th>').appendTo($footerRow);
+                    }
+
+                    // Add Label
+                    $('<th class="text-end fw-bold">Grand Total:</th>').appendTo($footerRow);
+
+                    // Add Total Value
+                    $('<th class="fw-bold">').text(new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(grandTotal)).appendTo($footerRow);
+                }
+            },
+
             buttons: [
                 // PRINT
                 {
                     extend: 'print',
                     text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
                     title: '',
+                    footer: true,
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -566,6 +663,10 @@
                         format: {
                             body: function (data, row, column, node) {
                                 if (column === 1) return ++exportRowIndex;
+                                return data;
+                            },
+                            footer: function (data, column, row) {
+                                // Simple return for now, actual custom print footer needs 'customize'
                                 return data;
                             }
                         }
@@ -613,7 +714,7 @@
 
                         $body.append(`
     <style>
-        thead th {
+        thead th, tfoot th {
             background-color: black !important;
             color: white !important;
             text-align: center !important;
@@ -633,6 +734,7 @@
                     extend: 'pdf',
                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                     title: 'Inventory Report',
+                    footer: true,
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -724,6 +826,7 @@
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                     title: null,
                     filename: 'Inventory Report',
+                    footer: true,
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('.row-select').prop('checked');
@@ -1285,6 +1388,7 @@
         loadInventoryStocks();
         loadInventoryBreakdown();
         loadIssueHouse();
+        loadDashboardMetrics();
     }
 
 
@@ -1323,24 +1427,34 @@
     }
 
 
-    $.get("/Inventory/getTotalBinHSB", function (data) {
+    function loadDashboardMetrics() {
+        $.get("/Inventory/GetInventoryDashboardMetricsHSB", getFilterParams(), function (data) {
 
-        var bin = $("#Bins");
-        var Rack = $("#Rack");
-        var WareHouse = $("#WareHouse");
-        var Section = $("#Section");
+            // Format as currency (assuming INR or just number with commas)
+            const formatCurrency = (val) => {
+                return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
+            };
 
-        bin.text(data.Bin);
-        Rack.text(data.Rack);
-        WareHouse.text(data.WareHouse);
-        Section.text(data.Section);
+            $("#nonMovingValue").text(formatCurrency(data.NonMovingItemsValue));
+            $("#highConsumptionValue").text(formatCurrency(data.HighConsumptionItemsValue));
+            $("#inventoryValue").text(formatCurrency(data.InventoryValue));
+            $("#receivedValue").text(formatCurrency(data.MaterialReceivedValue));
+            $("#issuedValue").text(formatCurrency(data.MaterialIssuedValue));
 
-    });
+            // Dynamic Labels
+            let filterText = "";
+            if (startDate && endDate) {
+                filterText = ` (${startDate.format("MMM D")} - ${endDate.format("MMM D")})`;
+            }
+
+            $("#lblInventoryValue").text("Inventory Value" + filterText);
+            $("#lblHighConsumptionValue").text("High Consumption Value" + filterText);
+            $("#lblNonMovingValue").text("Non Moving Items Value" + filterText);
+            $("#lblIssuedValue").text("Issued Value" + filterText);
+        });
+    }
 
 
 
 
 </script>
-
-
-
