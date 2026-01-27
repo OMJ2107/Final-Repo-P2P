@@ -441,8 +441,7 @@
                 <ul class="menu-inner py-1">
                     @if (role == "5") // Purchase Requisition User
                     {
-                        <li
-                            class="menu-item @(currentAction.Contains("CreatePRADDItemPSM") || currentAction.Contains("AllRequisitionSP") ? "active open" : "")">
+                        <li class="menu-item @(currentAction.Contains("CreatePRADDItemPSM") || currentAction.Contains("AllRequisitionSP") ? "active open" : "")">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-layout-text-sidebar me-3 fs-5"></i>
                                 <div class="fw-semibold">Purchase Requisition</div>
@@ -486,15 +485,13 @@
 
                     @if (role == "8") // Purchase Manager
                     {
-                        <li
-                            class="menu-item @(currentAction.Contains("UserDashboardPRK") || currentAction.Contains("ShowPendingPRPRK") || currentAction.Contains("SupplierQuotationAMG") || currentAction.Contains("PurchaseOrdersVNK") || currentAction.Contains("VenderManagementOK") ? "active open" : "")">
+                        <li class="menu-item @(currentAction.Contains("UserDashboardPRK") || currentAction.Contains("ShowPendingPRPRK") || currentAction.Contains("SupplierQuotationAMG") || currentAction.Contains("PurchaseOrdersVNK") || currentAction.Contains("VenderManagementOK") ? "active open" : "")">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-speedometer me-3 fs-5"></i>
                                 <div class="fw-semibold">Manager Dashboard</div>
                             </a>
                             <ul class="menu-sub slide-transition">
-                                <li
-                                    class="menu-item @(ViewContext.RouteData.Values["action"].ToString() == "UserDashboardPRK" ? "active" : "")">
+                                <li class="menu-item @(ViewContext.RouteData.Values["action"].ToString() == "UserDashboardPRK" ? "active" : "")">
                                     <a href="@Url.Action("UserDashboardPRK", "Purchase")" class="menu-link">
                                         <div>Purchase Dashboard</div>
                                     </a>
@@ -526,8 +523,7 @@
                             </ul>
                         </li>
 
-                        <li
-                            class="menu-item @(currentAction.Contains("PurchaseRequestTableAT") || currentAction.Contains("RFQReportAT") || currentAction.Contains("PurchaseOrderReportAT") ? "active open" : "")">
+                        <li class="menu-item @(currentAction.Contains("PurchaseRequestTableAT") || currentAction.Contains("RFQReportAT") || currentAction.Contains("PurchaseOrderReportAT") ? "active open" : "")">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-bar-chart-line me-3 fs-5"></i>
                                 <div class="fw-semibold">Reports</div>
@@ -557,32 +553,23 @@
 
                     @if (role == "9") // PO User
                     {
-                        <li
-                            class="menu-item @(currentAction.Contains("SelectedQuotationListShowOK") || currentAction.Contains("PurchaseOrederHistoryOK") || currentAction.Contains("JustInTimeItemListOK") ? "active open" : "")">
-                            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                <i class="menu-icon tf-icons bi bi-cart4 me-3 fs-5"></i>
-                                <div class="fw-semibold">PO User Dashboard</div>
+                        <li class="menu-item @(currentAction == "SelectedQuotationListShowOK" ? "active" : "")">
+                            <a href="@Url.Action("SelectedQuotationListShowOK", "Purchase")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-inbox me-3"></i>
+                                <div>Receive Quotation</div>
                             </a>
-                            <ul class="menu-sub slide-transition">
-                                <li class="menu-item @(currentAction == "SelectedQuotationListShowOK" ? "active" : "")">
-                                    <a href="@Url.Action("SelectedQuotationListShowOK", "Purchase")" class="menu-link">
-                                        <i class="menu-icon tf-icons bi bi-inbox me-3"></i>
-                                        <div>Receive Quotation</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item @(currentAction == "JustInTimeItemListOK" ? "active" : "")">
-                                    <a href="@Url.Action("JustInTimeItemListOK", "Purchase")" class="menu-link">
-                                        <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
-                                        <div>Just In Time</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item @(currentAction == "PurchaseOrederHistoryOK" ? "active" : "")">
-                                    <a href="@Url.Action("PurchaseOrederHistoryOK", "Purchase")" class="menu-link">
-                                        <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
-                                        <div>Purchase Order History</div>
-                                    </a>
-                                </li>
-                            </ul>
+                        </li>
+                        <li class="menu-item @(currentAction == "JustInTimeItemListOK" ? "active" : "")">
+                            <a href="@Url.Action("JustInTimeItemListOK", "Purchase")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
+                                <div>Just In Time</div>
+                            </a>
+                        </li>
+                        <li class="menu-item @(currentAction == "PurchaseOrederHistoryOK" ? "active" : "")">
+                            <a href="@Url.Action("PurchaseOrederHistoryOK", "Purchase")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
+                                <div>Purchase Order History</div>
+                            </a>
                         </li>
                     }
 
@@ -590,16 +577,14 @@
                     {
                         if (role == "2")
                         {
-                            <li
-                                class="menu-item @(currentAction == "InventoryDashboard" || (currentAction == "Index" && currentController == "Inventory") ? "active" : "")">
+                            <li class="menu-item @(currentAction == "InventoryDashboard" || (currentAction == "Index" && currentController == "Inventory") ? "active" : "")">
                                 <a href="@Url.Action("InventoryDashboard", "Inventory")" class="menu-link">
                                     <i class="menu-icon tf-icons bi bi-speedometer2"></i>
                                     <div class="fw-semibold">Inventory Dashboard</div>
                                 </a>
                             </li>
 
-                            <li
-                                class="menu-item @(currentAction.Contains("CategorySSG") || currentAction.Contains("WHIndex") ? "active open" : "")">
+                            <li class="menu-item @(currentAction.Contains("CategorySSG") || currentAction.Contains("WHIndex") ? "active open" : "")">
                                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                                     <i class="menu-icon tf-icons bi bi-gear"></i>
                                     <div class="fw-semibold">Master Data</div>
@@ -623,8 +608,7 @@
 
                         if (role == "3")
                         {
-                            <li
-                                class="menu-item @(currentAction.Contains("ReceiveMaterialDRB") || currentAction.Contains("IssueInHouseDRB") ? "active open" : "")">
+                            <li class="menu-item @(currentAction.Contains("ReceiveMaterialDRB") || currentAction.Contains("IssueInHouseDRB") ? "active open" : "")">
                                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                                     <i class="menu-icon tf-icons bi bi-arrow-left-right"></i>
                                     <div class="fw-semibold">Transaction</div>
@@ -658,8 +642,7 @@
 
                         if (role == "2" || role == "4")
                         {
-                            <li
-                                class="menu-item @(currentAction.Contains("ShowStocklevelMHB") || currentAction.Contains("JITStockMHB") || currentAction.Contains("ISRStockMHB") || currentAction.Contains("NewplanMHB") || currentAction.Contains("StockMasterRHK") || currentAction.Contains("ReqMasterRHK") || currentAction.Contains("ManagerApprovalMHB") ? "active open" : "")">
+                            <li class="menu-item @(currentAction.Contains("ShowStocklevelMHB") || currentAction.Contains("JITStockMHB") || currentAction.Contains("ISRStockMHB") || currentAction.Contains("NewplanMHB") || currentAction.Contains("StockMasterRHK") || currentAction.Contains("ReqMasterRHK") || currentAction.Contains("ManagerApprovalMHB") ? "active open" : "")">
                                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                                     <i class="menu-icon tf-icons bi bi-bar-chart"></i>
                                     <div class="fw-semibold">Stock Planning</div>
@@ -719,19 +702,18 @@
 
                         if (role == "2")
                         {
-                            <li
-                                class="menu-item @(currentAction.Contains("CurrentStockReportAMG") || currentAction.Contains("ReceivedMaterialReport") || currentAction.Contains("InhouseTransferReportVAMG") ? "active open" : "")">
+                            <li class="menu-item @(currentAction.Contains("CurrentStockReportAMG") || currentAction.Contains("ReceivedMaterialReport") || currentAction.Contains("InhouseTransferReportVAMG") ? "active open" : "")">
                                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                                     <i class="menu-icon tf-icons bi bi-bar-chart-line"></i>
                                     <div class="fw-semibold">Reports</div>
                                 </a>
                                 <ul class="menu-sub">
                                     @*<li class="menu-item @(currentAction == "CurrentStockReportAMG" ? "active" : "")">
-                                            <a href="@Url.Action("CurrentStockReportAMG", "Inventory")" class="menu-link">
-                                                <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
-                                                <div>Current Stock Reports</div>
-                                            </a>
-                                        </li>*@
+                            <a href="@Url.Action("CurrentStockReportAMG", "Inventory")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
+                                <div>Current Stock Reports</div>
+                            </a>
+                        </li>*@
                                     <li class="menu-item @(currentAction == "ReceivedMaterialReport" ? "active" : "")">
                                         <a href="@Url.Action("ReceivedMaterialReportAMG", "Inventory")" class="menu-link">
                                             <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
