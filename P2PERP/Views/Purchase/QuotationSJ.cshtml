@@ -56,10 +56,12 @@
     #tblRecent td,
     #tblPRItems td,
     #tblRFQDetails td,
-    #tblVendors td {
+    #vendorsTable th,
+    #vendorsTable td {
         text-align: center;
         vertical-align: middle;
     }
+
 
     #rfqList h6 {
         text-align: center;
@@ -893,10 +895,10 @@
 
         // --- When opening vendor container ---
         $(document).on("click", "#btnSendRFQ", function () {
-
-            // 🔹 Hide main header & tabs
-            $("#pageHeader").hide();
-            $(".row.mb-4.justify-content-start").hide();
+            $("#vendorContainer").hide();
+            $("#rfqList").show(); // or show quotationList if you want to return to PR view
+            $("#pageHeader").text("All RFQs").show();
+            $(".row.mb-4.justify-content-start").show(); // show the tab buttons again
         });
 
         // --- When returning from vendor container ---
@@ -1087,7 +1089,7 @@
                             // PDF Export button
                             {
                                 extend: 'pdfHtml5',
-                                text: '<i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                                 titleAttr: 'PDF',
                                 title: 'PR List',
                                 orientation: 'landscape',
@@ -1151,7 +1153,7 @@
                             // Excel Export button
                             {
                                 extend: 'excelHtml5',
-                                text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                                 titleAttr: 'Excel',
                                 title: 'PR List',
                                 messageTop: function () {
@@ -1790,7 +1792,7 @@
                             // PDF
                             {
                                 extend: "pdfHtml5",
-                                text: '<i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                                 title: "RFQ List",
                                 orientation: "landscape",
                                 pageSize: "A4",
@@ -1851,7 +1853,7 @@
                             // Excel
                             {
                                 extend: "excelHtml5",
-                                text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                                 titleAttr: "Excel",
                                 title: "RFQ List",
                                 messageTop: function () {
@@ -2277,7 +2279,7 @@
             $("#vendorRFQCode").val($("#rfqDetailsModal").data("rfqCode"));
 
             // Load industry types into dropdown only once
-            if ($("#industryFilter option").length === 1) {
+           /* if ($("#industryFilter option").length === 1) {
                 $.getJSON("/Purchase/GetIndustryTypesSJ", function (res) {
                     if (res.data) {
                         $.each(res.data, function (i, industry) {
@@ -2288,7 +2290,29 @@
                         });
                     }
                 });
-            }
+            }*/
+
+            $(document).ready(function () {
+                $("#industryFilter").empty(); // remove old options
+
+                // optional: add default option
+                $("#industryFilter").append($("<option>", {
+                    value: "",
+                    text: "-- Select Industry --"
+                }));
+
+                $.getJSON("/Purchase/GetIndustryTypesSJ", function (res) {
+                    if (res.data) {
+                        $.each(res.data, function (i, industry) {
+                            $("#industryFilter").append($("<option>", {
+                                value: industry.Id,
+                                text: industry.Name
+                            }));
+                        });
+                    }
+                });
+            });
+
 
 
             // Initially disable the button

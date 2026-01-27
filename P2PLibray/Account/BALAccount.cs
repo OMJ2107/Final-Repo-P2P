@@ -749,6 +749,7 @@ namespace P2PLibray.Account
                     podetails.ApprovedBy = dr["ApprovedBy"]?.ToString();
                     podetails.ShippingCharges = dr["ShippingCharges"] != DBNull.Value ? Convert.ToDecimal(dr["ShippingCharges"]) : 0;
                     podetails.AccountantName = dr["AccountantName"]?.ToString();
+                    podetails.Description = dr["Note"]?.ToString();
                 }
 
                 if (await dr.NextResultAsync())
@@ -816,6 +817,7 @@ namespace P2PLibray.Account
                         PODetails.ApprovedBy,
                         PODetails.AccountantName,
                         PODetails.ShippingCharges,
+                        PODetails.Description,
                         PODetails.Items,
                         TermConditions = PODetails.TermConditions ?? new List<string>()
                     }
@@ -1048,7 +1050,7 @@ namespace P2PLibray.Account
                 events.Add(new
                 {
                     id = gr.IdCode,
-                    title = $"Goods Return Entry Is Added By {gr.AddedBy}",
+                    title = $"Purchase Return Entry Is Added By {gr.AddedBy}",
                     start = gr.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
                     color = "#ffc107",
                     extendedProps = new

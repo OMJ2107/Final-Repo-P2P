@@ -53,23 +53,23 @@
 
             <div class="text-center">
                 <h3 class="text-primary mb-0">
-                   Purchase Order Count by Vendor
+                   Purchase Orders Report
                 </h3>
             </div>
             <div class="mb-1" style="width:280px;"></div>
         </div>
 
         <!-- Donut Chart -->
-        <div class="position-relative border rounded-3 p-3 shadow-sm mb-4">
+        <!--<div class="position-relative border rounded-3 p-3 shadow-sm mb-4">
             <div class="position-absolute top-0 end-0 p-3 text-end">
                 <h6 class="text-muted mb-1">Total Approved POs</h6>
                 <h2 id="poTotalCountPSM" class="text-success fw-bold mb-0">0</h2>
             </div>
             <div class="w-80" id="poDonutChartPSM" style="min-height: 250px;"></div>
-        </div>
+        </div>-->
 
         <!-- Approved PO List -->
-        <h3 class="text-primary text-center">Purchase Orders</h3>
+        @*<h3 class="text-primary text-center">Purchase Orders</h3>*@
         <div class="table-responsive">
             <table id="approvedPOListTablePSM" class="table table-striped text-center table-bordered w-100">
                 <thead class="table-dark text-center">
@@ -108,19 +108,32 @@
                     <thead class="table-dark text-center">
                         <tr>
                             <th><input type="checkbox" id="selectAllChild" /></th>
-                            <th  class="text-center">SR.No</th>
-                            <th  class="text-center">Item Name</th>
-                            <th  class="text-center">Cost Per Unit</th>
-                            <th  class="text-center">Unit Quantity</th>
-                            <th  class="text-center">Discount</th>
-                            <th  class="text-center">Tax Rate</th>
-                            <th  class="text-center">Quality Check</th>
-                            <th  class="text-center">Final Amount</th>
+                            <th class="text-center">SR.No</th>
+                            <th class="text-center">Item Name</th>
+                            <th class="text-center">Cost Per Unit</th>
+                            <th class="text-center">Unit Quantity</th>
+                            <th class="text-center">Discount</th>
+                            <th class="text-center">Tax Rate</th>
+                            <th class="text-center">Quality Check</th>
+                            <th class="text-center">Final Amount</th>
                         </tr>
                     </thead>
-                    <tbody  class="text-center"></tbody>
+                    <tbody class="text-center"></tbody>
                 </table>
+                <div class="mt-2 d-flex justify-content-end align-items-center gap-2">
+                    <label class="fw-bold">Shipping Charges:</label>
+                    <input type="text" id="shippingCharges"
+                           class="form-control fw-bold text-end"
+                           style="width: 150px;" readonly />
+                </div>
+                <div class="mt-2 d-flex justify-content-end align-items-center gap-2">
+                    <label class="fw-bold">Total Amount:</label>
+                    <input type="text" id="totalFinalAmount"
+                           class="form-control fw-bold text-end"
+                           style="width: 150px;" readonly />
+                </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -219,11 +232,16 @@
                         data: "StatusName",
                         render: function (d) {
                             if (d === "Open") return '<span class="badge bg-primary fw-semibold">' + d + '</span>';
-                            if (d === "Approved") return '<span class="badge bg-success fw-semibold">' + d + '</span>';
+                            if (d === "Approved") return '<span class="badge bg-info fw-semibold">' + d + '</span>';
+                            if (d === "Close") return '<span class="badge bg-success fw-semibold">' + d + '</span>';
                             return d || '';
                         }
                     }, //8
-                    { data: null, render: function (d) { return `<button class="btn btn-primary btnViewPO square-btn square-pill" data-pocode="${d.POCode}"><i class="bi bi-eye"></i></button>`; } } //9
+                    {
+                        data: null,render: function (d) {return `<button class="btn btn-primary btnViewPO" data-pocode="${d.POCode}"><i class="bi bi-eye"></i></button>`;}
+                    }
+
+
                 ],
                 ordering: false,
                 buttons: [
@@ -622,6 +640,29 @@
         }
     }
 
+    function loadShippingCharges(RQCode) {
+        if (!RQCode) return;
+
+        $.ajax({
+            url: '/GRN/GetShippingChargesPSM',
+            type: 'GET',
+            data: { RQCode: RQCode },
+            success: function (response) {
+                if (response.success) {
+                    // Show the shipping charges in the input
+                    $('#shippingCharges').val(response.ShippingCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+                } else {
+                    $('#shippingCharges').val('0.00');
+                    console.warn(response.message || 'Shipping charges not found');
+                }
+            },
+            error: function () {
+                $('#shippingCharges').val('0.00');
+                console.error('Error fetching shipping charges');
+            }
+        });
+    }
+
     // ------------------- CHILD DATATABLE -------------------
     function loadPOItems(poCode) {
         if (poItemsTablePSM) { poItemsTablePSM.destroy(); $("#poItemsTablePSM tbody").empty(); }
@@ -660,23 +701,51 @@
                     },
                     customize: function (win) {
                         var $body = $(win.document.body);
-                        // Add styling
                         $body.append(`<style>thead th {
-                        background-color: black !important;
-                        color: white !important;
-                        text-align: center !important;
-                        -webkit-print-color-adjust: exact !important;
-                         print-color-adjust: exact !important;
-                         }
-                         table { border-collapse: collapse !important; width: 100% !important; }
-                         td, th { border: 1px solid #000 !important; padding: 6px !important; }
-                         </style>`);
+                background-color: black !important;
+                color: white !important;
+                text-align: center !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              table { 
+                border-collapse: collapse !important; 
+                width: 100% !important; 
+            }
+            td, th { 
+                border: 1px solid #000 !important; 
+                padding: 6px !important; 
+            }
+            .summary-container {
+                margin-top: 20px !important;
+                width: 100% !important;
+            }
+            .summary-row {
+                display: flex !important;
+                justify-content: flex-end !important;
+                margin-bottom: 5px !important;
+            }
+            .summary-label {
+                font-weight: bold !important;
+                width: 150px !important;
+                text-align: right !important;
+                padding-right: 10px !important;
+            }
+            .summary-value {
+                font-weight: bold !important;
+                width: 150px !important;
+                text-align: right !important;
+            }
+        </style>`);
+
                         $body.find('h1').css('text-align', 'center');
+
                         var today = new Date();
                         var formattedDate = String(today.getDate()).padStart(2, '0') + '/' +
                             String(today.getMonth() + 1).padStart(2, '0') + '/' +
                             today.getFullYear();
                         $body.find('h1').after('<div style="text-align:center;font-style:italic;font-size:10pt;margin-bottom:12px;">Generated Date: ' + formattedDate + '</div>');
+
                         var $table = $body.find('table');
                         $table.addClass('table table-bordered table-striped').css('width', '100%');
                         $table.find('thead tr').prepend('<th>Sr No</th>');
@@ -684,9 +753,55 @@
                             $(this).prepend('<td style="text-align:center;">' + (index + 1) + '</td>');
                         });
                         $body.css('font-size', '12pt');
+                        var totalAmount = 0;
+                        $table.find('tbody tr').each(function () {
+                            var $row = $(this);
+                            var finalAmountCell = $row.find('td:eq(6)').text().trim() || '0';
+                            var amount = parseFloat(finalAmountCell.replace(/[₹,]/g, '').replace(/[^0-9.]/g, '')) || 0;
+                            totalAmount += amount;
+                        });
+                        var shippingCharges = 0;
+                        try {
+                            var shippingElement = $('#shippingCharges').first();
+                            if (!shippingElement.length) {
+                                shippingElement = $('.shipping-charges').first();
+                            }
+                            if (!shippingElement.length) {
+                                shippingElement = $('[data-shipping-charges]').first();
+                            }
+
+                            if (shippingElement.length) {
+                                var shippingText = shippingElement.val() || shippingElement.text() || '0';
+                                shippingCharges = parseFloat(shippingText.replace(/[₹,]/g, '').replace(/[^0-9.]/g, '')) || 0;
+                            }
+                        } catch (e) {
+                            shippingCharges = 0;
+                        }
+                        var grandTotal = totalAmount + shippingCharges;
+                        function formatINR(amount) {
+                            if (isNaN(amount) || amount === 0) return '₹ 0.00';
+
+                            var parts = amount.toFixed(2).split('.');
+                            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                            return '₹ ' + parts.join('.');
+                        }
+                        var summaryHTML = `
+                         <div class="summary-section">
+                         <div style="width: 50%; margin-left: auto;">
+                         <div class="summary-row">
+                         <span class="summary-label">Shipping Charges:</span>
+                         <span class="summary-value">${formatINR(shippingCharges)}</span>
+                         </div>
+                         <div class="summary-row">
+                         <span class="summary-label">Total Amount:</span>
+                         <span class="summary-value">${formatINR(grandTotal)}</span>
+                         </div>
+                         </div>
+                         </div>`;
+                        $table.after(summaryHTML);
                     },
                     action: function (e, dt, button, config) {
-                        var selected = dt.rows().nodes().to$().find('input.rowCheckbox1:checked').length;
+                        var selected = dt.rows().nodes().to$().find('input.rowCheckbox1').prop('checked');
                         var btnApi = dt.button(button);
 
                         if (selected === 0) {
@@ -715,7 +830,7 @@
                     extend: 'pdfHtml5',
                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                     titleAttr: 'PDF',
-                    title: 'Total PO Items',
+                    title: 'Approved And Close Purchase Order Items',
                     orientation: 'landscape',
                     pageSize: 'A4',
                     exportOptions: {
@@ -729,16 +844,127 @@
                             }
                         }
                     },
+                    customize: function (doc) {
+                        doc.pageSize = 'A4';
+                        doc.pageOrientation = 'landscape';
+                        doc.defaultStyle.fontSize = 9;
+                        doc.styles.tableHeader.fontSize = 10;
+                        doc.styles.tableHeader.fillColor = '#343a40';
+                        doc.styles.tableHeader.color = 'white';
+                        doc.styles.tableHeader.bold = true;
+                        doc.styles.tableHeader.alignment = 'center';
+                        doc.content.splice(1, 0, {
+                            text: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
+                            alignment: 'center',
+                            margin: [0, 0, 0, 12],
+                            fontSize: 9,
+                            italics: true
+                        });
+                        function findTableNodeIndex(doc) {
+                            for (var i = 0; i < doc.content.length; i++) {
+                                if (doc.content[i].table) return i;
+                            }
+                            return -1;
+                        }
+                        var tableNodeIndex = findTableNodeIndex(doc);
+                        if (tableNodeIndex < 0) return;
+                        var tableNode = doc.content[tableNodeIndex];
+                        if (!tableNode || !tableNode.table || !tableNode.table.body) return;
+                        tableNode.table.body[0].unshift({ text: 'Sr No', style: 'tableHeader' });
+                        for (var r = 1, cnt = 1; r < tableNode.table.body.length; r++, cnt++) {
+                            tableNode.table.body[r].unshift({ text: String(cnt), alignment: 'center' });
+                        }
+                        tableNode.table.widths = ['5%', '15%', '15%', '15%', '15%', '10%', '12%', '12%'];
+                        tableNode.layout = {
+                            hLineWidth: function () { return 0.5; },
+                            vLineWidth: function () { return 0.5; },
+                            hLineColor: function () { return '#aaa'; },
+                            vLineColor: function () { return '#aaa'; },
+                            paddingLeft: function () { return 4; },
+                            paddingRight: function () { return 4; },
+                            paddingTop: function () { return 3; },
+                            paddingBottom: function () { return 3; }
+                        };
+                        var tableBody = tableNode.table.body;
+                        var totalAmount = 0;
+                        for (var i = 1; i < tableBody.length; i++) {
+                            var finalAmountCell = tableBody[i][tableBody[i].length - 1].text || '0';
+                            var amount = parseFloat(finalAmountCell.replace(/[₹,]/g, '')) || 0;
+                            totalAmount += amount;
+                        }
+                        var shippingCharges = 0;
+                        try {
+                            var shippingText = $('#shippingCharges').val() || $('#shippingCharges').text() || '0';
+                            shippingCharges = parseFloat(shippingText.replace(/[₹,]/g, '')) || 0;
+                        } catch (e) {
+                            shippingCharges = 0;
+                        }
+                        var grandTotal = totalAmount + shippingCharges;
+                        function formatINR(amount) {
+                            return '₹ ' + amount.toFixed(2).replace(/(\d)(?=(\d{2})+\d\.)/g, '$1,');
+                        }
+                        doc.content.push({
+                            margin: [0, 20, 0, 0],
+                            columns: [
+                                {
+                                    width: '50%',
+                                    text: ''
+                                },
+                                {
+                                    width: '50%',
+                                    stack: [
+                                        {
+                                            columns: [
+                                                {
+                                                    width: '60%',
+                                                    text: 'Shipping Charges:',
+                                                    fontSize: 10,
+                                                    bold: true
+                                                },
+                                                {
+                                                    width: '40%',
+                                                    text: formatINR(shippingCharges),
+                                                    fontSize: 10,
+                                                    alignment: 'right',
+                                                    bold: true
+                                                }
+                                            ],
+                                            margin: [0, 0, 0, 5]
+                                        },
+                                        {
+                                            columns: [
+                                                {
+                                                    width: '60%',
+                                                    text: 'Total Amount:',
+                                                    fontSize: 10,
+                                                    bold: true
+                                                },
+                                                {
+                                                    width: '40%',
+                                                    text: formatINR(grandTotal),
+                                                    fontSize: 10,
+                                                    alignment: 'right',
+                                                    bold: true
+                                                }
+                                            ],
+                                            margin: [0, 0, 0, 10]
+                                        }
+                                    ]
+                                }
+                            ]
+                        });
+                    },
                     action: function (e, dt, button, config) {
-                        var selected = $('#poItemsTablePSM tbody .rowCheckbox1:checked').length;
+                        var selected = dt.rows().nodes().to$().find('input.rowCheckbox1:checked').length;
                         var btnApi = dt.button(button);
+
                         if (selected === 0) {
-                            toastr.warning("Please select at least one row before exporting!");
-                            try { btnApi.processing(false); } catch (e) { }
+                            showExportToast();
+                            try { btnApi.processing(false); } catch (err) { }
                             return;
                         }
-                        try { btnApi.processing(true); } catch (err) { }
 
+                        try { btnApi.processing(true); } catch (err) { }
                         if (window.pdfMake && pdfMake.createPdf && !pdfMake._patchedForDT) {
                             (function () {
                                 var origCreate = pdfMake.createPdf;
@@ -747,7 +973,7 @@
                                     var origDownload = pdfDoc.download;
                                     pdfDoc.download = function (filename, cb) {
                                         origDownload.call(pdfDoc, filename);
-                                        setTimeout(function () { try { btnApi.processing(false); } catch (e) { } }, 1000);
+                                        setTimeout(function () { try { btnApi.processing(false); } catch (err) { } }, 1000);
                                         if (typeof cb === 'function') cb();
                                     };
                                     return pdfDoc;
@@ -755,20 +981,15 @@
                                 pdfMake._patchedForDT = true;
                             })();
                         }
-
                         if (!$.fn.dataTable.ext.buttons.pdfHtml5._orig) {
                             $.fn.dataTable.ext.buttons.pdfHtml5._orig = $.fn.dataTable.ext.buttons.pdfHtml5.action;
                         }
                         $.fn.dataTable.ext.buttons.pdfHtml5._orig.call(this, e, dt, button, config);
 
                         setTimeout(function () { try { btnApi.processing(false); } catch (err) { } }, 2000);
-                    },
-                    customize: function (doc) {
-                        doc.pageSize = 'A4';
-                        doc.pageOrientation = 'landscape';
-                        doc.defaultStyle.fontSize = 9;
                     }
                 },
+                
                 //Excel
                 {
                     extend: 'excelHtml5',
@@ -792,12 +1013,14 @@
 
                         const selectedData = [];
                         let srNo = 1;
+                        let totalAmount = 0;
 
                         selectedRows.each(function () {
                             const tr = $(this).closest('tr');
                             const rowData = dt.row(tr).data();
                             if (!rowData) return;
-
+                            const finalAmount = parseFloat(rowData.FinalAmount) || 0;
+                            totalAmount += finalAmount;
                             selectedData.push([
                                 srNo++,
                                 rowData.ItemName || '',
@@ -809,10 +1032,24 @@
                                 rowData.FinalAmount ? parseFloat(rowData.FinalAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 }) : ''
                             ]);
                         });
+                        let shippingCharges = 0;
+                        try {
+                            const shippingElement = $('#shippingCharges').first() ||
+                                $('.shipping-charges').first() ||
+                                $('[data-shipping-charges]').first();
+                            if (shippingElement.length) {
+                                const shippingText = shippingElement.val() || shippingElement.text() || '0';
+                                shippingCharges = parseFloat(shippingText.replace(/[₹,]/g, '')) || 0;
+                            }
+                        } catch (e) {
+                            shippingCharges = 0;
+                        }
+                        const grandTotal = totalAmount + shippingCharges;
                         const today = new Date();
                         const formattedDate = String(today.getDate()).padStart(2, '0') + '/' +
                             String(today.getMonth() + 1).padStart(2, '0') + '/' +
                             today.getFullYear();
+
                         const tempDt = $('<table>').DataTable({
                             data: selectedData,
                             columns: [
@@ -833,6 +1070,12 @@
                                 customize: function (xlsx) {
                                     const sheet = xlsx.xl.worksheets['sheet1.xml'];
                                     const sheetData = $('sheetData', sheet);
+                                    const totalRows = selectedData.length;
+                                    const headerRow = 4; 
+                                    const firstDataRow = headerRow + 1;
+                                    const lastDataRow = headerRow + totalRows;
+                                    const summaryStartRow = lastDataRow + 1; 
+
                                     $('row', sheetData).each(function () {
                                         const $row = $(this);
                                         const r = parseInt($row.attr('r'), 10);
@@ -847,10 +1090,13 @@
                                             $c.attr('r', col + (rowNum + 3));
                                         });
                                     });
+
                                     const blankRow = `<row r="3"></row>`;
                                     sheetData.prepend(blankRow);
+
                                     const mergeRef1 = 'A1:H1';
                                     const mergeRef2 = 'A2:H2';
+
                                     if ($('mergeCells', sheet).length === 0) {
                                         const mergeXml = `<mergeCells count="2"><mergeCell ref="${mergeRef1}"/><mergeCell ref="${mergeRef2}"/></mergeCells>`;
                                         $('sheetData', sheet).after(mergeXml);
@@ -860,31 +1106,67 @@
                                         const currentCount = parseInt($('mergeCells', sheet).attr('count') || '0', 10);
                                         $('mergeCells', sheet).attr('count', currentCount + 2);
                                     }
+                                    const blankAfterData = `<row r="${lastDataRow + 1}"></row>`;
+                                    sheetData.append(blankAfterData);
+                                    const summaryRows = `
+                        <row r="${summaryStartRow + 1}">
+                            <c r="G${summaryStartRow + 1}" t="inlineStr"><is><t>Shipping Charges:</t></is></c>
+                            <c r="H${summaryStartRow + 1}" t="inlineStr"><is><t>₹ ${shippingCharges.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}</t></is></c>
+                        </row>
+                        <row r="${summaryStartRow + 2}">
+                            <c r="G${summaryStartRow + 2}" t="inlineStr"><is><t>Total Amount:</t></is></c>
+                            <c r="H${summaryStartRow + 2}" t="inlineStr"><is><t>₹ ${grandTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}</t></is></c>
+                        </row>
+                    `;
+
+                                    sheetData.append(summaryRows);
+
                                     const styles = xlsx.xl['styles.xml'];
                                     const fonts = $('fonts', styles);
                                     const cellXfs = $('cellXfs', styles);
+
                                     if (fonts.length === 0) {
                                         $('styleSheet', styles).append('<fonts count="0"></fonts>');
                                     }
                                     if (cellXfs.length === 0) {
                                         $('styleSheet', styles).append('<cellXfs count="0"></cellXfs>');
                                     }
+
                                     const fontsRef = $('fonts', styles);
                                     const cellXfsRef = $('cellXfs', styles);
                                     const fontsCount = parseInt(fontsRef.attr('count') || '0', 10);
                                     fontsRef.append(`<font><b/><sz val="14"/><name val="Calibri"/></font>`);
-                                    fontsRef.attr('count', fontsCount + 1);
-                                    const newFontId = fontsCount;
+                                    fontsRef.append(`<font><b/><sz val="12"/><name val="Calibri"/></font>`);
+                                    fontsRef.attr('count', fontsCount + 2);
+
+                                    const titleFontId = fontsCount;
+                                    const summaryFontId = fontsCount + 1;
+
                                     const cellXfsCount = parseInt(cellXfsRef.attr('count') || '0', 10);
-                                    cellXfsRef.append(`<xf xfId="0" applyAlignment="1" applyFont="1"><alignment horizontal="center" vertical="center"/><fontId val="${newFontId}"/></xf>`);
+
+                                    // Title style
+                                    cellXfsRef.append(`<xf xfId="0" applyAlignment="1" applyFont="1"><alignment horizontal="center" vertical="center"/><fontId val="${titleFontId}"/></xf>`);
+                                    // Date style
                                     cellXfsRef.append(`<xf xfId="0" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>`);
-                                    cellXfsRef.attr('count', cellXfsCount + 2);
-                                    const titleStyleIndex = cellXfsCount;   
+                                    // ADDED: Summary style (bold, right aligned)
+                                    cellXfsRef.append(`<xf xfId="0" applyAlignment="1" applyFont="1"><alignment horizontal="right" vertical="center"/><fontId val="${summaryFontId}"/></xf>`);
+
+                                    cellXfsRef.attr('count', cellXfsCount + 3);
+
+                                    const titleStyleIndex = cellXfsCount;
                                     const dateStyleIndex = cellXfsCount + 1;
+                                    const summaryStyleIndex = cellXfsCount + 2;
+
                                     const titleCell = `<row r="1"><c r="A1" t="inlineStr" s="${titleStyleIndex}"><is><t>Total PO Items</t></is></c></row>`;
                                     const dateCell = `<row r="2"><c r="A2" t="inlineStr" s="${dateStyleIndex}"><is><t>Generated Date: ${formattedDate}</t></is></c></row>`;
+
                                     sheetData.prepend(dateCell);
                                     sheetData.prepend(titleCell);
+
+                                    // ADDED: Apply summary style to summary rows
+                                    $(`c[r^="G${summaryStartRow + 1}"], c[r^="G${summaryStartRow + 2}"]`, sheetData).attr('s', summaryStyleIndex);
+                                    $(`c[r^="H${summaryStartRow + 1}"], c[r^="H${summaryStartRow + 2}"]`, sheetData).attr('s', summaryStyleIndex);
+
                                     if ($('cols', sheet).length === 0) {
                                         let colsXml = '<cols>';
                                         for (let i = 1; i <= 8; i++) {
@@ -904,6 +1186,7 @@
                             searching: false,
                             info: false
                         });
+
                         tempDt.button('.buttons-excel').trigger();
                         setTimeout(() => { try { btnApi.processing(false); } catch (err) { } }, 800);
                     }
@@ -979,22 +1262,80 @@
                     }
                 }
             ],
+            drawCallback: function () {
+
+                let api = this.api();
+                let total = 0;
+
+                // Final Amount column = index 8
+                api.column(8, { page: "current" }).data().each(function (value) {
+
+                    if (value) {
+                        let cleaned = value
+                            .toString()
+                            .replace(/₹/g, "")
+                            .replace(/,/g, "")
+                            .trim();
+
+                        total += parseFloat(cleaned) || 0;
+                    }
+                });
+
+                // Put total in textbox
+                $("#totalFinalAmount").val(
+                    "₹ " + total.toLocaleString("en-IN", { minimumFractionDigits: 2 })
+                );
+            }
         });
 
         // child select all
         $(document).off('change', '#selectAllChild').on('change', '#selectAllChild', function () {
             $('#poItemsTablePSM tbody input.rowCheckbox1').prop('checked', $(this).is(':checked'));
         });
+
+        $.ajax({
+            url: '/GRN/GetShippingChargesByPOPSM',
+            type: 'GET',
+            data: { RQCode: poCode },
+            success: function (response) {
+                console.log("Shipping charges response:", response);
+                if (response && response.success) {
+                    $('#shippingCharges').val(
+                        parseFloat(response.ShippingCharges).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })
+                    );
+                } else {
+                    $('#shippingCharges').val('0.00');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching shipping charges:", {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+                $('#shippingCharges').val('0.00');
+            }
+        });
     }
 
-    // ------------------- VIEW MODAL -------------------
-    $(document).off('click', '.btnViewPO').on('click', '.btnViewPO', function () {
+    $(document).on('click', '.btnViewPO', function () {
         var poCode = $(this).data('pocode');
-        if (!poCode) return;
+
+        if (!poCode) {
+            alert("PO Code not found!");
+            return;
+        }
+
+        // Show modal
         $('#poItemsModal').modal('show');
+
+        // Load PO Items first
         loadPOItems(poCode);
     });
-
     // ------------------- DONUT CHART -------------------
     function loadPOChartPSM(fromDate, toDate) {
         $.getJSON('@Url.Action("ApprovedPOChartPSM", "GRN")', { startDate: fromDate || "", endDate: toDate || "" }, function (res) {

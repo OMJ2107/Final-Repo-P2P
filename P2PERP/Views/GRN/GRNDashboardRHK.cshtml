@@ -355,9 +355,31 @@
             </div>
         </div>
         <!-- END KPI CARDS SECTION -->
+        <!-- Selected Date Range Display -->
+        @*<div class="position-fixed" style="top: 165px; right: 20px; z-index: 1050;">
+            <span id="selectedRangeBadge" class="badge bg-primary px-3 py-2 shadow-sm">
+                All Data
+            </span>
+        </div>*@
+
+        <!-- Date Range Heading -->
+        <div class="row mb-3">
+            <div class="col-12 text-center">
+                <h5 class="fw-bold text-primary">
+                    <i class="bi bi-calendar-range me-2"></i>
+                    <span id="selectedRangeHeading">Showing Data: All Time</span>
+                </h5>
+                <hr>
+            </div>
+        </div>
+
+
+
         <!-- CHARTS SECTION -->
         <div class="row g-4">
             <!-- Quality Check Status Bar Chart -->
+
+
             <div class="col-lg-6">
                 <div class="card shadow-sm border-0 rounded-4 p-3 chart-card">
                     <h6 class="fw-bold mb-3 text-success">
@@ -380,55 +402,55 @@
         <!-- END CHARTS SECTION -->
         <!-- RECENT GRNs TABLE SECTION -->
         <!--<div class="card mt-4 shadow-sm table-card">
-            <div class="card-header py-3" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white;">
-                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent GRNs</h5>
-            </div>
+    <div class="card-header py-3" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white;">
+        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent GRNs</h5>
+    </div>
 
-            <div class="card-body">
-                <div class="table-responsive">-->
+    <div class="card-body">
+        <div class="table-responsive">-->
         <!-- TABLE HEADER WITH FILTERS AND EXPORT BUTTONS -->
         <!--<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">-->
         <!-- Date Range Filter -->
         <!--<div class="input-group mt-4" style="height: 40px; max-width: 280px;">
-            <span class="input-group-text bg-primary text-white" style="height: 100%;">
-                <i class="bi bi-calendar-date"></i>
-            </span>
-            <input type="text" id="reportrange" class="form-control" placeholder="Select date range" readonly style="height: 100%;" />
-        </div>-->
+        <span class="input-group-text bg-primary text-white" style="height: 100%;">
+            <i class="bi bi-calendar-date"></i>
+        </span>
+        <input type="text" id="reportrange" class="form-control" placeholder="Select date range" readonly style="height: 100%;" />
+    </div>-->
         <!-- Export Buttons Container -->
         <!--<div class="d-flex align-items-center gap-3 ms-auto">
-                <div id="exportContainer" class="d-flex" style="height: 40px; align-items: center;"></div>
-            </div>
-        </div>-->
+            <div id="exportContainer" class="d-flex" style="height: 40px; align-items: center;"></div>
+        </div>
+    </div>-->
         <!-- RECENT GRNs DATA TABLE -->
         <!--<table id="reqTable" class="table table-bordered table-striped table-hover align-middle" style="width:100%">
-                        <thead class="table-dark">
-                            <tr>
-                                <th><input type="checkbox" id="selectAll1"></th>
-                                <th>Sr.No</th>
-                                <th>GRN Code</th>
-                                <th>PO Code</th>
-                                <th>Vendor</th>
-                                <th>Invoice No</th>
-                                <th>Added By</th>
-                                <th>Added Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tblRecent">
-                            <tr>
-                                <td colspan="9" class="text-center">
-                                    <div class="spinner-container">
-                                        <div class="spinner-border text-primary" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
+                    <thead class="table-dark">
+                        <tr>
+                            <th><input type="checkbox" id="selectAll1"></th>
+                            <th>Sr.No</th>
+                            <th>GRN Code</th>
+                            <th>PO Code</th>
+                            <th>Vendor</th>
+                            <th>Invoice No</th>
+                            <th>Added By</th>
+                            <th>Added Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblRecent">
+                        <tr>
+                            <td colspan="9" class="text-center">
+                                <div class="spinner-container">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </div>-->
+        </div>
+    </div>-->
         <!-- END RECENT GRNs TABLE SECTION -->
     </div>
 
@@ -580,8 +602,9 @@
                 selectedEndDate = end.format('YYYY-MM-DD');
 
                 $('#dateFilterBtn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-                $('#selectedRangeBadge').text(start.format('MMM D') + ' - ' + end.format('MMM D'));
-
+                $('#selectedRangeHeading').text(
+                    'Showing Data: ' + start.format('MMM D, YYYY') + ' - ' + end.format('MMM D, YYYY')
+                );
                 loadKPIData(selectedStartDate, selectedEndDate);
                 loadStatusData(selectedStartDate, selectedEndDate);
                 loadTrendData(selectedStartDate, selectedEndDate);
@@ -619,7 +642,7 @@
                 selectedStartDate = "";
                 selectedEndDate = "";
                 $('#dateFilterBtn span').html('All Data');
-                $('#selectedRangeBadge').text('All');
+                $('#selectedRangeHeading').text('Showing Data: All Time');
                 loadKPIData(null, null);
                 loadStatusData(null, null);
                 loadTrendData(null, null);

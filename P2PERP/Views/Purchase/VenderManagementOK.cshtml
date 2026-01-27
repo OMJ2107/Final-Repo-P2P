@@ -446,7 +446,6 @@
                 </div>
             </div>
         </div>
-
             <!-- Vendor Details Modal -->
             <div class="modal fade" id="viewvendorModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -466,8 +465,9 @@
                                     <h5 class="text-dark fw-bold">Personal Details</h5>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <label for="FullName" class="form-label fw-bold text-dark">Full Name</label>
+                                            <label for="FullName" class="form-label fw-bold text-dark">Full Name</label><br />
                                             <input type="text" class="form-control form-control-sm text-dark shadow-sm" id="FullName" name="VendorName" readonly>
+                                            @*<label class="text-dark d-inline ps-5" id="FullName"></label>*@
                                         </div>
 
                                         <div class="col-md-6">
@@ -955,7 +955,7 @@
             paging: true,
             searching: true,
             lengthChange: false,
-            pageLength: 5,
+            pageLength: 10,
             ordering: false,
             select: {
                 style: 'multi',
@@ -1975,11 +1975,12 @@
 
         // Personal details
         $("#FullName").val(rowData.VendorName);
+       // $("#FullName").text(rowData.VendorName);
         $("#Mobile").val(rowData.MobileNo);
         $("#AltMobile").val(rowData.AlternateNo);
         $("#PersonalEmail").val(rowData.Email);
         $("#Address").val(rowData.Address);
-
+  
         // Company details
         $("#companyEmail").val(rowData.CompanyEmail);
         $("#companyMobileNo").val(rowData.CompanyMobileNo);

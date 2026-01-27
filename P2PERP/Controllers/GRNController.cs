@@ -15,12 +15,15 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using static P2PLibray.GRN.GRNPSM;
 
 namespace P2PERP.Controllers
 {
     public class GRNController : Controller
     {
         BALGRN bal = new BALGRN();
+
+       
 
         #region Pranav Mane
         public async Task<ActionResult> UserProfile()
@@ -642,7 +645,7 @@ namespace P2PERP.Controllers
                     if (eDate.HasValue && approvedDate > eDate.Value) return false;
                     return true;
                 })
-                .Select(row => new
+                .Select(row => new 
                 {
                     POCode = row["POCode"].ToString(),
                     RQNO = row["RQNO"].ToString(),
@@ -682,6 +685,38 @@ namespace P2PERP.Controllers
 
             return Json(new { data = result }, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public async Task<JsonResult> GetShippingChargesByPOPSM(string RQCode)
+        {
+            if (string.IsNullOrEmpty(RQCode))
+                return Json(new { success = false, ShippingCharges = 0 });
+
+            try
+            {
+                BALGRN objBAL = new BALGRN();
+
+                // Call your existing SP method
+                DataTable dt = await objBAL.RegistrationQuotationCodePSM(RQCode);
+
+                decimal shippingCharges = 0;
+
+                if (dt != null && dt.Rows.Count > 0 && dt.Columns.Contains("ShippingCharges"))
+                {
+                    shippingCharges = dt.Rows[0]["ShippingCharges"] != DBNull.Value
+                        ? Convert.ToDecimal(dt.Rows[0]["ShippingCharges"])
+                        : 0;
+                }
+
+                return Json(new { success = true, ShippingCharges = shippingCharges }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, ShippingCharges = 0, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+
 
         #endregion
 
@@ -1613,10 +1648,19 @@ namespace P2PERP.Controllers
                     };
                     doc.Add(itemHeader);
 
-                    PdfPTable itemTbl = new PdfPTable(8) { WidthPercentage = 100, SpacingAfter = 10f };
-                    itemTbl.SetWidths(new float[] { 0.7f, 2f, 2f, 1f, 1f, 1f, 1f, 1.2f });
+                    //PdfPTable itemTbl = new PdfPTable(8) { WidthPercentage = 100, SpacingAfter = 10f };
+                    //itemTbl.SetWidths(new float[] { 0.7f, 2f, 2f, 1f, 1f, 1f, 1f, 1.2f });
 
-                    string[] headers = { "Sr.No", "Item Name", "Description", "PO Qty", "GRN Qty", "Rate", "Discount", "Amount" };
+                    PdfPTable itemTbl = new PdfPTable(10) { WidthPercentage = 100, SpacingAfter = 10f };
+                    itemTbl.SetWidths(new float[] { 0.6f, 2f, 1.2f, 2f, 1f, 1f, 1f, 1f, 1f, 1.2f });
+
+
+                    // string[] headers = { "Sr.No", "Item Name", "Description", "PO Qty", "GRN Qty", "Rate", "Discount", "Amount" };
+                    string[] headers = {
+                        "Sr.No", "Item Name", "UOM", "Description",
+                        "PO Qty", "GRN Qty", "Rate", "GST (%)", "Discount", "Amount"
+                    };
+
                     foreach (string h in headers)
                     {
                         itemTbl.AddCell(new PdfPCell(new Phrase(h, tableHeaderFont))
@@ -1628,28 +1672,65 @@ namespace P2PERP.Controllers
                         });
                     }
 
+                    //if (dsItems != null && dsItems.Tables[0].Rows.Count > 0)
+                    //{
+                    //    int i = 1;
+                    //    foreach (DataRow dr in dsItems.Tables[0].Rows)
+                    //    {
+                    //        BaseColor bg = (i % 2 == 0) ? new BaseColor(248, 248, 248) : BaseColor.WHITE;
+                    //        string rate = dr["UnitRate"] != DBNull.Value ? "₹ " + Convert.ToDecimal(dr["UnitRate"]).ToString("N2") : "₹ 0.00";
+                    //        string discount = dr["Discount"] != DBNull.Value ? dr["Discount"].ToString() + " %" : "0 %";
+                    //        string amount = dr["Amount"] != DBNull.Value ? "₹ " + Convert.ToDecimal(dr["Amount"]).ToString("N2") : "₹ 0.00";
+
+                    //        itemTbl.AddCell(new PdfPCell(new Phrase(i.ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
+                    //        itemTbl.AddCell(new PdfPCell(new Phrase(dr["ItemName"].ToString(), textFont)) { BackgroundColor = bg, Padding = 4 });
+                    //        itemTbl.AddCell(new PdfPCell(new Phrase(dr["Description"].ToString(), textFont)) { BackgroundColor = bg, Padding = 4 });
+                    //        itemTbl.AddCell(new PdfPCell(new Phrase(dr["POQuantity"].ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
+                    //        itemTbl.AddCell(new PdfPCell(new Phrase(dr["GRNQuantity"].ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
+                    //        itemTbl.AddCell(new PdfPCell(new Phrase(rate, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4 });
+                    //        itemTbl.AddCell(new PdfPCell(new Phrase(discount, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
+                    //        itemTbl.AddCell(new PdfPCell(new Phrase(amount, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4 });
+                    //        i++;
+                    //    }
+                    //}
+                    //doc.Add(itemTbl);
+
                     if (dsItems != null && dsItems.Tables[0].Rows.Count > 0)
                     {
                         int i = 1;
                         foreach (DataRow dr in dsItems.Tables[0].Rows)
                         {
                             BaseColor bg = (i % 2 == 0) ? new BaseColor(248, 248, 248) : BaseColor.WHITE;
+
                             string rate = dr["UnitRate"] != DBNull.Value ? "₹ " + Convert.ToDecimal(dr["UnitRate"]).ToString("N2") : "₹ 0.00";
                             string discount = dr["Discount"] != DBNull.Value ? dr["Discount"].ToString() + " %" : "0 %";
                             string amount = dr["Amount"] != DBNull.Value ? "₹ " + Convert.ToDecimal(dr["Amount"]).ToString("N2") : "₹ 0.00";
 
+                            // New fields
+                            string uom = dr.Table.Columns.Contains("UOMName") ? dr["UOMName"].ToString() : "";
+                            string gst = dr.Table.Columns.Contains("GST") && dr["GST"] != DBNull.Value
+                              ? dr["GST"].ToString() // no extra %
+                              : "0%";
+
+
+
+                            // Add cells to table
                             itemTbl.AddCell(new PdfPCell(new Phrase(i.ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
                             itemTbl.AddCell(new PdfPCell(new Phrase(dr["ItemName"].ToString(), textFont)) { BackgroundColor = bg, Padding = 4 });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(uom, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
                             itemTbl.AddCell(new PdfPCell(new Phrase(dr["Description"].ToString(), textFont)) { BackgroundColor = bg, Padding = 4 });
                             itemTbl.AddCell(new PdfPCell(new Phrase(dr["POQuantity"].ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
                             itemTbl.AddCell(new PdfPCell(new Phrase(dr["GRNQuantity"].ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
                             itemTbl.AddCell(new PdfPCell(new Phrase(rate, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4 });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(gst, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
                             itemTbl.AddCell(new PdfPCell(new Phrase(discount, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
                             itemTbl.AddCell(new PdfPCell(new Phrase(amount, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4 });
+
                             i++;
                         }
                     }
                     doc.Add(itemTbl);
+
 
                     // === TOTALS ===
                     PdfPTable totalTbl = new PdfPTable(2) { WidthPercentage = 40, HorizontalAlignment = Element.ALIGN_RIGHT };
