@@ -212,6 +212,7 @@ namespace P2PLibray.GRN
         }
         public class ApprovedPOModelPSM
         {
+            public string RQCode { get; set; }
             public string POCode { get; set; }
             public string VendorName { get; set; }
             public string VendorCompanyName { get; set; }
@@ -220,13 +221,14 @@ namespace P2PLibray.GRN
             public string ApprovedRejectedDate { get; set; }
             public string ItemName { get; set; }
             public string StatusName { get; set; }
+           
         }
 
 
 
         #endregion
 
-      
+
 
     }
 }

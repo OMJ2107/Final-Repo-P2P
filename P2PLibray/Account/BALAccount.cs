@@ -1050,7 +1050,7 @@ namespace P2PLibray.Account
                 events.Add(new
                 {
                     id = gr.IdCode,
-                    title = $"Goods Return Entry Is Added By {gr.AddedBy}",
+                    title = $"Purchase Return Entry Is Added By {gr.AddedBy}",
                     start = gr.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
                     color = "#ffc107",
                     extendedProps = new

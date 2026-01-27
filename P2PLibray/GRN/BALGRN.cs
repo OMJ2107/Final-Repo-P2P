@@ -540,6 +540,23 @@ namespace P2PLibray.GRN
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("GRNProcedure", param);
             return ds.Tables[0];
         }
+        /// <summary>
+        /// Retrieves approved PO items for a given PO code.
+        /// </summary>
+        /// <param name="RQCode">The PO code to filter items.</param>
+        /// <returns>A DataTable containing approved PO items.</returns>
+        public async Task<DataTable> RegistrationQuotationCodePSM(string RQCode)
+        {
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            if (RQCode.Contains("PO"))
+                param.Add("@Flag", "RegistrationQuotationCodePSM");
+            else
+                param.Add("@Flag", "RegistrationQuotationCode2PSM");
+            param.Add("@RegistrationQuotationCode", RQCode);
+            DataSet ds = await obj.ExecuteStoredProcedureReturnDS("GRNProcedure", param);
+            return ds?.Tables?.Count > 0 ? ds.Tables[0] : new DataTable();
+        }
+
 
         #endregion
 
