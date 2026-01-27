@@ -356,6 +356,11 @@ namespace P2PLibray.Purchase
         public string RFQCode { get; set; }
          public DateTime? AddedDateAT { get; set; }
         public string RegisterQuotationCode { get; set; }
+        public DateTime? CreatedDateAT { get; set; }
+        public int GRNCount { get; set; }
+        public string GRNCodes { get; set; }
+
+        public DateTime? QuotationDateAT { get; set; }
         public string AddedBy { get; set; }
         public string VendorsInvited { get; set; }
         public string VendorsResponded { get; set; }
