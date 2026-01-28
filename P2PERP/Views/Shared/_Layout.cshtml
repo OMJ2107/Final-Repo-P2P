@@ -51,9 +51,9 @@
     string currentAction = ViewContext.RouteData.Values["action"].ToString();
 }
 
-<html class=" layout-navbar-fixed layout-menu-fixed layout-compact "
-      data-skin="default" data-bs-theme="light"
-      data-assets-path="~/Content/assets/">
+<html class=" layout-navbar-fixed layout-menu-fixed layout-compact " data-skin="default" data-bs-theme="light"
+    data-assets-path="~/Content/assets/">
+
 <head>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -72,6 +72,7 @@
     <link rel="icon" type="image/x-icon" href="~/Content/images/Favicon-Procura.png">
     <!-- Custome CSS -->
     <link rel="stylesheet" href="~/Content/Site.css" />
+    <link rel="stylesheet" href="~/Content/ModernUI.css" />
 
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="~/Content/dataTables.dataTables.min.css" />
@@ -135,9 +136,6 @@
 
 
     <style>
-
-
-
         /* Enhanced Toast Styles */
         .toast-success {
             background-color: #28a745 !important;
@@ -151,6 +149,87 @@
             color: white !important;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        /* ===== Global Premium Table & Control Styles ===== */
+        :root {
+            --theme-purple: #8b5cf6;
+            --theme-purple-light: #f3f0ff;
+            --theme-dark: #1f2937;
+            --theme-green: #4caf50;
+        }
+
+        /* 1. Global Table Headers - Ultra High Specificity */
+        table thead th,
+        .dataTable thead th,
+        .table thead th,
+        table.dataTable thead th,
+        .dataTables_scrollHeadInner table thead th {
+            background-color: #1f2937 !important;
+            background-image: none !important;
+            color: white !important;
+            text-transform: uppercase !important;
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.5px;
+            padding: 14px 10px !important;
+            border: 1px solid #374151 !important;
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+
+        /* 2. Global Action Buttons (Edit/View) */
+        .btnedit,
+        .btn-edit,
+        .btn-secondary.btn-sm i.bi-pencil-square,
+        .btn-secondary.btn-sm i.bi-pencil-fill {
+            background-color: #9ca3af !important;
+            border-radius: 8px !important;
+            color: white !important;
+            transition: all 0.2s;
+        }
+
+        .btnview,
+        .btn-view,
+        .btn-view-plan,
+        .btn-primary.btn-sm i.bi-eye-fill,
+        .btn-primary.btn-sm i.bi-eye {
+            background-color: var(--theme-purple) !important;
+            border-radius: 8px !important;
+            color: white !important;
+            transition: all 0.2s;
+        }
+
+        /* 3. Global Success/Create Buttons */
+        .btn-success,
+        .btn-add,
+        #createitem,
+        #subitem {
+            background-color: var(--theme-green) !important;
+            border: none !important;
+            border-radius: 20px !important;
+            font-weight: 600 !important;
+        }
+
+        /* 4. Global DataTables Export Buttons */
+        .dt-buttons .btn,
+        .dt-button {
+            background: #f3f4f6 !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 10px !important;
+            width: 42px !important;
+            height: 42px !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 5. Global Search Bar Harmony */
+        .dataTables_filter input {
+            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            padding: 6px 12px !important;
+            outline: none;
         }
 
         .toast-info {
@@ -187,11 +266,11 @@
             gap: 6px;
         }
 
-            /* Hover effects */
-            .dt-button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(123, 78, 255, 0.3);
-            }
+        /* Hover effects */
+        .dt-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 78, 255, 0.3);
+        }
 
         /* Specific button colors */
         .buttons-print {
@@ -227,9 +306,12 @@
         table th {
             border-top: none;
             font-weight: 600;
-            white-space: nowrap; /* Prevents text wrapping */
-            text-overflow: ellipsis; /* Adds "..." if text is too long */
-            overflow: hidden; /* Hides overflow text */
+            white-space: nowrap;
+            /* Prevents text wrapping */
+            text-overflow: ellipsis;
+            /* Adds "..." if text is too long */
+            overflow: hidden;
+            /* Hides overflow text */
         }
 
 
@@ -253,18 +335,19 @@
             transition: background-color 0.2s ease-in-out;
         }
 
-        /* Table header remains dark */
-        table.dataTable thead th {
-            background-color: #212529 !important;
-            color: #ffffff !important;
-            text-align: center;
-        }
+        /* Table header remains dark - REMOVED to allow ModernUI.css to control */
+        /* table.dataTable thead th {
+             background-color: #212529 !important;
+             color: #ffffff !important;
+             text-align: center;
+        } */
 
         /* Optional: give entire table a clean white background */
         table.dataTable {
             background-color: #ffffff !important;
             border-radius: 8px !important;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: none;
+            /* Removed shadow for cleaner look */
             overflow: hidden;
         }
 
@@ -275,7 +358,8 @@
         }
 
         /*  Compact Table Row Size */
-        .table td, .table th {
+        .table td,
+        .table th {
             padding: 0.35rem 0.5rem !important;
             font-size: 0.78rem;
             vertical-align: middle;
@@ -286,13 +370,18 @@
             font-size: 0.70rem !important;
         }
 
-            .btn-delete i {
-                font-size: 0.75rem !important;
-            }
+        .btn-delete i {
+            font-size: 0.75rem !important;
+        }
 
 
         @@media (max-width: 768px) {
-            .form-control, .form-select, .btn, .table td, .table th {
+
+            .form-control,
+            .form-select,
+            .btn,
+            .table td,
+            .table th {
                 font-size: 0.85rem;
             }
         }
@@ -304,27 +393,30 @@
             background: none !important;
         }
 
-            button.dt-button.processing:after {
-                content: none !important;
-            }
+        button.dt-button.processing:after {
+            content: none !important;
+        }
 
         #Logo {
-           
+
             height: 60px;
             width: 60px;
         }
+
         .app-brand {
-            margin-left:-10px !important;
+            margin-left: -10px !important;
         }
     </style>
 
 
 </head>
+
 <body>
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0"
+            style="display: none; visibility: hidden"></iframe></noscript>
 
     <!-- Layout wrapper -->
-    <div class="layout-wrapper layout-content-navbar " style="background-color:#eeeded">
+    <div class="layout-wrapper layout-content-navbar ">
         <div class="layout-container">
 
             <!-- Menu -->
@@ -393,7 +485,7 @@
 
                     @if (role == "8") // Purchase Manager
                     {
-                        <li class="menu-item @(currentAction.Contains("UserDashboardPRK") || currentAction.Contains("ShowPendingPRPRK") || currentAction.Contains("SupplierQuotationAMG") || currentAction.Contains("PurchaseOrdersVNK") || currentAction.Contains("VenderManagementOK")  ? "active open" : "")">
+                        <li class="menu-item @(currentAction.Contains("UserDashboardPRK") || currentAction.Contains("ShowPendingPRPRK") || currentAction.Contains("SupplierQuotationAMG") || currentAction.Contains("PurchaseOrdersVNK") || currentAction.Contains("VenderManagementOK") ? "active open" : "")">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-speedometer me-3 fs-5"></i>
                                 <div class="fw-semibold">Manager Dashboard</div>
@@ -461,31 +553,23 @@
 
                     @if (role == "9") // PO User
                     {
-                        <li class="menu-item @(currentAction.Contains("SelectedQuotationListShowOK") || currentAction.Contains("PurchaseOrederHistoryOK") || currentAction.Contains("JustInTimeItemListOK") ? "active open" : "")">
-                            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                <i class="menu-icon tf-icons bi bi-cart4 me-3 fs-5"></i>
-                                <div class="fw-semibold">PO User Dashboard</div>
+                        <li class="menu-item @(currentAction == "SelectedQuotationListShowOK" ? "active" : "")">
+                            <a href="@Url.Action("SelectedQuotationListShowOK", "Purchase")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-inbox me-3"></i>
+                                <div>Receive Quotation</div>
                             </a>
-                            <ul class="menu-sub slide-transition">
-                                <li class="menu-item @(currentAction == "SelectedQuotationListShowOK" ? "active" : "")">
-                                    <a href="@Url.Action("SelectedQuotationListShowOK", "Purchase")" class="menu-link">
-                                        <i class="menu-icon tf-icons bi bi-inbox me-3"></i>
-                                        <div>Receive Quotation</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item @(currentAction == "JustInTimeItemListOK" ? "active" : "")">
-                                    <a href="@Url.Action("JustInTimeItemListOK", "Purchase")" class="menu-link">
-                                        <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
-                                        <div>Just In Time</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item @(currentAction == "PurchaseOrederHistoryOK" ? "active" : "")">
-                                    <a href="@Url.Action("PurchaseOrederHistoryOK", "Purchase")" class="menu-link">
-                                        <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
-                                        <div>Purchase Order History</div>
-                                    </a>
-                                </li>
-                            </ul>
+                        </li>
+                        <li class="menu-item @(currentAction == "JustInTimeItemListOK" ? "active" : "")">
+                            <a href="@Url.Action("JustInTimeItemListOK", "Purchase")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
+                                <div>Just In Time</div>
+                            </a>
+                        </li>
+                        <li class="menu-item @(currentAction == "PurchaseOrederHistoryOK" ? "active" : "")">
+                            <a href="@Url.Action("PurchaseOrederHistoryOK", "Purchase")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-clock-history me-3"></i>
+                                <div>Purchase Order History</div>
+                            </a>
                         </li>
                     }
 
@@ -493,7 +577,7 @@
                     {
                         if (role == "2")
                         {
-                            <li class="menu-item @(currentAction == "InventoryDashboard" ? "active" : "")">
+                            <li class="menu-item @(currentAction == "InventoryDashboard" || (currentAction == "Index" && currentController == "Inventory") ? "active" : "")">
                                 <a href="@Url.Action("InventoryDashboard", "Inventory")" class="menu-link">
                                     <i class="menu-icon tf-icons bi bi-speedometer2"></i>
                                     <div class="fw-semibold">Inventory Dashboard</div>
@@ -625,11 +709,11 @@
                                 </a>
                                 <ul class="menu-sub">
                                     @*<li class="menu-item @(currentAction == "CurrentStockReportAMG" ? "active" : "")">
-                                            <a href="@Url.Action("CurrentStockReportAMG", "Inventory")" class="menu-link">
-                                                <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
-                                                <div>Current Stock Reports</div>
-                                            </a>
-                                        </li>*@
+                            <a href="@Url.Action("CurrentStockReportAMG", "Inventory")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
+                                <div>Current Stock Reports</div>
+                            </a>
+                        </li>*@
                                     <li class="menu-item @(currentAction == "ReceivedMaterialReport" ? "active" : "")">
                                         <a href="@Url.Action("ReceivedMaterialReportAMG", "Inventory")" class="menu-link">
                                             <i class="menu-icon tf-icons bi bi-file-earmark-text"></i>
@@ -656,7 +740,8 @@
                             </a>
                         </li>
 
-                        <li class="menu-item @(currentAction == "GRNSSG" || currentAction == "RejectedGoods" ? "active open" : "")" id="grn-transaction-menu">
+                        <li class="menu-item @(currentAction == "GRNSSG" || currentAction == "RejectedGoods" ? "active open" : "")"
+                            id="grn-transaction-menu">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-arrow-left-right me-3 fs-5"></i>
                                 <div class="fw-semibold">Transaction</div>
@@ -732,7 +817,8 @@
             </aside>
 
             <div class="menu-mobile-toggler d-xl-none rounded-1">
-                <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large text-bg-secondary p-2 rounded-1">
+                <a href="javascript:void(0);"
+                    class="layout-menu-toggle menu-link text-large text-bg-secondary p-2 rounded-1">
                     <i class="ri ri-menu-line icon-base"></i>
                     <i class="ri ri-arrow-right-s-line icon-base"></i>
                 </a>
@@ -742,7 +828,8 @@
             <div class="layout-page">
 
                 <!-- Navbar -->
-                <nav class="layout-navbar container-xxl navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme" id="layout-navbar">
+                <nav class="layout-navbar container-xxl navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme"
+                    id="layout-navbar">
                     <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0   d-xl-none ">
                         <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
                             <i class="icon-base ri ri-menu-line icon-md"></i>
@@ -778,24 +865,31 @@
                         <ul class="navbar-nav flex-row align-items-center ms-md-auto">
                             <!-- Style Switcher -->
                             <li class="nav-item dropdown mt-2">
-                                <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill" id="nav-theme" href="javascript:void(0);" data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
+                                    id="nav-theme" href="javascript:void(0);" data-bs-toggle="dropdown">
                                     <i class="icon-base ri ri-sun-line icon-22px theme-icon-active"></i>
                                     <span class="d-none ms-2" id="nav-theme-text">Toggle theme</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-theme-text">
                                     <li>
-                                        <button type="button" class="dropdown-item align-items-center active" data-bs-theme-value="light" aria-pressed="false">
-                                            <span> <i class="icon-base ri ri-sun-line icon-md me-3" data-icon="sun-line"></i>Light</span>
+                                        <button type="button" class="dropdown-item align-items-center active"
+                                            data-bs-theme-value="light" aria-pressed="false">
+                                            <span> <i class="icon-base ri ri-sun-line icon-md me-3"
+                                                    data-icon="sun-line"></i>Light</span>
                                         </button>
                                     </li>
                                     <li>
-                                        <button type="button" class="dropdown-item align-items-center" data-bs-theme-value="dark" aria-pressed="true">
-                                            <span> <i class="icon-base ri ri-moon-clear-line icon-md me-3" data-icon="moon-clear-line"></i>Dark</span>
+                                        <button type="button" class="dropdown-item align-items-center"
+                                            data-bs-theme-value="dark" aria-pressed="true">
+                                            <span> <i class="icon-base ri ri-moon-clear-line icon-md me-3"
+                                                    data-icon="moon-clear-line"></i>Dark</span>
                                         </button>
                                     </li>
                                     <li>
-                                        <button type="button" class="dropdown-item align-items-center" data-bs-theme-value="system" aria-pressed="false">
-                                            <span> <i class="icon-base ri ri-computer-line icon-md me-3" data-icon="computer-line"></i>System</span>
+                                        <button type="button" class="dropdown-item align-items-center"
+                                            data-bs-theme-value="system" aria-pressed="false">
+                                            <span> <i class="icon-base ri ri-computer-line icon-md me-3"
+                                                    data-icon="computer-line"></i>System</span>
                                         </button>
                                     </li>
                                 </ul>
@@ -804,14 +898,15 @@
                             <!-- Email -->
                             <li class="nav-item me-3 me-xl-2 ms-3 ms-xl-2 mt-2">
                                 <a class="text-black position-relative email-icon"
-                                   href="@Url.Action("SendMailHSB", currentController)">
+                                    href="@Url.Action("SendMailHSB", currentController)">
                                     <i class="ri-mail-line icon-md"></i>
                                 </a>
                             </li>
                             <!-- /Email -->
                             <!-- Calendar -->
                             <li class="nav-item me-3 me-xl-2 ms-3 ms-xl-2">
-                                <a class="text-black position-relative calendar-icon" href="@Url.Action("Calender", currentController)">
+                                <a class="text-black position-relative calendar-icon"
+                                    href="@Url.Action("Calender", currentController)">
                                     <i class="ri-calendar-event-line icon-md"></i>
                                 </a>
                             </li>
@@ -819,24 +914,25 @@
                             <!-- Notification -->
                             <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 mt-2 me-xl-2">
                                 <a class="nav-link dropdown-toggle hide-arrow waves-effect position-relative notification-btn"
-                                   href="javascript:void(0);"
-                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="position-relative">
                                         <i class="icon-base ri ri-notification-2-line icon-md"></i>
                                         <span id="notificationBadge"
-                                              class="badge bg-danger rounded-pill position-absolute notification-badge"
-                                              style="top: -7px; right: -5px; min-width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center;">
+                                            class="badge bg-danger rounded-pill position-absolute notification-badge"
+                                            style="top: -7px; right: -5px; min-width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center;">
                                             0
                                         </span>
                                     </span>
                                 </a>
 
                                 <ul class="dropdown-menu dropdown-menu-end p-0 notification-dropdown">
-                                    <li class="dropdown-header d-flex justify-content-between align-items-center px-3 pt-3 pb-2">
+                                    <li
+                                        class="dropdown-header d-flex justify-content-between align-items-center px-3 pt-3 pb-2">
                                         <span class="fw-semibold">Notifications</span>
                                         <span class="badge bg-primary rounded-pill" id="notificationCount">0</span>
                                     </li>
-                                    <li class="dropdown-notifications-list scrollable-container" style="overflow:auto; scrollbar-width:none;">
+                                    <li class="dropdown-notifications-list scrollable-container"
+                                        style="overflow:auto; scrollbar-width:none;">
                                         <ul id="notificationItems" class="list-group list-group-flush">
                                             <li class="list-group-item text-center py-4">
                                                 <div class="text-muted">
@@ -862,10 +958,10 @@
                             <!-- User -->
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow p-0 user-avatar-btn"
-                                   href="javascript:void(0);"
-                                   data-bs-toggle="dropdown">
+                                    href="javascript:void(0);" data-bs-toggle="dropdown">
                                     <div class="avatar avatar-online position-relative">
-                                        <img src="~/Content/images/avatars/1.png" alt="" id="layout-profile-photo" class="rounded-circle shadow-sm" />
+                                        <img src="~/Content/images/avatars/1.png" alt="" id="layout-profile-photo"
+                                            class="rounded-circle shadow-sm" />
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end p-3 user-dropdown">
@@ -873,18 +969,23 @@
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 me-3">
                                                 <div class="avatar avatar-online">
-                                                    <img src="~/Content/images/avatars/1.png" id="layout-another-photo" alt="" class="w-px-40 rounded-circle" height="50" />
+                                                    <img src="~/Content/images/avatars/1.png" id="layout-another-photo"
+                                                        alt="" class="w-px-40 rounded-circle" height="50" />
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 id="layout-username" class="mb-0 fw-semibold">John Doe</h6>
-                                                <small id="layout-role" class="text-body-secondary">Administrator</small>
+                                                <small id="layout-role"
+                                                    class="text-body-secondary">Administrator</small>
                                             </div>
                                         </div>
                                     </li>
-                                    <li><hr class="dropdown-divider my-2"></li>
                                     <li>
-                                        <a class="dropdown-item d-flex align-items-center" href="@Url.Action("UserProfile",currentController)">
+                                        <hr class="dropdown-divider my-2">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center"
+                                            href="@Url.Action("UserProfile", currentController)">
                                             <i class="icon-base ri ri-user-line icon-md me-3 text-primary"></i>
                                             <div>
                                                 <span class="d-block fw-medium">My Profile</span>
@@ -893,7 +994,8 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item d-flex align-items-center" href="@($"{Url.Action("UserProfile", currentController)}#update-profile")">
+                                        <a class="dropdown-item d-flex align-items-center"
+                                            href="@($"{Url.Action("UserProfile", currentController)}#update-profile")">
                                             <i class="icon-base ri ri-settings-4-line icon-md me-3 text-success"></i>
                                             <div>
                                                 <span class="d-block fw-medium">Update Profile</span>
@@ -901,20 +1003,26 @@
                                             </div>
                                         </a>
                                     </li>
-                                    <li><hr class="dropdown-divider my-2"></li>
+                                    <li>
+                                        <hr class="dropdown-divider my-2">
+                                    </li>
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center" href="javascript:void(0)">
-                                            <i class="icon-base ri ri-customer-service-2-line icon-md me-3 text-info"></i>
+                                            <i
+                                                class="icon-base ri ri-customer-service-2-line icon-md me-3 text-info"></i>
                                             <div>
                                                 <span class="d-block fw-medium">Help & Support</span>
                                                 <small class="text-body-secondary">Get help and feedback</small>
                                             </div>
                                         </a>
                                     </li>
-                                    <li><hr class="dropdown-divider my-2"></li>
+                                    <li>
+                                        <hr class="dropdown-divider my-2">
+                                    </li>
                                     <li>
                                         <div class="d-grid">
-                                            <a class="btn btn-danger d-flex align-items-center justify-content-center" href="@Url.Action("Logout","Account")">
+                                            <a class="btn btn-danger d-flex align-items-center justify-content-center"
+                                                href="@Url.Action("Logout", "Account")">
                                                 <i class="ri ri-logout-box-r-line me-2"></i>
                                                 <span class="fw-medium">Logout</span>
                                             </a>
@@ -927,7 +1035,7 @@
                     </div>
                 </nav>
                 <!-- / Navbar -->
-                
+
 
 
                 <!-- Content wrapper -->
@@ -937,21 +1045,28 @@
                     <!-- Footer -->
                     <footer class="content-footer footer bg-footer-theme">
                         <div class="container-xxl">
-                            <div class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
+                            <div
+                                class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
                                 <div class="mb-2 mb-md-0">
                                     &#169;
                                     <script>
                                         document.write(new Date().getFullYear());
                                     </script>
-                                    made with ❤️ by <a href="https://rahitechit.com/" target="_blank" class="footer-link fw-medium">Rahitech</a>
+                                    made with ❤️ by <a href="https://rahitechit.com/" target="_blank"
+                                        class="footer-link fw-medium">Rahitech</a>
                                 </div>
-                                @*<div class="d-none d-lg-inline-block">
-                                    <a href="https://themeselection.com/item/category/admin-templates/" target="_blank" class="footer-link me-4">Admin Templates</a>
-                                    <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
-                                    <a href="https://themeselection.com/item/category/bootstrap-templates/" target="_blank" class="footer-link me-4">Bootstrap Dashboard</a>
-                                    <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/" target="_blank" class="footer-link me-4">Documentation</a>
-                                    <a href="https://themeselection.com/support/" target="_blank" class="footer-link d-none d-sm-inline-block">Support</a>
-                                </div>*@
+                                <div class="d-none d-lg-inline-block">
+                                    <a href="https://themeselection.com/item/category/admin-templates/" target="_blank"
+                                        class="footer-link me-4">Admin Templates</a>
+                                    <a href="https://themeselection.com/license/" class="footer-link me-4"
+                                        target="_blank">License</a>
+                                    <a href="https://themeselection.com/item/category/bootstrap-templates/"
+                                        target="_blank" class="footer-link me-4">Bootstrap Dashboard</a>
+                                    <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/"
+                                        target="_blank" class="footer-link me-4">Documentation</a>
+                                    <a href="https://themeselection.com/support/" target="_blank"
+                                        class="footer-link d-none d-sm-inline-block">Support</a>
+                                </div>
                             </div>
                         </div>
                     </footer>
@@ -1176,5 +1291,6 @@
     <script src="~/Content/assets/vendor/js/menu.js"></script>
     <script src="~/Content/assets/js/main.js"></script>
 </body>
+
 </html>
 <!-- beautify ignore:end -->

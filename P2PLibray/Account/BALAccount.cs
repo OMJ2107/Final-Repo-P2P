@@ -567,8 +567,9 @@ namespace P2PLibray.Account
                 {
                     id = rfq.IdCode,
                     title = $"Request For Quotation Is Added By {rfq.AddedBy}",
-                    start = rfq.AddedDate.ToString("yyyy-MM-dd"),
-                    end = rfq.EndDate.ToString("yyyy-MM-dd"),
+                    //start = rfq.AddedDate.ToString("yyyy-MM-dd"),
+                    //end = rfq.EndDate.AddDays(1).ToString("yyyy-MM-dd"),
+                    start = rfq.EndDate.AddDays(1).ToString("yyyy-MM-dd"),
                     color = "#17a2b8",
                     extendedProps = new
                     {
@@ -1050,7 +1051,7 @@ namespace P2PLibray.Account
                 events.Add(new
                 {
                     id = gr.IdCode,
-                    title = $"Goods Return Entry Is Added By {gr.AddedBy}",
+                    title = $"Purchase Return Entry Is Added By {gr.AddedBy}",
                     start = gr.AddedDate.ToString("yyyy-MM-ddTHH:mm:ss"),
                     color = "#ffc107",
                     extendedProps = new
