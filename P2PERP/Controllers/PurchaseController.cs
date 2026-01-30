@@ -3369,8 +3369,37 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                     mail.To.Add(vendorEmail);
                    // mail.To.Add("kumbharomkar765@gmail.com"w); // Test email
                     mail.Subject = $"Purchase Order - {POCode}";
-                    mail.Body = $"Dear {vendorName},\n\nPlease find attached the Purchase Order #{POCode}.\n\nThank you.\n\nRegards,\nYour Company";
-                    mail.IsBodyHtml = false;
+                    //mail.Body = $"<div style='background: linear - gradient(to bottom, #58a8c8, #4eb8d8);'>Dear {vendorName},<br><br>Please find attached the Purchase Order #{POCode}.<br><br>Thank you.<br><br>Regards,<br>Your Company <div>";
+                    mail.IsBodyHtml = true;
+
+                    mail.Body = $@"
+                            <div style='
+                                background-color:#4eb8d8;
+                                padding:20px;
+                                font-family:Arial, Helvetica, sans-serif;
+                                color:#000;
+                            '>
+                                <p>Dear <b>{vendorName}</b>,</p>
+
+                                <p>
+                                    Please find attached the <b>Purchase Order #{POCode}</b> for your reference.
+                                </p>
+
+                                <p>
+                                    Kindly review the details and acknowledge receipt.
+                                </p>
+
+                                <br/>
+
+                                <p>
+                                    Thank you.
+                                    <br/>
+                                    Regards,<br/>
+                                    <b>Gaya Soft</b>
+                                </p>
+                            </div>";
+
+                    mail.IsBodyHtml = true;
 
                     // Attach PDF
                     mail.Attachments.Add(new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{POCode}.pdf", "application/pdf"));
