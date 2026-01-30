@@ -3372,33 +3372,111 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                     //mail.Body = $"<div style='background: linear - gradient(to bottom, #58a8c8, #4eb8d8);'>Dear {vendorName},<br><br>Please find attached the Purchase Order #{POCode}.<br><br>Thank you.<br><br>Regards,<br>Your Company <div>";
                     mail.IsBodyHtml = true;
 
+                    //mail.Body = $@"
+                    //        <div style='
+                    //            background-color:#4eb8d8;
+                    //            padding:20px;
+                    //            font-family:Arial, Helvetica, sans-serif;
+                    //            color:#000;
+                    //        '>
+                    //            <p>Dear <b>{vendorName}</b>,</p>
+
+                    //            <p>
+                    //                Please find attached the <b>Purchase Order #{POCode}</b> for your reference.
+                    //            </p>
+
+                    //            <p>
+                    //                Kindly review the details and acknowledge receipt.
+                    //            </p>
+
+                    //            <br/>
+
+                    //            <p>
+                    //                Thank you.
+                    //                <br/>
+                    //                Regards,<br/>
+                    //                <b>Gaya Soft</b>
+                    //            </p>
+                    //        </div>";
+
+                    mail.IsBodyHtml = true;
+
                     mail.Body = $@"
-                            <div style='
-                                background-color:#4eb8d8;
-                                padding:20px;
-                                font-family:Arial, Helvetica, sans-serif;
-                                color:#000;
-                            '>
-                                <p>Dear <b>{vendorName}</b>,</p>
+                    <div style='
+                        background-color:#4eb8d8;
+                        padding:30px;
+                        font-family:Arial, Helvetica, sans-serif;
+                        color:#000;
+                        line-height:1.7;
+                        font-size:14px;
+                    '>
 
-                                <p>
-                                    Please find attached the <b>Purchase Order #{POCode}</b> for your reference.
-                                </p>
+                        <p>Dear <b>{vendorName}</b>,</p>
 
-                                <p>
-                                    Kindly review the details and acknowledge receipt.
-                                </p>
+                        <p>
+                            With reference to your quotation and subsequent discussions, we are pleased to place the
+                            <b>Purchase Order #{POCode}</b> with your esteemed organization.
+                        </p>
 
-                                <br/>
+                        <p>
+                            Please find the attached Purchase Order document for detailed specifications, quantities,
+                            pricing, taxes, and terms & conditions as mutually agreed.
+                        </p>
 
-                                <p>
-                                    Thank you.
-                                    <br/>
-                                    Regards,<br/>
-                                    <b>Gaya Soft</b>
-                                </p>
-                            </div>";
+                        <p><b>Purchase Order Summary:</b></p>
+                        <ul>
+                            <li>Purchase Order No: <b>{POCode}</b></li>
+                            <li>Purchase Order Date: <b>{DateTime.Now:dd-MMM-yyyy}</b></li>
+                            <li>Reference: <b>As per approved quotation</b></li>
+                        </ul>
 
+                        <p>
+                            This Purchase Order is issued subject to the terms and conditions mentioned in the
+                            Purchase Order document and your submitted quotation. Any deviation must be communicated
+                            in writing and approved prior to execution.
+                        </p>
+
+                        <p>
+                            Kindly ensure that all invoices, delivery challans, and related documents clearly mention
+                            the above Purchase Order Number for easy reference and processing.
+                        </p>
+
+                        <p>
+                            Payment shall be processed strictly as per the agreed commercial terms mentioned in the
+                            Purchase Order and quotation.
+                        </p>
+
+                        <p>
+                            In case of any discrepancy in the Purchase Order details, please inform us immediately
+                            so that necessary corrections can be made at the earliest.
+                        </p>
+
+                        <p>
+                            Your acknowledgement of this Purchase Order will be considered as acceptance of the
+                            terms and conditions mentioned therein.
+                        </p>
+
+                        <br/>
+
+                        <p>
+                            We look forward to a smooth and successful business association.
+                        </p>
+
+                        <p>
+                            Thank you for your continued support and cooperation.
+                        </p>
+
+                        <p>
+                            Regards,<br/>
+                            <b>TradeConnect LLP</b><br/>
+                            <span style='font-size:12px;'>
+                                Purchase Department<br/>
+                                Email: purchase@TradeConnectLLP.com<br/>
+                                Phone: +91-8661485446
+                            </span>
+                        </p>
+
+                    </div>";
                     mail.IsBodyHtml = true;
 
                     // Attach PDF
