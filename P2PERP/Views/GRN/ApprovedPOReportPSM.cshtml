@@ -640,29 +640,11 @@
         }
     }
 
-    function loadShippingCharges(RQCode) {
-        if (!RQCode) return;
+    let tableTotal = 0;
+    let shippingCharges = 0;
 
-        $.ajax({
-            url: '/GRN/GetShippingChargesPSM',
-            type: 'GET',
-            data: { RQCode: RQCode },
-            success: function (response) {
-                if (response.success) {
-                    // Show the shipping charges in the input
-                    $('#shippingCharges').val(response.ShippingCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
-                } else {
-                    $('#shippingCharges').val('0.00');
-                    console.warn(response.message || 'Shipping charges not found');
-                }
-            },
-            error: function () {
-                $('#shippingCharges').val('0.00');
-                console.error('Error fetching shipping charges');
-            }
-        });
-    }
 
+    
     // ------------------- CHILD DATATABLE -------------------
     function loadPOItems(poCode) {
         if (poItemsTablePSM) { poItemsTablePSM.destroy(); $("#poItemsTablePSM tbody").empty(); }
@@ -989,7 +971,7 @@
                         setTimeout(function () { try { btnApi.processing(false); } catch (err) { } }, 2000);
                     }
                 },
-                
+
                 //Excel
                 {
                     extend: 'excelHtml5',
@@ -1071,10 +1053,10 @@
                                     const sheet = xlsx.xl.worksheets['sheet1.xml'];
                                     const sheetData = $('sheetData', sheet);
                                     const totalRows = selectedData.length;
-                                    const headerRow = 4; 
+                                    const headerRow = 4;
                                     const firstDataRow = headerRow + 1;
                                     const lastDataRow = headerRow + totalRows;
-                                    const summaryStartRow = lastDataRow + 1; 
+                                    const summaryStartRow = lastDataRow + 1;
 
                                     $('row', sheetData).each(function () {
                                         const $row = $(this);
@@ -1265,11 +1247,9 @@
             drawCallback: function () {
 
                 let api = this.api();
-                let total = 0;
+                tableTotal = 0;
 
-                // Final Amount column = index 8
                 api.column(8, { page: "current" }).data().each(function (value) {
-
                     if (value) {
                         let cleaned = value
                             .toString()
@@ -1277,14 +1257,11 @@
                             .replace(/,/g, "")
                             .trim();
 
-                        total += parseFloat(cleaned) || 0;
+                        tableTotal += parseFloat(cleaned) || 0;
                     }
                 });
 
-                // Put total in textbox
-                $("#totalFinalAmount").val(
-                    "₹ " + total.toLocaleString("en-IN", { minimumFractionDigits: 2 })
-                );
+                updateFinalAmount();
             }
         });
 
@@ -1298,29 +1275,40 @@
             type: 'GET',
             data: { RQCode: poCode },
             success: function (response) {
-                console.log("Shipping charges response:", response);
+
                 if (response && response.success) {
-                    $('#shippingCharges').val(
-                        parseFloat(response.ShippingCharges).toLocaleString('en-IN', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        })
-                    );
+                    shippingCharges = parseFloat(response.ShippingCharges) || 0;
                 } else {
-                    $('#shippingCharges').val('0.00');
+                    shippingCharges = 0;
                 }
+
+                $('#shippingCharges').val(
+                    shippingCharges.toLocaleString('en-IN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })
+                );
+
+                updateFinalAmount(); // ✅ recalc after shipping loads
             },
-            error: function (xhr, status, error) {
-                console.error("Error fetching shipping charges:", {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText,
-                    error: error
-                });
+            error: function () {
+                shippingCharges = 0;
                 $('#shippingCharges').val('0.00');
+                updateFinalAmount();
             }
         });
+        function updateFinalAmount() {
+            let finalAmount = tableTotal + shippingCharges;
+
+            $("#totalFinalAmount").val(
+                "₹ " + finalAmount.toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })
+            );
+        }
     }
+    
 
     $(document).on('click', '.btnViewPO', function () {
         var poCode = $(this).data('pocode');

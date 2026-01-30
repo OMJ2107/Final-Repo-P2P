@@ -978,6 +978,7 @@
             });
 
             // Set the date field
+            var minDateStr = earliestRequiredDate ? earliestRequiredDate.toISOString().split('T')[0] : '';
             $('#FromDate').on('change', function () {
                 var fromDate = $(this).val();
 
