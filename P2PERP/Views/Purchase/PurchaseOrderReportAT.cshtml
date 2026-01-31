@@ -22,13 +22,13 @@
 
         <!-- Bar Chart + Total -->
         @*<div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card p-3 shadow h-100">
-                    <h4 class="text-primary fw-bold text-center mb-3">Purchase Orders by Vendor</h4>
-                    <div id="poBarChart" style="height:400px;"></div>
+                <div class="col-md-12">
+                    <div class="card p-3 shadow h-100">
+                        <h4 class="text-primary fw-bold text-center mb-3">Purchase Orders by Vendor</h4>
+                        <div id="poBarChart" style="height:400px;"></div>
+                    </div>
                 </div>
-            </div>
-        </div>*@
+            </div>*@
 
 
 
@@ -57,7 +57,7 @@
                             <th>Vendor Name</th>
                             <th>Company Name</th>
                             <th>Added By</th>
-                            <th>Approved By</th>
+                            @*<th>Approved By</th>*@
                             <th>Approved Date</th>
                             <th>Status</th>
                             @*<th>GRN Count</th>           ✅ NEW*@
@@ -77,7 +77,7 @@
                                 <td>@po.VendorName</td>
                                 <td>@po.VendorCompanyName</td>
                                 <td>@po.AddedByName</td>
-                                <td>@po.ApprovedRejectedByName</td>
+                                @*<td>@po.ApprovedRejectedByName</td>*@
                                 <td>@(po.ApprovedRejectedDateAT.HasValue? po.ApprovedRejectedDateAT.Value.ToString("dd'/'MM'/'yyyy", System.Globalization.CultureInfo.InvariantCulture): "")</td>
                                 <td>
                                     <span class="@(po.StatusName == "Approved" ? "badge bg-success" :
@@ -164,12 +164,19 @@
                         </tr>
                     </thead>
                     <tbody></tbody>
+                    @*<tfoot>
+                            <tr>
+                                <th colspan="6" class="text-end">Total Amount:</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>*@
                     <tfoot>
                         <tr>
-                            <th colspan="6" class="text-end">Total Amount:</th>
-                            <th></th>
+                            <th colspan="7" class="text-end">Total Amount:</th>
+                            <th class="text-center"></th>
                         </tr>
                     </tfoot>
+
                 </table>
             </div>
         </div>
@@ -288,7 +295,7 @@
             columnDefs: [
                 { targets: 0, orderable: false, searchable: false },
                 { targets: 1, orderable: false, searchable: false },
-                { targets: 11, orderable: false, searchable: false } // Action column
+                { targets: 10, orderable: false, searchable: false } // Action column
                 //{ targets: 5, visible: false, searchable: false }
 
             ],
@@ -1066,33 +1073,78 @@
                         });
 
                         // 🔹 Initialize DataTable
+                        //$('#poItemsTable').DataTable({
+                        //    scrollX: true,
+                        //    paging: false,         // optional: you can enable if many rows
+                        //    searching: true,       // ✅ adds search box
+                        //    ordering: false,        // optional: enable sorting
+                        //    lengthChange: false,
+                        //    info: false,
+                        //    destroy: true,
+                        //    columnDefs: [
+                        //        { targets: 3, visible: false },
+                        //        { className: 'text-center', targets: '_all' }
+                        //    ],
+                        //    //footerCallback: function (row, data, start, end, display) {
+                        //    //    var api = this.api();
+
+                        //    //    // Sum final amount column (index 6)
+                        //    //    var total = api
+                        //    //        .column(6, { page: 'current' })
+                        //    //        .data()
+                        //    //        .reduce((a, b) => {
+                        //    //            var val = parseFloat(String(b).replace(/[^\d.-]/g, '')) || 0;
+                        //    //            return a + val;
+                        //    //        }, 0);
+
+                        //    //    // Update footer cell
+                        //    //    $(api.column(6).footer()).html('₹' + total.toFixed(2));
+                        //    //}
+                        //    footerCallback: function (row, data, start, end, display) {
+                        //        var api = this.api();
+
+                        //        // ✅ Sum Total Amount column (index 7)
+                        //        var total = api
+                        //            .column(7, { page: 'current' })
+                        //            .data()
+                        //            .reduce(function (a, b) {
+                        //                var val = parseFloat(String(b).replace(/[^\d.-]/g, '')) || 0;
+                        //                return a + val;
+                        //            }, 0);
+
+                        //        // ✅ Update footer
+                        //        $(api.column(7).footer()).html('₹' + total.toFixed(2));
+                        //    }
+                        //});
                         $('#poItemsTable').DataTable({
                             scrollX: true,
-                            paging: false,         // optional: you can enable if many rows
-                            searching: true,       // ✅ adds search box
-                            ordering: false,        // optional: enable sorting
+                            paging: false,
+                            searching: true,
+                            ordering: false,
                             lengthChange: false,
                             info: false,
                             destroy: true,
+
                             columnDefs: [
-                                { className: 'text-center', targets: '_all' }
+                                { targets: 3, visible: false },   // ✅ Hide UOM safely
+                                { targets: '_all', className: 'text-center' }
                             ],
-                            footerCallback: function (row, data, start, end, display) {
+
+                            footerCallback: function () {
                                 var api = this.api();
 
-                                // Sum final amount column (index 6)
                                 var total = api
-                                    .column(6, { page: 'current' })
+                                    .column(7, { page: 'current' }) // ✅ Total Amount
                                     .data()
-                                    .reduce((a, b) => {
+                                    .reduce(function (a, b) {
                                         var val = parseFloat(String(b).replace(/[^\d.-]/g, '')) || 0;
                                         return a + val;
                                     }, 0);
 
-                                // Update footer cell
-                                $(api.column(6).footer()).html('₹' + total.toFixed(2));
+                                $(api.column(7).footer()).html('₹' + total.toFixed(2));
                             }
                         });
+
 
                         // 🔹 Show modal
                         new bootstrap.Modal(document.getElementById('poItemsModal')).show();
@@ -1110,4 +1162,3 @@
 
     });
 </script>
-

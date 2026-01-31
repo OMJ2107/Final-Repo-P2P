@@ -567,9 +567,9 @@ namespace P2PLibray.Account
                 {
                     id = rfq.IdCode,
                     title = $"Request For Quotation Is Added By {rfq.AddedBy}",
-                    //start = rfq.AddedDate.ToString("yyyy-MM-dd"),
-                    //end = rfq.EndDate.AddDays(1).ToString("yyyy-MM-dd"),
-                    start = rfq.EndDate.AddDays(1).ToString("yyyy-MM-dd"),
+                    start = rfq.AddedDate.ToString("yyyy-MM-dd"),
+                    end = rfq.EndDate.AddDays(1).ToString("yyyy-MM-dd"),
+                    //start = rfq.EndDate.AddDays(1).ToString("yyyy-MM-dd"),
                     color = "#17a2b8",
                     extendedProps = new
                     {
