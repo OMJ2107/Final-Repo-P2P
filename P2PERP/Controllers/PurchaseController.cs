@@ -21,6 +21,9 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Configuration;
+using System.Web.Mail;
+
+//using System.Web.Mail;
 using System.Web.Mvc;
 using System.Web.Services.Description;
 using System.Web.UI.WebControls;
@@ -83,7 +86,7 @@ namespace P2PERP.Controllers
                 string fromEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
                 string password = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"];
 
-                MailMessage mail = new MailMessage();
+                System.Net.Mail.MailMessage mail = new System.Net.Mail.MailMessage();
                 mail.From = new MailAddress(fromEmail);
                 mail.To.Add(toEmail);
                 mail.Subject = subject;
@@ -1238,7 +1241,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                     EnableSsl = true,
                     Credentials = new NetworkCredential(newemail, newpass)
                 })
-                using (var message = new MailMessage(fromAddress, new MailAddress(vemail))
+                using (var message = new System.Net.Mail.MailMessage(fromAddress, new MailAddress(vemail))
                 {
                     Subject = subject,
                     Body = body,
@@ -1405,7 +1408,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 EnableSsl = true,
                 Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
             })
-            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com")) // <-- Replace with admin email
+            using (var message = new System.Net.Mail.MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com")) // <-- Replace with admin email
             {
                 Subject = subject,
                 Body = body,
@@ -3361,7 +3364,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 string vendorEmail = ds.Tables[0].Rows[0]["VendorEmail"].ToString();
                 string vendorName = ds.Tables[0].Rows[0]["VenderName"].ToString();
 
-                using (MailMessage mail = new MailMessage())
+                using (System.Net.Mail.MailMessage mail = new System.Net.Mail.MailMessage())
                 {
                     //mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
                    // mail.From = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
@@ -4323,20 +4326,88 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
                     try
                     {
+                        /* string subject = $"RFQ {request.RFQCode} from {request.PRCode}";
+                         string body = $@"Dear {vendor.VendorName},
+
+ We are pleased to invite you to submit a quotation for the attached Request for Quotation (RFQ) document, under reference number {request.RFQCode}, pertaining to Purchase Requisition {request.PRCode}.
+
+ The RFQ includes detailed item descriptions, quantities, and terms. Kindly review the document carefully and provide your best quotation by the stated due date.
+
+ Your timely response will be highly appreciated.
+
+ Should you require any additional information or clarification, please do not hesitate to contact our procurement team.
+
+ Sincerely,
+ Procurement Team
+ [Gayasoft Technology]";*/
                         string subject = $"RFQ {request.RFQCode} from {request.PRCode}";
-                        string body = $@"Dear {vendor.VendorName},
 
-We are pleased to invite you to submit a quotation for the attached Request for Quotation (RFQ) document, under reference number {request.RFQCode}, pertaining to Purchase Requisition {request.PRCode}.
+                        string body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+</head>
+<body style='font-family: Arial, Helvetica, sans-serif; background-color:#f4f6f8; margin:0; padding:20px;'>
 
-The RFQ includes detailed item descriptions, quantities, and terms. Kindly review the document carefully and provide your best quotation by the stated due date.
+    <table width='100%' cellpadding='0' cellspacing='0'>
+        <tr>
+            <td align='center'>
+                <table width='600' cellpadding='0' cellspacing='0' style='background-color:#ffffff; border-radius:6px; overflow:hidden;'>
 
-Your timely response will be highly appreciated.
+                    <!-- Header -->
+                    <tr>
+                        <td style='background-color:#0d6efd; color:#ffffff; padding:20px; text-align:center;'>
+                            <h2 style='margin:0;'>Request for Quotation (RFQ)</h2>
+                        </td>
+                    </tr>
 
-Should you require any additional information or clarification, please do not hesitate to contact our procurement team.
+                    <!-- Body -->
+                    <tr>
+                        <td style='padding:25px; color:#333333; font-size:14px; line-height:1.6;'>
+                            <p>Dear <strong>{vendor.VendorName}</strong>,</p>
 
-Sincerely,
-Procurement Team
-[Gayasoft Technology]";
+                            <p>
+                                We are pleased to invite you to submit your quotation for the attached
+                                <strong>Request for Quotation (RFQ)</strong> under reference number
+                                <strong>{request.RFQCode}</strong>, related to Purchase Requisition
+                                <strong>{request.PRCode}</strong>.
+                            </p>
+
+                            <p>
+                                The RFQ document contains detailed item specifications, quantities,
+                                and applicable terms and conditions. Kindly review the document carefully
+                                and submit your <strong>best quotation</strong> on or before the specified due date.
+                            </p>
+
+                            <p>
+                                Should you require any clarification or additional information,
+                                please feel free to contact our procurement team.
+                            </p>
+
+                            <p style='margin-top:30px;'>
+                                Best regards,<br>
+                                <strong>Procurement Team</strong><br>
+                                <span style='color:#0d6efd;'>TradeConnect LLP</span>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style='background-color:#f1f1f1; padding:15px; text-align:center; font-size:12px; color:#777777;'>
+                            
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>";
+
 
 
                         // 🔹 Make a temp copy for each vendor (avoids file lock issues)
@@ -4766,10 +4837,12 @@ Procurement Team
                 EnableSsl = true,
                 Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
             })
-            using (var message = new MailMessage(fromAddress, new MailAddress(toEmail))
+            using (var message = new System.Net.Mail.MailMessage(fromAddress, new MailAddress(toEmail))
             {
                 Subject = subject,
-                Body = body
+                Body = body,
+                IsBodyHtml = true
+
             })
             {
                 if (!string.IsNullOrEmpty(attachmentPath) && System.IO.File.Exists(attachmentPath))
