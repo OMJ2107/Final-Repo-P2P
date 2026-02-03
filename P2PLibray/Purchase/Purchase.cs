@@ -300,6 +300,14 @@ namespace P2PLibray.Purchase
 
 
     #endregion
+    #region omkar
+    public class POTermOK
+    {
+        public int SRNO { get; set; }
+        public string TermConditionName { get; set; }
+    }
+
+    #endregion
     public class Purchase
     {
 
