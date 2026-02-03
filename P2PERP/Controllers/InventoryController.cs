@@ -20,6 +20,8 @@ namespace P2PERP.Controllers
     {
         BALInventory bal = new BALInventory();
         // GET: InventoryP2P
+        [Route("Inventory/InventoryDashboard")]
+        [HttpGet]
         public ActionResult Index()
         {
             var RoleId = Convert.ToInt32(Session["RoleId"]);
@@ -186,6 +188,13 @@ namespace P2PERP.Controllers
             var result = await bal.GetTotalBinHSB();
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+
+        // Get inventory dashboard metrics (Value-based)
+        public async Task<JsonResult> GetInventoryDashboardMetricsHSB(DateTime? fromDate, DateTime? toDate, string category)
+        {
+            var data = await bal.GetInventoryDashboardMetricsHSB(fromDate, toDate, category);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
         #region Divyani
@@ -215,6 +224,7 @@ namespace P2PERP.Controllers
                     InventoryDRB ReceiveMaterial = new InventoryDRB
                     {
                         GRNCode = dr["GRNCode"].ToString(),
+                        SupplierName = dr["SupplierName"].ToString(),
                         AddedDate = Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy"),
                     };
 
@@ -264,7 +274,7 @@ namespace P2PERP.Controllers
         public async Task<JsonResult> GetBinBasedOnItemDRB(string itemcode)
         {
             var bins = await bal.GetBins(itemcode);
-            return Json(bins,JsonRequestBehavior.AllowGet);
+            return Json(bins, JsonRequestBehavior.AllowGet);
         }
 
         // Loads the Issue In-House view
@@ -375,7 +385,7 @@ namespace P2PERP.Controllers
 
 
         // Gets the list of Bins for a given Row
-       
+
 
         // Gets the Issue In-House items based on Status Id
         [HttpGet]
@@ -580,12 +590,12 @@ namespace P2PERP.Controllers
         /// <summary>
         /// Retrieves detailed list of items for a specific requirement
         /// </summary>
-       
+
         public async Task<ActionResult> ViewReqMasterListRHK()
         {
             try
             {
-               
+
                 // Get detailed requirement data from business layer
                 DataSet ds = await bal.ViewReqMasterRHK();
 
@@ -713,10 +723,10 @@ namespace P2PERP.Controllers
             // Return JSON data for client-side display
             return Json(new { data = reqlist }, JsonRequestBehavior.AllowGet);
         }
-    #endregion Rushikesh
+        #endregion Rushikesh
 
         #region Akash
-    
+
         /// <summary>
         /// Gets current stock report data (JSON result).
         /// </summary>
@@ -851,39 +861,39 @@ namespace P2PERP.Controllers
 
         //THIS USE FOR SAVE WAREHOUSE 
         [HttpPost]
-		public async Task<ActionResult> AddWarehouseSK(InventorySK model)
-		{
-			try
-			{
-				if (ModelState.IsValid)
-				{
-					model.AddedBy = Session["StaffCode"].ToString();
-					model.AddedDate = DateTime.Now;
+        public async Task<ActionResult> AddWarehouseSK(InventorySK model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    model.AddedBy = Session["StaffCode"].ToString();
+                    model.AddedDate = DateTime.Now;
 
-					var (Success, Message, NewId) = await bal.AddWarehouseAsyncSK(model);
+                    var (Success, Message, NewId) = await bal.AddWarehouseAsyncSK(model);
 
-					if (Success)
-						return Json(new { success = true, message = Message, newId = NewId });
+                    if (Success)
+                        return Json(new { success = true, message = Message, newId = NewId });
 
-					// ✅ If duplicate name detected
-					if (Message.Contains("already"))
-						return Json(new { success = false, message = Message, field = "WarehouseName" });
+                    // ✅ If duplicate name detected
+                    if (Message.Contains("already"))
+                        return Json(new { success = false, message = Message, field = "WarehouseName" });
 
-					return Json(new { success = false, message = Message });
-				}
-				return Json(new { success = false, message = "Invalid data" });
-			}
-			catch (Exception ex)
-			{
-				return Json(new { success = false, message = ex.Message });
-			}
-		}
-
-
+                    return Json(new { success = false, message = Message });
+                }
+                return Json(new { success = false, message = "Invalid data" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
 
 
-		//  Update Warehouse GET ID  AND USE FOR VIEW    //////////////////////Options///////////////////////
-		[HttpGet]
+
+
+        //  Update Warehouse GET ID  AND USE FOR VIEW    //////////////////////Options///////////////////////
+        [HttpGet]
         public async Task<ActionResult> GetWarehouseById(int id)
         {
             try
@@ -901,29 +911,29 @@ namespace P2PERP.Controllers
         }
         //   Update Warehouse
         [HttpPost]
-		public async Task<ActionResult> UpdateWarehouseSK(InventorySK model)
-		{
-			try
-			{
-				if (ModelState.IsValid)
-				{
-					var (Success, Message) = await bal.UpdateWarehouseAsyncSK(model);
+        public async Task<ActionResult> UpdateWarehouseSK(InventorySK model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var (Success, Message) = await bal.UpdateWarehouseAsyncSK(model);
 
-					if (Success)
-						return Json(new { success = true, message = Message });
+                    if (Success)
+                        return Json(new { success = true, message = Message });
 
-					return Json(new { success = false, message = Message, field = "WarehouseName" });
-				}
-				return Json(new { success = false, message = "Invalid data" });
-			}
-			catch (Exception ex)
-			{
-				return Json(new { success = false, message = ex.Message });
-			}
-		}
+                    return Json(new { success = false, message = Message, field = "WarehouseName" });
+                }
+                return Json(new { success = false, message = "Invalid data" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
 
-		//        View Warehouse Details
-		[HttpGet]
+        //        View Warehouse Details
+        [HttpGet]
         public async Task<ActionResult> ViewWarehouseSK(int id)
         {
             try
@@ -1041,33 +1051,33 @@ namespace P2PERP.Controllers
 
         //  SAVE RACK
         [HttpPost]
-		public async Task<ActionResult> SaveRackSK(InventorySK model)
-		{
-			model.AddedBy = Session["StaffCode"].ToString();
-			model.AddedDate = DateTime.Now;
+        public async Task<ActionResult> SaveRackSK(InventorySK model)
+        {
+            model.AddedBy = Session["StaffCode"].ToString();
+            model.AddedDate = DateTime.Now;
 
-			try
-			{
-				var result = await bal.SaveRackAsyncSK(model);
+            try
+            {
+                var result = await bal.SaveRackAsyncSK(model);
 
-				return Json(new
-				{
-					success = result.Success,
-					message = result.Message
-				}, JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				return Json(new
-				{
-					success = false,
-					message = "Error: " + ex.Message
-				}, JsonRequestBehavior.AllowGet);
-			}
-		}
+                return Json(new
+                {
+                    success = result.Success,
+                    message = result.Message
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error: " + ex.Message
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
-		//    THIS IS USED FOR VIEW AND UPDATE USING ID    RACK
-		public async Task<ActionResult> GetRackByIdSKK(int id)
+        //    THIS IS USED FOR VIEW AND UPDATE USING ID    RACK
+        public async Task<ActionResult> GetRackByIdSKK(int id)
         {
             try
             {
@@ -1262,33 +1272,33 @@ namespace P2PERP.Controllers
 
         //   THIS IS USED BY SAVE BIN 
         [HttpPost]
-		public async Task<ActionResult> SaveBinSKK(InventorySK model)
-		{
-			model.AddedBy = Session["StaffCode"].ToString();
-			model.AddedDate = DateTime.Now;
+        public async Task<ActionResult> SaveBinSKK(InventorySK model)
+        {
+            model.AddedBy = Session["StaffCode"].ToString();
+            model.AddedDate = DateTime.Now;
 
-			System.Diagnostics.Debug.WriteLine("Description from UI: " + model.Descriptions);
+            System.Diagnostics.Debug.WriteLine("Description from UI: " + model.Descriptions);
 
-			var (success, message) = await bal.SaveBinAsyncSK(model);
+            var (success, message) = await bal.SaveBinAsyncSK(model);
 
-			// ✅ If message indicates validation or constraint issue, mark as failure
-			if (message.Contains("Bin with same name") ||
-				message.Contains("Max Quantity") ||
-				message.Contains("Cannot update") ||
-				message.Contains("required") ||
-				!success)
-			{
-				return Json(new { success = false, message });
-			}
+            // ✅ If message indicates validation or constraint issue, mark as failure
+            if (message.Contains("Bin with same name") ||
+                message.Contains("Max Quantity") ||
+                message.Contains("Cannot update") ||
+                message.Contains("required") ||
+                !success)
+            {
+                return Json(new { success = false, message });
+            }
 
-			// ✅ Otherwise treat as success
-			return Json(new { success = true, message });
-		}
+            // ✅ Otherwise treat as success
+            return Json(new { success = true, message });
+        }
 
 
 
-		//   THIS IS USED BY UPDATE AND VIEW FOR BIN 
-		[HttpGet]
+        //   THIS IS USED BY UPDATE AND VIEW FOR BIN 
+        [HttpGet]
         public async Task<ActionResult> GetBinByIdSBK(int binId)
         {
             try
@@ -1352,30 +1362,30 @@ namespace P2PERP.Controllers
         //      THIS IS USED FOR SAVE SECTION
 
         [HttpPost]
-		public async Task<ActionResult> AddSection(InventorySK model)
-		{
-			if (ModelState.IsValid)
-			{
-				try
-				{
-					var (Success, Message) = await bal.AddSectionAsyncSK(model);
+        public async Task<ActionResult> AddSection(InventorySK model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var (Success, Message) = await bal.AddSectionAsyncSK(model);
 
-					if (Success)
-						return Json(new { success = true, message = Message });
+                    if (Success)
+                        return Json(new { success = true, message = Message });
 
-					return Json(new { success = false, message = Message, field = "SectionName" });
-				}
-				catch (Exception ex)
-				{
-					return Json(new { success = false, message = ex.Message });
-				}
-			}
-			return Json(new { success = false, message = "Invalid data." });
-		}
+                    return Json(new { success = false, message = Message, field = "SectionName" });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = ex.Message });
+                }
+            }
+            return Json(new { success = false, message = "Invalid data." });
+        }
 
 
-		//    THIS IS USED BY UPDATE AND VIEW BY USING ID 
-		[HttpGet]
+        //    THIS IS USED BY UPDATE AND VIEW BY USING ID 
+        [HttpGet]
         public async Task<ActionResult> GetSectionByIdSK(int id)
         {
             try
@@ -1399,28 +1409,28 @@ namespace P2PERP.Controllers
 
         //  UPDATE SECTION
         [HttpPost]
-		public async Task<ActionResult> UpdateSectionSK(InventorySK model)
-		{
-			try
-			{
-				var (Success, Message) = await bal.UpdateSectionAsyncSK(model);
+        public async Task<ActionResult> UpdateSectionSK(InventorySK model)
+        {
+            try
+            {
+                var (Success, Message) = await bal.UpdateSectionAsyncSK(model);
 
-				if (Success)
-					return Json(new { success = true, message = Message });
+                if (Success)
+                    return Json(new { success = true, message = Message });
 
-				return Json(new { success = false, message = Message, field = "SectionName" });
-			}
-			catch (Exception ex)
-			{
-				return Json(new { success = false, message = ex.Message });
-			}
-		}
-
-
-		//  DELETE SECTION
+                return Json(new { success = false, message = Message, field = "SectionName" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
 
 
-		[HttpPost]
+        //  DELETE SECTION
+
+
+        [HttpPost]
         public async Task<JsonResult> DeleteSectionSK(int sectionId)
         {
             try
@@ -1608,7 +1618,7 @@ namespace P2PERP.Controllers
         {
             return View();
         }
-         
+
         // Fetches all MRP plan headers for manager approval.
         [HttpGet]
         public async Task<JsonResult> FetchPlanDetailsMHB()
@@ -1841,7 +1851,7 @@ namespace P2PERP.Controllers
                     itemcode = updateitem.ItemCode,
                     name = updateitem.ItemName,
                     category = updateitem.ItemCategoryId,
-                    categoryname= updateitem.ItemCategory,
+                    categoryname = updateitem.ItemCategory,
                     status = updateitem.ItemStatusId,
                     Status = updateitem.Status,
                     uom = updateitem.UOMId,
@@ -1850,7 +1860,7 @@ namespace P2PERP.Controllers
                     recQ = updateitem.RecorderQuantity,
                     minQ = updateitem.MinQuantity,
                     itemby = updateitem.ItemMakeId,
-                    itemmake =updateitem.ItemMake,
+                    itemmake = updateitem.ItemMake,
                     exp = updateitem.ExpiryDays,
                     isqua = updateitem.ISQualityBit,
                     hsn = updateitem.HSNCode,
@@ -2085,7 +2095,7 @@ namespace P2PERP.Controllers
         }
 
 
-       
+
 
 
         #endregion Om and Sayali

@@ -56,10 +56,12 @@
     #tblRecent td,
     #tblPRItems td,
     #tblRFQDetails td,
-    #tblVendors td {
+    #vendorsTable th,
+    #vendorsTable td {
         text-align: center;
         vertical-align: middle;
     }
+
 
     #rfqList h6 {
         text-align: center;
@@ -340,7 +342,7 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Note</label>
+                                        <label class="form-label form-label-sm fw-bold text-dark">Note <span style="color:red;">*</span></label>
                                         <textarea class="form-control form-control-sm  text-dark shadow-sm" name="Note" rows="3"></textarea>
                                         <div class="invalid-feedback">Note is required.</div>
 
@@ -892,11 +894,11 @@
         });
 
         // --- When opening vendor container ---
-        $(document).on("click", ".btnViewRFQ, #btnSendRFQ", function () {
-
-            // 🔹 Hide main header & tabs
-            $("#pageHeader").hide();
-            $(".row.mb-4.justify-content-start").hide();
+        $(document).on("click", "#btnSendRFQ", function () {
+            $("#vendorContainer").hide();
+            $("#rfqList").show(); // or show quotationList if you want to return to PR view
+            $("#pageHeader").text("All RFQs").show();
+            $(".row.mb-4.justify-content-start").show(); // show the tab buttons again
         });
 
         // --- When returning from vendor container ---
@@ -1087,7 +1089,7 @@
                             // PDF Export button
                             {
                                 extend: 'pdfHtml5',
-                                text: '<i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                                 titleAttr: 'PDF',
                                 title: 'PR List',
                                 orientation: 'landscape',
@@ -1151,7 +1153,7 @@
                             // Excel Export button
                             {
                                 extend: 'excelHtml5',
-                                text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                                 titleAttr: 'Excel',
                                 title: 'PR List',
                                 messageTop: function () {
@@ -1790,7 +1792,7 @@
                             // PDF
                             {
                                 extend: "pdfHtml5",
-                                text: '<i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                                 title: "RFQ List",
                                 orientation: "landscape",
                                 pageSize: "A4",
@@ -1851,7 +1853,7 @@
                             // Excel
                             {
                                 extend: "excelHtml5",
-                                text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                                 titleAttr: "Excel",
                                 title: "RFQ List",
                                 messageTop: function () {
@@ -2010,23 +2012,31 @@
                     }
 
                     if (header.RequiredDate) {
-                        const m = moment(header.RequiredDate, "DD-MM-YYYY HH:mm:ss", true);
-                        if (m.isValid()) {
-                            const formattedRequiredDate = m.format("DD/MM/YYYY");
-                            $("#rfqRequiredDate").val(formattedRequiredDate);
 
-                            // Calculate min and max selectable Expected Dates
+                        console.log(header.RequiredDate);
+
+                        // Correct format for "19-01-2026 12:00:00 AM"
+                        let m = moment(header.RequiredDate, "DD-MM-YYYY hh:mm:ss A", true);
+
+                        // Fallback if format changes
+                        if (!m.isValid()) {
+                            m = moment(header.RequiredDate);
+                        }
+
+                        if (m.isValid()) {
+                            $("#rfqRequiredDate").val(m.format("DD/MM/YYYY"));
+
                             const today = moment();
                             const maxAllowed = m.clone().subtract(2, "days");
 
-                            // Set the date input range: from today to two days before RequiredDate
                             $("#ToDate").attr("min", today.format("YYYY-MM-DD"));
                             $("#ToDate").attr("max", maxAllowed.format("YYYY-MM-DD"));
-
                         } else {
-                            console.warn("Invalid date format:", header.RequiredDate);
+                            console.warn("⚠️ Invalid RequiredDate:", header.RequiredDate);
                         }
                     }
+
+
 
                     // Inside your success callback, after setting ToDate range:
                     $("#ToDate").off("change").on("change", function () {
@@ -2095,13 +2105,51 @@
 
                     $("#rfqDetailsTitle1").text("RFQ Details – " + (header.RFQCode || header.rfqCode || ""));
 
-                    if (actionType === "send") {
+                    /*if (actionType === "send") {
                         $("#btnSendRFQ").show();
                         $("#ExDate").show();
                     } else {
                         $("#btnSendRFQ").hide();
                         $("#ExDate").hide();
+                    }*/
+
+                    if (actionType === "send") {
+                        $("#btnSendRFQ").show();
+                        $("#ExDate").show();
+
+                        // Rebuild inputs from labels if any labels exist (to restore form)
+                        $("#rfqDetailsModal .form-control-plaintext").each(function () {
+                            const val = $(this).text();
+                            const input = $("<input>")
+                                .addClass("form-control form-control-sm text-dark shadow-sm bg-light")
+                                .val(val);
+                            $(this).replaceWith(input);
+                        });
                     }
+
+                    else if (actionType === "view") {
+                        $("#btnSendRFQ").hide();
+                        $("#ExDate").hide();
+
+                        // Loop through inputs and textareas and replace with labels
+                        $("#rfqDetailsModal input, #rfqDetailsModal textarea").each(function () {
+                            const val = $(this).val() || "-";
+
+                            // Only replace editable ones, skip hidden/date fields etc.
+                            if (!$(this).attr("type") || $(this).attr("type") === "text" || $(this).is("textarea")) {
+                                // Create a label element with same styling
+                                const label = $("<label>")
+                                    .addClass("form-control-plaintext text-dark")
+                                    .text(val);
+
+                                // Replace the input/textarea with label
+                                $(this).replaceWith(label);
+                            }
+                        });
+                    }
+
+                    
+
 
                     var modal = new bootstrap.Modal(document.getElementById("rfqDetailsModal"));
                     modal.show();
@@ -2231,7 +2279,7 @@
             $("#vendorRFQCode").val($("#rfqDetailsModal").data("rfqCode"));
 
             // Load industry types into dropdown only once
-            if ($("#industryFilter option").length === 1) {
+           /* if ($("#industryFilter option").length === 1) {
                 $.getJSON("/Purchase/GetIndustryTypesSJ", function (res) {
                     if (res.data) {
                         $.each(res.data, function (i, industry) {
@@ -2242,7 +2290,29 @@
                         });
                     }
                 });
-            }
+            }*/
+
+            $(document).ready(function () {
+                $("#industryFilter").empty(); // remove old options
+
+                // optional: add default option
+                $("#industryFilter").append($("<option>", {
+                    value: "",
+                    text: "-- Select Industry --"
+                }));
+
+                $.getJSON("/Purchase/GetIndustryTypesSJ", function (res) {
+                    if (res.data) {
+                        $.each(res.data, function (i, industry) {
+                            $("#industryFilter").append($("<option>", {
+                                value: industry.Id,
+                                text: industry.Name
+                            }));
+                        });
+                    }
+                });
+            });
+
 
 
             // Initially disable the button

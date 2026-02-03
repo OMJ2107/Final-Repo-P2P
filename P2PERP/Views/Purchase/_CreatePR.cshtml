@@ -120,7 +120,12 @@
             <!-- Quantity -->
             <div class="col-md-4">
                 <label for="Qty" class="form-label form-label-sm fw-bold text-dark">Required Quantity: <span class="text-danger">*</span></label>
-                <input type="number" id="Qty" class="form-control shadow-sm  form-control-sm" min="1" placeholder="Enter quantity" autocomplete="off" />
+                <input type="number" id="Qty"
+                       class="form-control shadow-sm form-control-sm"
+                       min="1"
+                       max="600"
+                       placeholder="Enter quantity"
+                       autocomplete="off" />
             </div>
 
             <!-- Priority -->
@@ -323,13 +328,18 @@
                 clearValidation(".ItemName");
         });
 
-        $("#Qty").on("input", function ()
-        {
-            var qty = $(this).val().trim();
-            if (qty === "" || isNaN(qty) || parseFloat(qty) <= 0)
+        $("#Qty").on("input", function () {
+            var qty = parseInt($(this).val());
+
+            if (isNaN(qty) || qty <= 0) {
                 showValidation("#Qty", "Enter valid quantity.");
-            else
+            }
+            else if (qty > 600) {
+                showValidation("#Qty", "Maximum allowed quantity is 600 per item.");
+            }
+            else {
                 clearValidation("#Qty");
+            }
         });
 
         // ---------- Add Item ----------
@@ -356,12 +366,31 @@
                 showValidation(".ItemName", "Please select Item.");
                 hasError = true;
             }
-            if (qty === "" || isNaN(qty) || parseFloat(qty) <= 0)
-            {
+            if (qty === "" || isNaN(qty) || parseInt(qty) <= 0) {
                 showValidation("#Qty", "Enter valid quantity.");
                 hasError = true;
             }
-            
+            else if (parseInt(qty) > 600) {
+                showValidation("#Qty", "Maximum allowed quantity is 600 per item.");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Quantity Limit Exceeded',
+                    text: 'You can add maximum 600 quantity per item.'
+                });
+                hasError = true;
+            }
+            $("#ItemTable tbody tr").each(function () {
+                var q = parseInt($(this).find("td:eq(6)").text());
+                if (q > 600) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Invalid Quantity",
+                        text: "Quantity cannot exceed 600 per item."
+                    });
+                    valid = false;
+                    return false;
+                }
+            });
 
             var duplicate = false;
             $("#ItemTable tbody tr").each(function () {
