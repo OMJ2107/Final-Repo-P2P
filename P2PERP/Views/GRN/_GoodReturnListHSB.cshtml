@@ -1,4 +1,112 @@
-﻿@*<h4 class="text-center text-primary fw-bold">Goods Return List</h4>*@
+﻿<style>
+    :root {
+        --theme-purple: #8b5cf6;
+        --theme-purple-light: rgba(139, 92, 246, 0.15);
+        --border-radius-sm: 12px;
+    }
+
+    /* 1. Global Table Headers */
+    #ReturnGoods thead th {
+        background-color: #1f2937 !important;
+        background-image: none !important;
+        color: white !important;
+        text-transform: uppercase !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.5px;
+        padding: 12px 10px !important;
+        border: 1px solid #374151 !important;
+    }
+
+    /* 2. Compact & Clear Table */
+    #ReturnGoods td {
+        padding: 8px 6px !important;
+        font-size: 0.85rem !important;
+        vertical-align: middle !important;
+    }
+
+    /* Truncated Reason Style */
+    .reason-truncate {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        color: #4b5563;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    /* 3. Search Bar Refinement */
+    .dataTables_filter input {
+        border: 1px solid #d1d5db !important;
+        border-radius: 20px !important;
+        padding: 6px 15px !important;
+        outline: none;
+        transition: border 0.3s;
+    }
+
+    .dataTables_filter input:focus {
+        border-color: var(--theme-purple) !important;
+        box-shadow: 0 0 0 2px var(--theme-purple-light);
+    }
+
+    /* 4. Modal Styling - Premium Match */
+    .modal-content {
+        border-radius: 20px !important;
+        border: none !important;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header {
+        background: #8b5cf6 !important;
+        padding: 12px 25px !important;
+        border-bottom: none !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        position: relative;
+    }
+
+    .modal-title {
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 1.15rem;
+        letter-spacing: 0.5px;
+        text-align: center;
+        flex-grow: 1;
+        margin: 0 !important;
+        text-transform: uppercase;
+    }
+
+    .btn-close-custom {
+        position: absolute;
+        right: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-close-custom:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .input-group-text.bg-primary {
+        background-color: var(--theme-purple) !important;
+        border: none !important;
+    }
+</style>
+
+@*<h4 class="text-center text-primary fw-bold">Goods Return List</h4>*@
 
 <!-- Date Filters -->
 <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap mt-5">
@@ -55,9 +163,11 @@
         <div class="modal-content">
 
             <!-- Header -->
-            <div class="modal-header bg-gradient bg-primary text-white d-flex justify-content-center align-items-center fs-5 py-1">
-                <h5 id="modalHeading" class="modal-title fw-bold text-uppercase text-white "></h5>
-                <button type="button" class="btn-close  rounded-end-3 fs-5 position-absolute btn-close-white top-0 end-0 m-1" data-bs-dismiss="modal"></button>
+            <div class="modal-header">
+                <h5 id="modalHeading" class="modal-title"></h5>
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
 
             <!-- Body -->
@@ -267,7 +377,12 @@
                 {
                     data: "ReasonOfRejection",
                     title: "Reason Of Rejection",
-
+                    render: function(data) {
+                        if (!data) return "-";
+                        let fullText = data.replace(/"/g, '&quot;');
+                        let firstWord = data.split(' ')[0];
+                        return `<span class="text-primary cursor-pointer" style="cursor:pointer" data-bs-toggle="tooltip" data-bs-trigger="hover" title="${fullText}">${firstWord}</span>`;
+                    }
                 },
                 { data: "VenderName", title: "Vendor Name" },
                 { data: "InvoiceNo", title: "Invoice No" },
@@ -298,6 +413,7 @@
                         class="btn btn-success btn-sm btn-print square-pill d-inline-flex align-items-center px-3 shadow-sm"
                         data-grn="${row.GRNCode}"
                         data-bs-toggle="tooltip"
+                        data-bs-trigger="hover"
                         data-bs-placement="top"
                         title="Print Good Return">
                     <i class="bi bi-printer-fill fs-5"></i>
@@ -308,6 +424,7 @@
                         class="btn btn-primary btn-sm btn-dispatch square-pill d-inline-flex align-items-center px-3 shadow-sm"
                         data-grn="${row.GRNCode}"
                         data-bs-toggle="tooltip"
+                        data-bs-trigger="hover"
                         data-bs-placement="top"
                         title="Dispatch Good Return">
                     <i class="bi bi-truck-front-fill fs-5"></i>
@@ -679,6 +796,10 @@
 
         // Action Buttons
         $('#ReturnGoods tbody').on('click', '.btn-print', function () {
+            // Force hide tooltip
+            $(this).tooltip('hide');
+            $('.tooltip').remove();
+
             const rowData = table.row($(this).closest('tr')).data();
             $.get("/GRN/PrintReturnListHSB", { grCode: rowData.GoodReturnCode }, function (html) {
                 $("#PrintContainer").html(html);
@@ -687,12 +808,21 @@
             });
         });
         $('#ReturnGoods tbody').on('click', '.btn-dispatch', function () {
+            // Force hide tooltip
+            $(this).tooltip('hide');
+            $('.tooltip').remove();
+
             const rowData = table.row($(this).closest('tr')).data();
             $.get("/GRN/DispatchGRForm", { grCode: rowData.GoodReturnCode }, function (html) {
                 $("#PrintContainer").html(html);
                 $("#modalHeading").text("Return Goods Dispatch");
                 $("#packingSlipModal").modal("show");
             });
+        });
+
+        // Global cleanup
+        $('#packingSlipModal').on('show.bs.modal', function () {
+            $('.tooltip').remove();
         });
 
         // Export Without Loader

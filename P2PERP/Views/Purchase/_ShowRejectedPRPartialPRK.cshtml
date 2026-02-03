@@ -78,6 +78,7 @@ $(document).ready(function () {
         toastr[type](message);
     }
 
+
     // ✅ Destroy datatable before loading again
     if ($.fn.DataTable.isDataTable(tableId)) {
         $(tableId).DataTable().clear().destroy(true);

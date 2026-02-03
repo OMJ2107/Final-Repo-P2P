@@ -15,12 +15,15 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using static P2PLibray.GRN.GRNPSM;
 
 namespace P2PERP.Controllers
 {
     public class GRNController : Controller
     {
         BALGRN bal = new BALGRN();
+
+       
 
         #region Pranav Mane
         public async Task<ActionResult> UserProfile()
@@ -642,7 +645,7 @@ namespace P2PERP.Controllers
                     if (eDate.HasValue && approvedDate > eDate.Value) return false;
                     return true;
                 })
-                .Select(row => new
+                .Select(row => new 
                 {
                     POCode = row["POCode"].ToString(),
                     RQNO = row["RQNO"].ToString(),
@@ -682,6 +685,38 @@ namespace P2PERP.Controllers
 
             return Json(new { data = result }, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public async Task<JsonResult> GetShippingChargesByPOPSM(string RQCode)
+        {
+            if (string.IsNullOrEmpty(RQCode))
+                return Json(new { success = false, ShippingCharges = 0 });
+
+            try
+            {
+                BALGRN objBAL = new BALGRN();
+
+                // Call your existing SP method
+                DataTable dt = await objBAL.RegistrationQuotationCodePSM(RQCode);
+
+                decimal shippingCharges = 0;
+
+                if (dt != null && dt.Rows.Count > 0 && dt.Columns.Contains("ShippingCharges"))
+                {
+                    shippingCharges = dt.Rows[0]["ShippingCharges"] != DBNull.Value
+                        ? Convert.ToDecimal(dt.Rows[0]["ShippingCharges"])
+                        : 0;
+                }
+
+                return Json(new { success = true, ShippingCharges = shippingCharges }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, ShippingCharges = 0, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+
 
         #endregion
 
@@ -1459,7 +1494,6 @@ namespace P2PERP.Controllers
                 if (string.IsNullOrEmpty(GRNCode))
                     return new HttpStatusCodeResult(400, "GRNCode is required");
 
-                // === Fetch Data ===
                 GRN objGRN = new GRN { GRNCode = GRNCode };
                 var dsHeader = await bal.ViewGRNSSG(objGRN);
                 var dsItems = await bal.ViewGRNItemSSG(objGRN);
@@ -1469,7 +1503,6 @@ namespace P2PERP.Controllers
 
                 var row = dsHeader.Tables[0].Rows[0];
 
-                // === Header Data ===
                 string poNo = row["POCode"].ToString();
                 string grnNo = row["GRNCode"].ToString();
                 string vendor = row.Table.Columns.Contains("VenderName") ? row["VenderName"].ToString() : "";
@@ -1482,60 +1515,64 @@ namespace P2PERP.Controllers
                 string receivedBy = row["ReceivedBy"].ToString();
                 string warehouseName = row.Table.Columns.Contains("WarehouseName") ? row["WarehouseName"].ToString() : "Main Warehouse";
 
-                // === Totals ===
                 decimal subtotal = 0, shipping = 0, grandTotal = 0;
-                if (dsItems?.Tables.Count > 0 && dsItems.Tables[0].Rows.Count > 0)
+                if (dsItems != null && dsItems.Tables[0].Rows.Count > 0)
                 {
                     foreach (DataRow dr in dsItems.Tables[0].Rows)
                         subtotal += dr["Amount"] != DBNull.Value ? Convert.ToDecimal(dr["Amount"]) : 0;
                 }
 
                 shipping = row.Table.Columns.Contains("ShippingCharges") && row["ShippingCharges"] != DBNull.Value
-                           ? Convert.ToDecimal(row["ShippingCharges"]) : 0;
+                    ? Convert.ToDecimal(row["ShippingCharges"]) : 0;
 
                 grandTotal = subtotal + shipping;
 
-                // === PDF Generation ===
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    Document doc = new Document(PageSize.A4, 36f, 36f, 20f, 36f);
+                    Document doc = new Document(PageSize.A4, 36f, 36f, 24f, 36f);
                     PdfWriter.GetInstance(doc, ms);
                     doc.Open();
 
-                    // === Colors ===
                     BaseColor softBlue = new BaseColor(232, 240, 254);
                     BaseColor headerBlue = new BaseColor(44, 88, 180);
                     BaseColor sectionBlue = new BaseColor(35, 76, 150);
                     BaseColor borderGray = new BaseColor(210, 210, 210);
                     BaseColor tableHeader = new BaseColor(52, 73, 94);
 
-                    // === Fonts ===
-                    Font titleFont = FontFactory.GetFont("Segoe UI", 15, Font.BOLD, headerBlue);
-                    Font labelFont = FontFactory.GetFont("Segoe UI", 9, Font.BOLD, BaseColor.BLACK);
-                    Font textFont = FontFactory.GetFont("Segoe UI", 9, BaseColor.BLACK);
-                    Font sectionFont = FontFactory.GetFont("Segoe UI", 10, Font.BOLD, sectionBlue);
-                    Font tableHeaderFont = FontFactory.GetFont("Segoe UI", 9, Font.BOLD, BaseColor.WHITE);
+                    string fontsPath = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.Fonts),
+                        "arial.ttf"
+                    );
 
-                    // === Title ===
-                    Paragraph title = new Paragraph("GOODS RECEIPT NOTE (GRN)", titleFont)
+                    BaseFont bf = BaseFont.CreateFont(fontsPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+
+                    Font titleFont = new Font(bf, 15, Font.BOLD) { Color = headerBlue };
+                    Font sectionFont = new Font(bf, 10, Font.BOLD) { Color = sectionBlue };
+
+                    Font labelFont = new Font(bf, 9, Font.NORMAL) { Color = new BaseColor(45, 45, 45) };
+                    Font valueFont = new Font(bf, 9, Font.NORMAL) { Color = new BaseColor(60, 60, 60) };
+                    Font textFont = new Font(bf, 9, Font.NORMAL) { Color = BaseColor.BLACK };
+
+                    Font tableHeaderFont = new Font(bf, 9, Font.NORMAL) { Color = BaseColor.WHITE };
+
+                    Font grnFont = new Font(bf, 10, Font.NORMAL) { Color = headerBlue };
+
+                    doc.Add(new Paragraph("GOODS RECEIPT NOTE (GRN)", titleFont)
                     {
                         Alignment = Element.ALIGN_CENTER,
-                        SpacingBefore = 0f,
-                        SpacingAfter = 2f
-                    };
-                    doc.Add(title);
+                        SpacingAfter = 4f
+                    });
 
-                    Paragraph grnNum = new Paragraph("GRN No: " + grnNo, FontFactory.GetFont("Segoe UI", 10, Font.BOLD, headerBlue))
+                    doc.Add(new Paragraph("GRN No: " + grnNo, grnFont)
                     {
                         Alignment = Element.ALIGN_CENTER,
-                        SpacingAfter = 10f
-                    };
-                    doc.Add(grnNum);
+                        SpacingAfter = 12f
+                    });
 
-                    // === PO DETAILS ===
                     Paragraph poHeader = new Paragraph("PO DETAILS", sectionFont)
                     {
-                        SpacingAfter = 3f
+                        SpacingBefore = 6f,
+                        SpacingAfter = 4f
                     };
                     doc.Add(poHeader);
 
@@ -1547,13 +1584,15 @@ namespace P2PERP.Controllers
                         poTbl.AddCell(new PdfPCell(new Phrase(label, labelFont))
                         {
                             BackgroundColor = softBlue,
-                            Padding = 4,
-                            BorderColor = borderGray
+                            Padding = 6,
+                            BorderColor = borderGray,
+                            VerticalAlignment = Element.ALIGN_MIDDLE
                         });
-                        poTbl.AddCell(new PdfPCell(new Phrase(value, textFont))
+                        poTbl.AddCell(new PdfPCell(new Phrase(value, valueFont))
                         {
-                            Padding = 4,
-                            BorderColor = borderGray
+                            Padding = 6,
+                            BorderColor = borderGray,
+                            VerticalAlignment = Element.ALIGN_MIDDLE
                         });
                     }
 
@@ -1562,13 +1601,13 @@ namespace P2PERP.Controllers
                     AddPOCell("Company Address", companyAddr);
                     AddPOCell("Billing Address", billingAddr);
                     AddPOCell("Vendor Name", vendor);
-                    AddPOCell("", ""); // keeps table aligned
+                    AddPOCell("", "");
                     doc.Add(poTbl);
 
-                    // === GRN DETAILS ===
                     Paragraph grnHeader = new Paragraph("GRN DETAILS", sectionFont)
                     {
-                        SpacingAfter = 3f
+                        SpacingBefore = 6f,
+                        SpacingAfter = 4f
                     };
                     doc.Add(grnHeader);
 
@@ -1580,13 +1619,15 @@ namespace P2PERP.Controllers
                         grnTbl.AddCell(new PdfPCell(new Phrase(label, labelFont))
                         {
                             BackgroundColor = softBlue,
-                            Padding = 4,
-                            BorderColor = borderGray
+                            Padding = 6,
+                            BorderColor = borderGray,
+                            VerticalAlignment = Element.ALIGN_MIDDLE
                         });
-                        grnTbl.AddCell(new PdfPCell(new Phrase(value, textFont))
+                        grnTbl.AddCell(new PdfPCell(new Phrase(value, valueFont))
                         {
-                            Padding = 4,
-                            BorderColor = borderGray
+                            Padding = 6,
+                            BorderColor = borderGray,
+                            VerticalAlignment = Element.ALIGN_MIDDLE
                         });
                     }
 
@@ -1598,24 +1639,28 @@ namespace P2PERP.Controllers
                     AddGRNCell("Warehouse", warehouseName);
                     doc.Add(grnTbl);
 
-                    // === ITEM DETAILS ===
                     Paragraph itemHeader = new Paragraph("GRN ITEM DETAILS", sectionFont)
                     {
-                        SpacingAfter = 3f
+                        SpacingBefore = 6f,
+                        SpacingAfter = 4f
                     };
                     doc.Add(itemHeader);
 
-                    PdfPTable itemTbl = new PdfPTable(8) { WidthPercentage = 100, SpacingAfter = 10f };
-                    itemTbl.SetWidths(new float[] { 0.7f, 2f, 2f, 1f, 1f, 1f, 1f, 1.2f });
+                    PdfPTable itemTbl = new PdfPTable(10) { WidthPercentage = 100, SpacingAfter = 10f };
+                    itemTbl.SetWidths(new float[] { 0.7f, 1.5f, 0.9f, 2f, 1f, 1f, 1.4f, 1f, 1.2f, 1.7f });
 
-                    string[] headers = { "Sr.No", "Item Name", "Description", "PO Qty", "GRN Qty", "Rate", "Discount", "Amount" };
+                    string[] headers = {
+                "Sr.No","Item Name","UOM","Description",
+                "PO Qty","GRN Qty","Rate(₹)","GST (%)","Discount(%)","Amount(₹)"
+            };
+
                     foreach (string h in headers)
                     {
                         itemTbl.AddCell(new PdfPCell(new Phrase(h, tableHeaderFont))
                         {
                             BackgroundColor = tableHeader,
                             HorizontalAlignment = Element.ALIGN_CENTER,
-                            Padding = 4,
+                            Padding = 6,
                             BorderColor = borderGray
                         });
                     }
@@ -1626,24 +1671,30 @@ namespace P2PERP.Controllers
                         foreach (DataRow dr in dsItems.Tables[0].Rows)
                         {
                             BaseColor bg = (i % 2 == 0) ? new BaseColor(248, 248, 248) : BaseColor.WHITE;
-                            string rate = dr["UnitRate"] != DBNull.Value ? "₹ " + Convert.ToDecimal(dr["UnitRate"]).ToString("N2") : "₹ 0.00";
-                            string discount = dr["Discount"] != DBNull.Value ? dr["Discount"].ToString() + " %" : "0 %";
-                            string amount = dr["Amount"] != DBNull.Value ? "₹ " + Convert.ToDecimal(dr["Amount"]).ToString("N2") : "₹ 0.00";
 
-                            itemTbl.AddCell(new PdfPCell(new Phrase(i.ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
-                            itemTbl.AddCell(new PdfPCell(new Phrase(dr["ItemName"].ToString(), textFont)) { BackgroundColor = bg, Padding = 4 });
-                            itemTbl.AddCell(new PdfPCell(new Phrase(dr["Description"].ToString(), textFont)) { BackgroundColor = bg, Padding = 4 });
-                            itemTbl.AddCell(new PdfPCell(new Phrase(dr["POQuantity"].ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
-                            itemTbl.AddCell(new PdfPCell(new Phrase(dr["GRNQuantity"].ToString(), textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
-                            itemTbl.AddCell(new PdfPCell(new Phrase(rate, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4 });
-                            itemTbl.AddCell(new PdfPCell(new Phrase(discount, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_CENTER, Padding = 4 });
-                            itemTbl.AddCell(new PdfPCell(new Phrase(amount, textFont)) { BackgroundColor = bg, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 4 });
+                            string rate = dr["UnitRate"] != DBNull.Value ? "₹ " + Convert.ToDecimal(dr["UnitRate"]).ToString("N2") : "₹ 0.00";
+                            string amount = dr["Amount"] != DBNull.Value ? "₹ " + Convert.ToDecimal(dr["Amount"]).ToString("N2") : "₹ 0.00";
+                            string discount = dr["Discount"] != DBNull.Value ? dr["Discount"] + " %" : "0 %";
+                            string gst = dr.Table.Columns.Contains("GST") && dr["GST"] != DBNull.Value ? dr["GST"].ToString() : "0%";
+                            string uom = dr.Table.Columns.Contains("UOMName") ? dr["UOMName"].ToString() : "";
+
+                            itemTbl.AddCell(new PdfPCell(new Phrase(i.ToString(), textFont)) { BackgroundColor = bg, Padding = 6, HorizontalAlignment = Element.ALIGN_CENTER });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(dr["ItemName"].ToString(), textFont)) { BackgroundColor = bg, Padding = 6 });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(uom, textFont)) { BackgroundColor = bg, Padding = 6, HorizontalAlignment = Element.ALIGN_CENTER });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(dr["Description"].ToString(), textFont)) { BackgroundColor = bg, Padding = 6 });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(dr["POQuantity"].ToString(), textFont)) { BackgroundColor = bg, Padding = 6, HorizontalAlignment = Element.ALIGN_CENTER });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(dr["GRNQuantity"].ToString(), textFont)) { BackgroundColor = bg, Padding = 6, HorizontalAlignment = Element.ALIGN_CENTER });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(rate, textFont)) { BackgroundColor = bg, Padding = 6, HorizontalAlignment = Element.ALIGN_RIGHT });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(gst, textFont)) { BackgroundColor = bg, Padding = 6, HorizontalAlignment = Element.ALIGN_CENTER });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(discount, textFont)) { BackgroundColor = bg, Padding = 6, HorizontalAlignment = Element.ALIGN_CENTER });
+                            itemTbl.AddCell(new PdfPCell(new Phrase(amount, textFont)) { BackgroundColor = bg, Padding = 6, HorizontalAlignment = Element.ALIGN_RIGHT });
+
                             i++;
                         }
                     }
+
                     doc.Add(itemTbl);
 
-                    // === TOTALS ===
                     PdfPTable totalTbl = new PdfPTable(2) { WidthPercentage = 40, HorizontalAlignment = Element.ALIGN_RIGHT };
                     totalTbl.SetWidths(new float[] { 1f, 1f });
 
@@ -1652,13 +1703,13 @@ namespace P2PERP.Controllers
                         totalTbl.AddCell(new PdfPCell(new Phrase(label, highlight ? labelFont : textFont))
                         {
                             BackgroundColor = highlight ? softBlue : BaseColor.WHITE,
-                            Padding = 5,
+                            Padding = 6,
                             BorderColor = borderGray
                         });
                         totalTbl.AddCell(new PdfPCell(new Phrase("₹ " + value.ToString("N2"), highlight ? labelFont : textFont))
                         {
                             BackgroundColor = highlight ? softBlue : BaseColor.WHITE,
-                            Padding = 5,
+                            Padding = 6,
                             BorderColor = borderGray,
                             HorizontalAlignment = Element.ALIGN_RIGHT
                         });
@@ -1666,7 +1717,7 @@ namespace P2PERP.Controllers
 
                     AddTotalRow("Subtotal", subtotal);
                     AddTotalRow("Shipping Charges", shipping);
-                    AddTotalRow("Grand Total", grandTotal, highlight: true);
+                    AddTotalRow("Grand Total", grandTotal, true);
 
                     doc.Add(totalTbl);
                     doc.Close();
@@ -1679,6 +1730,7 @@ namespace P2PERP.Controllers
                 return new HttpStatusCodeResult(500, "Error generating GRN PDF: " + ex.Message);
             }
         }
+
 
 
         // Fetch list of warehouses asynchronously
