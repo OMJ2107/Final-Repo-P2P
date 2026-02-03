@@ -406,6 +406,22 @@ namespace P2PERP.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<JsonResult> GetAllItemsInPRVNK(string prCode)
+        {
+            try
+            {
+                var result = await bal.GetAllItemsInPRVNK(prCode);
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+
         //  Fetch all RFQs
         public async Task<ActionResult> AllRFQVNK()
         {

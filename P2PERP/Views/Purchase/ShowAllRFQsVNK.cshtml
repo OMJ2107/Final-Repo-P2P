@@ -477,7 +477,7 @@
 
                             // Count columns
                             var colCount = $('row:first c', sheet).length;
-                            if (colCount === 0) colCount = 6; 
+                            if (colCount === 0) colCount = 6;
                             var lastCol = String.fromCharCode(64 + colCount);
 
                             // Shift all rows down by 2
@@ -622,17 +622,22 @@
                     { data: null, className: "text-center", orderable: false, render: (d, t, r, meta) => meta.row + 1 },
                     { data: 'RFQCode' },
                     { data: 'AddedDateVK', render: (d) => formatDateOnly(d) },
-                    { data: 'ExpDate', render: (d) => formatDateOnly(d),visible:false },
+                    { data: 'ExpDate', render: (d) => formatDateOnly(d), visible: false },
 
                     { data: 'FullName' },
                     { data: 'Description', render: (d) => `<span data-bs-toggle="tooltip" title="${d}">${d}</span>` },
                     {
                         data: null, orderable: false,
                         render: function (row) {
-                            console.log(row)
+                            //console.log(row)
                             let registerBtn = '';
-                            let viewBtn = ''
-                            if (row.HasUnregisteredVendors && Number(row.HasUnregisteredVendors) === 1 && Number(row.HasApproved) == 0 && formatDateOnly(row.ExpDate) > formatDateOnly(today)) {
+                            let viewBtn = '';
+
+                            const expDate = parseYMD(row.ExpDate);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+
+                            if (row.HasUnregisteredVendors && Number(row.HasUnregisteredVendors) === 1 && Number(row.HasApproved) == 0 && expDate > today) {
                                 registerBtn = `<a class="btn btn-sm btn-success fs-5 ms-1 square-pill d-inline-flex align-items-center px-2 py-1 shadow"
                                         href="/Purchase/RegisterQuotationVNK?rfqCode=${encodeURIComponent(row.RFQCode)}&prCode=${encodeURIComponent(row.PRCode)}"
                                         title="Register Quotation" data-bs-toggle="tooltip">
@@ -660,6 +665,16 @@
 
                 ]
             });
+            function parseYMD(dateStr) {
+
+                if (!dateStr) return null;
+
+                // "30-01-2026 00:00:00"
+                const [datePart] = dateStr.split(' ');
+                const [d, m, y] = datePart.split('-').map(Number);
+
+                return new Date(y, m - 1, d);
+            }
 
             rfqTable.on('draw', function () { $('[data-bs-toggle="tooltip"]').tooltip(); });
 

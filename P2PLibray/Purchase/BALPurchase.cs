@@ -462,6 +462,60 @@ namespace P2PLibray.Purchase
             }
         }
 
+        public async Task<List<Purchase>> GetItemsForRFQVNK(string prCode)
+        {
+            try
+            {
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                dic.Add("@Flag", "GetItemsForRFQVNK");
+                dic.Add("@PRCode", prCode);
+
+                var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
+                List<Purchase> items = new List<Purchase>();
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        items.Add(new Purchase
+                        {
+                            ItemCode = row["ItemCode"]?.ToString(),
+                            ItemName = row["ItemName"]?.ToString(),
+                            Description = row["Description"]?.ToString(),
+                            UOMName = row["UOMName"]?.ToString(),
+
+                            Quantity = row["Quantity"] != DBNull.Value
+                             ? Convert.ToInt32(row["Quantity"])
+                                : 0,
+
+
+                            CostPerUnit = row["UnitRates"] != DBNull.Value
+                                 ? Convert.ToDecimal(row["UnitRates"])
+                                 : 0m,
+
+
+                            Discount = row["Discount"] != DBNull.Value
+                                ? row["Discount"].ToString()
+                                : "0",
+
+                            GST = row["GST"] != DBNull.Value
+                                ? row["GST"].ToString()
+                                : "0"
+                        });
+                    }
+                }
+
+                return items;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error in GetItemsForRFQVNK", ex);
+            }
+        }
+
+
+
+
         /// <summary>
         /// Retrieves all registered quotations for a given RFQ.
         /// </summary>
@@ -637,41 +691,70 @@ namespace P2PLibray.Purchase
         /// </summary>
         /// <param name="prCode">Purchase Requisition Code</param>
         /// <returns>List of RegisterQuotationItem objects.</returns>
-        public async Task<List<RegisterQuotationItem>> GetItemsForRFQVNK(string prCode)
+        public async Task<List<RegisterQuotationItem>> GetAllItemsInPRVNK(string prCode)
         {
             try
             {
                 var dic = new Dictionary<string, string>
-                {
-                    { "@Flag", "GetItemsForRFQVNK" },
-                    { "@PRCode", prCode },
-                    { "@ItemsJson", "" }
-                };
+        {
+            { "@Flag", "GetAllItemsInPRVNK" },   // ✅ correct flag
+            { "@PRCode", prCode }
+        };
 
-                DataSet ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
+                var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
 
                 var items = new List<RegisterQuotationItem>();
-                if (ds != null && ds.Tables.Count > 0)
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     foreach (DataRow row in ds.Tables[0].Rows)
                     {
                         items.Add(new RegisterQuotationItem
                         {
-                            ItemCode = row["ItemCode"].ToString(),
-                            ItemName = row["ItemName"].ToString(),
-                            UOMName = row["UOMName"]?.ToString(),
-                            Description = row["Description"]?.ToString(),
-                            Quantity = Convert.ToInt32(row["RequiredQuantity"]?.ToString())
+                            // 🔹 Basic Info
+                            ItemCode = row.Table.Columns.Contains("ItemCode")
+                                        ? row["ItemCode"]?.ToString()
+                                        : "",
+
+                            ItemName = row.Table.Columns.Contains("ItemName")
+                                        ? row["ItemName"]?.ToString()
+                                        : "",
+
+                            Description = row.Table.Columns.Contains("Description")
+                                        ? row["Description"]?.ToString()
+                                        : "",
+
+                            UOMName = row.Table.Columns.Contains("UOMName")
+                                        ? row["UOMName"]?.ToString()
+                                        : "",
+
+                            // 🔹 Quantity
+                            Quantity = row.Table.Columns.Contains("RequiredQuantity") && row["RequiredQuantity"] != DBNull.Value
+                                        ? Convert.ToDecimal(row["RequiredQuantity"])
+                                        : 0m,
+
+                            // 🔹 Cost Per Unit (safe even if column not present)
+                            CostPerUnit = row.Table.Columns.Contains("UnitRates") && row["UnitRates"] != DBNull.Value
+                                        ? Convert.ToDecimal(row["UnitRates"])
+                                        : 0m,
+
+                            // 🔹 GST (numeric from SQL)
+                            GST = row.Table.Columns.Contains("GST") && row["GST"] != DBNull.Value
+                                        ? Convert.ToDecimal(row["GST"])
+                                        : 0m
                         });
                     }
                 }
+
                 return items;
             }
             catch (Exception ex)
             {
-                throw new Exception("Error in GetItemsForRFQVNK", ex);
+                throw new Exception("Error in GetAllItemsInPRVNK", ex);
             }
         }
+
+
 
         /// <summary>
         /// Saves a registered quotation for a given RFQ.
