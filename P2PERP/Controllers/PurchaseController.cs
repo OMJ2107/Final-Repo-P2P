@@ -508,6 +508,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 quantity = x.Quantity
             });
 
+
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -526,6 +527,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             var code = await bal.SaveRegisterQuotationVNK(rq, Session["StaffCode"].ToString());
             return Json(new { success = !string.IsNullOrEmpty(code), code });
         }
+
 
         // View Quotation 
         [HttpGet]
@@ -592,6 +594,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 return PartialView("_ViewPurchaseOrderVNK");
             return View("_ViewPurchaseOrderVNK");
         }
+
 
         // Get Purchase Order header
         [HttpGet]
@@ -3022,6 +3025,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
             return GeneratePurchaseOrderPDF(po, poItems);
         }
+
         public async Task SendPOEmailAsync(string POCode, byte[] pdfBytes)
         {
             try
