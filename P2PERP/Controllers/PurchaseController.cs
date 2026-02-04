@@ -529,6 +529,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 quantity = x.Quantity
             });
 
+
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -547,6 +548,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             var code = await bal.SaveRegisterQuotationVNK(rq, Session["StaffCode"].ToString());
             return Json(new { success = !string.IsNullOrEmpty(code), code });
         }
+
 
         // View Quotation 
         [HttpGet]
@@ -613,6 +615,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 return PartialView("_ViewPurchaseOrderVNK");
             return View("_ViewPurchaseOrderVNK");
         }
+
 
         // Get Purchase Order header
         [HttpGet]
@@ -1153,6 +1156,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             try
             {
                 var staffcode = Session["StaffCode"] as string;
+               
 
                 if (string.IsNullOrEmpty(staffcode))
                     return Json(new { success = false, message = "Staff code not found in session. Please login again." });
@@ -1229,7 +1233,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 var newpass = WebConfigurationManager.AppSettings["AppPassword"].ToString();
 
                 var fromAddress = new MailAddress(newemail.ToString(), "Procurement System");
-                string fromPassword = "lhrlntigzidizmju"; // Gmail app password
+                string fromPassword = newpass; // Gmail app password
                 string vemail = po.Email.ToString();
                 string subject = $"Purchase Order {po.POCode} Approved";
                 string body = $@"
@@ -1268,7 +1272,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
         // Reject purchase order
         [HttpPost]
-        public async Task<JsonResult> RejectPONAM(string poCode)
+        public async Task<JsonResult> RejectPONAM(string poCode,string reason)
         {
             try
             {
@@ -1277,7 +1281,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 if (string.IsNullOrEmpty(staffcode))
                     return Json(new { success = false, message = "Staff code not found in session. Please login again." });
 
-                var result = await bal.RejectPONAM(poCode, staffcode);
+                var result = await bal.RejectPONAM(poCode, staffcode, reason);
                 return Json(new { success = result, message = result ? "Purchase Order rejected successfully." : "Failed to reject Purchase Order." });
             }
             catch (Exception ex)
@@ -1359,10 +1363,13 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             }
         }
 
+
         private async Task SendForApprovalEmailAsync(Purchase po, byte[] pdfBytes)
         {
             var fromAddress = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
             string fromPassword = "pbji sngj tkgz ylow"; // Gmail app password
+
+            string ToEmail =  await bal.GetAdminEmails();
 
             string subject = $"Purchase Order Approval Required — PO No: {po.POCode}";
 
@@ -1373,7 +1380,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             A new Purchase Order (<strong>PO No: {po.POCode}</strong>) amounting to 
             <strong>₹ {po.Amount:N2}</strong> has been created and requires your approval 
             since it exceeds the ₹5,00,000 limit.
-        </p>
+         </p>
 
         <p>
             Kindly review the attached Purchase Order for your consideration and approval.
@@ -3045,6 +3052,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
             return GeneratePurchaseOrderPDF(po, poItems);
         }
+
         public async Task SendPOEmailAsync(string POCode, byte[] pdfBytes)
         {
             try
