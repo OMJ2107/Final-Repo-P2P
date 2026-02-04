@@ -2328,7 +2328,6 @@
     <Content Include="Content\images\layouts\layout-without-navbar-light.png" />
     <Content Include="Content\images\Logo-p2p-removebg-preview.png" />
     <Content Include="Content\images\Logo-p2p.png" />
-    <Content Include="Content\images\Watermark.png" />
     <Content Include="Content\jquery-ui.css" />
     <Content Include="Content\Layout.css" />
     <Content Include="Content\page-auth.css" />
@@ -5644,8 +5643,7 @@
     <Content Include="Views\Purchase\JustInTimeItemListOK.cshtml" />
     <Content Include="Views\Shared\SendMailHSB.cshtml" />
     <Content Include="Views\Purchase\_Rejectpr.cshtml" />
-    <Content Include="Views\Purchase\_ShowRejectedPRPartialPRK.cshtml" />
-    <Content Include="Views\Purchase\ShowRejectedPRPRK.cshtml" />
+    <Content Include="Views\GRN\_GRNItemsPartialRHK.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
