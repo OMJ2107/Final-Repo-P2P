@@ -118,7 +118,7 @@
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-4 col-form-label form-control-sm fw-bold text-muted ">PO Contact Info</label>
+                                        <label class="col-sm-4 col-form-label form-control-sm fw-bold text-muted ">Contact Info</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control form-control-sm bg-light border-0" name="POContactInfo" value="@Model.ContactNo" readonly />
                                         </div>
@@ -132,7 +132,7 @@
                                     <div class="row mb-3">
                                         <label class="col-sm-4 col-form-label col-form-label-sm fw-bold text-muted ">Invoice Date</label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="InvoiceDate" value="@Model.InvoiceDate" readonly />
+                                            <input type="text" class="form-control form-control-sm bg-light border-0" name="InvoiceDate" value="@Model.InvoiceDate.ToShortDateString()" readonly />
                                         </div>
                                     </div>
                                     <div class="row">
@@ -190,16 +190,23 @@
                                                         <span class="fw-semibold QuantityStored @(isComplete ? "text-success" : "text-primary")">@item.QuantityStored</span>
                                                         @if (!isComplete)
                                                         {
-                                                            <div class="progress mt-1" style="height: 5px; width: 60px;">
-                                                                <div class="progress-bar @(progressPercent == 100 ? "bg-success" : "bg-warning")"
-                                                                     role="progressbar" style="width: @progressPercent;"
-                                                                     aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            <div class="progress mt-1" style="height: 6px; width: 80px;">
+                                                                <div class="progress-bar @(progressPercent >= 100 ? "bg-success" : "bg-warning")"
+                                                                     role="progressbar"
+                                                                     style="width: @progressPercent%;"
+                                                                     aria-valuenow="@progressPercent"
+                                                                     aria-valuemin="0"
+                                                                     aria-valuemax="100">
+                                                                </div>
                                                             </div>
+
+                                                            <small class="text-muted mt-1">@progressPercent.ToString("0")%</small>
                                                         }
                                                         else
                                                         {
                                                             <span class="badge bg-success mt-1">Complete</span>
                                                         }
+
                                                     </div>
                                                 </td>
                                                 <td>

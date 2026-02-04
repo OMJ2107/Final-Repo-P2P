@@ -167,7 +167,6 @@ namespace P2PERP.Controllers
         [HttpGet]
         public async Task<JsonResult> ConfirmItemsPSR()
         {
-           
             var confirmList = await bal.ConfirmItemGrnPSR();
 
             return Json(new { data = confirmList }, JsonRequestBehavior.AllowGet);
@@ -207,7 +206,7 @@ namespace P2PERP.Controllers
         [HttpGet]
         public async Task<JsonResult> nonConfirmItemsPR()
         {
-           
+
             var nonconfirmList = await bal.NonConfirmItemGrnPR();
 
             return Json(new { data = nonconfirmList }, JsonRequestBehavior.AllowGet);
@@ -247,7 +246,7 @@ namespace P2PERP.Controllers
         [HttpGet]
         public async Task<JsonResult> GRNShowListPSR()
         {
-           
+
             var grnList = await bal.GRNShowListAsyncPR();
 
             return Json(new { data = grnList }, JsonRequestBehavior.AllowGet);
@@ -255,76 +254,73 @@ namespace P2PERP.Controllers
 
 
 
-		// ========================== Graph Reports ==========================
-		// Confirmed Items Controller
-		[HttpGet]
-		public async Task<JsonResult> ConfirmedItemDetailsPSR(DateTime? startDate = null, DateTime? endDate = null)
-		{
-			try
-			{
-				var confirmedItems = await bal.ConfirmItemDetailsPSR(startDate, endDate);
-				return Json(new { success = true, data = confirmedItems }, JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
-			}
-		}
+        // ========================== Graph Reports ==========================
+        // Confirmed Items Controller
+        [HttpGet]
+        public async Task<JsonResult> ConfirmedItemDetailsPSR(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                var confirmedItems = await bal.ConfirmItemDetailsPSR(startDate, endDate);
+                return Json(new { success = true, data = confirmedItems }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
-		// Failed Items Controller
-		[HttpGet]
-		public async Task<JsonResult> FailedItemsGraphPR(DateTime? startDate = null, DateTime? endDate = null)
-		{
-			try
-			{
-				var failedItems = await bal.GetFailedItemsPR(startDate, endDate);
-				return Json(new { success = true, data = failedItems }, JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
-			}
-		}
+        // Failed Items Controller
+        [HttpGet]
+        public async Task<JsonResult> FailedItemsGraphPR(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                var failedItems = await bal.GetFailedItemsPR(startDate, endDate);
+                return Json(new { success = true, data = failedItems }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
-		// Pending Items Controller
-		public async Task<JsonResult> PendingItemsGraphPR(string startDate = null, string endDate = null)
-		{
-			try
-			{
-				// Fetch data from BAL method
-				var dr = await bal.GetPendingItemsAsyncPR(startDate, endDate);
+        // Pending Items Controller
+        public async Task<JsonResult> PendingItemsGraphPR(string startDate = null, string endDate = null)
+        {
+            try
+            {
+                // Fetch data from BAL method
+                var dr = await bal.GetPendingItemsAsyncPR(startDate, endDate);
 
-				List<PendingItemPR> pendingList = new List<PendingItemPR>();
+                List<PendingItemPR> pendingList = new List<PendingItemPR>();
 
-				// Read data and populate list
-				if (dr.HasRows)
-				{
-					while (await dr.ReadAsync())
-					{
-						pendingList.Add(new PendingItemPR
-						{
-							GRNCode = dr["GRNCode"]?.ToString() ?? "",
-							ItemCode = dr["ItemCode"]?.ToString() ?? "",
-							ItemName = dr["ItemName"]?.ToString() ?? "",
-							AddedDate = dr["ItemAddedDate"]?.ToString() ?? ""
-						});
-					}
-				}
-				dr.Close();
+                // Read data and populate list
+                if (dr.HasRows)
+                {
+                    while (await dr.ReadAsync())
+                    {
+                        pendingList.Add(new PendingItemPR
+                        {
+                            GRNCode = dr["GRNCode"]?.ToString() ?? "",
+                            ItemCode = dr["ItemCode"]?.ToString() ?? "",
+                            ItemName = dr["ItemName"]?.ToString() ?? "",
+                            AddedDate = dr["ItemAddedDate"]?.ToString() ?? ""
+                        });
+                    }
+                }
+                dr.Close();
 
-				// Return JSON result
-				return Json(new { data = pendingList }, JsonRequestBehavior.AllowGet);
-			}
-			catch (Exception ex)
-			{
-				// Log error
-				System.Diagnostics.Debug.WriteLine($"Error in PendingItemsGraphPR: {ex.Message}");
-				return Json(new { data = new List<PendingItemPR>() }, JsonRequestBehavior.AllowGet);
-			}
-		}
-
-
-
+                // Return JSON result
+                return Json(new { data = pendingList }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // Log error
+                System.Diagnostics.Debug.WriteLine($"Error in PendingItemsGraphPR: {ex.Message}");
+                return Json(new { data = new List<PendingItemPR>() }, JsonRequestBehavior.AllowGet);
+            }
+        }
         #endregion Prashant
 
         #region Rajlaxmi
@@ -497,6 +493,7 @@ namespace P2PERP.Controllers
             return View();
         }
 
+        [Route("Quality/QCheckDashboard")]
         // GET: Quality Dashboard for NAM
         public ActionResult QCheckDashboardNAM()
         {

@@ -15,12 +15,15 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using static P2PLibray.GRN.GRNPSM;
 
 namespace P2PERP.Controllers
 {
     public class GRNController : Controller
     {
         BALGRN bal = new BALGRN();
+
+       
 
         #region Pranav Mane
         public async Task<ActionResult> UserProfile()
@@ -642,7 +645,7 @@ namespace P2PERP.Controllers
                     if (eDate.HasValue && approvedDate > eDate.Value) return false;
                     return true;
                 })
-                .Select(row => new
+                .Select(row => new 
                 {
                     POCode = row["POCode"].ToString(),
                     RQNO = row["RQNO"].ToString(),
@@ -682,6 +685,38 @@ namespace P2PERP.Controllers
 
             return Json(new { data = result }, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public async Task<JsonResult> GetShippingChargesByPOPSM(string RQCode)
+        {
+            if (string.IsNullOrEmpty(RQCode))
+                return Json(new { success = false, ShippingCharges = 0 });
+
+            try
+            {
+                BALGRN objBAL = new BALGRN();
+
+                // Call your existing SP method
+                DataTable dt = await objBAL.RegistrationQuotationCodePSM(RQCode);
+
+                decimal shippingCharges = 0;
+
+                if (dt != null && dt.Rows.Count > 0 && dt.Columns.Contains("ShippingCharges"))
+                {
+                    shippingCharges = dt.Rows[0]["ShippingCharges"] != DBNull.Value
+                        ? Convert.ToDecimal(dt.Rows[0]["ShippingCharges"])
+                        : 0;
+                }
+
+                return Json(new { success = true, ShippingCharges = shippingCharges }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, ShippingCharges = 0, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+
 
         #endregion
 

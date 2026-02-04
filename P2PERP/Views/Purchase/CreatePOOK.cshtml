@@ -161,7 +161,12 @@
         .hidden-force {
             display: none !important;
         }
-
+/*        .po-number{
+            margin-left:-20px!important;
+            margin-bottom:5px!important;
+            font-size:15px;
+        }
+*/
     </style>
 </head>
 <body>
@@ -174,12 +179,23 @@
     <div class="container">
         <form class="po-form needs-validation pt-0" novalidate>
             <h3 class="text-center text-primary mb-4 pt-0 mt-0">Purchase Order</h3>
+
+            @*<span class="po-number bg-primary p-3 rounded-3 m-0">
+                <span class="fw-bold text-white">PO No :</span>
+                <span class="fw-bold text-white">@ViewBag.POCode</span>
+            </span>*@
+
+
             <!-- Hidden fields -->
             <input type="hidden" id="TotalAmount" name="TotalAmount" />
 
             <!-- General Details -->
-            <h5 class="section-title text-dark">General Details</h5>
+            <h5 class="section-title text-dark mt-4">General Details</h5>
             <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="POCode" class="form-label form-label-sm fw-bold text-dark">PO Number</label>
+                    <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light" id="POCode" name="Pocode" readonly value="@ViewBag.POCode">
+                </div>
                 <div class="col-md-4">
                     <label for="QuotationNo" class="form-label form-label-sm fw-bold text-dark">Quotation Number</label>
                     <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light" id="QuotationNo" name="RegisterQuotationCode" readonly>
@@ -273,9 +289,12 @@
 
             <!-- Terms & Conditions -->
             <h5 class="section-title mt-4">Terms & Conditions</h5>
-            <div id="termsList" class="mb-3">
+            @*<div id="termsLists" class="mb-3">*@
                 <!-- Terms will be populated dynamically -->
-            </div>
+                <ul id="termsList" class="list-group">
+                    <li></li>
+                </ul>
+            @*</div>*@
             <div class="invalid-feedback" id="termsFeedback" style="display: none;">
                 Please select at least one term and condition.
             </div>
@@ -284,9 +303,9 @@
             <h5 class="section-title mt-4">Item Details</h5>
             <!-- Items Table -->
             <div class="table-responsive mt-4">
-                <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-end me-3 ms-auto" id="btnRestoreItem">
-                    <i class="bi bi-arrow-counterclockwise me-2"></i>Restore Items
-                </button>
+                @*<button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-end me-3 ms-auto" id="btnRestoreItem">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Restore Items
+            </button>*@
 
                 <table class="table table-bordered table-striped text-center" id="tblItems">
                     <thead class="table-dark text-center">
@@ -303,7 +322,7 @@
                             <th>Discount</th>
                             <th>GST</th>
                             <th>Amount</th>
-                            <th class="hideaction">Action</th>
+                            @*<th class="hideaction">Action</th>*@
                         </tr>
                     </thead>
                     <tbody>
@@ -311,7 +330,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="11" class="text-end fw-bold">Sub Total</td>
+                            <td colspan="10" class="text-end fw-bold">Sub Total</td>
                             <td colspan="2" class="text-center" id="subTotal"></td>
                         </tr>
                         <tr>
@@ -338,10 +357,10 @@
         </form>
     </div>
     <!-- Restore Modal -->
-    <div class="modal fade" id="restoreModal" tabindex="-1" aria-hidden="true">
+    @*<div class="modal fade" id="restoreModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content shadow-lg rounded-3">
-                <!-- Header -->
+                 Header 
                 <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-2">
                     <h5 class="modal-title fw-bold text-white mb-0 fs-5">
                         Restore Removed Item
@@ -350,7 +369,7 @@
                             data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <!-- Body -->
+                 Body 
                 <div class="modal-body px-4">
                     <div class="mb-3">
                         <label for="ddlRemovedItems" class="form-label form-label-sm fw-bold text-dark">
@@ -374,7 +393,7 @@
                     </div>
                 </div>
 
-                <!-- Footer -->
+                 Footer 
                 <div class="modal-footer bg-light rounded-bottom p-2 d-flex justify-content-end">
                     <button type="button" id="btnAddBack" class="btn btn-sm btn-success px-4">
                         <i class="bi bi-arrow-clockwise me-1"></i> Add Back
@@ -382,7 +401,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
 
 
     <script>
@@ -477,11 +496,11 @@
         $(document).ready(function () {
             const mode = getCookie("POMode");
 
-            const $restoreBtn = $("#btnRestoreItem");
-            if ($restoreBtn.length === 0) {
-                console.warn("Button not found!");
-                return;
-            }
+            //const $restoreBtn = $("#btnRestoreItem");
+            //if ($restoreBtn.length === 0) {
+            //    console.warn("Button not found!");
+            //    return;
+            //}
 
             if (mode === "JIT") {
                 $("#btnRestoreItem").addClass("hidden-force");
@@ -490,10 +509,11 @@
                 //console.log("✅ Hidden btnRestoreItem for JIT mode");
                 //console.log("Columns count:", table.columns().count());
 
-            } else {
-                $restoreBtn.show();
-                console.log("ℹ️ Shown btnRestoreItem for normal mode");
             }
+            //else {
+            //    $restoreBtn.show();
+            //    console.log("ℹ️ Shown btnRestoreItem for normal mode");
+            //}
             if (mode === "JIT") {
 
                 // $("#btnRestoreItem").hide(); // hide
@@ -541,7 +561,8 @@
                         $("#SwiftCode").val(header.SwiftCode);
                         $("#DeliveryAddress").val(header.DeliveryAddress);
                         $("#transportationCharges").text('₹' +header.ShippingCharges);
-
+                        $("#grandTotal").text('₹' + header.TotalAmount);
+                        $("#subTotal").text('₹' + (header.SubAmount).toFixed(2));
 
                          if (header.QuotationDateString) {
                              console.log(header.QuotationDateString);
@@ -564,18 +585,47 @@
                             $("#ddlAccountant").append(`<option value="${row.StaffCode}">${row.AccountEmail}</option>`);
                         });
 
-                        // ------------------------------
-                        // 📜 Terms & Conditions
-                        // ------------------------------
-                        $("#termsList").empty();
-                        $.each(terms, function (i, row) {
-                            $("#termsList").append(`
+                        //// ------------------------------
+                        //// 📜 Terms & Conditions
+                        //// ------------------------------
+                        //$("#termsList").empty();
+                        //$.each(terms, function (i, row) {
+                        //    $("#termsList").append(`
+                        //        <div class="form-check">
+                        //            <input class="form-check-input" type="checkbox" value="${row.TermConditionId}" id="term${row.TermConditionId}">
+                        //            <label class="form-check-label" for="term${row.TermConditionId}">${row.TermConditionName}</label>
+                        //        </div>
+                        //    `);
+                         //  });
+
+
+                         // ------------------------------
+                         // 📜 Terms & Conditions
+                         // ------------------------------
+                         $("#termsList").empty();
+
+                         const mandatoryTerms = [3,6];
+
+                         $.each(terms, function (i, row) {
+                             console.log("Termssss", row.TermConditionId);
+                             const isMandatory = mandatoryTerms.includes(row.TermConditionId);
+                             console.log("Trdnsfsf",isMandatory);
+                             $("#termsList").append(`
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="${row.TermConditionId}" id="term${row.TermConditionId}">
-                                    <label class="form-check-label" for="term${row.TermConditionId}">${row.TermConditionName}</label>
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           value="${row.TermConditionId}"
+                                           id="term${row.TermConditionId}"
+                                           ${isMandatory ? "checked onclick='return false;'" : ""}>
+
+                                    <label class="form-check-label" for="term${row.TermConditionId}">
+                                        ${row.TermConditionName}
+                                        ${isMandatory ? '<span class="text-danger">*</span>' : ''}
+                                    </label>
                                 </div>
                             `);
-                        });
+                         });
+
 
                         // ------------------------------
                         // 📦 Items Table Initialization
@@ -609,18 +659,18 @@
                                     }
                                 },
                                 { data: "GST",className: "text-center"},
-                                { data: "Amount",className: "text-center", render: data => '₹' + parseFloat(data).toFixed(2) },
-                                {
-                                    data: null,
-                                    orderable: false,
-                                    searchable: false,
-                                    className: "text-center",
-                                    render: () => `
-                                    <a href="#" class="remove-link btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center p-1 rounded-circle" title="Delete">
-                                        <i class="bi bi-trash-fill text-white"></i>
-                                    </a>
-                                `
-                                }
+                                { data: "Amount",className: "text-center", render: data => '₹' + parseFloat(data).toFixed(2) }
+                                //{
+                                //    data: null,
+                                //    orderable: false,
+                                //    searchable: false,
+                                //    className: "text-center",
+                                //    render: () => `
+                                //    <a href="#" class="remove-link btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center p-1 rounded-circle" title="Delete">
+                                //        <i class="bi bi-trash-fill text-white"></i>
+                                //    </a>
+                                //`
+                                //}
                             ],
                             columnDefs: [
                                 { className: "text-center", targets: "_all" }  // 👈 Centers all columns
@@ -643,10 +693,10 @@
 
                             }
                         });
-                         if (mode === "JIT") {
-                             table.column(-1).visible(false).draw(false);
-                             console.log("✅ Hidden last column for JIT mode");
-                         }
+                         //if (mode === "JIT") {
+                         //    table.column(-1).visible(false).draw(false);
+                         //    console.log("✅ Hidden last column for JIT mode");
+                         //}
                         // Recalculate totals
                         updateTableCalculations();
                         // Remove link handler
@@ -724,12 +774,36 @@
                     // ------------------------------
                     // 📜 Terms & Conditions
                     // ------------------------------
+                    //$("#termsList").empty();
+                    //$.each(terms, function (i, row) {
+                    //    $("#termsList").append(`
+                    //        <div class="form-check">
+                    //            <input class="form-check-input" type="checkbox" value="${row.TermConditionId}" id="term${row.TermConditionId}">
+                    //            <label class="form-check-label" for="term${row.TermConditionId}">${row.TermConditionName}</label>
+                    //        </div>
+                    //    `);
+                    //});
+
                     $("#termsList").empty();
+
+                    const mandatoryTerms = [3, 6];
+
                     $.each(terms, function (i, row) {
+                        console.log("Termssss", row.TermConditionId);
+                        const isMandatory = mandatoryTerms.includes(row.TermConditionId);
+                        console.log("Trdnsfsf", isMandatory);
                         $("#termsList").append(`
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="${row.TermConditionId}" id="term${row.TermConditionId}">
-                                <label class="form-check-label" for="term${row.TermConditionId}">${row.TermConditionName}</label>
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       value="${row.TermConditionId}"
+                                       id="term${row.TermConditionId}"
+                                       ${isMandatory ? "checked onclick='return false;'" : ""}>
+
+                                <label class="form-check-label" for="term${row.TermConditionId}">
+                                    ${row.TermConditionName}
+                                    ${isMandatory ? '<span class="text-danger">*</span>' : ''}
+                                </label>
                             </div>
                         `);
                     });
@@ -758,25 +832,25 @@
                             { data: "CostPerUnit", render: data => '₹' + parseFloat(data).toFixed(2) },
                             { data: "Discount" },
                             { data: "GST" },
-                            { data: "Amount", render: data => '₹' + parseFloat(data).toFixed(2) },
-                            {
-                                data: null,
-                                orderable: false,
-                                searchable: false,
-                                className: "text-center",
-                                render: () => `
-                                    <a href="#" class="remove-link btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center p-1 rounded-circle" title="Delete">
-                                        <i class="bi bi-trash-fill text-white"></i>
-                                    </a>
-                                `
-                            }
+                            { data: "Amount", render: data => '₹' + parseFloat(data).toFixed(2) }
+                            //{
+                            //    data: null,
+                            //    orderable: false,
+                            //    searchable: false,
+                            //    className: "text-center",
+                            //    render: () => `
+                            //        <a href="#" class="remove-link btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center p-1 rounded-circle" title="Delete">
+                            //            <i class="bi bi-trash-fill text-white"></i>
+                            //        </a>
+                            //    `
+                            //}
 
                         ],
                         columnDefs: [
                             { className: "text-center", targets: "_all" }  // 👈 Centers all columns
                         ],
                         paging: true,
-                      //  searching: true,
+                        searching: false,
                         ordering: false,
                         lengthChange: false,
                         pageLength: 10,
@@ -1078,6 +1152,15 @@
                 }
             });
         }
+        // 🔒 Lock mandatory Terms & Conditions
+        $(document).on("change", ".term-checkbox", function () {
+
+            if ($(this).attr("data-mandatory") === "true" && !this.checked) {
+                alert("This term is mandatory and cannot be unchecked.");
+                $(this).prop("checked", true);
+            }
+        });
+
 
         // ====================================================
         // ✅ End of Scripted

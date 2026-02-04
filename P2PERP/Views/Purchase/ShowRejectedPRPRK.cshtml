@@ -26,7 +26,7 @@
             </li>
             <li class="nav-item">
                 <a href="/Purchase/ShowRejectedPRPRK" class="nav-link active">
-                    <i class="bi bi-check2-circle"></i> Rejected Purchase Requisition
+                    <i class="bi bi-x-circle"></i> Rejected Purchase Requisition
                 </a>
             </li>
         </ul>
@@ -172,7 +172,7 @@
                 ordering: false,
                 processing: true,
                 serverSide: false,
-                ajax: { url: '/Purchase/ShowRejectPRK', dataSrc: '' },
+                ajax: { url: '/Purchase/ShowRejectPPRK', dataSrc: '' },
                 columns: [
                     { data: null, orderable: false, className: 'text-center', render: (d, t, r) => `<input type="checkbox" class="row-select" value="${r.PRCode}" data-bs-toggle="tooltip" title="Select Row"/>` },
                     { data: null, orderable: false, className: 'text-center', render: (d, t, r, meta) => meta.row + 1 },

@@ -267,6 +267,16 @@ namespace P2PERP.Controllers
                         mail.Body = email.Body;
                         mail.IsBodyHtml = email.IsBodyHtml;
 
+                        string logoPath = Server.MapPath("~/Content/images/Logo-p2p-removebg-preview.png");
+
+                        AlternateView htmlView = AlternateView.CreateAlternateViewFromString(email.Body, null, "text/html");
+
+                        LinkedResource logo = new LinkedResource(logoPath, "image/png");
+                        logo.ContentId = "companylogo"; // This MUST match <img src="cid:companylogo"> in your JS
+                        htmlView.LinkedResources.Add(logo);
+
+                        mail.AlternateViews.Add(htmlView);
+
                         email.ToEmails?.ForEach(x => mail.To.Add(x));
                         email.CcEmails?.ForEach(x => mail.CC.Add(x));
                         email.BccEmails?.ForEach(x => mail.Bcc.Add(x));

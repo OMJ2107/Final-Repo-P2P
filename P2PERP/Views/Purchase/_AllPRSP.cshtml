@@ -1127,7 +1127,12 @@
                 },
                 {
                     data: "RequiredQuantity",
-                    render: (data) => `<input type="number" class="form-control form-control-sm qty-input  text-dark shadow-sm text-center" value="${data}" min="1" />`
+                    render: (data) =>
+                        `<input type="number"
+            class="form-control form-control-sm qty-input text-dark shadow-sm text-center"
+            value="${data}"
+            min="1"
+            max="600" />`
                 },
                 {
                     data: 'UnitRate',
@@ -1146,74 +1151,124 @@
         });
 
         $('#ItemTableUpdate').on('input', '.qty-input', function () {
-            let val = parseInt($(this).val(), 10);
-            if (isNaN(val) || val < 1) {
-                $(this).val('');
+            let qty = parseInt($(this).val(), 10);
+
+            // Invalid
+            if (isNaN(qty) || qty < 1) {
+                $(this).addClass('is-invalid');
+                return;
+            }
+
+            // Exceed max
+            if (qty > 600) {
+                $(this).addClass('is-invalid');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Quantity Limit Exceeded',
+                    text: 'Maximum allowed quantity is 600 per item.'
+                });
+
+                $(this).val(600); // auto-correct
+            }
+            else {
+                $(this).removeClass('is-invalid');
             }
         });
     }
 
     // ✅ Single “Save All” button
+    // ================= SAVE ALL UPDATED QUANTITIES =================
     $(document).on("click", "#btnSaveAllUpdates", function () {
+
         let updatedRows = itemTableUpdate.rows().data().toArray();
         let allUpdates = [];
+        let invalidQty = false;
 
-        // Collect updated data
-        $('#ItemTableUpdate tbody tr').each(function (i) {
+        // Collect quantities
+        $('#ItemTableUpdate tbody tr').each(function (index) {
+
             let qty = parseInt($(this).find('.qty-input').val(), 10);
-            if (!isNaN(qty) && qty > 0) {
-                let rowData = updatedRows[i];
-                allUpdates.push({
-                    PRItemId: rowData.PRItemId,
-                    requiredQuantity: qty
-                });
+
+            // Final validation
+            if (isNaN(qty) || qty < 1 || qty > 600) {
+                invalidQty = true;
+                return false; // break loop
             }
+
+            allUpdates.push({
+                PRItemId: updatedRows[index].PRItemId,
+                requiredQuantity: qty
+            });
         });
 
-        if (allUpdates.length === 0) {
-            Swal.fire("No Changes", "Please update at least one quantity before saving.", "info");
+        // ❌ Validation failed
+        if (invalidQty) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Quantity',
+                text: 'Quantity must be between 1 and 600 for all items.'
+            });
             return;
         }
 
+        // ❌ Nothing to save
+        if (allUpdates.length === 0) {
+            Swal.fire(
+                'No Changes',
+                'Please update at least one quantity before saving.',
+                'info'
+            );
+            return;
+        }
+
+        // ✅ Confirm
         Swal.fire({
-            title: "Confirm Save",
-            text: "Do you want to save all updated quantities?",
-            icon: "question",
+            title: 'Confirm Save',
+            text: 'Do you want to save all updated quantities?',
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '<i class="bi bi-check-circle me-1"></i>Yes, Save it!',
+            confirmButtonText: '<i class="bi bi-check-circle me-1"></i> Yes, Save',
             cancelButtonText: '<i class="bi bi-x-circle me-1"></i> Cancel',
+            buttonsStyling: false,
             customClass: {
-                cancelButton: 'btn btn-danger  square-pill d-inline-flex align-items-center px-2 py-1 shadow-Cancel me-2',
-                confirmButton: 'btn btn-success square-pill d-inline-flex align-items-center px-2 py-1 shadow-Yes, Save it! me-2'
-            },
-            buttonsStyling: false 
+                confirmButton: 'btn btn-success me-2',
+                cancelButton: 'btn btn-danger'
+            }
         }).then((result) => {
+
             if (!result.isConfirmed) return;
 
-            let updatePromises = allUpdates.map(item =>
+            // 🔁 Multiple AJAX calls
+            let requests = allUpdates.map(item =>
                 $.ajax({
                     url: '/Purchase/UpdateItemQuantitySP',
                     type: 'POST',
-                    data: { PRItemId: item.PRItemId, requiredQuantity: item.requiredQuantity }
+                    data: item
                 })
             );
 
-            Promise.all(updatePromises)
+            Promise.all(requests)
                 .then(() => {
                     Swal.fire({
-                        icon: "success",
-                        title: "Saved!",
-                        text: "All quantities updated successfully!",
-                        showConfirmButton: false,
-                        timer: 2000
+                        icon: 'success',
+                        title: 'Saved!',
+                        text: 'All quantities updated successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
                     }).then(() => {
                         $('#updateModal').modal('hide');
                     });
                 })
                 .catch(() => {
-                    Swal.fire("Error", "Some updates failed. Please try again.", "error");
+                    Swal.fire(
+                        'Error',
+                        'Some updates failed. Please try again.',
+                        'error'
+                    );
                 });
         });
     });
+
 
 </script>
