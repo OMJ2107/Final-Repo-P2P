@@ -732,6 +732,14 @@ namespace P2PERP.Controllers
         {
             return View();
         }
+        public async Task<ActionResult> GetGRNItemsByGRNCodePartialRHK(string grnCode)
+        {
+            if (string.IsNullOrEmpty(grnCode))
+                return PartialView("_GRNItemsPartialRHK", new List<GRN>());
+
+            var items = await bal.GetGRNItemsByGRNCode(grnCode);
+            return PartialView("_GRNItemsPartialRHK", items);
+        }
 
         /// <summary>
         /// Returns total GRN count between startDate and endDate.
@@ -860,48 +868,32 @@ namespace P2PERP.Controllers
             try
             {
                 DataSet ds = await bal.GRNTrendsRHK(startDate, endDate);
-                List<string> dates = new List<string>();
+
+                List<string> months = new List<string>();
                 List<int> counts = new List<int>();
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
-                        dates.Add(Convert.ToDateTime(dr["Date"]).ToString("MMM dd"));
+                        months.Add(dr["MonthName"].ToString());   // e.g. Jan 2025
                         counts.Add(Convert.ToInt32(dr["GRNCount"]));
                     }
                 }
-                else
-                {
-                    // No records → Return all dates with 0
-                    DateTime currentDate = (DateTime)startDate;
-                    while (currentDate <= endDate)
-                    {
-                        dates.Add(currentDate.ToString("MMM dd"));
-                        counts.Add(0);
-                        currentDate = currentDate.AddDays(1);
-                    }
-                }
 
-                return Json(new { dates = dates, counts = counts }, JsonRequestBehavior.AllowGet);
+                return Json(new { months = months, counts = counts }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
             {
-                // Return default 0 values in case of error
-                List<string> dates = new List<string>();
-                List<int> counts = new List<int>();
-
-                DateTime currentDate = (DateTime)startDate;
-                while (currentDate <= endDate)
+                // In case of error, return empty monthly chart
+                return Json(new
                 {
-                    dates.Add(currentDate.ToString("MMM dd"));
-                    counts.Add(0);
-                    currentDate = currentDate.AddDays(1);
-                }
-
-                return Json(new { dates = dates, counts = counts }, JsonRequestBehavior.AllowGet);
+                    months = new List<string>(),
+                    counts = new List<int>()
+                }, JsonRequestBehavior.AllowGet);
             }
         }
+
 
         /// <summary>
         /// Returns last 10 recent GRNs with vendor, PO, invoice, and status.
@@ -1456,6 +1448,9 @@ namespace P2PERP.Controllers
             }
         }
 
+
+
+
         // Loads the view GRN modal with header details
         [HttpGet]
         public async Task<ActionResult> ViewGRNSSG(string GRNCode)
@@ -1501,6 +1496,66 @@ namespace P2PERP.Controllers
                 throw new Exception("Error fetching GRN header: " + ex.Message, ex);
             }
         }
+
+        private class PdfWatermarkEvent : PdfPageEventHelper
+        {
+            private readonly iTextSharp.text.Image _img;
+            private readonly float _opacity;
+            private readonly float _angleDegrees;
+
+            public PdfWatermarkEvent(string imagePath, float opacity = 0.12f, float angleDegrees = 40f)
+            {
+                _opacity = opacity;
+                _angleDegrees = angleDegrees;
+
+                if (!string.IsNullOrEmpty(imagePath) && System.IO.File.Exists(imagePath))
+                {
+                    _img = iTextSharp.text.Image.GetInstance(imagePath);
+                    _img.Alignment = Element.ALIGN_CENTER;
+                }
+            }
+
+            public override void OnEndPage(PdfWriter writer, Document document)
+            {
+                if (_img == null) return;
+
+                PdfContentByte under = writer.DirectContent;
+                PdfGState gs = new PdfGState
+                {
+                    FillOpacity = _opacity,
+                    StrokeOpacity = _opacity
+                };
+
+                under.SaveState();
+                under.SetGState(gs);
+
+                Rectangle page = document.PageSize;
+
+                float maxDim = Math.Max(page.Width, page.Height) * 0.9f;
+                _img.ScaleToFit(maxDim, maxDim);
+
+                float centerX = page.Width / 2f;
+                float centerY = page.Height / 2f;
+
+                float angleRad = (float)(_angleDegrees * Math.PI / 180);
+                float cos = (float)Math.Cos(angleRad);
+                float sin = (float)Math.Sin(angleRad);
+
+                under.ConcatCTM(cos, sin, -sin, cos, centerX, centerY);
+
+                _img.SetAbsolutePosition(
+                    -_img.ScaledWidth / 2f,
+                    -_img.ScaledHeight / 2f
+                );
+
+                under.AddImage(_img);
+                under.RestoreState();
+            }
+        }
+
+
+
+
         [HttpGet]
         public async Task<ActionResult> GenerateGRNPDF(string GRNCode)
         {
@@ -1545,8 +1600,29 @@ namespace P2PERP.Controllers
                 using (MemoryStream ms = new MemoryStream())
                 {
                     Document doc = new Document(PageSize.A4, 36f, 36f, 24f, 36f);
-                    PdfWriter.GetInstance(doc, ms);
+                    PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+
+                    // Resolve logo path
+                    string watermarkPath;
+                    try
+                    {
+                        watermarkPath = Server.MapPath("~/Content/images/Watermark.png");
+                    }
+                    catch
+                    {
+                        watermarkPath = System.Web.Hosting.HostingEnvironment
+                            .MapPath("~/Content/images/Watermark.png");
+                    }
+
+                    // Attach watermark event
+                    writer.PageEvent = new PdfWatermarkEvent(
+                        watermarkPath,
+                        opacity: 0.12f,
+                       angleDegrees: 40f
+                    );
+
                     doc.Open();
+
 
                     BaseColor softBlue = new BaseColor(232, 240, 254);
                     BaseColor headerBlue = new BaseColor(44, 88, 180);
