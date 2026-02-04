@@ -7,6 +7,7 @@ using P2PLibray.Account;
 using P2PLibray.Purchase;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -120,6 +121,7 @@ namespace P2PERP.Controllers
         #region Pravin
         // GET: Create PR page
         [HttpGet]
+        [DisplayName("Item Request Management")]
         public ActionResult CreatePRADDItemPSM()
         {
             return View();
@@ -322,6 +324,7 @@ namespace P2PERP.Controllers
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Controller Optional
+        [DisplayName("Purchase Requisition Reports")]
         public async Task<ActionResult> PurchaseRequestTableAT()
         {
             var lstUserDtl = await bal.ShowDataAT();
@@ -332,6 +335,7 @@ namespace P2PERP.Controllers
         /// <summary>
         /// Displays the Purchase Order Report page with a list of purchase orders.
         /// </summary>
+        [DisplayName("Purchase Order Reports")]
         public async Task<ActionResult> PurchaseOrderReportAT()
         {
             var purchaseOrders = await bal.GetPurchaseOrdersAT();
@@ -343,6 +347,7 @@ namespace P2PERP.Controllers
         /// <summary>
         /// Displays the RFQ report page with a list of RFQs.
         /// </summary>
+        [DisplayName("Request For Quotation Reports")]
         public async Task<ActionResult> RFQReportAT()
         {
             var rfqList = await bal.GetRFQReportAT();
@@ -402,6 +407,7 @@ namespace P2PERP.Controllers
 
         #region Vaibhavi
         //  Show all RFQs
+        [DisplayName("Register Quotation")]
         public ActionResult ShowAllRFQsVNK()
         {
             return View();
@@ -570,6 +576,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
         //  Purchase Orders (Approved)
         [HttpGet]
+        [DisplayName("Purchase Ordar Approval")]
         public ActionResult PurchaseOrdersVNK()
         {
             return View();
@@ -1408,6 +1415,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         /// </summary>
         /// <returns>View of SupplierQuotationAMG</returns>
         [HttpGet]
+        [DisplayName("Supplier Quotation Approval")]
         public ActionResult SupplierQuotationAMG()
         {
             try
@@ -1582,10 +1590,11 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
         #region Shubham
 
-            /// <summary>
-            /// Loads the view for displaying all requisitions.
-            /// </summary>
-            public ActionResult AllRequisitionSP()
+        /// <summary>
+        /// Loads the view for displaying all requisitions.
+        /// </summary>
+        [DisplayName("Purchase Requisition")]
+        public ActionResult AllRequisitionSP()
             {
                 return View();
             }
@@ -1898,6 +1907,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         /// Displays the vendor management view page.
         /// </summary>
         [HttpGet]
+        [DisplayName("Vendor Management")]
         public ActionResult VenderManagementOK()
         {
             return View();
@@ -2174,6 +2184,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         /// </summary>
 
         [HttpGet]
+        [DisplayName("Approved Quotations")]
         public ActionResult SelectedQuotationListShowOK()
         {
             return View();
@@ -2516,6 +2527,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         /// <returns>View for purchase order history</returns>
 
         [HttpGet]
+        [DisplayName("Purchase Order History")]
         public ActionResult PurchaseOrederHistoryOk()
         {
             return View();
@@ -2811,6 +2823,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
         //Just in time Item list to create the PO
         [HttpGet]
+        [DisplayName("Just In Time")]
         public ActionResult JustInTimeItemListOK()
         {
             return View();
@@ -3124,6 +3137,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
         #region prathamesh
 
+        [DisplayName("Dashboard")]
         public ActionResult UserDashboardPRK()
         {
             var RoleId = Convert.ToInt32(Session["RoleId"]);
@@ -3224,6 +3238,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
 
         // Pending PR main view
+        [DisplayName("Purchase Requisition Approval")]
         public ActionResult ShowPendingPRPRK()
         {
             return View();
@@ -3524,10 +3539,11 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowPendingPOPartialPRK");
         }
-    
+
         #endregion
 
         #region Sandesh
+        [DisplayName("Request For Quotation")]
         public ActionResult QuotationSJ()
         {
             return View();
