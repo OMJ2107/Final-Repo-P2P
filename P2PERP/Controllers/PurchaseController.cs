@@ -2845,6 +2845,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             private readonly float _angleDegrees;
 
             /// <summary>
+            /// 
             /// imagePath: full path to image (eg. Server.MapPath("~/Content/images/Logo-p2p.png"))
             /// opacity: 0..1
             /// angleDegrees: positive rotates anticlockwise (counter-clockwise)
@@ -3050,7 +3051,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 bottomTable.WidthPercentage = 100;
                 bottomTable.SetWidths(new float[] { 60f, 40f });
 
-                // LEFT – TERMS
+                // LEFT – TERM AND conditions
                 PdfPCell termsCell = new PdfPCell();
                 termsCell.Border = Rectangle.NO_BORDER;
                 termsCell.AddElement(new Phrase("Terms & Conditions", boldFont));
