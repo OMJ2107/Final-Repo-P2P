@@ -1604,7 +1604,7 @@ namespace P2PERP.Controllers
                     catch
                     {
                         watermarkPath = System.Web.Hosting.HostingEnvironment
-                            .MapPath("\"~/Content/images/Watermark.png");
+                            .MapPath("~/Content/images/Watermark.png");
                     }
 
                     // Attach watermark event

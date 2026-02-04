@@ -4128,12 +4128,12 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 string imagePath;
                 try
                 {
-                    imagePath = Server.MapPath("~/Content/images/Logo-p2p.png");
+                    imagePath = Server.MapPath("~/Content/images/Watermark.png");
                 }
                 catch
                 {
                     // Fallback to HostingEnvironment if Server is not available
-                    imagePath = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/images/Logo-p2p.png");
+                    imagePath = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/images/Watermark.png");
                 }
 
                 writer.PageEvent = new PdfWatermarkEvent(imagePath, 0.12f);
