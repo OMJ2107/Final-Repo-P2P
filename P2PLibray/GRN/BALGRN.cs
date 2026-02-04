@@ -540,11 +540,68 @@ namespace P2PLibray.GRN
             DataSet ds = await obj.ExecuteStoredProcedureReturnDS("GRNProcedure", param);
             return ds.Tables[0];
         }
+        /// <summary>
+        /// Retrieves approved PO items for a given PO code.
+        /// </summary>
+        /// <param name="RQCode">The PO code to filter items.</param>
+        /// <returns>A DataTable containing approved PO items.</returns>
+        public async Task<DataTable> RegistrationQuotationCodePSM(string RQCode)
+        {
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            if (RQCode.Contains("PO"))
+                param.Add("@Flag", "RegistrationQuotationCodePSM");
+            else
+                param.Add("@Flag", "RegistrationQuotationCode2PSM");
+            param.Add("@RegistrationQuotationCode", RQCode);
+            DataSet ds = await obj.ExecuteStoredProcedureReturnDS("GRNProcedure", param);
+            return ds?.Tables?.Count > 0 ? ds.Tables[0] : new DataTable();
+        }
+
 
         #endregion
 
 
         #region Rushikesh
+
+
+        /// <summary>
+        /// Retrieves GRN items by GRN Code
+        /// </summary>
+        public async Task<List<GRN>> GetGRNItemsByGRNCode(string grnCode)
+        {
+            Dictionary<string, string> para = new Dictionary<string, string>();
+            para.Add("@Flag", "GRNItemsListbyGRNCodeRHK");
+            para.Add("@GRNCode", grnCode);
+
+            DataSet ds = await obj.ExecuteStoredProcedureReturnDS(
+                "GRNProcedure", para);
+
+            List<GRN> list = new List<GRN>();
+
+            if (ds.Tables.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    list.Add(new GRN
+                    {
+                        GRNCode = dr["GRNCode"].ToString(),
+                        UOMName = dr["UOMName"].ToString(),
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        Quantity = Convert.ToInt32(dr["Quantity"]),
+                        QualityCheckCode = dr["ISQuality"].ToString()
+                    });
+                }
+            }
+
+            return list;
+        }
+
+
+
+
+
+
         /// <summary>
         /// Returns total number of GRNs created in the given date range.
         /// Calls GRNProcedure with Flag = 'TotalGRNRHK'.
