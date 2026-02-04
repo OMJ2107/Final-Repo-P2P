@@ -90,6 +90,7 @@ namespace P2PERP.Controllers
                 mail.Body = messageBody;
                 mail.IsBodyHtml = true;
 
+
                 // Add attachment if provided
                 if (attachment != null && attachment.ContentLength > 0)
                 {
@@ -420,6 +421,7 @@ namespace P2PERP.Controllers
             return View();
         }
 
+        
         //  View RFQ details by code
         public async Task<ActionResult> ViewRFQVNK(string rfqCode)
         {
