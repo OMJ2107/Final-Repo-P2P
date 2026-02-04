@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
+//using System.Drawing;
 using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
@@ -21,17 +21,21 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Configuration;
+using System.Web.Mail;
+
+//using System.Web.Mail;
 using System.Web.Mvc;
 using System.Web.Services.Description;
 using System.Web.UI.WebControls;
 using System.Xml.Linq;
 using static P2PLibray.Purchase.Purchase;
-using iTextColor = iTextSharp.text.BaseColor;
-using iTextFont = iTextSharp.text.Font;
-using iTextRectangle = iTextSharp.text.Rectangle;
+//using iTextColor = iTextSharp.text.BaseColor;
+//using iTextFont = iTextSharp.text.Font;
+//using iTextRectangle = iTextSharp.text.Rectangle;
 
 namespace P2PERP.Controllers
 {
+   
     public class PurchaseController : Controller
     {
         BALPurchase bal = new BALPurchase();
@@ -82,7 +86,7 @@ namespace P2PERP.Controllers
                 string fromEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
                 string password = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"];
 
-                MailMessage mail = new MailMessage();
+                System.Net.Mail.MailMessage mail = new System.Net.Mail.MailMessage();
                 mail.From = new MailAddress(fromEmail);
                 mail.To.Add(toEmail);
                 mail.Subject = subject;
@@ -1146,6 +1150,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
                 Purchase po = new Purchase();
                 List<Purchase> poItems = new List<Purchase>();
+                List<POTermOK> poTerms = new List<POTermOK>();
 
                 var row = ds.Tables[0].Rows[0];
                 po.CompanyName = row["CompanyName"].ToString();
@@ -1181,9 +1186,21 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                         Amount = Convert.ToDecimal(dr["Amount"])
                     });
                 }
+                // Terms & Conditions (DATASET 3)
+                if (ds.Tables.Count > 2 && ds.Tables[2].Rows.Count > 0)
+                {
+                    int srNo = 1;
+                    foreach (DataRow dr in ds.Tables[2].Rows)
+                    {
+                        poTerms.Add(new POTermOK
+                        {
+                            SRNO = srNo++,
+                            TermConditionName = dr["TermConditionName"].ToString()
+                        });
+                    }
+                }
 
-
-                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems);
+                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems, poTerms);
 
 
                 await SendPurchaseOrderEmailAsync(po, pdfBytes);
@@ -1224,7 +1241,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                     EnableSsl = true,
                     Credentials = new NetworkCredential(newemail, newpass)
                 })
-                using (var message = new MailMessage(fromAddress, new MailAddress(vemail))
+                using (var message = new System.Net.Mail.MailMessage(fromAddress, new MailAddress(vemail))
                 {
                     Subject = subject,
                     Body = body,
@@ -1286,6 +1303,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
                 Purchase po = new Purchase();
                 List<Purchase> poItems = new List<Purchase>();
+                List<POTermOK> poTerms = new List<POTermOK>();
 
                 var row = ds.Tables[0].Rows[0];
                 po.CompanyName = row["CompanyName"].ToString();
@@ -1321,9 +1339,21 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                         Amount = Convert.ToDecimal(dr["Amount"])
                     });
                 }
+                 // Terms & Conditions (DATASET 3)
+ if (ds.Tables.Count > 2 && ds.Tables[2].Rows.Count > 0)
+ {
+     int srNo = 1;
+     foreach (DataRow dr in ds.Tables[2].Rows)
+     {
+         poTerms.Add(new POTermOK
+         {
+             SRNO = srNo++,
+             TermConditionName = dr["TermConditionName"].ToString()
+         });
+     }
+ }
 
-
-                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems);
+                byte[] pdfBytes = GeneratePurchaseOrderPDF(po, poItems, poTerms);
 
 
                 await SendForApprovalEmailAsync(po, pdfBytes);
@@ -1378,7 +1408,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 EnableSsl = true,
                 Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
             })
-            using (var message = new MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com")) // <-- Replace with admin email
+            using (var message = new System.Net.Mail.MailMessage(fromAddress, new MailAddress("mullanurjaha02@gmail.com")) // <-- Replace with admin email
             {
                 Subject = subject,
                 Body = body,
@@ -2270,8 +2300,15 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
 
         //string quotationID
-        public ActionResult CreatePOOK()
+        public async Task<ActionResult> CreatePOOK()
         {
+            string POcode = null;
+            SqlDataReader rd= await bal.CreatePOCodeOK();
+            if(rd.Read())
+            {
+                POcode=rd["POCode"].ToString();
+            }
+            ViewBag.POCode = POcode;
             HttpCookie cookie = Request.Cookies["SelectedQuotationID"];
             string quotationId = null;
 
@@ -2553,6 +2590,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             // Map PO details
             Purchase po = new Purchase();
             List<Purchase> poItems = new List<Purchase>();
+            List<POTermOK> poTerms = new List<POTermOK>();
 
             // Company, Vendor, ShipTo
             if (ds.Tables[0].Rows.Count > 0)
@@ -2594,9 +2632,23 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                     Amount = Convert.ToDecimal(dr["Amount"])
                 });
             }
+            // Terms & Conditions (DATASET 3)
+            if (ds.Tables.Count > 2 && ds.Tables[2].Rows.Count > 0)
+            {
+                int srNo = 1;
+                foreach (DataRow dr in ds.Tables[2].Rows)
+                {
+                    poTerms.Add(new POTermOK
+                    {
+                        SRNO = srNo++,
+                        TermConditionName = dr["TermConditionName"].ToString()
+                    });
+                }
+            }
+
 
             // ==== Generate PDF ====
-            byte[] fileBytes = GeneratePurchaseOrderPDF(po, poItems);
+            byte[] fileBytes = GeneratePurchaseOrderPDF(po, poItems, poTerms);
             //return File(fileBytes, "application/pdf", $"PurchaseOrder_{po.POCode}.pdf");
             Response.AppendHeader("Content-Disposition", "inline; filename=PurchaseOrder.pdf");
             return File(fileBytes, "application/pdf");
@@ -2604,202 +2656,473 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
         }
 
-        public byte[] GeneratePurchaseOrderPDF(Purchase po, List<Purchase> poItems)
+        //public byte[] GeneratePurchaseOrderPDF(Purchase po, List<Purchase> poItems, List<POTermOK> poTerms)
+        //{
+        //    using (MemoryStream ms = new MemoryStream())
+        //    {
+        //        Document doc = new Document(PageSize.A4, 25, 25, 30, 30);
+        //        PdfWriter.GetInstance(doc, ms);
+        //        doc.Open();
+
+        //        ////Add Company Logo
+        //        //string logoPath = HttpContext.Current.Server.MapPath("~/Content/images/company-logo.png");
+
+        //        //Image logo = Image.GetInstance(logoPath);
+        //        //logo.ScaleAbsolute(80f, 80f);   // width, height
+        //        //logo.Alignment = Element.ALIGN_LEFT;
+
+
+        //        // ===== Load Unicode Font (supports ₹) =====
+        //        string fontsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arialuni.ttf");
+        //        // if (!File.Exists(fontsPath))
+        //        fontsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf"); // fallback
+
+        //        BaseFont bf = BaseFont.CreateFont(fontsPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        //        var titleFont = new iTextSharp.text.Font(bf, 20, iTextSharp.text.Font.BOLD);
+        //        var boldFont = new iTextSharp.text.Font(bf, 11, iTextSharp.text.Font.BOLD);
+        //        var headerFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.BOLD, BaseColor.WHITE);
+        //        var normalFont = new iTextSharp.text.Font(bf, 9);
+
+        //        // ===== Title & Date Box ======
+        //        PdfPTable headerTable = new PdfPTable(2);
+        //        headerTable.WidthPercentage = 100;
+        //        headerTable.SetWidths(new float[] { 70f, 30f });
+
+        //        PdfPCell titleCell = new PdfPCell(new Phrase("PURCHASE ORDER", titleFont));
+        //        titleCell.Border = iTextRectangle.NO_BORDER;
+        //        titleCell.HorizontalAlignment = Element.ALIGN_LEFT;
+        //        headerTable.AddCell(titleCell);
+
+        //        PdfPTable rightBox = new PdfPTable(1);
+        //        rightBox.WidthPercentage = 100;
+
+        //        PdfPCell dateCell = new PdfPCell(new Phrase(
+        //          $"DATE : {po.AddedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}",
+        //          boldFont
+        //      ));
+
+        //        dateCell.BackgroundColor = new BaseColor(200, 230, 250);
+        //        dateCell.Border = iTextRectangle.NO_BORDER;
+        //        rightBox.AddCell(dateCell);
+
+        //        PdfPCell poCell = new PdfPCell(new Phrase($"PO# : {po.POCode}", boldFont));
+        //        poCell.BackgroundColor = new BaseColor(200, 230, 250);
+        //        poCell.Border = iTextRectangle.NO_BORDER;
+        //        rightBox.AddCell(poCell);
+
+        //        PdfPCell rightWrapper = new PdfPCell(rightBox);
+        //        rightWrapper.Border = iTextRectangle.NO_BORDER;
+        //        headerTable.AddCell(rightWrapper);
+
+        //        doc.Add(headerTable);
+        //        doc.Add(new Paragraph(" "));
+
+        //        // ===== Company Info =====
+        //        PdfPTable companyTable = new PdfPTable(1) { WidthPercentage = 100 };
+        //        PdfPCell companyCell = new PdfPCell { Border = iTextRectangle.NO_BORDER };
+        //        companyCell.AddElement(new Phrase(po.CompanyName, boldFont));
+        //        companyCell.AddElement(new Phrase(po.CompanyAddress, normalFont));
+        //        companyCell.AddElement(new Phrase($"Phone: {po.CompanyMobileNo}", normalFont));
+        //        companyCell.AddElement(new Phrase($"Email: {po.CompanyEmail}", normalFont));
+        //        companyCell.AddElement(new Phrase($"Website: {po.Website}", normalFont));
+        //        companyTable.AddCell(companyCell);
+        //        doc.Add(companyTable);
+        //        doc.Add(new Paragraph(" "));
+
+        //        // ===== Vendor & Ship To =====
+        //        PdfPTable infoTable = new PdfPTable(2) { WidthPercentage = 100 };
+        //        infoTable.SetWidths(new float[] { 50f, 50f });
+
+        //        AddHeaderCell(infoTable, "VENDOR INFORMATION", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(infoTable, "SHIP TO", boldFont, new BaseColor(135, 206, 235));
+
+        //        PdfPCell vendorCell = new PdfPCell(new Phrase(
+        //            $"{po.VendorName}\n{po.Address}\nPhone: {po.MobileNo}\nEmail: {po.Email}", normalFont))
+        //        { Padding = 5 };
+        //        infoTable.AddCell(vendorCell);
+
+        //        PdfPCell shipCell = new PdfPCell(new Phrase(
+        //            $"{po.WarehouseName}\n{po.WarehouseAddress}\nPhone: {po.WarehousePhone}\nEmail: {po.WarehouseEmail}", normalFont))
+        //        { Padding = 5 };
+        //        infoTable.AddCell(shipCell);
+
+        //        doc.Add(infoTable);
+        //        doc.Add(new Paragraph(" "));
+
+        //        // ===== Items Table =====
+        //        PdfPTable table = new PdfPTable(8) { WidthPercentage = 100 };
+        //        table.SetWidths(new float[] { 10f, 15f, 20f, 10f, 10f, 10f, 10f, 15f });
+
+        //        AddHeaderCell(table, "ITEM", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "ITEMNAME", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "DESCRIPTION", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "QTY", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "UNIT PRICE", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "DISCOUNT", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "GST", boldFont, new BaseColor(135, 206, 235));
+        //        AddHeaderCell(table, "TOTAL", boldFont, new BaseColor(135, 206, 235));
+
+        //        // ===== Calculations =====
+        //        double subTotal = 0, totalGST = 0;
+
+        //        foreach (var item in poItems)
+        //        {
+        //            // Handle nulls and conversions safely
+        //            double quantity = (po.RequestTypeId == 9) ? item.JITQuantity : item.Quantity;
+        //            double costPerUnit = Convert.ToDouble(item.CostPerUnit);
+        //            double discountPercent = double.TryParse(item.Discount?.Replace("%", ""), out double d) ? d : 0;
+        //            double gstPercent = double.TryParse(item.GST?.Replace("%", ""), out double g) ? g : 0;
+
+        //            // Calculate amounts
+        //            double amountBeforeDiscount = quantity * costPerUnit;
+        //            double discountAmount = amountBeforeDiscount * (discountPercent / 100);
+        //            double taxableAmount = amountBeforeDiscount - discountAmount;
+        //            double gstAmount = taxableAmount * (gstPercent / 100);
+        //            double totalAmount = taxableAmount + gstAmount;
+
+        //            subTotal +=Convert.ToDouble(item.Amount);
+        //            //totalGST += subTotal+;
+
+        //            // Add data row
+        //            AddDataCell(table, item.ItemCode, normalFont);
+        //            AddDataCell(table, item.ItemName, normalFont);
+        //            AddDataCell(table, item.Description, normalFont);
+        //            AddDataCell(table, quantity.ToString("N2"), normalFont, Element.ALIGN_CENTER);
+        //            AddDataCell(table, $"\u20B9{costPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
+        //            AddDataCell(table, $"{discountPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
+        //            AddDataCell(table, $"{gstPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
+        //            AddDataCell(table, $"\u20B9{totalAmount:N2}", normalFont, Element.ALIGN_RIGHT);
+        //        }
+
+        //        doc.Add(table);
+        //        doc.Add(new Paragraph(" "));
+
+        //        // ===== Totals Section =====
+        //        double shipping = Convert.ToDouble(po.ShippingCharges);
+        //        double grandTotal = subTotal+ shipping;
+
+        //        PdfPTable totalsTable = new PdfPTable(2)
+        //        {
+        //            WidthPercentage = 40,
+        //            HorizontalAlignment = Element.ALIGN_RIGHT
+        //        };
+        //        totalsTable.AddCell(new PdfPCell(new Phrase("SUBTOTAL", boldFont)) { Border = 0 });
+        //        totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{subTotal:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+        //        //totalsTable.AddCell(new PdfPCell(new Phrase("GST", boldFont)) { Border = 0 });
+        //        //totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{totalGST:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+        //        totalsTable.AddCell(new PdfPCell(new Phrase("SHIPPING", boldFont)) { Border = 0 });
+        //        totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{shipping:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+
+        //        totalsTable.AddCell(new PdfPCell(new Phrase("GRAND TOTAL", boldFont))
+        //        {
+        //            Border = 0,
+        //            BackgroundColor = new BaseColor(135, 206, 235),
+        //            Padding = 5
+        //        });
+        //        totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{grandTotal:N2}", boldFont))
+        //        {
+        //            Border = 0,
+        //            BackgroundColor = new BaseColor(135, 206, 235),
+        //            HorizontalAlignment = Element.ALIGN_RIGHT,
+        //            Padding = 5
+        //        });
+
+        //        //bottomTable.AddCell(new PdfPCell(totalsTable) { Border = 0 });
+        //        //doc.Add(bottomTable);
+        //        doc.Add(totalsTable);
+
+
+
+        //        doc.Close();
+        //        return ms.ToArray();
+        //    }
+        //}
+        private class PdfWatermarkEvent : PdfPageEventHelper
+        {
+            private readonly iTextSharp.text.Image _img;
+            private readonly float _opacity;
+            private readonly float _angleDegrees;
+
+            /// <summary>
+            /// imagePath: full path to image (eg. Server.MapPath("~/Content/images/Logo-p2p.png"))
+            /// opacity: 0..1
+            /// angleDegrees: positive rotates anticlockwise (counter-clockwise)
+            /// </summary>
+            public PdfWatermarkEvent(string imagePath, float opacity = 0.12f, float angleDegrees = 40f)
+            {
+                _opacity = opacity;
+                _angleDegrees = angleDegrees;
+
+                if (!string.IsNullOrEmpty(imagePath) && System.IO.File.Exists(imagePath))
+                {
+                    _img = iTextSharp.text.Image.GetInstance(imagePath);
+                    _img.Alignment = Element.ALIGN_CENTER;
+                }
+            }
+
+            public override void OnEndPage(PdfWriter writer, Document document)
+            {
+                if (_img == null) return;
+
+                PdfContentByte under = writer.DirectContentUnder;
+                var gs = new PdfGState { FillOpacity = _opacity, StrokeOpacity = _opacity };
+
+                under.SaveState();
+                under.SetGState(gs);
+
+                var pageSize = document.PageSize;
+
+                // scale image to fit a large portion of page (diagonally)
+                float maxDim = Math.Max(pageSize.Width, pageSize.Height) * 0.9f;
+                _img.ScaleToFit(maxDim, maxDim);
+
+                // center of the page
+                float centerX = pageSize.Width / 2f;
+                float centerY = pageSize.Height / 2f;
+
+                // convert degrees to radians and compute matrix components
+                float angleRad = (float)(_angleDegrees * Math.PI / 180.0);
+                float cos = (float)Math.Cos(angleRad);
+                float sin = (float)Math.Sin(angleRad);
+
+                // Apply transform: translate to page center, rotate, then draw image centered at origin
+                under.ConcatCTM(cos, sin, -sin, cos, centerX, centerY);
+
+                // place image with its center at origin (because we moved origin to page center)
+                _img.SetAbsolutePosition(-_img.ScaledWidth / 2f, -_img.ScaledHeight / 2f);
+                under.AddImage(_img);
+
+                under.RestoreState();
+            }
+        }
+        public byte[] GeneratePurchaseOrderPDF(Purchase po, List<Purchase> poItems, List<POTermOK> poTerms)
         {
             using (MemoryStream ms = new MemoryStream())
             {
                 Document doc = new Document(PageSize.A4, 25, 25, 30, 30);
-                PdfWriter.GetInstance(doc, ms);
+               // PdfWriter.GetInstance(doc, ms);
+                PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+
+                // ✅ ADD WATERMARK HERE
+                string watermarkPath = Server.MapPath("~/Content/images/Watermark.png");
+                writer.PageEvent = new PdfWatermarkEvent(
+                    watermarkPath,
+                    opacity: 0.12f,
+                    angleDegrees: 40f
+                );
                 doc.Open();
 
-                // ===== Load Unicode Font (supports ₹) =====
-                string fontsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arialuni.ttf");
-                // if (!File.Exists(fontsPath))
-                fontsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf"); // fallback
+                /* =========================
+                   FONT SETUP (₹ SUPPORT)
+                   ========================= */
+                string fontPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Fonts),
+                    "segoeui.ttf"
+                );
 
-                BaseFont bf = BaseFont.CreateFont(fontsPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                var titleFont = new iTextSharp.text.Font(bf, 20, iTextSharp.text.Font.BOLD);
-                var boldFont = new iTextSharp.text.Font(bf, 11, iTextSharp.text.Font.BOLD);
-                var headerFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.BOLD, BaseColor.WHITE);
-                var normalFont = new iTextSharp.text.Font(bf, 9);
+                BaseFont bf = BaseFont.CreateFont(
+                    fontPath,
+                    BaseFont.IDENTITY_H,
+                    BaseFont.EMBEDDED
+                );
 
-                // ===== Title & Date Box ======
+                iTextSharp.text.Font titleFont = new iTextSharp.text.Font(bf, 20, iTextSharp.text.Font.BOLD);
+                iTextSharp.text.Font boldFont = new iTextSharp.text.Font(bf, 11, iTextSharp.text.Font.BOLD);
+                iTextSharp.text.Font normalFont = new iTextSharp.text.Font(bf, 9);
+
+                /* =========================
+                   HEADER
+                   ========================= */
                 PdfPTable headerTable = new PdfPTable(2);
                 headerTable.WidthPercentage = 100;
                 headerTable.SetWidths(new float[] { 70f, 30f });
 
                 PdfPCell titleCell = new PdfPCell(new Phrase("PURCHASE ORDER", titleFont));
-                titleCell.Border = iTextRectangle.NO_BORDER;
-                titleCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                titleCell.Border = Rectangle.NO_BORDER;
                 headerTable.AddCell(titleCell);
 
                 PdfPTable rightBox = new PdfPTable(1);
                 rightBox.WidthPercentage = 100;
 
-                PdfPCell dateCell = new PdfPCell(new Phrase(
-                  $"DATE : {po.AddedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}",
-                  boldFont
-              ));
-
+                PdfPCell dateCell = new PdfPCell(
+                    new Phrase($"DATE : {po.AddedDate:dd/MM/yyyy}", boldFont)
+                );
                 dateCell.BackgroundColor = new BaseColor(200, 230, 250);
-                dateCell.Border = iTextRectangle.NO_BORDER;
+                dateCell.Border = Rectangle.NO_BORDER;
                 rightBox.AddCell(dateCell);
 
-                PdfPCell poCell = new PdfPCell(new Phrase($"PO# : {po.POCode}", boldFont));
+                PdfPCell poCell = new PdfPCell(
+                    new Phrase($"PO# : {po.POCode}", boldFont)
+                );
                 poCell.BackgroundColor = new BaseColor(200, 230, 250);
-                poCell.Border = iTextRectangle.NO_BORDER;
+                poCell.Border = Rectangle.NO_BORDER;
                 rightBox.AddCell(poCell);
 
                 PdfPCell rightWrapper = new PdfPCell(rightBox);
-                rightWrapper.Border = iTextRectangle.NO_BORDER;
+                rightWrapper.Border = Rectangle.NO_BORDER;
                 headerTable.AddCell(rightWrapper);
 
                 doc.Add(headerTable);
                 doc.Add(new Paragraph(" "));
 
-                // ===== Company Info =====
-                PdfPTable companyTable = new PdfPTable(1) { WidthPercentage = 100 };
-                PdfPCell companyCell = new PdfPCell { Border = iTextRectangle.NO_BORDER };
+                /* =========================
+                   COMPANY INFO
+                   ========================= */
+                PdfPTable companyTable = new PdfPTable(1);
+                companyTable.WidthPercentage = 100;
+
+                PdfPCell companyCell = new PdfPCell();
+                companyCell.Border = Rectangle.NO_BORDER;
                 companyCell.AddElement(new Phrase(po.CompanyName, boldFont));
                 companyCell.AddElement(new Phrase(po.CompanyAddress, normalFont));
                 companyCell.AddElement(new Phrase($"Phone: {po.CompanyMobileNo}", normalFont));
                 companyCell.AddElement(new Phrase($"Email: {po.CompanyEmail}", normalFont));
                 companyCell.AddElement(new Phrase($"Website: {po.Website}", normalFont));
+
                 companyTable.AddCell(companyCell);
                 doc.Add(companyTable);
                 doc.Add(new Paragraph(" "));
 
-                // ===== Vendor & Ship To =====
-                PdfPTable infoTable = new PdfPTable(2) { WidthPercentage = 100 };
+                /* =========================
+                   VENDOR & SHIP TO
+                   ========================= */
+                PdfPTable infoTable = new PdfPTable(2);
+                infoTable.WidthPercentage = 100;
                 infoTable.SetWidths(new float[] { 50f, 50f });
 
-                AddHeaderCell(infoTable, "VENDOR INFORMATION", boldFont, new BaseColor(135, 206, 235));
-                AddHeaderCell(infoTable, "SHIP TO", boldFont, new BaseColor(135, 206, 235));
+                AddHeaderCell(infoTable, "VENDOR INFORMATION", boldFont);
+                AddHeaderCell(infoTable, "SHIP TO", boldFont);
 
-                PdfPCell vendorCell = new PdfPCell(new Phrase(
-                    $"{po.VendorName}\n{po.Address}\nPhone: {po.MobileNo}\nEmail: {po.Email}", normalFont))
-                { Padding = 5 };
-                infoTable.AddCell(vendorCell);
+                infoTable.AddCell(new PdfPCell(
+                    new Phrase($"{po.VendorName}\n{po.Address}\nPhone: {po.MobileNo}\nEmail: {po.Email}", normalFont))
+                { Padding = 5 });
 
-                PdfPCell shipCell = new PdfPCell(new Phrase(
-                    $"{po.WarehouseName}\n{po.WarehouseAddress}\nPhone: {po.WarehousePhone}\nEmail: {po.WarehouseEmail}", normalFont))
-                { Padding = 5 };
-                infoTable.AddCell(shipCell);
+                infoTable.AddCell(new PdfPCell(
+                    new Phrase($"{po.WarehouseName}\n{po.WarehouseAddress}\nPhone: {po.WarehousePhone}\nEmail: {po.WarehouseEmail}", normalFont))
+                { Padding = 5 });
 
                 doc.Add(infoTable);
                 doc.Add(new Paragraph(" "));
 
-                // ===== Items Table =====
-                PdfPTable table = new PdfPTable(8) { WidthPercentage = 100 };
-                table.SetWidths(new float[] { 10f, 15f, 20f, 10f, 10f, 10f, 10f, 15f });
+                /* =========================
+                   ITEMS TABLE
+                   ========================= */
+                PdfPTable itemTable = new PdfPTable(8);
+                itemTable.WidthPercentage = 100;
+                itemTable.SetWidths(new float[] { 10f, 15f, 20f, 10f, 10f, 10f, 10f, 15f });
 
-                AddHeaderCell(table, "ITEM", boldFont, new BaseColor(135, 206, 235));
-                AddHeaderCell(table, "ITEMNAME", boldFont, new BaseColor(135, 206, 235));
-                AddHeaderCell(table, "DESCRIPTION", boldFont, new BaseColor(135, 206, 235));
-                AddHeaderCell(table, "QTY", boldFont, new BaseColor(135, 206, 235));
-                AddHeaderCell(table, "UNIT PRICE", boldFont, new BaseColor(135, 206, 235));
-                AddHeaderCell(table, "DISCOUNT", boldFont, new BaseColor(135, 206, 235));
-                AddHeaderCell(table, "GST", boldFont, new BaseColor(135, 206, 235));
-                AddHeaderCell(table, "TOTAL", boldFont, new BaseColor(135, 206, 235));
+                AddHeaderCell(itemTable, "Item", boldFont);
+                AddHeaderCell(itemTable, "Item Name", boldFont);
+                AddHeaderCell(itemTable, "Description", boldFont);
+                AddHeaderCell(itemTable, "Quantity", boldFont);
+                AddHeaderCell(itemTable, "Unit Price", boldFont);
+                AddHeaderCell(itemTable, "Discount", boldFont);
+                AddHeaderCell(itemTable, "GST", boldFont);
+                AddHeaderCell(itemTable, "Total", boldFont);
 
-                // ===== Calculations =====
-                double subTotal = 0, totalGST = 0;
+                double subTotal = 0;
 
                 foreach (var item in poItems)
                 {
-                    // Handle nulls and conversions safely
-                    double quantity = (po.RequestTypeId == 9) ? item.JITQuantity : item.Quantity;
-                    double costPerUnit = Convert.ToDouble(item.CostPerUnit);
-                    double discountPercent = double.TryParse(item.Discount?.Replace("%", ""), out double d) ? d : 0;
-                    double gstPercent = double.TryParse(item.GST?.Replace("%", ""), out double g) ? g : 0;
+                    subTotal += Convert.ToDouble(item.Amount);
 
-                    // Calculate amounts
-                    double amountBeforeDiscount = quantity * costPerUnit;
-                    double discountAmount = amountBeforeDiscount * (discountPercent / 100);
-                    double taxableAmount = amountBeforeDiscount - discountAmount;
-                    double gstAmount = taxableAmount * (gstPercent / 100);
-                    double totalAmount = taxableAmount + gstAmount;
-
-                    subTotal +=Convert.ToDouble(item.Amount);
-                    //totalGST += subTotal+;
-
-                    // Add data row
-                    AddDataCell(table, item.ItemCode, normalFont);
-                    AddDataCell(table, item.ItemName, normalFont);
-                    AddDataCell(table, item.Description, normalFont);
-                    AddDataCell(table, quantity.ToString("N2"), normalFont, Element.ALIGN_CENTER);
-                    AddDataCell(table, $"\u20B9{costPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, $"{discountPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, $"{gstPercent:N2}%", normalFont, Element.ALIGN_RIGHT);
-                    AddDataCell(table, $"\u20B9{totalAmount:N2}", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(itemTable, item.ItemCode, normalFont);
+                    AddDataCell(itemTable, item.ItemName, normalFont);
+                    AddDataCell(itemTable, item.Description, normalFont);
+                    AddDataCell(itemTable, item.Quantity.ToString("N2"), normalFont, Element.ALIGN_CENTER);
+                    AddDataCell(itemTable, $"₹{item.CostPerUnit:N2}", normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(itemTable, item.Discount, normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(itemTable, item.GST, normalFont, Element.ALIGN_RIGHT);
+                    AddDataCell(itemTable, $"₹{item.Amount:N2}", normalFont, Element.ALIGN_RIGHT);
                 }
 
-                doc.Add(table);
+                doc.Add(itemTable);
                 doc.Add(new Paragraph(" "));
 
-                // ===== Totals Section =====
+                /* =========================
+                   BOTTOM: TERMS (LEFT) + TOTALS (RIGHT)
+                   ========================= */
                 double shipping = Convert.ToDouble(po.ShippingCharges);
-                double grandTotal = subTotal+ shipping;
+                double grandTotal = subTotal + shipping;
 
-                PdfPTable totalsTable = new PdfPTable(2)
+                PdfPTable bottomTable = new PdfPTable(2);
+                bottomTable.WidthPercentage = 100;
+                bottomTable.SetWidths(new float[] { 60f, 40f });
+
+                // LEFT – TERMS
+                PdfPCell termsCell = new PdfPCell();
+                termsCell.Border = Rectangle.NO_BORDER;
+                termsCell.AddElement(new Phrase("Terms & Conditions", boldFont));
+                termsCell.AddElement(new Paragraph(" "));
+
+                foreach (var term in poTerms)
                 {
-                    WidthPercentage = 40,
-                    HorizontalAlignment = Element.ALIGN_RIGHT
-                };
-                totalsTable.AddCell(new PdfPCell(new Phrase("SUBTOTAL", boldFont)) { Border = 0 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{subTotal:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+                    termsCell.AddElement(
+                        new Phrase($"{term.SRNO}. {term.TermConditionName}", normalFont)
+                    );
+                }
 
-                //totalsTable.AddCell(new PdfPCell(new Phrase("GST", boldFont)) { Border = 0 });
-                //totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{totalGST:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+                bottomTable.AddCell(termsCell);
+
+                // RIGHT – TOTALS
+                PdfPTable totalsTable = new PdfPTable(2);
+                totalsTable.WidthPercentage = 100;
+
+                totalsTable.AddCell(new PdfPCell(new Phrase("SUBTOTAL", boldFont)) { Border = 0 });
+                totalsTable.AddCell(new PdfPCell(new Phrase($"₹{subTotal:N2}", normalFont))
+                { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
 
                 totalsTable.AddCell(new PdfPCell(new Phrase("SHIPPING", boldFont)) { Border = 0 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{shipping:N2}", normalFont)) { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
+                totalsTable.AddCell(new PdfPCell(new Phrase($"₹{shipping:N2}", normalFont))
+                { Border = 0, HorizontalAlignment = Element.ALIGN_RIGHT });
 
                 totalsTable.AddCell(new PdfPCell(new Phrase("GRAND TOTAL", boldFont))
                 {
                     Border = 0,
-                    BackgroundColor = new BaseColor(135, 206, 235),
+                   // BackgroundColor = new BaseColor(135, 206, 235),
                     Padding = 5
                 });
-                totalsTable.AddCell(new PdfPCell(new Phrase($"\u20B9{grandTotal:N2}", boldFont))
+
+                totalsTable.AddCell(new PdfPCell(new Phrase($"₹{grandTotal:N2}", boldFont))
                 {
                     Border = 0,
-                    BackgroundColor = new BaseColor(135, 206, 235),
+                   // BackgroundColor = new BaseColor(135, 206, 235),
                     HorizontalAlignment = Element.ALIGN_RIGHT,
                     Padding = 5
                 });
 
-                //bottomTable.AddCell(new PdfPCell(totalsTable) { Border = 0 });
-                //doc.Add(bottomTable);
-                doc.Add(totalsTable);
+                bottomTable.AddCell(new PdfPCell(totalsTable) { Border = 0 });
 
-
+                doc.Add(bottomTable);
 
                 doc.Close();
                 return ms.ToArray();
             }
         }
-        // ===== Helper Methods =====
-        private void AddHeaderCell(PdfPTable table, string text, iTextSharp.text.Font font, BaseColor bgColor)
+        private void AddHeaderCell(PdfPTable table,string text,iTextSharp.text.Font font)
         {
-            PdfPCell cell = new PdfPCell(new Phrase(text, font))
-            {
-                BackgroundColor = bgColor,
-                HorizontalAlignment = Element.ALIGN_CENTER,
-                Padding = 5
-            };
+            PdfPCell cell = new PdfPCell(new Phrase(text, font));
+            cell.BackgroundColor = new BaseColor(135, 206, 235);
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Padding = 5;
             table.AddCell(cell);
         }
 
-        private void AddDataCell(PdfPTable table, string text, iTextSharp.text.Font font, int alignment = Element.ALIGN_LEFT)
+        private void AddDataCell(
+            PdfPTable table,
+            string text,
+            iTextSharp.text.Font font,
+            int alignment = Element.ALIGN_LEFT
+        )
         {
-            PdfPCell cell = new PdfPCell(new Phrase(text, font))
-            {
-                HorizontalAlignment = alignment,
-                Padding = 5
-            };
+            PdfPCell cell = new PdfPCell(new Phrase(text ?? "", font));
+            cell.HorizontalAlignment = alignment;
+            cell.Padding = 5;
             table.AddCell(cell);
         }
+
 
         //Just in time Item list to create the PO
         [HttpGet]
@@ -2974,6 +3297,8 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
             Purchase po = new Purchase();
             List<Purchase> poItems = new List<Purchase>();
+            List<POTermOK> poTerms = new List<POTermOK>();
+
 
             // Company & Vendor Details
             if (ds.Tables[0].Rows.Count > 0)
@@ -3013,8 +3338,20 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                     Amount = Convert.ToDecimal(dr["Amount"])
                 });
             }
-
-            return GeneratePurchaseOrderPDF(po, poItems);
+            // Terms & Conditions (DATASET 3)
+            if (ds.Tables.Count > 2 && ds.Tables[2].Rows.Count > 0)
+            {
+                int srNo = 1;
+                foreach (DataRow dr in ds.Tables[2].Rows)
+                {
+                    poTerms.Add(new POTermOK
+                    {
+                        SRNO = srNo++,
+                        TermConditionName = dr["TermConditionName"].ToString()
+                    });
+                }
+            }
+            return GeneratePurchaseOrderPDF(po, poItems, poTerms);
         }
         public async Task SendPOEmailAsync(string POCode, byte[] pdfBytes)
         {
@@ -3027,7 +3364,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 string vendorEmail = ds.Tables[0].Rows[0]["VendorEmail"].ToString();
                 string vendorName = ds.Tables[0].Rows[0]["VenderName"].ToString();
 
-                using (MailMessage mail = new MailMessage())
+                using (System.Net.Mail.MailMessage mail = new System.Net.Mail.MailMessage())
                 {
                     //mail.From = new MailAddress("sandeshjatti5329@gmail.com", "Rahitech IT Solution");
                    // mail.From = new MailAddress("gstprocurmenterp@gmail.com", "Procurement System");
@@ -3035,8 +3372,115 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                     mail.To.Add(vendorEmail);
                    // mail.To.Add("kumbharomkar765@gmail.com"w); // Test email
                     mail.Subject = $"Purchase Order - {POCode}";
-                    mail.Body = $"Dear {vendorName},\n\nPlease find attached the Purchase Order #{POCode}.\n\nThank you.\n\nRegards,\nYour Company";
-                    mail.IsBodyHtml = false;
+                    //mail.Body = $"<div style='background: linear - gradient(to bottom, #58a8c8, #4eb8d8);'>Dear {vendorName},<br><br>Please find attached the Purchase Order #{POCode}.<br><br>Thank you.<br><br>Regards,<br>Your Company <div>";
+                    mail.IsBodyHtml = true;
+
+                    //mail.Body = $@"
+                    //        <div style='
+                    //            background-color:#4eb8d8;
+                    //            padding:20px;
+                    //            font-family:Arial, Helvetica, sans-serif;
+                    //            color:#000;
+                    //        '>
+                    //            <p>Dear <b>{vendorName}</b>,</p>
+
+                    //            <p>
+                    //                Please find attached the <b>Purchase Order #{POCode}</b> for your reference.
+                    //            </p>
+
+                    //            <p>
+                    //                Kindly review the details and acknowledge receipt.
+                    //            </p>
+
+                    //            <br/>
+
+                    //            <p>
+                    //                Thank you.
+                    //                <br/>
+                    //                Regards,<br/>
+                    //                <b>Gaya Soft</b>
+                    //            </p>
+                    //        </div>";
+
+                    mail.IsBodyHtml = true;
+
+                    mail.Body = $@"
+                    <div style='
+                        background-color:#4eb8d8;
+                        padding:30px;
+                        font-family:Arial, Helvetica, sans-serif;
+                        color:#000;
+                        line-height:1.7;
+                        font-size:14px;
+                    '>
+
+                        <p>Dear <b>{vendorName}</b>,</p>
+
+                        <p>
+                            With reference to your quotation and subsequent discussions, we are pleased to place the
+                            <b>Purchase Order #{POCode}</b> with your esteemed organization.
+                        </p>
+
+                        <p>
+                            Please find the attached Purchase Order document for detailed specifications, quantities,
+                            pricing, taxes, and terms & conditions as mutually agreed.
+                        </p>
+
+                        <p><b>Purchase Order Summary:</b></p>
+                        <ul>
+                            <li>Purchase Order No: <b>{POCode}</b></li>
+                            <li>Purchase Order Date: <b>{DateTime.Now:dd-MMM-yyyy}</b></li>
+                            <li>Reference: <b>As per approved quotation</b></li>
+                        </ul>
+
+                        <p>
+                            This Purchase Order is issued subject to the terms and conditions mentioned in the
+                            Purchase Order document and your submitted quotation. Any deviation must be communicated
+                            in writing and approved prior to execution.
+                        </p>
+
+                        <p>
+                            Kindly ensure that all invoices, delivery challans, and related documents clearly mention
+                            the above Purchase Order Number for easy reference and processing.
+                        </p>
+
+                        <p>
+                            Payment shall be processed strictly as per the agreed commercial terms mentioned in the
+                            Purchase Order and quotation.
+                        </p>
+
+                        <p>
+                            In case of any discrepancy in the Purchase Order details, please inform us immediately
+                            so that necessary corrections can be made at the earliest.
+                        </p>
+
+                        <p>
+                            Your acknowledgement of this Purchase Order will be considered as acceptance of the
+                            terms and conditions mentioned therein.
+                        </p>
+
+                        <br/>
+
+                        <p>
+                            We look forward to a smooth and successful business association.
+                        </p>
+
+                        <p>
+                            Thank you for your continued support and cooperation.
+                        </p>
+
+                        <p>
+                            Regards,<br/>
+                            <b>TradeConnect LLP</b><br/>
+                            <span style='font-size:12px;'>
+                                Purchase Department<br/>
+                                Email: purchase@TradeConnectLLP.com<br/>
+                                Phone: +91-8661485446
+                            </span>
+                        </p>
+
+                    </div>";
+                    mail.IsBodyHtml = true;
 
                     // Attach PDF
                     mail.Attachments.Add(new Attachment(new MemoryStream(pdfBytes), $"PurchaseOrder_{POCode}.pdf", "application/pdf"));
@@ -3271,36 +3715,13 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             return PartialView("_ShowRejectedOPartialPRK");
         }
 
-        ////////////////////////////////////////////
+       
+        public async Task<ActionResult>ShowRejectPRK(DateTime startDate, DateTime endDate)
+        {
+            var data = await bal.ShowRejectedPRPRK(startDate, endDate);
+            return Json(data, JsonRequestBehavior.AllowGet);
 
-
-
-        //// Rejected PR main view
-        //public ActionResult ShowRejectedPRPRK()
-        //{
-        //    if (Session["StaffCode"] == null)
-        //        return RedirectToAction("MainLogin", "Account");
-
-        //    return View();
-        //}
-
-        //// Get rejected PR list (JSON)
-        //public async Task<ActionResult> ShowRejectPRK()
-        //{
-        //    var data = await bal.ShowRejectedPRmainPRK();
-        //    return Json(data, JsonRequestBehavior.AllowGet);
-        //}
-
-
-
-        //// Rejected PR items partial (by PRCode)
-        //public ActionResult ShowRejectedPRItemPRK(string prCode)
-        //{
-        //    ViewBag.PRCode = prCode;
-        //    return PartialView("_ShowRejectedPRItemPRK");
-        //}
-
-
+        }
 
         // Pending PR main view
         public ActionResult ShowRejectedPRPRK()
@@ -3309,7 +3730,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         }
 
         // Get pending PR list (JSON)
-        public async Task<ActionResult> ShowRejectPRK()
+        public async Task<ActionResult> ShowRejectPPRK()
         {
             var data = await bal.ShowRejectedPRmainPRK();
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -3357,7 +3778,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
         // Get pending PR items (JSON by PRCode)
         public async Task<ActionResult> ShowPendingPRItemsPRK(string prCode)
         {
-            var data = await bal.ShowPendingPRItemPRK(prCode);
+            var data = await bal.ShowPendingItemPRPRK(prCode);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -3905,20 +4326,88 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
 
                     try
                     {
+                        /* string subject = $"RFQ {request.RFQCode} from {request.PRCode}";
+                         string body = $@"Dear {vendor.VendorName},
+
+ We are pleased to invite you to submit a quotation for the attached Request for Quotation (RFQ) document, under reference number {request.RFQCode}, pertaining to Purchase Requisition {request.PRCode}.
+
+ The RFQ includes detailed item descriptions, quantities, and terms. Kindly review the document carefully and provide your best quotation by the stated due date.
+
+ Your timely response will be highly appreciated.
+
+ Should you require any additional information or clarification, please do not hesitate to contact our procurement team.
+
+ Sincerely,
+ Procurement Team
+ [Gayasoft Technology]";*/
                         string subject = $"RFQ {request.RFQCode} from {request.PRCode}";
-                        string body = $@"Dear {vendor.VendorName},
 
-We are pleased to invite you to submit a quotation for the attached Request for Quotation (RFQ) document, under reference number {request.RFQCode}, pertaining to Purchase Requisition {request.PRCode}.
+                        string body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+</head>
+<body style='font-family: Arial, Helvetica, sans-serif; background-color:#f4f6f8; margin:0; padding:20px;'>
 
-The RFQ includes detailed item descriptions, quantities, and terms. Kindly review the document carefully and provide your best quotation by the stated due date.
+    <table width='100%' cellpadding='0' cellspacing='0'>
+        <tr>
+            <td align='center'>
+                <table width='600' cellpadding='0' cellspacing='0' style='background-color:#ffffff; border-radius:6px; overflow:hidden;'>
 
-Your timely response will be highly appreciated.
+                    <!-- Header -->
+                    <tr>
+                        <td style='background-color:#0d6efd; color:#ffffff; padding:20px; text-align:center;'>
+                            <h2 style='margin:0;'>Request for Quotation (RFQ)</h2>
+                        </td>
+                    </tr>
 
-Should you require any additional information or clarification, please do not hesitate to contact our procurement team.
+                    <!-- Body -->
+                    <tr>
+                        <td style='padding:25px; color:#333333; font-size:14px; line-height:1.6;'>
+                            <p>Dear <strong>{vendor.VendorName}</strong>,</p>
 
-Sincerely,
-Procurement Team
-[Gayasoft Technology]";
+                            <p>
+                                We are pleased to invite you to submit your quotation for the attached
+                                <strong>Request for Quotation (RFQ)</strong> under reference number
+                                <strong>{request.RFQCode}</strong>, related to Purchase Requisition
+                                <strong>{request.PRCode}</strong>.
+                            </p>
+
+                            <p>
+                                The RFQ document contains detailed item specifications, quantities,
+                                and applicable terms and conditions. Kindly review the document carefully
+                                and submit your <strong>best quotation</strong> on or before the specified due date.
+                            </p>
+
+                            <p>
+                                Should you require any clarification or additional information,
+                                please feel free to contact our procurement team.
+                            </p>
+
+                            <p style='margin-top:30px;'>
+                                Best regards,<br>
+                                <strong>Procurement Team</strong><br>
+                                <span style='color:#0d6efd;'>TradeConnect LLP</span>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style='background-color:#f1f1f1; padding:15px; text-align:center; font-size:12px; color:#777777;'>
+                            
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>";
+
 
 
                         // 🔹 Make a temp copy for each vendor (avoids file lock issues)
@@ -3978,8 +4467,66 @@ Procurement Team
 
 
 
-        //For generate pdf for vendors
-        private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items,DateTime expdate)
+        private class PdfWatermarkEvent : PdfPageEventHelper
+        {
+            private readonly iTextSharp.text.Image _img;
+            private readonly float _opacity;
+            private readonly float _angleDegrees;
+
+            /// <summary>
+            /// imagePath: full path to image (eg. Server.MapPath("~/Content/images/Logo-p2p.png"))
+            /// opacity: 0..1
+            /// angleDegrees: positive rotates anticlockwise (counter-clockwise)
+            /// </summary>
+            public PdfWatermarkEvent(string imagePath, float opacity = 0.12f, float angleDegrees = 40f)
+            {
+                _opacity = opacity;
+                _angleDegrees = angleDegrees;
+
+                if (!string.IsNullOrEmpty(imagePath) && System.IO.File.Exists(imagePath))
+                {
+                    _img = iTextSharp.text.Image.GetInstance(imagePath);
+                    _img.Alignment = Element.ALIGN_CENTER;
+                }
+            }
+
+            public override void OnEndPage(PdfWriter writer, Document document)
+            {
+                if (_img == null) return;
+
+                PdfContentByte under = writer.DirectContentUnder;
+                var gs = new PdfGState { FillOpacity = _opacity, StrokeOpacity = _opacity };
+
+                under.SaveState();
+                under.SetGState(gs);
+
+                var pageSize = document.PageSize;
+
+                // scale image to fit a large portion of page (diagonally)
+                float maxDim = Math.Max(pageSize.Width, pageSize.Height) * 0.9f;
+                _img.ScaleToFit(maxDim, maxDim);
+
+                // center of the page
+                float centerX = pageSize.Width / 2f;
+                float centerY = pageSize.Height / 2f;
+
+                // convert degrees to radians and compute matrix components
+                float angleRad = (float)(_angleDegrees * Math.PI / 180.0);
+                float cos = (float)Math.Cos(angleRad);
+                float sin = (float)Math.Sin(angleRad);
+
+                // Apply transform: translate to page center, rotate, then draw image centered at origin
+                under.ConcatCTM(cos, sin, -sin, cos, centerX, centerY);
+
+                // place image with its center at origin (because we moved origin to page center)
+                _img.SetAbsolutePosition(-_img.ScaledWidth / 2f, -_img.ScaledHeight / 2f);
+                under.AddImage(_img);
+
+                under.RestoreState();
+            }
+        }
+
+        private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items, DateTime expdate)
         {
             string filePath = Path.Combine(
                 Path.GetTempPath(),
@@ -3987,80 +4534,297 @@ Procurement Team
             );
 
             using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (var document = new iTextSharp.text.Document(PageSize.A4, 40f, 40f, 40f, 40f))
             {
-                using (var document = new iTextSharp.text.Document(PageSize.A4, 40f, 40f, 40f, 40f))
+                // Create writer and attach page event for watermark
+                PdfWriter writer = PdfWriter.GetInstance(document, fs);
+
+                // Resolve image path from web app content folder
+                string imagePath;
+                try
                 {
-                    PdfWriter.GetInstance(document, fs);
-                    document.Open();
-
-
-                    var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
-                    var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
-
-                    Paragraph title = new Paragraph("Request for Quotation (RFQ)", titleFont);
-                    title.Alignment = Element.ALIGN_CENTER;
-                    title.SpacingAfter = 20f;
-                    document.Add(title);
-
-                    PdfPTable headerTable = new PdfPTable(2);
-                    headerTable.WidthPercentage = 100;
-                    headerTable.SetWidths(new float[] { 30f, 70f });
-
-                    headerTable.AddCell(new Phrase("Contact Person:", normalFont));
-                    headerTable.AddCell(new Phrase(header.ContactPerson, normalFont));
-
-                    headerTable.AddCell(new Phrase("Email:", normalFont));
-                    headerTable.AddCell(new Phrase(header.Email, normalFont));
-
-                    headerTable.AddCell(new Phrase("Contact No:", normalFont));
-                    PdfPCell cell = new PdfPCell(new Phrase(header.MobileNo.ToString(), normalFont));
-                    headerTable.AddCell(cell);
-
-
-
-                    headerTable.AddCell(new Phrase("Required Date:", normalFont));
-                    string requiredDateStr = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
-                    headerTable.AddCell(new Phrase(requiredDateStr, normalFont));
-
-                    headerTable.AddCell(new Phrase("Expected Date:", normalFont));
-                   // string expdate = Convert.ToDateTime(header.RequiredDate).ToString("dd/MM/yyyy");
-                    headerTable.AddCell(new Phrase(expdate.ToString("dd/MM/yyyy"), normalFont));
-
-                    headerTable.AddCell(new Phrase("Delivery Address:", normalFont));
-                    headerTable.AddCell(new Phrase(header.Address, normalFont));
-
-                    headerTable.AddCell(new Phrase("Note:", normalFont));
-                    headerTable.AddCell(new Phrase(header.Description, normalFont));
-
-                    headerTable.SpacingAfter = 20f;
-                    document.Add(headerTable);
-
-                    PdfPTable itemsTable = new PdfPTable(4);
-                    itemsTable.WidthPercentage = 100;
-                    itemsTable.SetWidths(new float[] { 25f, 40f, 15f, 20f });
-
-                    var boldFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
-                    itemsTable.AddCell(new PdfPCell(new Phrase("Item", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
-                    itemsTable.AddCell(new PdfPCell(new Phrase("Description", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
-                    itemsTable.AddCell(new PdfPCell(new Phrase("Quantity", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
-                    itemsTable.AddCell(new PdfPCell(new Phrase("UOM", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER, BackgroundColor = BaseColor.LIGHT_GRAY });
-
-                    foreach (var item in items)
-                    {
-                        itemsTable.AddCell(new PdfPCell(new Phrase(item.ItemName, normalFont)));
-                        itemsTable.AddCell(new PdfPCell(new Phrase(item.Description, normalFont)));
-                        itemsTable.AddCell(new PdfPCell(new Phrase(item.RequiredQuantity.ToString("N2"), normalFont)) { HorizontalAlignment = Element.ALIGN_RIGHT });
-                        itemsTable.AddCell(new PdfPCell(new Phrase(item.UOMNamee, normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
-                    }
-
-                    document.Add(itemsTable);
-
-                    document.Close();
+                    imagePath = Server.MapPath("~/Content/images/Logo-p2p.png");
                 }
+                catch
+                {
+                    // Fallback to HostingEnvironment if Server is not available
+                    imagePath = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/images/Logo-p2p.png");
+                }
+
+                writer.PageEvent = new PdfWatermarkEvent(imagePath, 0.12f);
+
+                document.Open();
+
+                // ================= FONTS =================
+                var companyFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14);
+                var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
+                var boldFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
+                var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
+
+                // ================= COMPANY HEADER =================
+                PdfPTable companyTable = new PdfPTable(2);
+                companyTable.WidthPercentage = 100;
+                companyTable.SetWidths(new float[] { 70f, 30f });
+
+                // LEFT SIDE – COMPANY DETAILS
+                PdfPCell leftCell = new PdfPCell();
+                leftCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                leftCell.AddElement(new Paragraph("TradeConnect LLP", companyFont));
+                leftCell.AddElement(new Paragraph(
+                    "676 Visakhapatnam Street, Zone-4\n" +
+                    "Phone: 8661485446\n" +
+                    "Email: branch1@example.com\n" +
+                    "Website: www.tradeconnect.in",
+                    normalFont));
+
+                companyTable.AddCell(leftCell);
+
+                // RIGHT SIDE – DATE & RFQ NO
+                PdfPTable rightTable = new PdfPTable(1);
+                rightTable.WidthPercentage = 100;
+
+                PdfPCell dateCell = new PdfPCell(new Phrase($"DATE : {DateTime.Now:dd/MM/yyyy}", normalFont));
+                dateCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                dateCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                dateCell.Padding = 5;
+                rightTable.AddCell(dateCell);
+
+                PdfPCell rfqCell = new PdfPCell(new Phrase($"RFQ # : {header.RFQCode}", normalFont));
+                rfqCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                rfqCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                rfqCell.Padding = 5;
+                rightTable.AddCell(rfqCell);
+
+                PdfPCell rightWrapper = new PdfPCell(rightTable);
+                rightWrapper.Border = iTextSharp.text.Rectangle.BOX;
+                companyTable.AddCell(rightWrapper);
+
+                document.Add(companyTable);
+                document.Add(new Paragraph("\n"));
+
+                // ================= TITLE =================
+                Paragraph title = new Paragraph("REQUEST FOR QUOTATION (RFQ)", titleFont);
+                title.Alignment = Element.ALIGN_CENTER;
+                title.SpacingAfter = 15f;
+                document.Add(title);
+
+                // ================= RFQ DETAILS =================
+                PdfPTable headerTable = new PdfPTable(2);
+                headerTable.WidthPercentage = 100;
+                headerTable.SetWidths(new float[] { 30f, 70f });
+
+                headerTable.AddCell(new Phrase("Contact Person:", boldFont));
+                headerTable.AddCell(new Phrase(header.ContactPerson, normalFont));
+
+                headerTable.AddCell(new Phrase("Email:", boldFont));
+                headerTable.AddCell(new Phrase(header.Email, normalFont));
+
+                headerTable.AddCell(new Phrase("Contact No:", boldFont));
+                headerTable.AddCell(new Phrase(header.MobileNo.ToString(), normalFont));
+
+                headerTable.AddCell(new Phrase("Item's Required Date:", boldFont));
+                headerTable.AddCell(new Phrase(header.RequiredDate.ToString("dd/MM/yyyy"), normalFont));
+
+                headerTable.AddCell(new Phrase("Quotation Expected Date:", boldFont));
+                headerTable.AddCell(new Phrase(expdate.ToString("dd/MM/yyyy"), normalFont));
+
+                headerTable.AddCell(new Phrase("Delivery Address:", boldFont));
+                headerTable.AddCell(new Phrase(header.Address, normalFont));
+
+                headerTable.AddCell(new Phrase("Note:", boldFont));
+                headerTable.AddCell(new Phrase(header.Description, normalFont));
+
+                headerTable.SpacingAfter = 15f;
+                document.Add(headerTable);
+
+                // ================= ITEMS TABLE =================
+                PdfPTable itemsTable = new PdfPTable(4);
+                itemsTable.WidthPercentage = 100;
+                itemsTable.SetWidths(new float[] { 25f, 40f, 15f, 20f });
+
+                PdfPCell h1 = new PdfPCell(new Phrase("Item", boldFont));
+                h1.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h1.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h1);
+
+                PdfPCell h2 = new PdfPCell(new Phrase("Description", boldFont));
+                h2.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h2.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h2);
+
+                PdfPCell h3 = new PdfPCell(new Phrase("Quantity", boldFont));
+                h3.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h3.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h3);
+
+                PdfPCell h4 = new PdfPCell(new Phrase("UOM", boldFont));
+                h4.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h4.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h4);
+
+                foreach (var item in items)
+                {
+                    itemsTable.AddCell(new Phrase(item.ItemName, normalFont));
+                    itemsTable.AddCell(new Phrase(item.Description, normalFont));
+
+                    PdfPCell qtyCell = new PdfPCell(new Phrase(item.RequiredQuantity.ToString("N2"), normalFont));
+                    qtyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    itemsTable.AddCell(qtyCell);
+
+                    PdfPCell uomCell = new PdfPCell(new Phrase(item.UOMNamee, normalFont));
+                    uomCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    itemsTable.AddCell(uomCell);
+                }
+
+                document.Add(itemsTable);
+                document.Close();
             }
 
             return filePath;
         }
+
+
+      /*  private string GenerateRFQPdfSJ(Purchase header, List<Purchase> items, DateTime expdate)
+        {
+            string filePath = Path.Combine(
+                Path.GetTempPath(),
+                $"RFQ_{header.RFQCode}_{DateTime.Now:yyyyMMddHHmmss}.pdf"
+            );
+
+            using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (var document = new iTextSharp.text.Document(PageSize.A4, 40f, 40f, 40f, 40f))
+            {
+                PdfWriter.GetInstance(document, fs);
+                document.Open();
+
+                // ================= FONTS =================
+                var companyFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14);
+                var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
+                var boldFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
+                var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
+
+                // ================= COMPANY HEADER =================
+                PdfPTable companyTable = new PdfPTable(2);
+                companyTable.WidthPercentage = 100;
+                companyTable.SetWidths(new float[] { 70f, 30f });
+
+                // LEFT SIDE – COMPANY DETAILS
+                PdfPCell leftCell = new PdfPCell();
+                leftCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                leftCell.AddElement(new Paragraph("TradeConnect LLP", companyFont));
+                leftCell.AddElement(new Paragraph(
+                    "676 Visakhapatnam Street, Zone-4\n" +
+                    "Phone: 8661485446\n" +
+                    "Email: branch1@example.com\n" +
+                    "Website: www.tradeconnect.in",
+                    normalFont));
+
+                companyTable.AddCell(leftCell);
+
+                // RIGHT SIDE – DATE & RFQ NO
+                PdfPTable rightTable = new PdfPTable(1);
+                rightTable.WidthPercentage = 100;
+
+                PdfPCell dateCell = new PdfPCell(new Phrase($"DATE : {DateTime.Now:dd/MM/yyyy}", normalFont));
+                dateCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                dateCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                dateCell.Padding = 5;
+                rightTable.AddCell(dateCell);
+
+                PdfPCell rfqCell = new PdfPCell(new Phrase($"RFQ # : {header.RFQCode}", normalFont));
+                rfqCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
+                rfqCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                rfqCell.Padding = 5;
+                rightTable.AddCell(rfqCell);
+
+                PdfPCell rightWrapper = new PdfPCell(rightTable);
+                rightWrapper.Border = iTextSharp.text.Rectangle.BOX;
+                companyTable.AddCell(rightWrapper);
+
+                document.Add(companyTable);
+                document.Add(new Paragraph("\n"));
+
+                // ================= TITLE =================
+                Paragraph title = new Paragraph("REQUEST FOR QUOTATION (RFQ)", titleFont);
+                title.Alignment = Element.ALIGN_CENTER;
+                title.SpacingAfter = 15f;
+                document.Add(title);
+
+                // ================= RFQ DETAILS =================
+                PdfPTable headerTable = new PdfPTable(2);
+                headerTable.WidthPercentage = 100;
+                headerTable.SetWidths(new float[] { 30f, 70f });
+
+                headerTable.AddCell(new Phrase("Contact Person:", boldFont));
+                headerTable.AddCell(new Phrase(header.ContactPerson, normalFont));
+
+                headerTable.AddCell(new Phrase("Email:", boldFont));
+                headerTable.AddCell(new Phrase(header.Email, normalFont));
+
+                headerTable.AddCell(new Phrase("Contact No:", boldFont));
+                headerTable.AddCell(new Phrase(header.MobileNo.ToString(), normalFont));
+
+                headerTable.AddCell(new Phrase("Item's Required Date:", boldFont));
+                headerTable.AddCell(new Phrase(header.RequiredDate.ToString("dd/MM/yyyy"), normalFont));
+
+                headerTable.AddCell(new Phrase("Quotation Expected Date:", boldFont));
+                headerTable.AddCell(new Phrase(expdate.ToString("dd/MM/yyyy"), normalFont));
+
+                headerTable.AddCell(new Phrase("Delivery Address:", boldFont));
+                headerTable.AddCell(new Phrase(header.Address, normalFont));
+
+                headerTable.AddCell(new Phrase("Note:", boldFont));
+                headerTable.AddCell(new Phrase(header.Description, normalFont));
+
+                headerTable.SpacingAfter = 15f;
+                document.Add(headerTable);
+
+                // ================= ITEMS TABLE =================
+                PdfPTable itemsTable = new PdfPTable(4);
+                itemsTable.WidthPercentage = 100;
+                itemsTable.SetWidths(new float[] { 25f, 40f, 15f, 20f });
+
+                PdfPCell h1 = new PdfPCell(new Phrase("Item", boldFont));
+                h1.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h1.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h1);
+
+                PdfPCell h2 = new PdfPCell(new Phrase("Description", boldFont));
+                h2.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h2.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h2);
+
+                PdfPCell h3 = new PdfPCell(new Phrase("Quantity", boldFont));
+                h3.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h3.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h3);
+
+                PdfPCell h4 = new PdfPCell(new Phrase("UOM", boldFont));
+                h4.BackgroundColor = BaseColor.LIGHT_GRAY;
+                h4.HorizontalAlignment = Element.ALIGN_CENTER;
+                itemsTable.AddCell(h4);
+
+                foreach (var item in items)
+                {
+                    itemsTable.AddCell(new Phrase(item.ItemName, normalFont));
+                    itemsTable.AddCell(new Phrase(item.Description, normalFont));
+
+                    PdfPCell qtyCell = new PdfPCell(new Phrase(item.RequiredQuantity.ToString("N2"), normalFont));
+                    qtyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    itemsTable.AddCell(qtyCell);
+
+                    PdfPCell uomCell = new PdfPCell(new Phrase(item.UOMNamee, normalFont));
+                    uomCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    itemsTable.AddCell(uomCell);
+                }
+
+                document.Add(itemsTable);
+                document.Close();
+            }
+
+            return filePath;
+        }
+*/
 
 
         private void SendEmailWithAttachmentSJ(string toEmail, string subject, string body, string attachmentPath)
@@ -4073,10 +4837,12 @@ Procurement Team
                 EnableSsl = true,
                 Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
             })
-            using (var message = new MailMessage(fromAddress, new MailAddress(toEmail))
+            using (var message = new System.Net.Mail.MailMessage(fromAddress, new MailAddress(toEmail))
             {
                 Subject = subject,
-                Body = body
+                Body = body,
+                IsBodyHtml = true
+
             })
             {
                 if (!string.IsNullOrEmpty(attachmentPath) && System.IO.File.Exists(attachmentPath))
