@@ -342,7 +342,7 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Note</label>
+                                        <label class="form-label form-label-sm fw-bold text-dark">Note <span style="color:red;">*</span></label>
                                         <textarea class="form-control form-control-sm  text-dark shadow-sm" name="Note" rows="3"></textarea>
                                         <div class="invalid-feedback">Note is required.</div>
 
@@ -2012,30 +2012,30 @@
                     }
 
                     if (header.RequiredDate) {
-                        // Try parsing with strict format first
-                        let m = moment(header.RequiredDate, "DD-MM-YYYY HH:mm:ss", true);
 
-                        // If that fails, fall back to auto-detection
+                        console.log(header.RequiredDate);
+
+                        // Correct format for "19-01-2026 12:00:00 AM"
+                        let m = moment(header.RequiredDate, "DD-MM-YYYY hh:mm:ss A", true);
+
+                        // Fallback if format changes
                         if (!m.isValid()) {
                             m = moment(header.RequiredDate);
                         }
 
-                        // Now, if valid, use it
                         if (m.isValid()) {
-                            const formattedRequiredDate = m.format("DD/MM/YYYY");
-                            $("#rfqRequiredDate").val(formattedRequiredDate);
+                            $("#rfqRequiredDate").val(m.format("DD/MM/YYYY"));
 
-                            // Calculate date limits for Expected Date
                             const today = moment();
                             const maxAllowed = m.clone().subtract(2, "days");
 
-                            // Apply min/max limits for date picker
                             $("#ToDate").attr("min", today.format("YYYY-MM-DD"));
                             $("#ToDate").attr("max", maxAllowed.format("YYYY-MM-DD"));
                         } else {
-                            console.warn("⚠️ Invalid date format in RequiredDate:", header.RequiredDate);
+                            console.warn("⚠️ Invalid RequiredDate:", header.RequiredDate);
                         }
                     }
+
 
 
                     // Inside your success callback, after setting ToDate range:
