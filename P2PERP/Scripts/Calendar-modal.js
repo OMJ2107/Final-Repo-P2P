@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
         height: 'auto',
         stickyHeaderDates: true,
         themeSystem: 'bootstrap5',
+        dayMaxEventRows: true,
         initialView: 'dayGridMonth',
         events: '/Account/GetEvents',
         headerToolbar: {
@@ -22,7 +23,10 @@ document.addEventListener('DOMContentLoaded', function () {
             info.el.style.cursor = 'pointer';
         },
         views: {
-            dayGridMonth: { buttonText: 'Month' },
+            dayGridMonth: {
+                buttonText: 'Month',
+                dayMaxEventRows: 3
+            },
             listMonth: { buttonText: 'list month' },
             listYear: { buttonText: 'list year' }
         },
@@ -611,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <strong>Goods Return Code:</strong> ${safe(props.GoodsReturnCode)}
+                        <strong>Purchase Return Code:</strong> ${safe(props.GoodsReturnCode)}
                     </div>
                     <div class="col-sm-6">
                         <strong>GRN Code:</strong> ${safe(props.GRNCode)}

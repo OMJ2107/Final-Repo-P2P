@@ -262,9 +262,8 @@
                     render: function (data, type, row) {
                         if (type === 'display') {
                             if (!data) return "";
-                            let full = data;
-                            let shortText = (full.length > 20 ? full.substring(0, 20) + "..." : full);
-                            return `<span data-bs-toggle="tooltip" data-bs-placement="top" title="${full.replace(/"/g, '&quot;')}">${shortText}</span>`;
+                            let shortText = (data.length > 20 ? data.substring(0, 20) + "..." : data);
+                            return `<span data-bs-toggle="tooltip" title="${data.replace(/"/g, '&quot;')}">${shortText}</span>`;
                         }
                         return data || "";
                     },
@@ -371,6 +370,7 @@
                     pageSize: 'A4',
                     exportOptions: {
                         columns: [2, 3, 4, 5, 6, 7, 8],
+                        orthogonal: 'export',
                         rows: function (idx, data, node) {
                             return $(node).find('input.rowCheckbox').prop('checked');
                         },

@@ -1,5 +1,6 @@
 ﻿<!doctype html>
 
+@using P2PERP.Helpers
 
 @{
     string role = Session["RoleId"] != null ? Session["RoleId"].ToString() : "";
@@ -485,36 +486,37 @@
 
                     @if (role == "8") // Purchase Manager
                     {
-                        <li class="menu-item @(currentAction.Contains("UserDashboardPRK") || currentAction.Contains("ShowPendingPRPRK") || currentAction.Contains("SupplierQuotationAMG") || currentAction.Contains("PurchaseOrdersVNK") || currentAction.Contains("VenderManagementOK") ? "active open" : "")">
+                        <li class="menu-item @(ViewContext.RouteData.Values["action"].ToString() == "UserDashboardPRK" ? "active" : "")">
+                            <a href="@Url.Action("UserDashboardPRK", "Purchase")" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-speedometer2 me-3 fs-5"></i>
+                                <div class="fw-semibold" data-i18n="Dashboard">Purchase Dashboard</div>
+                            </a>
+                        </li>
+                        <li class="menu-item @(currentAction.Contains("ShowPendingPRPRK") || currentAction.Contains("SupplierQuotationAMG") || currentAction.Contains("PurchaseOrdersVNK") || currentAction.Contains("VenderManagementOK") ? "active open" : "")">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bi bi-speedometer me-3 fs-5"></i>
-                                <div class="fw-semibold">Manager Dashboard</div>
+                                <div class="fw-semibold">Manager Approvals</div>
                             </a>
                             <ul class="menu-sub slide-transition">
-                                <li class="menu-item @(ViewContext.RouteData.Values["action"].ToString() == "UserDashboardPRK" ? "active" : "")">
-                                    <a href="@Url.Action("UserDashboardPRK", "Purchase")" class="menu-link">
-                                        <div>Purchase Dashboard</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item @(currentAction.Contains("PurchaseRequisition") ? "active" : "")">
+                                <li class="menu-item @(currentAction.Contains("ShowPendingPRPRK") ? "active" : "")">
                                     <a href="@Url.Action("ShowPendingPRPRK", "Purchase")" class="menu-link">
                                         <i class="menu-icon tf-icons bi bi-bag me-3"></i>
                                         <div>Purchase Requisition</div>
                                     </a>
                                 </li>
-                                <li class="menu-item @(currentAction.Contains("SupplierQuotation") ? "active" : "")">
+                                <li class="menu-item @(currentAction.Contains("SupplierQuotationAMG") ? "active" : "")">
                                     <a href="@Url.Action("SupplierQuotationAMG", "Purchase")" class="menu-link">
                                         <i class="menu-icon tf-icons bi bi-briefcase me-3"></i>
                                         <div>Supplier Quotation</div>
                                     </a>
                                 </li>
-                                <li class="menu-item @(currentAction.Contains("PurchaseOrder") ? "active" : "")">
+                                <li class="menu-item @(currentAction.Contains("PurchaseOrdersVNK") ? "active" : "")">
                                     <a href="@Url.Action("PurchaseOrdersVNK", "Purchase")" class="menu-link">
                                         <i class="menu-icon tf-icons bi bi-cart-check me-3"></i>
                                         <div>Purchase Order</div>
                                     </a>
                                 </li>
-                                <li class="menu-item @(currentAction.Contains("Master") ? "active" : "")">
+                                <li class="menu-item @(currentAction.Contains("VenderManagementOK") ? "active" : "")">
                                     <a href="@Url.Action("VenderManagementOK", "Purchase")" class="menu-link">
                                         <i class="menu-icon tf-icons bi bi-people me-3"></i>
                                         <div>Vendor Management</div>
@@ -839,27 +841,32 @@
                     <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
                         <!-- Search -->
                         <div class="navbar-nav align-items-center">
-                            <!-- Breadcrumbs -->
-                            <ol class="breadcrumb mb-0 mx-10">
-                                <li class="breadcrumb-item">
-                                    <a href="@Url.Action(homeAction, homeController)">
-                                        <i class="bi bi-house-door"></i> Home
-                                    </a>
-                                </li>
 
-                                @if (currentController != homeController)
-                                {
+                            @if (Html.GetActionDisplayName() != "Dashboard")
+                            {
+                                <!-- Breadcrumbs -->
+                                <ol class="breadcrumb mb-0 mx-10">
                                     <li class="breadcrumb-item">
-                                        <a href="@Url.Action("Index", currentController)">
-                                            @currentController
+                                        <a href="@Url.Action(homeAction, homeController)">
+                                            <i class="bi bi-house-door"></i> Home
                                         </a>
                                     </li>
-                                }
 
-                                <li class="breadcrumb-item active text-primary" aria-current="page">
-                                    @currentAction
-                                </li>
-                            </ol>
+                                    @if (currentController != homeController)
+                                    {
+                                        <li class="breadcrumb-item">
+                                            <a href="@Url.Action("Index", currentController)">
+                                                @currentController
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li class="breadcrumb-item active text-primary" aria-current="page">
+                                        @Html.GetActionDisplayName()
+                                    </li>
+                                </ol>
+                            }
+
                         </div>
                         <!-- /Search -->
                         <ul class="navbar-nav flex-row align-items-center ms-md-auto">
@@ -1052,10 +1059,10 @@
                                     <script>
                                         document.write(new Date().getFullYear());
                                     </script>
-                                    made with ❤️ by <a href="https://rahitechit.com/" target="_blank"
-                                        class="footer-link fw-medium">Rahitech</a>
+                                    Made By <a href="https://gayasofttech.com/" target="_blank"
+                                        class="footer-link fw-medium">Gaya Software & Technology </a>
                                 </div>
-                                <div class="d-none d-lg-inline-block">
+                                @*<div class="d-none d-lg-inline-block">
                                     <a href="https://themeselection.com/item/category/admin-templates/" target="_blank"
                                         class="footer-link me-4">Admin Templates</a>
                                     <a href="https://themeselection.com/license/" class="footer-link me-4"
@@ -1066,7 +1073,7 @@
                                         target="_blank" class="footer-link me-4">Documentation</a>
                                     <a href="https://themeselection.com/support/" target="_blank"
                                         class="footer-link d-none d-sm-inline-block">Support</a>
-                                </div>
+                                </div>*@
                             </div>
                         </div>
                     </footer>
