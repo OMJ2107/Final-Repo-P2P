@@ -338,7 +338,14 @@ $(document).ready(function () {
         info:false,
         dom: '<"row mb-2"<"col-md-6"><"col-md-6 d-flex justify-content-end"f>>t<"row mt-2"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>',
         columns: [
-            { data: null, render: (data, type, row, meta) => meta.row + 1, className: 'text-center' },
+            {
+                data: null,
+                className: 'text-center',
+                render: function (data, type, row, meta) {
+                    if (!row) return '';
+                    return meta.row + 1;
+                }
+            },
             { data: 'ItemName', className: 'text-center' },
             {
                 data: 'Description',
@@ -535,11 +542,21 @@ $(document).ready(function () {
     });
 
     $('#itemTable').on('draw.dt', function () {
-        $('#itemTable tbody tr').each(function (index) {
-            $(this).find('td:first').html(index + 1);
+
+        // If table is empty, DO NOTHING
+        if (itemTable.rows().count() === 0) {
+            initTooltips();
+            return;
+        }
+
+        // Re-number only real rows
+        itemTable.rows({ page: 'current' }).every(function (rowIdx) {
+            $(this.node()).find('td:first').html(rowIdx + 1);
         });
+
         initTooltips();
     });
+
 
     $('#itemTable tbody').on('click', '.deleteRow', function () {
         const row = itemTable.row($(this).closest('tr'));
