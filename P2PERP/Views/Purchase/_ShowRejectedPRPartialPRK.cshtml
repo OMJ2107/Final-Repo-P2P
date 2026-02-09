@@ -4,6 +4,16 @@
 
 <div class="p-3 bg-white rounded shadow-sm">
 
+    <!-- Date Range Picker -->
+    <div class="mb-3">
+        <div class="input-group" style="max-width: 280px;">
+            <span class="input-group-text bg-primary text-white">
+                <i class="bi bi-calendar-date"></i>
+            </span>
+            <input type="text" id="prDateFilter" class="form-control" placeholder="Select date range" readonly />
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table id="allPrTable" class="table table-bordered table-hover align-middle shadow-sm">
             <thead class="table-dark text-center">
@@ -393,6 +403,38 @@ $(document).ready(function () {
             $(document).on("change", ".row-select", function () {
                 $("#selectAll").prop("checked", $(".row-select:checked").length === $(".row-select").length);
             });
+            // ✅ Date Range Picker Filter
+            $('#prDateFilter').daterangepicker({
+                autoUpdateInput: false,
+                opens: "center",
+                drops: "down",
+                locale: { cancelLabel: 'Clear', applyLabel: 'Apply' },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
+                    'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
+                    'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
+                }
+            },
+                function (start, end) {
+                    $('#prDateFilter').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+                    $.fn.dataTable.ext.search.push(function (settings, data) {
+                        if (settings.nTable.id !== 'allPrTable') return true;
+                        const approveDate = moment(data[5], 'DD/MM/YYYY');
+                        return approveDate.isBetween(start, end, undefined, '[]');
+                    });
+                    table.draw();
+                    $.fn.dataTable.ext.search.pop();
+                });
+
+
+            $('#prDateFilter').on('cancel.daterangepicker', function () {
+                $(this).val('');
+                table.draw();
+            });
+
+        
         },
         error: function () {
             $("#tbody").html('<tr><td colspan="6" class="text-danger text-center">Error loading PRs</td></tr>');

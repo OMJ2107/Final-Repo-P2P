@@ -4,7 +4,15 @@
 
 <!-- ✅ Date Filter + Table Container -->
 <div class="p-3 bg-white rounded shadow-sm">
-    
+    <!-- Date Range Picker -->
+    <div class="mb-3">
+        <div class="input-group" style="max-width: 280px;">
+            <span class="input-group-text bg-primary text-white">
+                <i class="bi bi-calendar-date"></i>
+            </span>
+            <input type="text" id="prDateFilter" class="form-control" placeholder="Select date range" readonly />
+        </div>
+    </div>
 
     <!-- Table -->
     <div class="table-responsive shadow-sm rounded mt-3">
@@ -422,8 +430,8 @@ const endDate = "@ViewBag.EndDate";
             $('#prDateFilter').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
             $.fn.dataTable.ext.search.push(function (settings, data) {
                 if (settings.nTable.id !== 'pendingPRTable') return true;
-                const addedDate = moment(data[3], 'DD/MM/YYYY');
-                return addedDate.isBetween(start, end, undefined, '[]');
+                const expectedDate = moment(data[5], 'DD/MM/YYYY');
+                return expectedDate.isBetween(start, end, undefined, '[]');
             });
             table.draw();
             $.fn.dataTable.ext.search.pop();
