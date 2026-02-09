@@ -2285,6 +2285,7 @@
     <Content Include="Content\images\elements\5.png" />
     <Content Include="Content\images\elements\7.png" />
     <Content Include="Content\images\elements\8.png" />
+    <Content Include="Content\images\Favicon-Procura.png" />
     <Content Include="Content\images\favicon\favicon.ico" />
     <Content Include="Content\images\icons\brands\asana.png" />
     <Content Include="Content\images\icons\brands\aws.png" />
@@ -2325,6 +2326,8 @@
     <Content Include="Content\images\layouts\layout-fluid-light.png" />
     <Content Include="Content\images\layouts\layout-without-menu-light.png" />
     <Content Include="Content\images\layouts\layout-without-navbar-light.png" />
+    <Content Include="Content\images\Logo-p2p-removebg-preview.png" />
+    <Content Include="Content\images\Logo-p2p.png" />
     <Content Include="Content\jquery-ui.css" />
     <Content Include="Content\Layout.css" />
     <Content Include="Content\page-auth.css" />
@@ -5639,11 +5642,7 @@
     <Content Include="Views\Purchase\_ApprovedPOsPartialVNK.cshtml" />
     <Content Include="Views\Purchase\JustInTimeItemListOK.cshtml" />
     <Content Include="Views\Shared\SendMailHSB.cshtml" />
-    <Content Include="Views\Inventory\_BinSK.cshtml" />
-    <Content Include="Views\Purchase\_ShowRejectedPRPartialPRK.cshtml" />
-    <Content Include="Views\Purchase\_ShowAllPOPartialPRK.cshtml" />
-    <Content Include="Views\Purchase\_ShowRejectedOPartialPRK.cshtml" />
-    <Content Include="Views\Purchase\ShowRejectedPRPRK.cshtml" />
+    <Content Include="Views\Purchase\_Rejectpr.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
