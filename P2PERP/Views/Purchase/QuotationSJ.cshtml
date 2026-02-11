@@ -2004,6 +2004,7 @@
                     var header = response.header || {};
                     var items = response.items || [];
 
+
                     $("#rfqPRCode").val(header.PRCode || "");
 
                     // Format CreatedDate if it exists
@@ -2016,24 +2017,26 @@
                         console.log(header.RequiredDate);
 
                         // Correct format for "19-01-2026 12:00:00 AM"
-                        let m = moment(header.RequiredDate, "DD-MM-YYYY hh:mm:ss A", true);
+                        //let m = moment(header.RequiredDate, "DD-MM-YYYY hh:mm:ss A", true);
 
-                        // Fallback if format changes
-                        if (!m.isValid()) {
-                            m = moment(header.RequiredDate);
-                        }
+                        //// Fallback if format changes
+                        //if (!m.isValid()) {
+                        //    m = moment(header.RequiredDate);
+                        //}
 
-                        if (m.isValid()) {
-                            $("#rfqRequiredDate").val(m.format("DD/MM/YYYY"));
+                        //if (m.isValid()) {
+                        //    $("#rfqRequiredDate").val(m.format("DD/MM/YYYY"));
 
-                            const today = moment();
-                            const maxAllowed = m.clone().subtract(2, "days");
+                        //    const today = moment();
+                        //    const maxAllowed = m.clone().subtract(2, "days");
 
-                            $("#ToDate").attr("min", today.format("YYYY-MM-DD"));
-                            $("#ToDate").attr("max", maxAllowed.format("YYYY-MM-DD"));
-                        } else {
-                            console.warn("⚠️ Invalid RequiredDate:", header.RequiredDate);
-                        }
+                        //    $("#ToDate").attr("min", today.format("YYYY-MM-DD"));
+                        //    $("#ToDate").attr("max", maxAllowed.format("YYYY-MM-DD"));
+                        //} else {
+                        //    console.warn("⚠️ Invalid RequiredDate:", header.RequiredDate);
+                        //}
+
+                        $("#rfqRequiredDate").val(header.RequiredDate.substring(0, 10).replace('-', '/').replace('-', '/'));
                     }
 
 
