@@ -3427,6 +3427,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             if (ds == null || ds.Tables.Count < 2 || ds.Tables[0].Rows.Count == 0)
                 return Json(new { success = false, message = "No data found." }, JsonRequestBehavior.AllowGet);
 
+
             // ===== PO Main Details =====
             var row = ds.Tables[0].Rows[0];
             var po = new
@@ -3564,6 +3565,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             var data = await bal.ShowAllPOPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
 
         // Partial view for all PO
         public ActionResult ShowAllPOPartialPRK(DateTime? startDate, DateTime? endDate)
@@ -3709,12 +3711,14 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             return PartialView("_ShowApporvePRItemPRK");
         }
 
+
         // Get approved PR items (JSON by PRCode)
         public async Task<ActionResult> ShowApprovePRItemPRK(string prCode)
         {
             var data = await bal.ShowApprovePRItemPRK(prCode);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
 
         // Update PR status as approved
         [HttpPost]
@@ -3731,6 +3735,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
+
 
         // Update PR status as rejected
         [HttpPost]
@@ -3761,6 +3766,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             var data = await bal.ShowApprovedPRDashPRK(startDate, endDate);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
         public ActionResult ShowApprovePRPartialPRK(DateTime? startDate, DateTime? endDate)
         {
             ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
@@ -3800,6 +3806,7 @@ public async Task<ActionResult> RegisterQuotationVNK(string rfqCode, string prCo
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             return PartialView("_ShowReuestedRFQPartialPRK");
         }
+
 
         //Pending RFQ
         public async Task<ActionResult> ShowPendingRFQPRK(DateTime startDate, DateTime endDate)
