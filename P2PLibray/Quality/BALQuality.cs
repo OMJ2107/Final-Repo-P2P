@@ -50,16 +50,16 @@ namespace P2PLibray.Quality
 
 
 
-        //Confirm GRN list method//
-        public async Task<List<QualityConfirmItemPR>> ConfirmItemGrnPSR()
-        {
-            Dictionary<string, string> param = new Dictionary<string, string>();
-            param.Add("@Flag", "ConfirmItemPR");
+		//Confirm GRN list method//
+		public async Task<List<QualityConfirmItemPR>> ConfirmItemGrnPSR()
+		{
+			Dictionary<string, string> param = new Dictionary<string, string>();
+			param.Add("@Flag", "ConfirmItemPR");
 
             SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader(
                 "QualityCheckProcedure", param);
 
-            List<QualityConfirmItemPR> list = new List<QualityConfirmItemPR>();
+			List<QualityConfirmItemPR> list = new List<QualityConfirmItemPR>();
 
             if (dr.HasRows)
             {
@@ -83,14 +83,18 @@ namespace P2PLibray.Quality
                 }
             }
 
-            return list;
-        }
+					});
+				}
+			}
+
+			return list;
+		}
 
 
 
-        // New method to get confirmed item details by GRNCode
+		// New method to get confirmed item details by GRNCode
 
-        public async Task<List<ConfirmedItemDetailPSR>> ConfirmItemPR(string grnCode)
+		public async Task<List<ConfirmedItemDetailPSR>> ConfirmItemPR(string grnCode)
         {
             Dictionary<string, string> param = new Dictionary<string, string>
 {
@@ -855,15 +859,22 @@ namespace P2PLibray.Quality
                         ItemName = row["ItemName"].ToString(),
                         StatusName = row["StatusName"].ToString(),
                         Quantity = row["Quantity"] != DBNull.Value
-                           ? Convert.ToInt32(row["Quantity"])
-                           : 0,
-                        AddedDate = Convert.ToDateTime(row["AddedDate"]).ToString("yyyy-MM-dd"),
-                        AddedBy = row["AddedBy"].ToString()
+                            ? Convert.ToInt32(row["Quantity"])
+                            : 0,
+                        AddedDate = Convert
+                            .ToDateTime(row["AddedDate"])
+                            .ToString("yyyy-MM-dd"),
+                        AddedBy = row["AddedBy"].ToString(),
+
+                        // ✅ THIS IS THE MISSING LINE
+                        Reason = row["Reason"] == DBNull.Value
+                                    ? ""
+                                    : row["Reason"].ToString()
                     });
                 }
             }
-            return list;
 
+            return list;
 
 
         }
