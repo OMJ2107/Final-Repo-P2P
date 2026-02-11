@@ -8,165 +8,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase Order Form</title>
     <style>
-             /* ==========================
-        Global Styles
-        ========================== */
-             body {
-                 background-color: #f4f5f7;
-                 font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-                 color: #333;
-             }
+                /* ==========================
+                Global Styles
+                ========================== */
+                body {
+                    background-color: #f4f5f7;
+                    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                    color: #333;
+                }
 
-             .po-form {
-                 background: #fff;
-                 padding: 30px;
-                 border-radius: 16px;
-                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-                 margin: 30px auto;
-                 max-width: 1150px;
-             }
+                .po-form {
+                    background: #fff;
+                    padding: 30px;
+                    border-radius: 16px;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+                    margin: 30px auto;
+                    max-width: 1150px;
+                }
 
-             .section-title {
-                 font-size: 1.1rem;
-                 font-weight: 600;
-                 color: #000;
-                 margin-bottom: 12px;
-                 border-left: 4px solid #000;
-                 padding-left: 10px;
-             }
+                .section-title {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: #000;
+                    margin-bottom: 12px;
+                    border-left: 4px solid #000;
+                    padding-left: 10px;
+                }
 
-                 /* Invalid fields: red border */
-                 .form-control.is-invalid,
-                 .form-select.is-invalid {
-                     border-color: #dc3545 !important;
-                     box-shadow: none !important;
-                     background-image: none !important;
-                 }
-             /* Validation feedback */
-             .invalid-feedback {
-                 display: none;
-                 width: 100%;
-                 margin-top: 0.25rem;
-                 font-size: 0.875em;
-                 color: #dc3545;
-             }
-             /*        Revome Green Color*/
+                /* Invalid fields: red border */
+                .form-control.is-invalid,
+                .form-select.is-invalid {
+                    border-color: #dc3545 !important;
+                    box-shadow: none !important;
+                    background-image: none !important;
+                }
+                /* Validation feedback */
+                .invalid-feedback {
+                    display: none;
+                    width: 100%;
+                    margin-top: 0.25rem;
+                    font-size: 0.875em;
+                    color: #dc3545;
+                }
+                /*        Revome Green Color*/
 
-             .was-validated .form-control:invalid ~ .invalid-feedback,
-             .was-validated .form-select:invalid ~ .invalid-feedback {
-                 display: block;
-             }
+                .was-validated .form-control:invalid ~ .invalid-feedback,
+                .was-validated .form-select:invalid ~ .invalid-feedback {
+                    display: block;
+                }
 
-             .was-validated .form-select:valid, .form-select.is-valid {
-                 border: 1px solid;
-                 border-color: #ddd !important;
-                 box-shadow: none !important;
-                 outline: none !important;
-             }
+                .was-validated .form-select:valid, .form-select.is-valid {
+                    border: 1px solid;
+                    border-color: #ddd !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                }
 
-             .was-validated .form-control:valid, .form-control.is-valid {
-                 border: 1px solid;
-                 border-color: #ddd !important;
-                 box-shadow: none !important;
-                 outline: none !important;
-             }
+                .was-validated .form-control:valid, .form-control.is-valid {
+                    border: 1px solid;
+                    border-color: #ddd !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                }
 
-             .was-validated .form-check-input:valid:checked,
-             .form-check-input.is-valid:checked {
-                 background-color: #0d6efd !important; /* sky blue */
-                 border-color: #0d6efd !important;
-             }
+                .was-validated .form-check-input:valid:checked,
+                .form-check-input.is-valid:checked {
+                    background-color: #0d6efd !important; /* sky blue */
+                    border-color: #0d6efd !important;
+                }
 
-             .was-validated .form-control:invalid, .form-control.is-invalid {
-                 border: 1px solid #ddd;
-             }
-             /* ==========================
-        Tables
-        ========================== */
+                .was-validated .form-control:invalid, .form-control.is-invalid {
+                    border: 1px solid #ddd;
+                }
+                /* ==========================
+                Tables
+                ========================== */
 
-        table-responsive {
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-        table th {
-            white-space: nowrap; /* Prevents text wrapping */
-            text-overflow: ellipsis; /* Adds "..." if text is too long */
-            overflow: hidden; /* Hides overflow text */
-        }
+                table-responsive {
+                    border-radius: 0.5rem;
+                    overflow: hidden;
+                }
 
-             .totals {
-                 text-align: right;
-                 font-weight: 600;
-             }
+                table th {
+                    white-space: nowrap; /* Prevents text wrapping */
+                    text-overflow: ellipsis; /* Adds "..." if text is too long */
+                    overflow: hidden; /* Hides overflow text */
+                }
 
-             .totals-row td {
-                 border-top: 2px solid #000;
-             }
+                .totals {
+                    text-align: right;
+                    font-weight: 600;
+                }
 
-             /* ==========================
-        Tooltip (Dark)
-        ========================== */
-             .tooltip-dark .tooltip-inner {
-                 background-color: #000;
-                 color: #fff;
-             }
+                .totals-row td {
+                    border-top: 2px solid #000;
+                }
 
-        .tooltip-dark .tooltip-arrow::before {
-            /*                 border-top-color: #000 !important;*/
-            display: none;
-        }
+                /* ==========================
+                Tooltip (Dark)
+                ========================== */
+                .tooltip-dark .tooltip-inner {
+                    background-color: #000;
+                    color: #fff;
+                }
 
-             /* ==========================
-        Terms & Conditions (Checkbox)
-        ========================== */
-             #termsList .form-check-label {
-                 color: #000 !important;
-                 font-weight: 500;
-             }
+                .tooltip-dark .tooltip-arrow::before {
+                    /*                 border-top-color: #000 !important;*/
+                    display: none;
+                }
 
-             /* Invalid checkbox state */
-             #termsList input[type="checkbox"]:not(:checked):invalid + .form-check-label {
-                 color: #000 !important;
-                 border-color: #dc3545 !important;
-             }
+                /* ==========================
+                Terms & Conditions (Checkbox)
+                ========================== */
+                #termsList .form-check-label {
+                    color: #000 !important;
+                    font-weight: 500;
+                }
 
-             /* ✅ Checked checkbox color: light-sky blue */
-             #termsList input[type="checkbox"] {
-                 accent-color: #0d6efd !important; /* sky blue */
-                 border: 1.5px solid #0d6efd !important;
-             }
+                /* Invalid checkbox state */
+                #termsList input[type="checkbox"]:not(:checked):invalid + .form-check-label {
+                    color: #000 !important;
+                    border-color: #dc3545 !important;
+                }
 
-             /* List styling */
-             .terms-list {
-                 padding-left: 20px;
-                 margin-top: 5px;
-             }
+                /* ✅ Checked checkbox color: light-sky blue */
+                #termsList input[type="checkbox"] {
+                    accent-color: #0d6efd !important; /* sky blue */
+                    border: 1.5px solid #0d6efd !important;
+                }
 
-                 .terms-list li {
-                     margin-bottom: 6px;
-                     font-size: 0.92rem;
-                 }
-        /* Add spacing between buttons */
-        .swal2-custom-actions {
-            gap: 12px; /* adjust gap as needed */
-        }
+                /* List styling */
+                .terms-list {
+                    padding-left: 20px;
+                    margin-top: 5px;
+                }
 
-            /* Optional: small visual consistency */
-            .swal2-custom-actions .btn {
-                font-weight: 600;
-                border-radius: 6px;
-                min-width: 120px;
-            }
+                    .terms-list li {
+                        margin-bottom: 6px;
+                        font-size: 0.92rem;
+                    }
+                /* Add spacing between buttons */
+                .swal2-custom-actions {
+                    gap: 12px; /* adjust gap as needed */
+                }
 
-        .hidden-force {
-            display: none !important;
-        }
-/*        .po-number{
-            margin-left:-20px!important;
-            margin-bottom:5px!important;
-            font-size:15px;
-        }
-*/
+                    /* Optional: small visual consistency */
+                    .swal2-custom-actions .btn {
+                        font-weight: 600;
+                        border-radius: 6px;
+                        min-width: 120px;
+                    }
+
+                .hidden-force {
+                    display: none !important;
+                }
+                /*        .po-number{
+                    margin-left:-20px!important;
+                    margin-bottom:5px!important;
+                    font-size:15px;
+                }
+        */
     </style>
 </head>
 <body>
@@ -181,9 +182,9 @@
             <h3 class="text-center text-primary mb-4 pt-0 mt-0">Purchase Order</h3>
 
             @*<span class="po-number bg-primary p-3 rounded-3 m-0">
-                <span class="fw-bold text-white">PO No :</span>
-                <span class="fw-bold text-white">@ViewBag.POCode</span>
-            </span>*@
+                    <span class="fw-bold text-white">PO No :</span>
+                    <span class="fw-bold text-white">@ViewBag.POCode</span>
+                </span>*@
 
 
             <!-- Hidden fields -->
@@ -289,9 +290,12 @@
 
             <!-- Terms & Conditions -->
             <h5 class="section-title mt-4">Terms & Conditions</h5>
-            <div id="termsList" class="mb-3">
-                <!-- Terms will be populated dynamically -->
-            </div>
+            @*<div id="termsLists" class="mb-3">*@
+            <!-- Terms will be populated dynamically -->
+            <ul id="termsList" class="list-group">
+                <li></li>
+            </ul>
+            @*</div>*@
             <div class="invalid-feedback" id="termsFeedback" style="display: none;">
                 Please select at least one term and condition.
             </div>
@@ -301,8 +305,8 @@
             <!-- Items Table -->
             <div class="table-responsive mt-4">
                 @*<button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-end me-3 ms-auto" id="btnRestoreItem">
-                <i class="bi bi-arrow-counterclockwise me-2"></i>Restore Items
-            </button>*@
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>Restore Items
+                    </button>*@
 
                 <table class="table table-bordered table-striped text-center" id="tblItems">
                     <thead class="table-dark text-center">
@@ -355,50 +359,50 @@
     </div>
     <!-- Restore Modal -->
     @*<div class="modal fade" id="restoreModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-            <div class="modal-content shadow-lg rounded-3">
-                 Header 
-                <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-2">
-                    <h5 class="modal-title fw-bold text-white mb-0 fs-5">
-                        Restore Removed Item
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2"
-                            data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                 Body 
-                <div class="modal-body px-4">
-                    <div class="mb-3">
-                        <label for="ddlRemovedItems" class="form-label form-label-sm fw-bold text-dark">
-                            Select Removed Item<span class="text-danger">*</span>
-                        </label>
-                        <select id="ddlRemovedItems" class="form-select form-select-sm shadow-sm">
-                            <option value="">Select Item</option>
-                        </select>
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                <div class="modal-content shadow-lg rounded-3">
+                     Header
+                    <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-2">
+                        <h5 class="modal-title fw-bold text-white mb-0 fs-5">
+                            Restore Removed Item
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2"
+                                data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-
-                    <div id="restoreDetails" style="display:none;">
+                     Body
+                    <div class="modal-body px-4">
                         <div class="mb-3">
-                            <label class="form-label form-label-sm fw-bold text-dark">Quantity</label>
-                            <input type="number" id="restoreQty" class="form-control form-control-sm text-dark shadow-sm" min="1">
+                            <label for="ddlRemovedItems" class="form-label form-label-sm fw-bold text-dark">
+                                Select Removed Item<span class="text-danger">*</span>
+                            </label>
+                            <select id="ddlRemovedItems" class="form-select form-select-sm shadow-sm">
+                                <option value="">Select Item</option>
+                            </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label form-label-sm fw-bold text-dark">Description</label>
-                            <input type="text" id="restoreDesc" class="form-control form-control-sm text-dark shadow-sm">
+
+
+                        <div id="restoreDetails" style="display:none;">
+                            <div class="mb-3">
+                                <label class="form-label form-label-sm fw-bold text-dark">Quantity</label>
+                                <input type="number" id="restoreQty" class="form-control form-control-sm text-dark shadow-sm" min="1">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label form-label-sm fw-bold text-dark">Description</label>
+                                <input type="text" id="restoreDesc" class="form-control form-control-sm text-dark shadow-sm">
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                 Footer 
-                <div class="modal-footer bg-light rounded-bottom p-2 d-flex justify-content-end">
-                    <button type="button" id="btnAddBack" class="btn btn-sm btn-success px-4">
-                        <i class="bi bi-arrow-clockwise me-1"></i> Add Back
-                    </button>
+                     Footer
+                    <div class="modal-footer bg-light rounded-bottom p-2 d-flex justify-content-end">
+                        <button type="button" id="btnAddBack" class="btn btn-sm btn-success px-4">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Add Back
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>*@
+        </div>*@
 
 
     <script>
@@ -558,7 +562,8 @@
                         $("#SwiftCode").val(header.SwiftCode);
                         $("#DeliveryAddress").val(header.DeliveryAddress);
                         $("#transportationCharges").text('₹' +header.ShippingCharges);
-
+                        $("#grandTotal").text('₹' + header.TotalAmount);
+                        $("#subTotal").text('₹' + (header.SubAmount).toFixed(2));
 
                          if (header.QuotationDateString) {
                              console.log(header.QuotationDateString);
@@ -581,18 +586,47 @@
                             $("#ddlAccountant").append(`<option value="${row.StaffCode}">${row.AccountEmail}</option>`);
                         });
 
-                        // ------------------------------
-                        // 📜 Terms & Conditions
-                        // ------------------------------
-                        $("#termsList").empty();
-                        $.each(terms, function (i, row) {
-                            $("#termsList").append(`
+                        //// ------------------------------
+                        //// 📜 Terms & Conditions
+                        //// ------------------------------
+                        //$("#termsList").empty();
+                        //$.each(terms, function (i, row) {
+                        //    $("#termsList").append(`
+                        //        <div class="form-check">
+                        //            <input class="form-check-input" type="checkbox" value="${row.TermConditionId}" id="term${row.TermConditionId}">
+                        //            <label class="form-check-label" for="term${row.TermConditionId}">${row.TermConditionName}</label>
+                        //        </div>
+                        //    `);
+                         //  });
+
+
+                         // ------------------------------
+                         // 📜 Terms & Conditions
+                         // ------------------------------
+                         $("#termsList").empty();
+
+                         const mandatoryTerms = [3,6];
+
+                         $.each(terms, function (i, row) {
+                             console.log("Termssss", row.TermConditionId);
+                             const isMandatory = mandatoryTerms.includes(row.TermConditionId);
+                             console.log("Trdnsfsf",isMandatory);
+                             $("#termsList").append(`
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="${row.TermConditionId}" id="term${row.TermConditionId}">
-                                    <label class="form-check-label" for="term${row.TermConditionId}">${row.TermConditionName}</label>
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           value="${row.TermConditionId}"
+                                           id="term${row.TermConditionId}"
+                                           ${isMandatory ? "checked onclick='return false;'" : ""}>
+
+                                    <label class="form-check-label" for="term${row.TermConditionId}">
+                                        ${row.TermConditionName}
+                                        ${isMandatory ? '<span class="text-danger">*</span>' : ''}
+                                    </label>
                                 </div>
                             `);
-                        });
+                         });
+
 
                         // ------------------------------
                         // 📦 Items Table Initialization
@@ -660,10 +694,10 @@
 
                             }
                         });
-                         if (mode === "JIT") {
-                             table.column(-1).visible(false).draw(false);
-                             console.log("✅ Hidden last column for JIT mode");
-                         }
+                         //if (mode === "JIT") {
+                         //    table.column(-1).visible(false).draw(false);
+                         //    console.log("✅ Hidden last column for JIT mode");
+                         //}
                         // Recalculate totals
                         updateTableCalculations();
                         // Remove link handler
@@ -741,12 +775,36 @@
                     // ------------------------------
                     // 📜 Terms & Conditions
                     // ------------------------------
+                    //$("#termsList").empty();
+                    //$.each(terms, function (i, row) {
+                    //    $("#termsList").append(`
+                    //        <div class="form-check">
+                    //            <input class="form-check-input" type="checkbox" value="${row.TermConditionId}" id="term${row.TermConditionId}">
+                    //            <label class="form-check-label" for="term${row.TermConditionId}">${row.TermConditionName}</label>
+                    //        </div>
+                    //    `);
+                    //});
+
                     $("#termsList").empty();
+
+                    const mandatoryTerms = [3, 6];
+
                     $.each(terms, function (i, row) {
+                        console.log("Termssss", row.TermConditionId);
+                        const isMandatory = mandatoryTerms.includes(row.TermConditionId);
+                        console.log("Trdnsfsf", isMandatory);
                         $("#termsList").append(`
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="${row.TermConditionId}" id="term${row.TermConditionId}">
-                                <label class="form-check-label" for="term${row.TermConditionId}">${row.TermConditionName}</label>
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       value="${row.TermConditionId}"
+                                       id="term${row.TermConditionId}"
+                                       ${isMandatory ? "checked onclick='return false;'" : ""}>
+
+                                <label class="form-check-label" for="term${row.TermConditionId}">
+                                    ${row.TermConditionName}
+                                    ${isMandatory ? '<span class="text-danger">*</span>' : ''}
+                                </label>
                             </div>
                         `);
                     });
@@ -811,7 +869,7 @@
                         }
                     });
 
-                    // Remove link handlers
+                    // Remove link handler
                     $('#tblItems tbody').on('click', '.remove-link', function (e) {
                         e.preventDefault();
                         let row = table.row($(this).closest('tr'));
@@ -1095,6 +1153,15 @@
                 }
             });
         }
+        // 🔒 Lock mandatory Terms & Conditions
+        $(document).on("change", ".term-checkbox", function () {
+
+            if ($(this).attr("data-mandatory") === "true" && !this.checked) {
+                alert("This term is mandatory and cannot be unchecked.");
+                $(this).prop("checked", true);
+            }
+        });
+
 
         // ====================================================
         // ✅ End of Scripted
