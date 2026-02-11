@@ -152,7 +152,8 @@ namespace P2PLibray.Purchase
         public decimal GST { get; set; }
         public string UOMName { get; set; }
         public string Description { get; set; }
-        //public decimal ShippingCharges { get; set; }
+        public decimal UnitRates { get; set; }
+
 
 
 
@@ -224,6 +225,7 @@ namespace P2PLibray.Purchase
         public string VendorContact { get; set; }
         public string VendorAddress { get; set; }
         public string InvoiceToCompanyName { get; set; }
+        public decimal ShippingCharges { get; set; }
 
 
     }
@@ -299,11 +301,20 @@ namespace P2PLibray.Purchase
 
 
     #endregion
+    #region Omkar
+    public class POTermOK
+    {
+        public int SRNO { get; set; }
+        public string TermConditionName { get; set; }
+    }
+    #endregion
     public class Purchase
     {
 
         #region prathamesh
         public int AllPR { get; set; }
+        public int AllPO { get; set; }
+        public int RejectedPO { get; set; }
         public int Rejected { get; set; }
         public int PendingPR { get; set; }
         public int ApprovedPR { get; set; }
@@ -353,6 +364,11 @@ namespace P2PLibray.Purchase
         public string RFQCode { get; set; }
          public DateTime? AddedDateAT { get; set; }
         public string RegisterQuotationCode { get; set; }
+        public DateTime? CreatedDateAT { get; set; }
+        public int GRNCount { get; set; }
+        public string GRNCodes { get; set; }
+
+        public DateTime? QuotationDateAT { get; set; }
         public string AddedBy { get; set; }
         public string VendorsInvited { get; set; }
         public string VendorsResponded { get; set; }
@@ -368,13 +384,15 @@ namespace P2PLibray.Purchase
 
         #region vaibhavi
         public string AddedDateVK { get; set; }
-    
+        public string ExpDate { get; set; }
+
         public int HasUnregisteredVendors { get; set; }
 
         public int AnyVendor { get; set; }
         public int HasApproved { get; set; }
 
-
+        public string UOMName { get; set; }
+      
 
 
         #endregion vaibhavi

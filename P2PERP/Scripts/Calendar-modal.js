@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
         height: 'auto',
         stickyHeaderDates: true,
         themeSystem: 'bootstrap5',
+        dayMaxEventRows: true,
         initialView: 'dayGridMonth',
         events: '/Account/GetEvents',
         headerToolbar: {
@@ -22,7 +23,10 @@ document.addEventListener('DOMContentLoaded', function () {
             info.el.style.cursor = 'pointer';
         },
         views: {
-            dayGridMonth: { buttonText: 'Month' },
+            dayGridMonth: {
+                buttonText: 'Month',
+                dayMaxEventRows: 3
+            },
             listMonth: { buttonText: 'list month' },
             listYear: { buttonText: 'list year' }
         },
@@ -129,10 +133,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="col-sm-6">
                             <strong>${props.StatusName == 'Rejected' ? 'Rejected Date' : 'Approved Date'}:</strong> ${safe(props.ApprovedDate)}
                         </div>
-                        <div class="col-sm-12 mb-3">
-                            <strong>Description:</strong> ${safe(props.Description)}
-                        </div>`
-                    : ''}
+                        ${(props.StatusName === 'Rejected') ?
+                            `<div class="col-sm-12 mb-3">
+                                <strong>Description:</strong> ${safe(props.Description)}
+                            </div>`: ''}
+                    `: ''}
                 </div>
             </div>
             <hr/>
@@ -401,9 +406,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="col-sm-6">
                         <strong>Status:</strong> ${safe(props.StatusName)}
                     </div>
-                    <div class="col-sm-12">
+                    <div class="col-sm-6">
                         <strong>Billing Address:</strong> ${safe(props.BillingAddress)}
                     </div>
+                    ${(props.StatusName === 'Rejected') ? 
+                        `<div class="col-sm-6">
+                            <strong>Note:</strong> ${safe(props.Description)}
+                        </div>` : ''
+                    }
                     <div class="col-sm-12 mb-3">
                         <strong>Term Conditions:</strong> ${termList}
                     </div>
@@ -596,7 +606,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderGoodsReturn(props) {
         if (!props) return;
         const modalTitle = document.querySelector('#eventModal .modal-title');
-        modalTitle.textContent = "Goods Return";
+        modalTitle.textContent = "Purchase Return";
 
         let isAssign = (props.StatusName) === 'Assign';
 
@@ -777,7 +787,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const modalTitle = document.querySelector('#eventModal .modal-title');
         const modalBody = document.querySelector('#eventModal .modal-body');
         modalTitle.textContent = title;
-        console.log(props);
         modalBody.innerHTML = `
         <table id="isrJitTable" class="table table-striped table-bordered w-100">
             <thead class="table-dark">

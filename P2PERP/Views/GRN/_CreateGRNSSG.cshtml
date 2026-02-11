@@ -6,7 +6,7 @@
         padding: 0.10rem 0.11rem !important;
     }
 </style>
-<div class="card shadow p-3">
+<div >
     <!-- 🔹 PO & GRN Information -->
     <div class="border rounded-3 p-3 mb-3 bg-light-subtle">
         <h6 class="fw-bold text-dark mb-2">PO & GRN Information</h6>
@@ -161,6 +161,7 @@
                     <th>Item Name</th>
                     <th>Description</th>
                     <th>Quantity</th>
+                    <th>UOM</th>
                     <th>Unit Rate</th>
                     <th>Discount</th>
                     <th>GST</th>
@@ -337,7 +338,14 @@ $(document).ready(function () {
         info:false,
         dom: '<"row mb-2"<"col-md-6"><"col-md-6 d-flex justify-content-end"f>>t<"row mt-2"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>',
         columns: [
-            { data: null, render: (data, type, row, meta) => meta.row + 1, className: 'text-center' },
+            {
+                data: null,
+                className: 'text-center',
+                render: function (data, type, row, meta) {
+                    if (!row) return '';
+                    return meta.row + 1;
+                }
+            },
             { data: 'ItemName', className: 'text-center' },
             {
                 data: 'Description',
@@ -348,6 +356,7 @@ $(document).ready(function () {
                 }
             },
             { data: 'Quantity', className: 'text-center' },
+            { data: 'UOMName', className: 'text-center' },
             { data: 'UnitRate', className: 'text-center', render: data => `₹${data}` },
             { data: 'Discount', className: 'text-center', render: data => `${data}%` },
             { data: 'GST', className: 'text-center' },
@@ -496,6 +505,7 @@ $(document).ready(function () {
             ItemName: item ? (item.ItemName || item.Name || item.itemName || '') : '',
             Description: item ? (item.Description || item.Desc || '') : '',
             Quantity: qty,
+            UOMName: item ? (item.UOMName || '') : '',
             UnitRate: item ? (item.CostPerUnit || item.UnitRate || 0) : 0,
             Discount: item ? (item.DiscountPercent || item.Discount || 0) : 0,
             GST: item ? (item.GST || 0) : 0,
@@ -513,14 +523,40 @@ $(document).ready(function () {
         $('#itemDropdown').removeClass('input-error');
 
         Swal.fire({ icon: 'success', title: 'Item added!', showConfirmButton: false, timer: 1500 });
+        Swal.fire({ icon: 'success', title: 'Item added!', showConfirmButton: false, timer: 1500 });
+
+        // 🔹 Clear all item detail fields after adding
+        $('#itemDropdown').val('');
+        $('#txtQty').val('');
+        $('#txtUnitRate').val('');
+        $('#txtDiscount').val('');
+        $('#txtGST').val('');
+        $('#txtAmount').val('');
+        $('#txtUOM').val('');
+        $('#txtQC').val('');
+        $('#txtItemDesc').val('');
+        $('#qtyError').text('');
+        $('#itemError').text('');
+        $('#txtQty, #itemDropdown').removeClass('input-error');
+
     });
 
     $('#itemTable').on('draw.dt', function () {
-        $('#itemTable tbody tr').each(function (index) {
-            $(this).find('td:first').html(index + 1);
+
+        // If table is empty, DO NOTHING
+        if (itemTable.rows().count() === 0) {
+            initTooltips();
+            return;
+        }
+
+        // Re-number only real rows
+        itemTable.rows({ page: 'current' }).every(function (rowIdx) {
+            $(this.node()).find('td:first').html(rowIdx + 1);
         });
+
         initTooltips();
     });
+
 
     $('#itemTable tbody').on('click', '.deleteRow', function () {
         const row = itemTable.row($(this).closest('tr'));

@@ -140,27 +140,29 @@
                                 <div class="row g-2 text-center">
 
                                     <div class="col">
-                                        <label class="form-label form-label-sm fw-bold text-dark">PR CODE :</label>
-                                        <input id="PRCODE" class="form-control form-control-sm text-center text-dark shadow-sm bg-light" type="text" readonly />
+                                        <label class="fw-bold text-dark">PR CODE :</label><br />
+                                        <span id="PRCODE" ></span>
                                     </div>
 
                                     <div class="col">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Required Date :</label>
-                                        <input id="RequiredDate" class="form-control form-control-sm text-center text-dark shadow-sm bg-light" type="text" readonly />
+                                        <label class="fw-bold text-dark">Required Date :</label><br />
+                                        <span id="RequiredDate" ></span>
                                     </div>
 
                                     <div class="col">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Created By :</label>
-                                        <input id="FullName" class="form-control form-control-sm text-center text-dark shadow-sm bg-light" type="text" readonly />
+                                        <label class="fw-bold text-dark">Created By :</label><br />
+                                        <span id="FullName" ></span>
                                     </div>
 
                                     <div class="col">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Status :</label>
-                                        <input id="Status" class="form-control form-control-sm text-center text-dark shadow-sm bg-light" type="text" readonly />
+                                        <label class="fw-bold text-dark">Status :</label><br />
+                                        <span id="Status" ></span>
                                     </div>
+
 
                                 </div>
                             </div>
+
 
 
 
@@ -214,29 +216,29 @@
                     <div class="card-body p-3">
 
                         <!-- Requisition Info Section -->
-                        <div class="container mb-3">
-
+                        <div class="container mb-3 fw-bold fs-6">
                             <div class="row g-2 text-center">
 
-                                <div class="col-3">
-                                    <label class="form-label form-label-sm fw-bold text-dark">PR CODE :</label>
-                                    <input id="PRCODEUpdate" class="form-control form-control-sm text-center shadow-sm text-dark bg-light" type="text" readonly />
+                                <div class="col">
+                                    <label class="fw-bold text-dark">PR CODE :</label><br />
+                                    <span id="PRCODEUpdate"></span>
                                 </div>
 
-                                <div class="col-3">
-                                    <label class="form-label form-label-sm fw-bold text-dark">Required Date :</label>
-                                    <input id="RequiredDateUpdate" class="form-control form-control-sm text-center shadow-sm text-dark bg-light" type="text" readonly />
+                                <div class="col">
+                                    <label class="fw-bold text-dark">Required Date :</label><br />
+                                    <span id="RequiredDateUpdate"></span>
                                 </div>
 
-                                <div class="col-3">
-                                    <label class="form-label form-label-sm fw-bold text-dark">Created By :</label>
-                                    <input id="FullNameUpdate" class="form-control form-control-sm text-center shadow-sm text-dark bg-light" type="text" readonly />
+                                <div class="col">
+                                    <label class="fw-bold text-dark">Created By :</label><br />
+                                    <span id="FullNameUpdate"></span>
                                 </div>
 
-                                <div class="col-3">
-                                    <label class="form-label form-label-sm fw-bold text-dark">Status :</label>
-                                    <input id="StatusUpdate" class="form-control form-control-sm text-center shadow-sm text-dark bg-light" type="text" readonly />
+                                <div class="col">
+                                    <label class="fw-bold text-dark">Status :</label><br />
+                                    <span id="StatusUpdate"></span>
                                 </div>
+
 
                             </div>
 
@@ -393,49 +395,49 @@
                         return '<span class="badge bg-success">' + data + '</span>';
                     }
                 },
-                {   // Action Buttons
+                {
                     data: null,
                     title: "Action",
                     className: 'no-export',
                     orderable: false,
                     render: function (data, type, row) {
                         if (row.Status === "Pending") {
-                            // Show both Update and View buttons inline
                             return `
 <div class="d-flex gap-1">
-    <button class="btn btn-sm btn-secondary update-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-Update" data-bs-toggle="tooltip"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#updateModal"
-            title="Update PR">
-        <i class="bi bi-pencil "></i>
+    <!-- Update Button -->
+    <button class="btn btn-sm btn-secondary update-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-Update"
+        data-id="${row.PRCode}"
+        data-bs-toggle="tooltip"
+        data-bs-title="Update PR"
+        onclick="$('#updateModal').modal('show')">
+        <i class="bi bi-pencil"></i>
     </button>
-   <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#purchaseRequisitionModal"
-            data-bs-title="View PR"
-            title="View PR">
+
+    <!-- View Button -->
+    <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
+        data-id="${row.PRCode}"
+        data-bs-toggle="tooltip"
+        data-bs-title="View PR"
+        onclick="$('#purchaseRequisitionModal').modal('show')">
         <i class="bi bi-eye"></i>
     </button>
 </div>`;
-                        } else if (row.Status === "Approved" || row.Status === "Rejected") {
-                            // Show only View button
+                        }
+
+                        if (row.Status === "Approved" || row.Status === "Rejected") {
                             return `
 <button class="btn btn-sm btn-primary view-btn square-pill d-inline-flex align-items-center px-2 py-1 shadow-View"
-            data-id="${row.PRCode}"
-            data-bs-toggle="modal"
-            data-bs-target="#purchaseRequisitionModal"
-            data-bs-title="View PR"
-            title="View PR">
-        <i class="bi bi-eye"></i>
-    </button>`;
-                        } else {
-                            return ''; // Optional: no buttons for other statuses
+    data-id="${row.PRCode}"
+    data-bs-toggle="tooltip"
+    data-bs-title="View PR"
+    onclick="$('#purchaseRequisitionModal').modal('show')">
+    <i class="bi bi-eye"></i>
+</button>`;
                         }
+
+                        return '';
                     }
                 }
-
             ],
             columnDefs: [
                 { className: "text-center", targets: "_all" }
@@ -769,6 +771,34 @@
             ]
         });
 
+        function initTooltips() {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                const existing = bootstrap.Tooltip.getInstance(el);
+                if (existing) existing.dispose();
+
+                const title = el.getAttribute('data-bs-title')?.trim();
+                if (title) {
+                    new bootstrap.Tooltip(el, { container: 'body' });
+                }
+            });
+        }
+
+        initTooltips();
+        $('#requisitionTable').on('draw.dt', initTooltips);
+        $('#purchaseRequisitionModal, #updateModal').on('shown.bs.modal', initTooltips);
+
+        $(document).on("click", ".update-btn, .view-btn", function () {
+            const instance = bootstrap.Tooltip.getInstance(this);
+            if (instance) {
+                instance.hide();
+                instance.dispose();
+            }
+        });
+
+
+
+
+
 
 
         //  Date Range Filter (Applied on column 5)
@@ -875,10 +905,10 @@
                 if (response.success) {
                     var formattedDate = moment(response.data.RequiredDate).format("DD/MM/YYYY");
 
-                    $("#PRCODE").val(response.data.PRCode);
-                    $("#RequiredDate").val(formattedDate);
-                    $("#FullName").val(response.data.FullName);
-                    $("#Status").val(response.data.Status);
+                    $("#PRCODE").text(response.data.PRCode);
+                    $("#RequiredDate").text(formattedDate);
+                    $("#FullName").text(response.data.FullName);
+                    $("#Status").text(response.data.Status);
 
                 }
             },
@@ -929,15 +959,15 @@
                     data: "Description", title: "DESCRIPTION",
                     createdCell: function (td, cellData) {
                         if (cellData) {
-                            // truncate text if too long
                             let shortText = cellData.length > 25 ? cellData.substring(0, 25) + "..." : cellData;
                             $(td)
                                 .text(shortText)
-                                .attr("title", cellData)
+                                .attr("data-bs-title", cellData)   // ✅ use this instead of title
                                 .attr("data-bs-toggle", "tooltip")
                                 .attr("data-bs-placement", "top");
                         }
-                    } },
+                    }
+                },
                 { data: "RequiredQuantity", title: "QTY" },
                 {
                     data: "UnitRate",
@@ -974,10 +1004,10 @@
                     title: '',
                     customize: function (win) {
                         // Info (DetailsPartialSP values)
-                        let prCode = $("#PRCODE").val();
-                        let reqDate = $("#RequiredDate").val();
-                        let fullName = $("#FullName").val();
-                        let status = $("#Status").val();
+                        let prCode = $("#PRCODE").text();
+                        let reqDate = $("#RequiredDate").text();
+                        let fullName = $("#FullName").text();
+                        let status = $("#Status").text();
 
                         // Custom Header HTML
                         let headerHtml = `
@@ -1048,10 +1078,10 @@
             success: function (response) {
                 if (response.success) {
                     var formattedDate = moment(response.data.RequiredDate).format("DD/MM/YYYY");
-                    $("#PRCODEUpdate").val(response.data.PRCode);
-                    $("#RequiredDateUpdate").val(formattedDate);
-                    $("#FullNameUpdate").val(response.data.FullName);
-                    $("#StatusUpdate").val(response.data.Status);
+                    $("#PRCODEUpdate").text(response.data.PRCode);
+                    $("#RequiredDateUpdate").text(formattedDate);
+                    $("#FullNameUpdate").text(response.data.FullName);
+                    $("#StatusUpdate").text(response.data.Status);
 
                 }
             }
@@ -1083,21 +1113,26 @@
                 { data: 'ItemCode' },
                 { data: 'ItemName' },
                 {
-                    data: 'Description',
+                    data: "Description",
                     createdCell: function (td, cellData) {
                         if (cellData) {
                             let shortText = cellData.length > 25 ? cellData.substring(0, 25) + "..." : cellData;
                             $(td)
                                 .text(shortText)
-                                .attr("title", cellData)
-                                .attr("data-bs-toggle", "tooltip")
+                                .attr("data-bs-title", cellData)
+                                .attr("data-bs-toggle", "tooltip") 
                                 .attr("data-bs-placement", "top");
                         }
                     }
                 },
                 {
                     data: "RequiredQuantity",
-                    render: (data) => `<input type="number" class="form-control form-control-sm qty-input  text-dark shadow-sm text-center" value="${data}" min="1" />`
+                    render: (data) =>
+                        `<input type="number"
+            class="form-control form-control-sm qty-input text-dark shadow-sm text-center"
+            value="${data}"
+            min="1"
+            max="600" />`
                 },
                 {
                     data: 'UnitRate',
@@ -1116,74 +1151,124 @@
         });
 
         $('#ItemTableUpdate').on('input', '.qty-input', function () {
-            let val = parseInt($(this).val(), 10);
-            if (isNaN(val) || val < 1) {
-                $(this).val('');
+            let qty = parseInt($(this).val(), 10);
+
+            // Invalid
+            if (isNaN(qty) || qty < 1) {
+                $(this).addClass('is-invalid');
+                return;
+            }
+
+            // Exceed max
+            if (qty > 600) {
+                $(this).addClass('is-invalid');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Quantity Limit Exceeded',
+                    text: 'Maximum allowed quantity is 600 per item.'
+                });
+
+                $(this).val(600); // auto-correct
+            }
+            else {
+                $(this).removeClass('is-invalid');
             }
         });
     }
 
     // ✅ Single “Save All” button
+    // ================= SAVE ALL UPDATED QUANTITIES =================
     $(document).on("click", "#btnSaveAllUpdates", function () {
+
         let updatedRows = itemTableUpdate.rows().data().toArray();
         let allUpdates = [];
+        let invalidQty = false;
 
-        // Collect updated data
-        $('#ItemTableUpdate tbody tr').each(function (i) {
+        // Collect quantities
+        $('#ItemTableUpdate tbody tr').each(function (index) {
+
             let qty = parseInt($(this).find('.qty-input').val(), 10);
-            if (!isNaN(qty) && qty > 0) {
-                let rowData = updatedRows[i];
-                allUpdates.push({
-                    PRItemId: rowData.PRItemId,
-                    requiredQuantity: qty
-                });
+
+            // Final validation
+            if (isNaN(qty) || qty < 1 || qty > 600) {
+                invalidQty = true;
+                return false; // break loop
             }
+
+            allUpdates.push({
+                PRItemId: updatedRows[index].PRItemId,
+                requiredQuantity: qty
+            });
         });
 
-        if (allUpdates.length === 0) {
-            Swal.fire("No Changes", "Please update at least one quantity before saving.", "info");
+        // ❌ Validation failed
+        if (invalidQty) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Quantity',
+                text: 'Quantity must be between 1 and 600 for all items.'
+            });
             return;
         }
 
+        // ❌ Nothing to save
+        if (allUpdates.length === 0) {
+            Swal.fire(
+                'No Changes',
+                'Please update at least one quantity before saving.',
+                'info'
+            );
+            return;
+        }
+
+        // ✅ Confirm
         Swal.fire({
-            title: "Confirm Save",
-            text: "Do you want to save all updated quantities?",
-            icon: "question",
+            title: 'Confirm Save',
+            text: 'Do you want to save all updated quantities?',
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '<i class="bi bi-check-circle me-1"></i>Yes, Save it!',
+            confirmButtonText: '<i class="bi bi-check-circle me-1"></i> Yes, Save',
             cancelButtonText: '<i class="bi bi-x-circle me-1"></i> Cancel',
+            buttonsStyling: false,
             customClass: {
-                cancelButton: 'btn btn-danger  square-pill d-inline-flex align-items-center px-2 py-1 shadow-Cancel me-2',
-                confirmButton: 'btn btn-success square-pill d-inline-flex align-items-center px-2 py-1 shadow-Yes, Save it! me-2'
-            },
-            buttonsStyling: false 
+                confirmButton: 'btn btn-success me-2',
+                cancelButton: 'btn btn-danger'
+            }
         }).then((result) => {
+
             if (!result.isConfirmed) return;
 
-            let updatePromises = allUpdates.map(item =>
+            // 🔁 Multiple AJAX calls
+            let requests = allUpdates.map(item =>
                 $.ajax({
                     url: '/Purchase/UpdateItemQuantitySP',
                     type: 'POST',
-                    data: { PRItemId: item.PRItemId, requiredQuantity: item.requiredQuantity }
+                    data: item
                 })
             );
 
-            Promise.all(updatePromises)
+            Promise.all(requests)
                 .then(() => {
                     Swal.fire({
-                        icon: "success",
-                        title: "Saved!",
-                        text: "All quantities updated successfully!",
-                        showConfirmButton: false,
-                        timer: 2000
+                        icon: 'success',
+                        title: 'Saved!',
+                        text: 'All quantities updated successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
                     }).then(() => {
                         $('#updateModal').modal('hide');
                     });
                 })
                 .catch(() => {
-                    Swal.fire("Error", "Some updates failed. Please try again.", "error");
+                    Swal.fire(
+                        'Error',
+                        'Some updates failed. Please try again.',
+                        'error'
+                    );
                 });
         });
     });
+
 
 </script>
