@@ -19,9 +19,9 @@ namespace P2PLibray.Quality
         public async Task<SqlDataReader> GetStatusWiseQualityAsyncPR(string startDate = null, string endDate = null)
         {
             var param = new Dictionary<string, string>
-    {
-        { "@Flag", "countPR" }
-    };
+{
+    { "@Flag", "countPR" }
+};
 
             if (!string.IsNullOrEmpty(startDate)) param.Add("@StartDate", startDate);
             if (!string.IsNullOrEmpty(endDate)) param.Add("@EndDate", endDate);
@@ -37,9 +37,9 @@ namespace P2PLibray.Quality
         public async Task<SqlDataReader> GRNAllPR(string startDate = null, string endDate = null)
         {
             var param = new Dictionary<string, string>
-    {
-        { "@Flag", "GRNCOUNTPR" }
-    };
+{
+    { "@Flag", "GRNCOUNTPR" }
+};
 
             if (!string.IsNullOrEmpty(startDate)) param.Add("@StartDate", startDate);
             if (!string.IsNullOrEmpty(endDate)) param.Add("@EndDate", endDate);
@@ -50,15 +50,16 @@ namespace P2PLibray.Quality
 
 
 
-        //Confirm GRN list method//
-        public async Task<List<QualityConfirmItemPR>> ConfirmItemGrnPSR()
-        {
-            Dictionary<string, string> param = new Dictionary<string, string>();
-            param.Add("@Flag", "ConfirmItemPR");
+		//Confirm GRN list method//
+		public async Task<List<QualityConfirmItemPR>> ConfirmItemGrnPSR()
+		{
+			Dictionary<string, string> param = new Dictionary<string, string>();
+			param.Add("@Flag", "ConfirmItemPR");
 
-            SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
+            SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader(
+                "QualityCheckProcedure", param);
 
-            List<QualityConfirmItemPR> list = new List<QualityConfirmItemPR>();
+			List<QualityConfirmItemPR> list = new List<QualityConfirmItemPR>();
 
             if (dr.HasRows)
             {
@@ -68,26 +69,38 @@ namespace P2PLibray.Quality
                     {
                         GRNCode = dr["GRNCode"].ToString(),
                         VenderName = dr["VenderName"].ToString(),
-                        AddDate = dr["AddDate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AddDate"]).ToString("dd/MM/yyyy"),
-                        QualityCheckDate = dr["QualityCheckDate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["QualityCheckDate"]).ToString("dd/MM/yyyy")
+                        AddDate = dr["AddDate"] == DBNull.Value
+                                    ? ""
+                                    : Convert.ToDateTime(dr["AddDate"]).ToString("dd/MM/yyyy"),
+                        QualityCheckDate = dr["QualityCheckDate"] == DBNull.Value
+                                    ? ""
+                                    : Convert.ToDateTime(dr["QualityCheckDate"]).ToString("dd/MM/yyyy"),
+                        ItemCount = dr["ItemCount"] == DBNull.Value
+            ? 0
+            : Convert.ToInt32(dr["ItemCount"])
+
                     });
                 }
             }
 
-            return list;
-        }
+					});
+				}
+			}
+
+			return list;
+		}
 
 
 
-        // New method to get confirmed item details by GRNCode
+		// New method to get confirmed item details by GRNCode
 
-        public async Task<List<ConfirmedItemDetailPSR>> ConfirmItemPR(string grnCode)
+		public async Task<List<ConfirmedItemDetailPSR>> ConfirmItemPR(string grnCode)
         {
             Dictionary<string, string> param = new Dictionary<string, string>
-    {
-        { "@Flag", "ConfirmItemDtailsPR" },
-        { "@GRNCode", grnCode }  // Passing GRNCode to filter
-    };
+{
+    { "@Flag", "ConfirmItemDtailsPR" },
+    { "@GRNCode", grnCode }  // Passing GRNCode to filter
+};
 
             SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
 
@@ -123,60 +136,58 @@ namespace P2PLibray.Quality
 
 
 
-		// Non confirm item GRN list method
-		public async Task<List<QualityNonConfirmItemPR>> NonConfirmItemGrnPR()
-		{
-			List<QualityNonConfirmItemPR> list = new List<QualityNonConfirmItemPR>();
-			try
-			{
-				Dictionary<string, string> param = new Dictionary<string, string>();
-				param.Add("@Flag", "Non-ConfirmItemGRNPR");
+        // Non confirm item GRN list method
+        public async Task<List<QualityNonConfirmItemPR>> NonConfirmItemGrnPR()
+        {
+            List<QualityNonConfirmItemPR> list = new List<QualityNonConfirmItemPR>();
+            try
+            {
+                Dictionary<string, string> param = new Dictionary<string, string>();
+                param.Add("@Flag", "Non-ConfirmItemGRNPR");
 
-				SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
+                SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
 
-				if (dr.HasRows)
-				{
-					while (await dr.ReadAsync())
-					{
-						list.Add(new QualityNonConfirmItemPR
-						{
-							GRNCode = dr["GRNCode"].ToString(),
-							VenderName = dr["VenderName"].ToString(),
-							AddDate = dr["Add Date"] == DBNull.Value
-								? ""
-								: Convert.ToDateTime(dr["Add Date"]).ToString("dd/MM/yyyy"),
-							QualityCheckDate = dr["Quality Check Date"] == DBNull.Value
-								? ""
-								: Convert.ToDateTime(dr["Quality Check Date"]).ToString("dd/MM/yyyy"),
-							QCFailedDate = dr["QC Failed Date"] == DBNull.Value
-								? ""
-								: Convert.ToDateTime(dr["QC Failed Date"]).ToString("dd/MM/yyyy")
-						});
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				// Log error or debug here
-				throw new Exception("Error in NonConfirmItemListAsync: " + ex.Message);
-			}
+                if (dr.HasRows)
+                {
+                    while (await dr.ReadAsync())
+                    {
+                        list.Add(new QualityNonConfirmItemPR
+                        {
+                            GRNCode = dr["GRNCode"].ToString(),
+                            VenderName = dr["VenderName"].ToString(),
+                            AddDate = dr["AddDate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AddDate"]).ToString("dd/MM/yyyy"),
+                            QualityCheckDate = dr["QualityCheckDate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["QualityCheckDate"]).ToString("dd/MM/yyyy"),
+                            QCFailedDate = dr["QCFailedDate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["QCFailedDate"]).ToString("dd/MM/yyyy"),
 
-			return list;
-		}
+
+                            ItemCount = dr["ItemCount"] == DBNull.Value ? 0 : Convert.ToInt32(dr["ItemCount"])
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error or debug here
+                throw new Exception("Error in NonConfirmItemListAsync: " + ex.Message);
+            }
+
+            return list;
+        }
 
 
 
 
 
-		// Non-confirm item details method by GRNCode
 
-		public async Task<List<FailedItemDetailPR>> NonConfirmItemListPR(string grnCode)
+        // Non-confirm item details method by GRNCode
+
+        public async Task<List<FailedItemDetailPR>> NonConfirmItemListPR(string grnCode)
         {
             Dictionary<string, string> param = new Dictionary<string, string>
-    {
-        { "@Flag", "FaildItemPR" },
-        { "@GRNCode", grnCode }
-    };
+{
+    { "@Flag", "FaildItemPR" },
+    { "@GRNCode", grnCode }
+};
 
             SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
 
@@ -193,10 +204,10 @@ namespace P2PLibray.Quality
                         ItemCode = dr["Itemcode"].ToString(),
                         ItemName = dr["ItemName"].ToString(),
                         Reason = dr["Reason"].ToString(),
-						AddedDate = dr["QalityCheackDate"] == DBNull.Value
-								? ""
-								: Convert.ToDateTime(dr["QalityCheackDate"]).ToString("dd/MM/yyyy")
-					});
+                        AddedDate = dr["QalityCheackDate"] == DBNull.Value
+                                ? ""
+                                : Convert.ToDateTime(dr["QalityCheackDate"]).ToString("dd/MM/yyyy")
+                    });
                 }
             }
 
@@ -243,98 +254,98 @@ namespace P2PLibray.Quality
 
 
 
-		// For Confirmed Items
-		public async Task<List<ConfirmedItemDetailPSR>> ConfirmItemDetailsPSR(DateTime? startDate = null, DateTime? endDate = null)
-		{
-			Dictionary<string, string> param = new Dictionary<string, string>
-	{
-		{ "@Flag", "ConfirmItemDtailsPSR" },
-		{ "@StartDate", startDate?.ToString("yyyy/MM/dd") },
-		{ "@EndDate", endDate?.ToString("yyyy/MM/dd") }
-	};
+        // For Confirmed Items
+        public async Task<List<ConfirmedItemDetailPSR>> ConfirmItemDetailsPSR(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            Dictionary<string, string> param = new Dictionary<string, string>
+{
+    { "@Flag", "ConfirmItemDtailsPSR" },
+    { "@StartDate", startDate?.ToString("yyyy/MM/dd") },
+    { "@EndDate", endDate?.ToString("yyyy/MM/dd") }
+};
 
-			SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
+            SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
 
-			List<ConfirmedItemDetailPSR> list = new List<ConfirmedItemDetailPSR>();
+            List<ConfirmedItemDetailPSR> list = new List<ConfirmedItemDetailPSR>();
 
-			if (dr.HasRows)
-			{
-				while (await dr.ReadAsync())
-				{
-					list.Add(new ConfirmedItemDetailPSR
-					{
-						GRNCode = dr["GRNCode"].ToString(),
-						ItemCode = dr["ItemCode"].ToString(),
-						ItemName = dr["ItemName"].ToString(),
-						ItemAddedDate = dr["ItemAddedDate"] == DBNull.Value
-							? ""
-							: Convert.ToDateTime(dr["ItemAddedDate"]).ToString("dd/MM/yyyy"),
-						QualityCheckDate = dr["QualityCheckDate"] == DBNull.Value
-							? ""
-							: Convert.ToDateTime(dr["QualityCheckDate"]).ToString("dd/MM/yyyy")
+            if (dr.HasRows)
+            {
+                while (await dr.ReadAsync())
+                {
+                    list.Add(new ConfirmedItemDetailPSR
+                    {
+                        GRNCode = dr["GRNCode"].ToString(),
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        ItemAddedDate = dr["ItemAddedDate"] == DBNull.Value
+                            ? ""
+                            : Convert.ToDateTime(dr["ItemAddedDate"]).ToString("dd/MM/yyyy"),
+                        QualityCheckDate = dr["QualityCheckDate"] == DBNull.Value
+                            ? ""
+                            : Convert.ToDateTime(dr["QualityCheckDate"]).ToString("dd/MM/yyyy")
 
-					});
-				}
-			}
+                    });
+                }
+            }
 
-			dr.Close();
-			return list;
-		}
-
-
-
-		// For Failed Items
-		public async Task<List<FailedItemDetailPR>> GetFailedItemsPR(DateTime? startDate = null, DateTime? endDate = null)
-		{
-			Dictionary<string, string> param = new Dictionary<string, string>()
-	{
-		{ "@Flag", "GraphFaildItemPR" },
-		{ "@StartDate", startDate?.ToString("yyyy/MM/dd") },
-		{ "@EndDate", endDate?.ToString("yyyy/MM/dd") }
-	};
-
-			SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
-
-			List<FailedItemDetailPR> list = new List<FailedItemDetailPR>();
-
-			if (dr.HasRows)
-			{
-				while (await dr.ReadAsync())
-				{
-					list.Add(new FailedItemDetailPR
-					{
-						GRNCode = dr["GRNCode"].ToString(),  // Ye naya line add karein
-						ItemCode = dr["ItemCode"].ToString(),
-						ItemName = dr["ItemName"].ToString(),
-						FailedQCCode = dr["FailedQCCode"].ToString(),
-						Reason = dr["Reason"].ToString(),
-						AddedDate = dr["AddedDate"] == DBNull.Value
-							? ""
-							: Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy")
-					});
-				}
-			}
-
-			dr.Close();
-			return list;
-		}
+            dr.Close();
+            return list;
+        }
 
 
-		//pending iem method 
-		public async Task<SqlDataReader> GetPendingItemsAsyncPR(string startDate = null, string endDate = null)
-		{
-			var param = new Dictionary<string, string>
-	{
-		{ "@Flag", "PendingItem" }
-	};
 
-			if (!string.IsNullOrEmpty(startDate))
-				param.Add("@StartDate", startDate);
-			if (!string.IsNullOrEmpty(endDate))
-				param.Add("@EndDate", endDate);
+        // For Failed Items
+        public async Task<List<FailedItemDetailPR>> GetFailedItemsPR(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            Dictionary<string, string> param = new Dictionary<string, string>()
+{
+    { "@Flag", "GraphFaildItemPR" },
+    { "@StartDate", startDate?.ToString("yyyy/MM/dd") },
+    { "@EndDate", endDate?.ToString("yyyy/MM/dd") }
+};
 
-			return await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
-		}
+            SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
+
+            List<FailedItemDetailPR> list = new List<FailedItemDetailPR>();
+
+            if (dr.HasRows)
+            {
+                while (await dr.ReadAsync())
+                {
+                    list.Add(new FailedItemDetailPR
+                    {
+                        GRNCode = dr["GRNCode"].ToString(),  // Ye naya line add karein
+                        ItemCode = dr["ItemCode"].ToString(),
+                        ItemName = dr["ItemName"].ToString(),
+                        FailedQCCode = dr["FailedQCCode"].ToString(),
+                        Reason = dr["Reason"].ToString(),
+                        AddedDate = dr["AddedDate"] == DBNull.Value
+                            ? ""
+                            : Convert.ToDateTime(dr["AddedDate"]).ToString("dd/MM/yyyy")
+                    });
+                }
+            }
+
+            dr.Close();
+            return list;
+        }
+
+
+        //pending iem method 
+        public async Task<SqlDataReader> GetPendingItemsAsyncPR(string startDate = null, string endDate = null)
+        {
+            var param = new Dictionary<string, string>
+{
+    { "@Flag", "PendingItem" }
+};
+
+            if (!string.IsNullOrEmpty(startDate))
+                param.Add("@StartDate", startDate);
+            if (!string.IsNullOrEmpty(endDate))
+                param.Add("@EndDate", endDate);
+
+            return await obj.ExecuteStoredProcedureReturnDataReader("QualityCheckProcedure", param);
+        }
 
         #endregion Prashant
 
@@ -343,12 +354,12 @@ namespace P2PLibray.Quality
 
 
 
-		#region Rajlaxmi
-		/// <summary>
-		/// Retrieves all GRN items for quality check grid (RG view).
-		/// </summary>
-		/// <returns>List of <see cref="Quality"/> with GRN details.</returns>
-		public async Task<List<Quality>> AllItemCheckGridRG()
+        #region Rajlaxmi
+        /// <summary>
+        /// Retrieves all GRN items for quality check grid (RG view).
+        /// </summary>
+        /// <returns>List of <see cref="Quality"/> with GRN details.</returns>
+        public async Task<List<Quality>> AllItemCheckGridRG()
         {
             Dictionary<string, string> dic = new Dictionary<string, string>();
             dic.Add("@Flag", "AllQualityGRNItemRG");
@@ -848,15 +859,22 @@ namespace P2PLibray.Quality
                         ItemName = row["ItemName"].ToString(),
                         StatusName = row["StatusName"].ToString(),
                         Quantity = row["Quantity"] != DBNull.Value
-                           ? Convert.ToInt32(row["Quantity"])
-                           : 0,
-                        AddedDate = Convert.ToDateTime(row["AddedDate"]).ToString("yyyy-MM-dd"),
-                        AddedBy = row["AddedBy"].ToString()
+                            ? Convert.ToInt32(row["Quantity"])
+                            : 0,
+                        AddedDate = Convert
+                            .ToDateTime(row["AddedDate"])
+                            .ToString("yyyy-MM-dd"),
+                        AddedBy = row["AddedBy"].ToString(),
+
+                        // ✅ THIS IS THE MISSING LINE
+                        Reason = row["Reason"] == DBNull.Value
+                                    ? ""
+                                    : row["Reason"].ToString()
                     });
                 }
             }
-            return list;
 
+            return list;
 
 
         }

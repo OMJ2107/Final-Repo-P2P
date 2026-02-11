@@ -41,7 +41,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-     
     }
 
     /* Do NOT touch .input-group borders or box-shadow */
@@ -57,10 +56,12 @@
     #tblRecent td,
     #tblPRItems td,
     #tblRFQDetails td,
-    #tblVendors td {
+    #vendorsTable th,
+    #vendorsTable td {
         text-align: center;
         vertical-align: middle;
     }
+
 
     #rfqList h6 {
         text-align: center;
@@ -125,7 +126,7 @@
         box-shadow: none !important;
     }
 
-  
+
 
     /* Checkboxes: keep blue when checked, no green validation */
     .was-validated .form-check-input:valid:checked,
@@ -133,26 +134,30 @@
         background-color: #0d6efd !important; /* blue */
         border-color: #0d6efd !important;
     }
-
-
 </style>
 
 
-<div id="pageContent" class="main-content">
-    <div class="container mt-5">
-        <div class="row mb-2">
-            <div class="col-6 d-flex gap-2">
-                <button id="btnAllPR" class="btn btn-primary w-100 active text-nowrap">All Approved PR</button>
-                <button id="btnAllRFQ" class="btn btn-light w-100 text-nowrap">All RFQ</button>
-            </div>
+<div id="pageContent" class="card ms-5 me-5 mt-5 p-4 shadow-sm">
+
+    <div class="mt-4">
+
+        <!-- 🔹 Header (Centered) -->
+        <div class="text-center mb-4">
+            <h3 id="pageHeader" class="text-primary fw-bold mb-0">All Approved PR</h3>
         </div>
 
+        <!-- 🔹 Tabs (Buttons Below Header, Left-Aligned) -->
+        <div class="row mb-4 justify-content-start">
+            <div class="col-md-4 d-flex gap-2 justify-content-center">
+                <button id="btnAllPR" class="btn btn-primary btn-sm flex-fill w-100 active text-nowrap">All Approved PR</button>
+                <button id="btnAllRFQ" class="btn btn-light btn-sm flex-fill w-100 text-nowrap">All RFQ</button>
+            </div>
 
+        </div>
 
-        <!-- PR List -->
-        <div id="quotationList" class="card mt-3">
-            <div class="card-body">
-                <h3 class="text-center text-primary">All Approved PR</h3>
+        <!-- 🔹 PR List -->
+        <div id="quotationList">
+            <div>
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="input-group">
@@ -166,16 +171,15 @@
                                    readonly />
                         </div>
                     </div>
-
                 </div>
 
-                <div class="table-responsive">
-                    <table id="tblRecent" class="table table-striped table-bordered">
-                        <thead class="table-dark">
+                <div>
+                    <table id="tblRecent" class="table table-striped table-bordered align-middle">
+                        <thead class="table-dark text-center">
                             <tr>
                                 <th><input type="checkbox" id="selectAllPR"></th>
                                 <th>Sr.NO.</th>
-                                <th>PRCode</th>
+                                <th>PR Code</th>
                                 <th>Required Date</th>
                                 <th>Added Date</th>
                                 <th>Added By</th>
@@ -183,16 +187,15 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <!-- RFQ Table (hidden initially) -->
-        <div id="rfqList" class="card mt-3" style="display:none;">
-            <div class="card-body">
-                <h3 class="text-center text-primary">All RFQs</h3>
+
+        <!-- 🔹 RFQ Table (hidden initially) -->
+        <div id="rfqList" style="display:none;">
+            <div>
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="input-group">
@@ -202,85 +205,81 @@
                             <input type="text" id="rfqDateRange" class="form-control dtpicker" placeholder="Select Date Range" readonly />
                         </div>
                     </div>
-
-
                 </div>
 
-                <div class="table-responsive">
-                    <table id="tblRFQ" class="table table-bordered table-striped">
-                        <thead class="table-dark">
+                <div>
+                    <table id="tblRFQ" class="table table-bordered table-striped align-middle">
+                        <thead class="table-dark text-center">
                             <tr>
-                                <th class="text-center">Sr.No.</th>
-                                <th class="text-center">PR Code</th>
-                                <th class="text-center">RFQ Code</th>
-                                <th class="text-center">Required Date</th>
-                                <th class="text-center">Description</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Action</th>
+                                <th>Sr.No.</th>
+                                <th>PR Code</th>
+                                <th>RFQ Code</th>
+                                <th>Required Date</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
-
                 </div>
             </div>
         </div>
 
-        <div id="vendorContainer" class="card mt-3" style="display:none;">
-            <div class="card-body">
+        <!-- 🔹 Vendor Container -->
+        <div id="vendorContainer" style="display:none;">
+            <div>
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h5 class="text-primary">Send RFQ to Vendors</h5>
+                        <h5 class="text-primary mb-0">Send RFQ to Vendors</h5>
                     </div>
 
                     <div class="d-flex align-items-center gap-3">
                         <div>
-                            <select id="industryFilter" class="form-control form-control-sm  text-dark shadow-sm form-select-sm">
+                            <select id="industryFilter" class="form-select form-select-sm shadow-sm text-dark">
                                 <option value="">--Select Industry Type--</option>
                             </select>
                         </div>
-                        <button type="button" class="btn btn-sm btn-primary" id="btnAddVendor">Add Vendor</button>
-                        <button id="btnBackToDetails" class="btn btn-sm btn-secondary">Back</button>
+                        <button type="button" class="btn btn-sm btn-primary" id="btnAddVendor"><i class="bi bi-plus-circle me-2"></i>Add Vendor</button>
+                        <button id="btnBackToDetails" class="btn btn-sm btn-secondary"><i class="bi bi-arrow-left"></i>Back</button>
                     </div>
                 </div>
-
 
                 <!-- Autofilled fields -->
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">PR Code</label>
-                        <input type="text" id="vendorPRCode" class="form-control form-control-sm  text-dark shadow-sm bg-light" readonly />
+                        <input type="text" id="vendorPRCode" class="form-control form-control-sm bg-light text-dark shadow-sm" readonly />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">RFQ Code</label>
-                        <input type="text" id="vendorRFQCode" class="form-control form-control-sm  text-dark shadow-sm bg-light" readonly />
+                        <input type="text" id="vendorRFQCode" class="form-control form-control-sm bg-light text-dark shadow-sm" readonly />
                     </div>
                 </div>
-                <table id="vendorsTable" class="table table-striped table-bordered">
-                    <thead class="table-dark">
+
+                <table id="vendorsTable" class="table table-striped table-bordered align-middle">
+                    <thead class="table-dark text-center">
                         <tr>
-                            <th class="text-center"><input type="checkbox" id="selectAllVendors" /></th>
-                            <th class="text-center">Sr.No.</th>
-                            <th class="text-center">Vendor Name</th>
-                            <th class="text-center">Company Name</th>
-                            <th class="text-center">Phone</th>
-                            <th class="text-center">Email</th>
-                            <th class="text-center">Address</th>
+                            <th><input type="checkbox" id="selectAllVendors" /></th>
+                            <th>Sr.No.</th>
+                            <th>Vendor Name</th>
+                            <th>Company Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Address</th>
                         </tr>
                     </thead>
                     <tbody id="tblVendors"></tbody>
                 </table>
-
-
 
                 <div class="text-end mt-3">
                     <button id="btnSendToSelected" class="btn btn-sm btn-success">Send RFQ</button>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+
 
 <!-- PR Modal -->
 <div class="modal fade" data-bs-backdrop="true" id="rfqModal" tabindex="-1" aria-labelledby="rfqModalLabel" aria-hidden="true">
@@ -292,7 +291,8 @@
                 <h5 class="modal-title fw-bold text-white mb-0 fs-5" id="rfqDetailsTitle">
                     Purchase Requisition
                 </h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>            </div>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
             <div class="modal-body">
                 <form id="rfqForm" method="post" action="/RFQ/CreateRFQ" novalidate>
@@ -342,7 +342,7 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label form-label-sm fw-bold text-dark">Note</label>
+                                        <label class="form-label form-label-sm fw-bold text-dark">Note <span style="color:red;">*</span></label>
                                         <textarea class="form-control form-control-sm  text-dark shadow-sm" name="Note" rows="3"></textarea>
                                         <div class="invalid-feedback">Note is required.</div>
 
@@ -385,7 +385,7 @@
 
             <!-- Modal Footer -->
             <div class="modal-footer">
-                <button type="submit" id="btnCreateRFQ" class="btn btn-sm btn-success">Create RFQ</button>
+                <button type="submit" id="btnCreateRFQ" class="btn btn-sm btn-success"><i class="bi bi-plus-circle me-2"></i>Create RFQ</button>
                 <button type="submit" id="btnSubmitRFQ" form="rfqForm" class="btn btn-sm btn-success d-none">Submit</button>
             </div>
 
@@ -452,7 +452,7 @@
                                 <label class="form-label form-label-sm fw-bold text-dark">Note:</label>
                                 <textarea class="form-control form-control-sm  text-dark shadow-sm bg-light" id="rfqNote" rows="2" readonly></textarea>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="ExDate">
                                 <label class="form-label form-label-sm fw-bold text-dark">
                                     Expected Date: <span class="text-danger">*</span>
                                 </label>
@@ -463,24 +463,24 @@
 
                         </div>
 
-                            <!-- RFQ Items Table -->
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped" id="RFQitems">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th class="text-center">Sr.No.</th>
-                                            <th class="text-center">Item Name</th>
-                                            <th class="text-center">Description</th>
-                                            <th class="text-center">Quantity</th>
-                                            <th class="text-center">UOM</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tblRFQDetails"></tbody>
-                                </table>
-                            </div>
-
+                        <!-- RFQ Items Table -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="RFQitems">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="text-center">Sr.No.</th>
+                                        <th class="text-center">Item Name</th>
+                                        <th class="text-center">Description</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-center">UOM</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tblRFQDetails"></tbody>
+                            </table>
                         </div>
+
                     </div>
+                </div>
             </div>
 
             <!-- Modal Footer -->
@@ -857,6 +857,58 @@
             $("input.row-select:checked").prop("checked", false);
         });
 
+        $("#btnAllPR").click(function () {
+            $("#btnAllPR").addClass("btn-primary active").removeClass("btn-light");
+            $("#btnAllRFQ").removeClass("btn-primary active").addClass("btn-light");
+            $("#quotationList").show();
+            $("#rfqList").hide();
+            $("#pageHeader").text("All Approved PR");
+        });
+
+        $("#btnAllRFQ").click(function () {
+            $("#btnAllRFQ").addClass("btn-primary active").removeClass("btn-light");
+            $("#btnAllPR").removeClass("btn-primary active").addClass("btn-light");
+            $("#rfqList").show();
+            $("#quotationList").hide();
+            $("#pageHeader").text("All RFQs");
+        });
+        // --- Existing tab logic ---
+        $("#btnAllPR").click(function () {
+            $("#btnAllPR").addClass("btn-primary active").removeClass("btn-light");
+            $("#btnAllRFQ").removeClass("btn-primary active").addClass("btn-light");
+            $("#quotationList").show();
+            $("#rfqList").hide();
+            $("#vendorContainer").hide();
+            $("#pageHeader").text("All Approved PR").show();
+            $(".row.mb-4.justify-content-start").show(); // show tabs again
+        });
+
+        $("#btnAllRFQ").click(function () {
+            $("#btnAllRFQ").addClass("btn-primary active").removeClass("btn-light");
+            $("#btnAllPR").removeClass("btn-primary active").addClass("btn-light");
+            $("#rfqList").show();
+            $("#quotationList").hide();
+            $("#vendorContainer").hide();
+            $("#pageHeader").text("All RFQs").show();
+            $(".row.mb-4.justify-content-start").show(); // show tabs again
+        });
+
+        // --- When opening vendor container ---
+        $(document).on("click", "#btnSendRFQ", function () {
+            $("#vendorContainer").hide();
+            $("#rfqList").show(); // or show quotationList if you want to return to PR view
+            $("#pageHeader").text("All RFQs").show();
+            $(".row.mb-4.justify-content-start").show(); // show the tab buttons again
+        });
+
+        // --- When returning from vendor container ---
+        $("#btnBackToDetails").click(function () {
+            $("#vendorContainer").hide();
+            $("#rfqList").show(); // or show quotationList if you want to return to PR view
+            $("#pageHeader").text("All RFQs").show();
+            $(".row.mb-4.justify-content-start").show(); // show the tab buttons again
+        });
+
 
         let PRTable;
         let startDate = null;
@@ -1037,7 +1089,7 @@
                             // PDF Export button
                             {
                                 extend: 'pdfHtml5',
-                                text: '<i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                                 titleAttr: 'PDF',
                                 title: 'PR List',
                                 orientation: 'landscape',
@@ -1101,7 +1153,7 @@
                             // Excel Export button
                             {
                                 extend: 'excelHtml5',
-                                text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                                 titleAttr: 'Excel',
                                 title: 'PR List',
                                 messageTop: function () {
@@ -1422,7 +1474,7 @@
             }
 
             console.log("Form Data:", formData);
-        
+
 
 
             $.ajax({
@@ -1740,7 +1792,7 @@
                             // PDF
                             {
                                 extend: "pdfHtml5",
-                                text: '<i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
                                 title: "RFQ List",
                                 orientation: "landscape",
                                 pageSize: "A4",
@@ -1801,7 +1853,7 @@
                             // Excel
                             {
                                 extend: "excelHtml5",
-                                text: '<i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>',
+                                text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
                                 titleAttr: "Excel",
                                 title: "RFQ List",
                                 messageTop: function () {
@@ -1960,23 +2012,31 @@
                     }
 
                     if (header.RequiredDate) {
-                        const m = moment(header.RequiredDate, "DD-MM-YYYY HH:mm:ss", true);
-                        if (m.isValid()) {
-                            const formattedRequiredDate = m.format("DD/MM/YYYY");
-                            $("#rfqRequiredDate").val(formattedRequiredDate);
 
-                            // Calculate min and max selectable Expected Dates
+                        console.log(header.RequiredDate);
+
+                        // Correct format for "19-01-2026 12:00:00 AM"
+                        let m = moment(header.RequiredDate, "DD-MM-YYYY hh:mm:ss A", true);
+
+                        // Fallback if format changes
+                        if (!m.isValid()) {
+                            m = moment(header.RequiredDate);
+                        }
+
+                        if (m.isValid()) {
+                            $("#rfqRequiredDate").val(m.format("DD/MM/YYYY"));
+
                             const today = moment();
                             const maxAllowed = m.clone().subtract(2, "days");
 
-                            // Set the date input range: from today to two days before RequiredDate
                             $("#ToDate").attr("min", today.format("YYYY-MM-DD"));
                             $("#ToDate").attr("max", maxAllowed.format("YYYY-MM-DD"));
-
                         } else {
-                            console.warn("Invalid date format:", header.RequiredDate);
+                            console.warn("⚠️ Invalid RequiredDate:", header.RequiredDate);
                         }
                     }
+
+
 
                     // Inside your success callback, after setting ToDate range:
                     $("#ToDate").off("change").on("change", function () {
@@ -2045,11 +2105,51 @@
 
                     $("#rfqDetailsTitle1").text("RFQ Details – " + (header.RFQCode || header.rfqCode || ""));
 
-                    if (actionType === "send") {
+                    /*if (actionType === "send") {
                         $("#btnSendRFQ").show();
+                        $("#ExDate").show();
                     } else {
                         $("#btnSendRFQ").hide();
+                        $("#ExDate").hide();
+                    }*/
+
+                    if (actionType === "send") {
+                        $("#btnSendRFQ").show();
+                        $("#ExDate").show();
+
+                        // Rebuild inputs from labels if any labels exist (to restore form)
+                        $("#rfqDetailsModal .form-control-plaintext").each(function () {
+                            const val = $(this).text();
+                            const input = $("<input>")
+                                .addClass("form-control form-control-sm text-dark shadow-sm bg-light")
+                                .val(val);
+                            $(this).replaceWith(input);
+                        });
                     }
+
+                    else if (actionType === "view") {
+                        $("#btnSendRFQ").hide();
+                        $("#ExDate").hide();
+
+                        // Loop through inputs and textareas and replace with labels
+                        $("#rfqDetailsModal input, #rfqDetailsModal textarea").each(function () {
+                            const val = $(this).val() || "-";
+
+                            // Only replace editable ones, skip hidden/date fields etc.
+                            if (!$(this).attr("type") || $(this).attr("type") === "text" || $(this).is("textarea")) {
+                                // Create a label element with same styling
+                                const label = $("<label>")
+                                    .addClass("form-control-plaintext text-dark")
+                                    .text(val);
+
+                                // Replace the input/textarea with label
+                                $(this).replaceWith(label);
+                            }
+                        });
+                    }
+
+                    
+
 
                     var modal = new bootstrap.Modal(document.getElementById("rfqDetailsModal"));
                     modal.show();
@@ -2179,7 +2279,7 @@
             $("#vendorRFQCode").val($("#rfqDetailsModal").data("rfqCode"));
 
             // Load industry types into dropdown only once
-            if ($("#industryFilter option").length === 1) {
+           /* if ($("#industryFilter option").length === 1) {
                 $.getJSON("/Purchase/GetIndustryTypesSJ", function (res) {
                     if (res.data) {
                         $.each(res.data, function (i, industry) {
@@ -2190,7 +2290,29 @@
                         });
                     }
                 });
-            }
+            }*/
+
+            $(document).ready(function () {
+                $("#industryFilter").empty(); // remove old options
+
+                // optional: add default option
+                $("#industryFilter").append($("<option>", {
+                    value: "",
+                    text: "-- Select Industry --"
+                }));
+
+                $.getJSON("/Purchase/GetIndustryTypesSJ", function (res) {
+                    if (res.data) {
+                        $.each(res.data, function (i, industry) {
+                            $("#industryFilter").append($("<option>", {
+                                value: industry.Id,
+                                text: industry.Name
+                            }));
+                        });
+                    }
+                });
+            });
+
 
 
             // Initially disable the button

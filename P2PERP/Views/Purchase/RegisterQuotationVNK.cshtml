@@ -1,7 +1,9 @@
 ﻿@{
-            ViewBag.Title = "Register QuotationVNK";
-            var rfq = (string)ViewBag.RFQCode ?? "";
-            var pr = (string)ViewBag.PRCode ?? "";
+    ViewBag.Title = "Register QuotationVNK";
+    var rfq = (string)ViewBag.RFQCode ?? "";
+    var pr = (string)ViewBag.PRCode ?? "";
+    var requiredDate = (string)ViewBag.RequiredDate ?? "";
+
         }
 
 
@@ -30,6 +32,19 @@
             vertical-align: middle;
         }
 
+        #grid thead th {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+            line-height: 1.1 !important;
+            vertical-align: middle !important;
+            font-size: 0.9rem; 
+        }
+
+        
+        #grid thead {
+            height: auto !important;
+        }
+
         #grid tbody td {
             font-size: 14px;
         }
@@ -52,6 +67,7 @@
             margin-top: 32px;
             height: 35px;
             width: 80px;
+            
         }
 
         .btn-remove {
@@ -106,6 +122,21 @@
         #gridError {
             display: none;
         }
+
+        
+        .swal2-actions .btn {
+            margin: 0 6px !important;
+        }
+
+        #btnCreate, #btnClear, #btnAdd, #btnBack {
+            height: 33px; /* Increase this value as needed */
+        }
+        #btnCreate, #btnClear {
+            margin-top: 70px;
+        }
+       
+
+
     </style>
 </head>
 <body>
@@ -114,7 +145,7 @@
             <div class="card shadow-sm p-3">
                 <div class="position-relative mb-3 mt-2">
                     <h3 class="text-primary fw-bold mb-0 text-center">Register Quotations</h3>
-                    <button type="button" class="btn btn-primary text-white position-absolute end-0 top-50 translate-middle-y"
+                    <button id="btnBack" type="button" class="btn btn-secondary text-white position-absolute end-0 top-50 translate-middle-y btn-sm px-2 py-1 "
                             onclick="location.href='/Purchase/ShowAllRFQsVNK'">
                         <i class="bi bi-arrow-left"></i>Back
                     </button>
@@ -122,73 +153,78 @@
                 <div class="card-body">
                     <form id="quotationForm" novalidate>
                         <div class="row g-3 mb-3">
+                            <input type="hidden" id="reqDate" value="@requiredDate" />
+
+
+
+
                             <div class="col-sm-4">
-                                <label class="form-label">RFQ No</label>
-                                <input id="rfq" class="form-control  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly value="@rfq">
+                                <label class="form-label fw-bold text-dark">RFQ No</label>
+                                <input id="rfq" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly value="@rfq">
                             </div>
                             <div class="col-sm-4">
-                                <label class="form-label">PR No</label>
-                                <input id="prCode" class="form-control  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly value="@pr">
+                                <label class="form-label fw-bold text-dark">PR No</label>
+                                <input id="prCode" class="form-control form-control-sm  small text-muted border rounded p-2 bg-light mb-2 mt-2" readonly value="@pr">
                             </div>
                             <input type="hidden" id="rfqCode" value="@ViewBag.RFQCode" />
                             <div class="col-sm-4">
-                                <label class="form-label">Select Vendor <span class="required-star">*</span></label>
-                                <select id="vendorCode" class="form-select">
+                                <label class="form-label form-label-sm fw-bold text-dark">Select Vendor <span class="required-star">*</span></label>
+                                <select id="vendorCode" class="form-select form-select-sm item-select shadow-sm">
                                     <option value="0">--Select Vendor--</option>
                                 </select>
                                 <span id="vendor" class="field-error"></span>
                             </div>
                             <div class="col-sm-4">
-                                <label class="form-label">Vendor Code</label>
-                                <input id="Vendor_Code" class="form-control" readonly>
+                                <label class="form-label fw-bold text-dark">Vendor Code</label>
+                                <input id="Vendor_Code" class="form-control form-control-sm  text-dark shadow-sm" readonly>
                             </div>
                             <div class="col-sm-4">
-                                <label class="form-label">Vendor Company</label>
-                                <input id="Vendor_Company" class="form-control" readonly>
+                                <label class="form-label fw-bold text-dark">Vendor Company</label>
+                                <input id="Vendor_Company" class="form-control form-control-sm  text-dark shadow-sm" readonly>
                             </div>
                             <div class="col-sm-4">
-                                <label class="form-label">Vendor Delivery Date <span class="required-star">*</span></label>
-                                <input id="vendorDeliveryDate" type="date" class="form-control">
+                                <label class="form-label form-label-sm fw-bold text-dark">Vendor Delivery Date <span class="required-star">*</span></label>
+                                <input id="vendorDeliveryDate" type="date" class="form-control form-control-sm  text-dark shadow-sm">
                                 <span id="delivery" class="field-error"></span>
                             </div>
                         </div>
 
-                        <div class="row g-3 mb-3 align-items-center">
+                        @*<div class="row g-3 mb-3 align-items-center">
                             <div class="col-md-3">
-                                <label class="form-label">Item <span class="required-star">*</span></label>
-                                <select id="itemCode" class="form-select"></select>
+                                <label class="form-label form-label-sm fw-bold text-dark">Item <span class="required-star">*</span></label>
+                                <select id="itemCode" class="form-select form-select-sm item-select shadow-sm"></select>
                                 <div class="form-text" id="itemUom"></div>
                                 <span id="itemError" class="field-error"></span>
                             </div>
                             <div class="col-md-5">
-                                <label>Description</label>
-                                <textarea id="itemDesc" class="form-control" rows="1" readonly placeholder="Description will appear here"></textarea>
+                                <label class="form-label fw-bold text-dark">Description</label>
+                                <textarea id="itemDesc" class="form-control form-control-sm  text-dark shadow-sm" rows="1" readonly placeholder="Description will appear here"></textarea>
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label">Quantity <span class="required-star">*</span></label>
-                                <input id="qty" type="number" min="1" class="form-control">
-                                <span id="qtyError" class="field-error"></span>
+                                <label class="form-label fw-bold text-dark">Quantity</label>
+                                <input id="qty" type="number" min="1" class="form-control form-control-sm  text-dark shadow-sm">
+                                
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label">Cost / Unit <span class="required-star">*</span></label>
-                                <input id="cpu" type="number" min="1" class="form-control">
+                                <label class="form-label fw-bold text-dark">Cost / Unit <span class="required-star">*</span></label>
+                                <input id="cpu" type="number" min="1" class="form-control form-control-sm  text-dark shadow-sm">
                                 <span id="cpuError" class="field-error"></span>
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label">Discount (%)</label>
-                                <input id="disc" type="number" min="0" class="form-control">
+                                <label class="form-label fw-bold text-dark">Discount (%)</label>
+                                <input id="disc" type="number" min="0" class="form-control form-control-sm  text-dark shadow-sm">
                                 <span id="discError" class="field-error"></span>
                             </div>
                             <div class="col-md-2">
-                                <label>GST (%)</label>
-                                <input type="text" id="itemGst" class="form-control" readonly />
+                                <label class="form-label fw-bold text-dark">GST (%)</label>
+                                <input type="text" id="itemGst" class="form-control form-control-sm  text-dark shadow-sm" readonly />
                             </div>
                             <div class="col-auto">
-                                <button id="btnAdd" type="button" class="btn btn-success btn-sm d-flex justify-content-center align-items-center">
+                                <button id="btnAdd" type="button" class="btn btn-success btn-sm px-2 py-1 ">
                                     <i class="bi bi-plus-circle me-2"></i> ADD
                                 </button>
                             </div>
-                        </div>
+                        </div>*@
 
                         <div class="mb-3">
                             <table id="grid" class="table table-striped table-hover table-bordered align-middle">
@@ -210,7 +246,7 @@
                                 <tbody class="text-center"></tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="9" class="text-end">Total:</th>
+                                        <th colspan="9" class="text-end fw-bold">Total:</th>
                                         <th id="ftTotal">₹0.00</th>
                                         <th></th>
                                     </tr>
@@ -221,17 +257,28 @@
 
                         <div class="row g-3 align-items-center">
                             <div class="col-sm-4">
-                                <label class="form-label">Shipping Charges</label>
-                                <input id="shipping" type="number" step="0.01" class="form-control" value="" min="0">
+                                <label class="form-label fw-bold text-dark">Shipping Charges</label>
+                                @*<input id="shipping" type="number" step="0.01" class="form-control form-control-sm  text-dark shadow-sm" value="" min="0">*@
+                                <input id="shipping"
+                                       type="number"
+                                       min="0"
+                                       step="0.01"
+                                       class="form-control form-control-sm text-dark shadow-sm"
+                                       onkeydown="return event.key !== '-'">
+
                                 <span id="shippingError" class="field-error"></span>
                             </div>
                             <div class="col-sm-4">
-                                <label class="form-label">Grand Total</label>
-                                <input id="grandTotal" class="form-control fw-bold" readonly value="₹0.00">
+                                <label class="form-label fw-bold text-dark">Grand Total</label>
+                                <input id="grandTotal" class="form-control form-control-sm  text-dark shadow-sm" readonly value="₹0.00">
                             </div>
                             <div class="col-sm-4 d-flex gap-2 justify-content-end">
-                                <button id="btnCreate" type="button" class="btn btn-success">Register Quotation</button>
-                                <button id="btnClear" type="button" class="btn btn-danger text-white">Clear</button>
+                                <button id="btnCreate" type="button" class="btn btn-success btn-sm px-2 py-1">
+                                <i class="bi bi-check-circle me-2"></i>  Register Quotation
+                                </button>
+                                <button id="btnClear" type="button" class="btn btn-danger text-white btn-sm px-2 py-1"> 
+                                <i class="bi bi-x-circle me-2"></i> Clear
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -259,7 +306,22 @@ $(document).ready(function(){
         if(val<0){ showError(id+"Error","No negative values allowed"); return false; }
         clearError(id+"Error"); return true;
     };
-    $("#vendorDeliveryDate").attr("min", new Date().toISOString().split('T')[0]);
+    //$("#vendorDeliveryDate").attr("min", new Date().toISOString().split('T')[0]);
+    // === Restrict vendor delivery date between today and Required Date + 2 days ===
+    const requiredDateStr = $("#reqDate").val(); // readonly field already filled from backend
+    if (requiredDateStr) {
+        const requiredDate = new Date(requiredDateStr);
+        const maxDate = new Date(requiredDate);
+        maxDate.setDate(requiredDate.getDate() + 2); // add 2 days
+
+        const today = new Date().toISOString().split('T')[0];
+        const maxDateStr = maxDate.toISOString().split('T')[0];
+
+        $("#vendorDeliveryDate")
+            .attr("min", today)
+            .attr("max", maxDateStr);
+    }
+
 
     $("#vendorDeliveryDate").on("input change", function () {
         clearError("delivery");
@@ -290,11 +352,30 @@ $(document).ready(function(){
         ddl.empty().append($("<option>").val("0").text("--Select Vendor--"));
         if(data) data.forEach(v=>ddl.append($("<option>").val(v.VendorCode).text(v.VendorName)));
     });
-
+    console.log($("#prCode").val())
     // Load Items
-    $.get('/Purchase/GetItemsForRFQVNK',{prCode:$("#prCode").val()},function(rows){
-        allItems = rows; updateItemDropdown();
+    $.get('/Purchase/GetAllItemsInPRVNK', { prCode: $("#prCode").val() }, function (rows) {
+        if (rows && rows.length > 0) {
+            rows.forEach(r => {
+                let row = {
+                    itemCode: r.ItemCode,
+                    itemName: r.ItemName,
+                    desc: r.Description,
+                    uom: r.UOMName,
+                    qty: r.Quantity,
+                    cpu: r.CostPerUnit,   // ✅ FROM SQL
+                    disc: 0,                         // ✅ Discount NULL is correct
+                    gst:r.GST,         // ✅ FROM SQL
+                    amount: 0
+                };
+
+                row.amount = calcLine(row.qty, row.cpu, row.disc, row.gst).lineTotal;
+                gridItems.push(row);
+            });
+            renderGrid();
+        }
     });
+
 
     function updateItemDropdown(){
         const ddl=$("#itemCode").empty().append('<option value="">--Select Item--</option>');
@@ -316,13 +397,47 @@ $(document).ready(function(){
         gridItems.forEach((r,idx)=>{
             total+=r.amount;
             $tb.append(`<tr>
-                <td>${idx+1}</td><td>${r.itemCode}</td><td>${r.itemName||''}</td>
-                <td><span data-bs-toggle="tooltip" data-bs-placement="top" title="${r.desc||''}">${r.desc||''}</span></td>
-                <td>${r.uom||''}</td><td class="text-end">${r.qty}</td><td class="text-end">₹${r.cpu.toFixed(2)}</td>
-                <td class="text-end">${r.disc}%</td><td class="text-end">${r.gst}%</td><td class="text-end">₹${r.amount.toFixed(2)}</td>
-                <td><button class="btn btn-sm btn-square btn-remove" data-i="${idx}"><i class="bi bi-trash"></i></button></td>
-            </tr>`);
-        });
+    <td>${idx + 1}</td>
+    <td>${r.itemCode}</td>
+    <td>${r.itemName || ''}</td>
+    <td>${r.desc || ''}</td>
+    <td>${r.uom || ''}</td>
+    <td class="text-center">${r.qty}</td>
+
+    <!-- Cost / Unit -->
+    <td>
+       <input type="number" min="0"
+       class="form-control form-control-sm text-center cpu-input"
+       data-i="${idx}"
+       value="${r.cpu}"
+       onkeydown="return event.key !== '-'">
+
+    </td>
+
+    <!-- Discount -->
+    <td>
+      <input type="number" min="0" max="100"
+       class="form-control form-control-sm text-center disc-input"
+       data-i="${idx}"
+       value="${r.disc}"
+       onkeydown="return event.key !== '-'">
+
+    </td>
+
+    <!-- GST -->
+    <td class="text-center">${r.gst}%</td>
+
+    <!-- Amount -->
+    <td class="text-center">₹${r.amount.toFixed(2)}</td>
+
+    <!-- Action -->
+    <td>
+        <button class="btn btn-sm btn-remove" data-i="${idx}">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+</tr>`);
+ });
         $("#ftTotal").text(`₹${total.toFixed(2)}`);
         const shipping=Number($("#shipping").val()||0);
         $("#grandTotal").val(`₹${(total+shipping).toFixed(2)}`);
@@ -330,6 +445,109 @@ $(document).ready(function(){
         updateItemDropdown();
         $('[data-bs-toggle="tooltip"]').tooltip();
     }
+
+    $("#grid").on("input", ".cpu-input", function () {
+        const index = $(this).data("i");
+        let value = Number($(this).val() || 0);
+
+        // Restrict negative
+        if (value < 0) value = 0;
+
+        // If value exceeds 50000, correct it
+        if (value > 50000) {
+            value = 50000;
+            $(this).val(50000);
+        }
+
+        // ✅ Now mark error only if original value > 50000
+        if (value === 50000 && Number($(this).val()) === 50000) {
+            // exact 50000 is valid
+            $(this).removeClass("invalid");
+            $(this).siblings(".cpu-error").text("");
+        }
+
+        gridItems[index].cpu = value;
+        const row = gridItems[index];
+        row.amount = calcLine(row.qty, row.cpu, row.disc, row.gst).lineTotal;
+
+        // update amount cell
+        $(this).closest("tr")
+            .find("td:eq(9)")
+            .text(`₹${row.amount.toFixed(2)}`);
+
+        // update totals
+        let total = gridItems.reduce((s, x) => s + x.amount, 0);
+        $("#ftTotal").text(`₹${total.toFixed(2)}`);
+        $("#grandTotal").val(`₹${(total + Number($("#shipping").val() || 0)).toFixed(2)}`);
+    });
+
+
+
+
+    //$("#grid").on("input", ".disc-input", function () {
+    //    const index = $(this).data("i");
+    //    let value = Number($(this).val() || 0);
+
+    //    if (value < 0) value = 0;
+    //    if (value > 100) value = 100;
+    //    gridItems[index].disc = value;
+
+    //    const row = gridItems[index];
+    //    row.amount = calcLine(row.qty, row.cpu, row.disc, row.gst).lineTotal;
+
+    //    // 🔹 update amount cell only
+    //    $(this).closest("tr")
+    //        .find("td:eq(9)")
+    //        .text(`₹${row.amount.toFixed(2)}`);
+
+    //    // 🔹 update totals only
+    //    let total = gridItems.reduce((s, x) => s + x.amount, 0);
+    //    $("#ftTotal").text(`₹${total.toFixed(2)}`);
+    //    $("#grandTotal").val(`₹${(total + Number($("#shipping").val() || 0)).toFixed(2)}`);
+    //});
+    $("#grid").on("input", ".disc-input", function () {
+        const index = $(this).data("i");
+        let value = Number($(this).val() || 0);
+        const $error = $(this).siblings(".disc-error");
+
+        // prevent negative
+        if (value < 0) {
+            value = 0;
+            $(this).val(0);
+        }
+
+        // handle max limit
+        if (value > 20) {
+            // silently correct to 20
+            value = 20;
+            $(this).val(20);
+
+            // ❌ DO NOT mark invalid
+            $error.text("");
+            $(this).removeClass("invalid");
+        } else {
+            // valid range (0–20)
+            $error.text("");
+            $(this).removeClass("invalid");
+        }
+
+        gridItems[index].disc = value;
+
+        const row = gridItems[index];
+        row.amount = calcLine(row.qty, row.cpu, row.disc, row.gst).lineTotal;
+
+        // update amount
+        $(this).closest("tr").find("td:eq(9)")
+            .text(`₹${row.amount.toFixed(2)}`);
+
+        // update totals
+        let total = gridItems.reduce((s, x) => s + x.amount, 0);
+        $("#ftTotal").text(`₹${total.toFixed(2)}`);
+        $("#grandTotal").val(
+            `₹${(total + Number($("#shipping").val() || 0)).toFixed(2)}`
+        );
+    });
+
 
     // Add Item
     $("#btnAdd").click(function(){
@@ -340,7 +558,7 @@ $(document).ready(function(){
 
         let hasErr=false;
         if(!itemCode){ showError("itemError","Please select an item"); hasErr=true; }
-        if(qty<=0){ showError("qtyError","Quantity must be greater than 0"); hasErr=true; }
+        //if(qty<=0){ showError("qtyError","Quantity must be greater than 0"); hasErr=true; }
         if(cpu<=0){ showError("cpuError","Cost per unit must be greater than 0"); hasErr=true; }
         if(disc<0){ showError("discError","No negative values allowed"); hasErr=true; }
 
@@ -361,14 +579,51 @@ $(document).ready(function(){
         gridItems.splice(index,1); renderGrid();
     });
 
-    $("#shipping").on("input", function(){ validatePositive("shipping"); renderGrid(); });
+    $("#shipping").on("input", function () {
+        let shipping = Number($(this).val() || 0);
+
+        if (shipping < 0) shipping = 0;
+
+        if (shipping > 25000) {
+            shipping = 25000;
+            $("#shippingError").text("Shipping charges cannot exceed ₹25,000");
+            $(this).addClass("invalid");
+        } else {
+            $("#shippingError").text("");
+            $(this).removeClass("invalid");
+        }
+
+        $(this).val(shipping);
+
+        // ✅ just recalc totals
+        renderGrid();
+    });
 
     // Register Quotation
     $("#btnCreate").click(function(){
         let hasErr=false;
 
         if(!$("#vendorCode").val() || $("#vendorCode").val()==="0"){ showError("vendor","Please select a vendor"); hasErr=true; } else clearError("vendor");
-        if(!$("#vendorDeliveryDate").val()){ showError("delivery","Please select delivery date"); hasErr=true; } else clearError("delivery");
+        //if(!$("#vendorDeliveryDate").val()){ showError("delivery","Please select delivery date"); hasErr=true; } else clearError("delivery");
+        if (!$("#vendorDeliveryDate").val()) {
+            showError("delivery", "Please select delivery date");
+            hasErr = true;
+        } else {
+            const reqDate = new Date($("#reqDate").val());
+            const vendDate = new Date($("#vendorDeliveryDate").val());
+            const diffDays = (vendDate - reqDate) / (1000 * 60 * 60 * 24);
+
+            if (diffDays > 2) {
+                showError("delivery", "Vendor delivery date cannot be more than 2 days after required date");
+                hasErr = true;
+            } else if (vendDate < new Date()) {
+                showError("delivery", "Vendor delivery date cannot be before today");
+                hasErr = true;
+            } else {
+                clearError("delivery");
+            }
+        }
+
         if(gridItems.length===0){ $("#gridError").addClass("visible"); hasErr=true; } else $("#gridError").removeClass("visible");
         if(!validatePositive("shipping")) hasErr=true;
 
@@ -383,15 +638,7 @@ $(document).ready(function(){
             Items:gridItems.map(x=>({ItemCode:x.itemCode, Quantity:x.qty, CostPerUnit:x.cpu, Discount:x.disc}))
         };
 
-        //// Call your existing AJAX save logic here...
-        //const rq = {
-        //    RFQCode: $("#rfqCode").val(),
-        //    PRCode: $("#prCode").val(),
-        //    VendorCode: $("#vendorCode").val(),
-        //    VendorDeliveryDateVK: $("#vendorDeliveryDate").val(),
-        //    ShippingCharges: Number($("#shipping").val() || 0),
-        //    Items: gridItems.map(x => ({ ItemCode: x.itemCode, Quantity: x.qty, CostPerUnit: x.cpu, Discount: x.disc }))
-        //};
+       
 
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: { confirmButton: "btn btn-success", cancelButton: "btn btn-danger" },
@@ -492,7 +739,7 @@ $(document).ready(function(){
     // Vendor change
     $("#vendorCode").change(function(){
         clearError("vendor");
-        const val=$(this).val(); gridItems=[]; renderGrid();
+        const val=$(this).val();
         if(val==="0") return;
         $.getJSON('/Purchase/GetVendorDetailsVNK',{vendorCode:val}, function(r){
             if(r && r.length){ $("#Vendor_Code").val(r[0].VendorCode); $("#Vendor_Company").val(r[0].CompanyName); }
@@ -505,11 +752,28 @@ $(document).ready(function(){
         const opt=$("#itemCode option:selected"); $("#itemDesc").val(opt.data("desc")||''); $("#itemGst").val('0.00');
         if(opt.val()) $.getJSON('/Purchase/GetItemGSTVNK',{itemCode:opt.val()}).done(r=>$("#itemGst").val(r?.TotalGST||"0.00"));
         const selected=allItems.find(x=>x.ItemCode===opt.val());
-        if(selected){ $("#qty").attr("max",selected.quantity||0).attr("placeholder","Max: "+(selected.quantity||0)); }
-        else $("#qty").removeAttr("max").attr("placeholder","");
+      
+        if (selected) {
+            $("#qty")
+                .val(selected.qty
+ || 0)               
+                .attr("readonly", true)                  
+                //.attr("max", selected.quantity || 0)
+                //.attr("placeholder", "Max: " + (selected.quantity || 0));
+        } else {
+            $("#qty")
+                .val('')                                   
+                .removeAttr("readonly")                   
+                .removeAttr("max")
+                .attr("placeholder", "");
+        }
+
     });
 
 });
+
+       
+
     </script>
 </body>
 </html>
