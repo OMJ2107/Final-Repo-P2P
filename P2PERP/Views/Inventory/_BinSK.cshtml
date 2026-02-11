@@ -338,8 +338,17 @@
             <div class="modal-body">
                 <form class="row g-3">
                     <div class="col-md-6">
+<<<<<<< HEAD
+                        <label for="vBinCode">Bin Code</label>
+                        <div class="form-floating form-floating-outline">
+                            <label type="text" class="form-control" id="vBinCode" readonly ></label>
+
+                        </div>
+
+=======
                         <label for="vBinCode" class="form-label fw-bold text-dark">Bin Code</label>
                         <input type="text" class="form-control form-control-sm bg-light shadow-sm" id="vBinCode" readonly>
+>>>>>>> 5889a96f30dff90f948502221a180a5bbb97d1fe
                     </div>
 
                     <div class="col-md-6">
@@ -1009,7 +1018,7 @@
 
         // Populate view modal
         populateViewModal: function (data) {
-            $("#vBinCode").val(data.BinCode || '');
+            $("#vBinCode").text(data.BinCode || '');
             $("#vBinName").val(data.BinName || '');
             $("#vRow").val(data.RowName || '');
             $("#vRack").val(data.RackName || '');

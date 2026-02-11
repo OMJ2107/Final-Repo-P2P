@@ -48,7 +48,6 @@
                             <th>UOM</th>
                             <th class="text-center">Unit Rate</th>
                             <th class="text-center">Quantity</th>
-                            <th class="text-center">Required Date</th>
                         </tr>
                     </thead>
                     <tbody class="text-center"></tbody>
@@ -76,12 +75,12 @@
                                 <input type="text" id="PRcode" name="PRCode" class="form-control form-control-sm bg-light text-dark border-secondary" readonly />
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label form-label-sm fw-bold">PR Required Date:<span class="text-danger">*</span></label>
-                                <input type="date" id="ToDate" name="RequiredDate" class="form-control form-control-sm" />
-                            </div>
-                            <div class="col-md-3">
                                 <label class="form-label form-label-sm fw-bold">Priority:<span class="text-danger">*</span></label>
                                 <select id="priority" name="PriorityId" class="form-select form-select-sm "></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label form-label-sm fw-bold">PR Required Date:<span class="text-danger">*</span></label>
+                                <input type="date" id="ToDate" name="RequiredDate" class="form-control form-control-sm" />
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -95,7 +94,7 @@
                                         <th>UOM</th>
                                         <th>Unit Rate</th>
                                         <th>Quantity</th>
-                                        <th>Required Date</th>
+                                        @*<th>Required Date</th>*@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -279,85 +278,134 @@
                     className: "text-center align-middle"
                 },
                 { data: "Quantity", className: "text-center align-middle" },
-                {
-                    data: "RequiredDate",
-                    render: function (data, type, row) {
-                        if (!data) return "";
-                        var date = new Date(data);
-                        var day = String(date.getDate()).padStart(2, '0');
-                        var month = String(date.getMonth() + 1).padStart(2, '0');
-                        var year = date.getFullYear();
+                //{
+                //    data: "RequiredDate",
+                //    render: function (data, type, row) {
+                //        if (!data) return "";
+                //        var date = new Date(data);
+                //        var day = String(date.getDate()).padStart(2, '0');
+                //        var month = String(date.getMonth() + 1).padStart(2, '0');
+                //        var year = date.getFullYear();
 
-                        return `${day}/${month}/${year}`;
-                    },
-                    className: "text-center align-middle"
-                }
+                //        return `${day}/${month}/${year}`;
+                //    },
+                //    className: "text-center align-middle"
+                //}
             ],
             ordering: false,
             buttons: [
-                //Print
                 {
                     extend: 'print',
                     text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
                     titleAttr: 'Print',
                     title: 'Approved And Open Purchase Orders',
                     exportOptions: {
-                        columns: [2, 3, 4, 5, 6, 7, 8],
+                        columns: [2, 3, 4, 5, 6, 7],
+                        orthogonal: 'export',
                         rows: function (idx, data, node) {
                             return $(node).find('input.rowCheckbox').prop('checked');
+                        },
+                        format: {
+                            body: function (data, rowIdx, colIdx, node) {
+                                // Return row index + 1 for the first exported column (Sr No logic)
+                                if (colIdx === 0) return rowIdx + 1;
+                                // Strip HTML tags to ensure clean text (like the PDF version)
+                                return typeof data === 'string' ? data.replace(/<[^>]*>?/gm, '').trim() : data;
+                            }
                         }
                     },
                     customize: function (win) {
                         var $body = $(win.document.body);
 
-                        // Add styling
-                        $body.append(`<style>thead th {
-                        background-color: black !important;
-                        color: white !important;
-                        text-align: center !important;
-                        -webkit-print-color-adjust: exact !important;
-                         print-color-adjust: exact !important;
-                         }
-                         table { border-collapse: collapse !important; width: 100% !important; }
-                         td, th { border: 1px solid #000 !important; padding: 6px !important; }
-                         </style>`);
-                        $body.find('h1').css('text-align', 'center');
-                        var today = new Date();
-                        var formattedDate = String(today.getDate()).padStart(2, '0') + '/' +
-                            String(today.getMonth() + 1).padStart(2, '0') + '/' +
-                            today.getFullYear();
-                        $body.find('h1').after('<div style="text-align:center;font-style:italic;font-size:10pt;margin-bottom:12px;">Generated Date: ' + formattedDate + '</div>');
-                        var $table = $body.find('table');
-                        $table.addClass('table table-bordered table-striped').css('width', '100%');
-                        $table.find('thead tr').prepend('<th>Sr No</th>');
-                        $table.find('tbody tr').each(function (index) {
-                            $(this).prepend('<td style="text-align:center;">' + (index + 1) + '</td>');
+                        // ---------- STYLE ----------
+                        $body.append(`
+            <style>
+                table {
+                    border-collapse: collapse !important;
+                    width: 100% !important;
+                    table-layout: fixed !important; /* Forces defined widths to apply */
+                }
+                th, td {
+                    border: 1px solid #aaa !important;
+                    padding: 8px !important;
+                    font-size: 10pt !important;
+                    word-wrap: break-word !important;
+                    overflow-wrap: break-word !important;
+                    white-space: normal !important;
+                    vertical-align: middle !important;
+                }
+                thead th {
+                    background-color: #343a40 !important;
+                    color: #fff !important;
+                    text-align: center !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                /* Alignment logic matching PDF: Description (col 4) Left, others Center */
+                td { text-align: center !important; }
+                td:nth-child(4) { text-align: left !important; } 
+
+                /* Column Widths matching PDF ratios */
+                th:nth-child(1) { width: 5% !important; }  /* Sr No */
+                th:nth-child(2) { width: 12% !important; } 
+                th:nth-child(3) { width: 15% !important; } 
+                th:nth-child(4) { width: 30% !important; } /* Description */
+                th:nth-child(5) { width: 10% !important; } 
+                th:nth-child(6) { width: 10% !important; } 
+                th:nth-child(7) { width: 18% !important; } 
+            </style>
+        `);
+
+                        // ---------- TITLE ----------
+                        $body.find('h1').css({
+                            'text-align': 'center',
+                            'font-size': '18pt',
+                            'margin-bottom': '5px'
                         });
-                        $body.css('font-size', '12pt');
+
+                        // ---------- GENERATED DATE ----------
+                        var generatedDate = moment().format("DD-MM-YYYY HH:mm");
+                        $body.find('h1').after(
+                            `<div style="text-align:center; font-size:10pt; font-style:italic; margin-bottom:20px;">
+                Generated on: ${generatedDate}
+            </div>`
+                        );
+
+                        // ---------- TABLE HEADER (Add Sr No) ----------
+                        var $table = $body.find('table');
+                        $table.find('thead tr').prepend('<th class="tableHeader">Sr No</th>');
+
+                        // ---------- TABLE BODY (Add Sr No index) ----------
+                        $table.find('tbody tr').each(function (index) {
+                            $(this).prepend('<td>' + (index + 1) + '</td>');
+                        });
                     },
                     action: function (e, dt, button, config) {
-                        var selected = dt.rows().nodes().to$().find('input.rowCheckbox:checked').length;
+                        var selected = $('.rowCheckbox:checked').length;
                         var btnApi = dt.button(button);
 
                         if (selected === 0) {
-                            showExportToast();
-                            try { btnApi.processing(false); } catch (err) { }
+                            if (typeof toastr !== 'undefined') {
+                                toastr.warning("Please select at least one row before exporting!");
+                            } else {
+                                alert("Please select at least one row!");
+                            }
                             return;
                         }
 
-                        try { btnApi.processing(true); } catch (err) { }
+                        btnApi.processing(true);
 
-                        try {
-                            if (!$.fn.dataTable.ext.buttons.print._orig) {
-                                $.fn.dataTable.ext.buttons.print._orig = $.fn.dataTable.ext.buttons.print.action || $.fn.dataTable.ext.buttons.print;
-                            }
-                            $.fn.dataTable.ext.buttons.print._orig.call(this, e, dt, button, config);
-                        } catch (err) {
-                            setTimeout(function () { try { btnApi.processing(false); } catch (e) { } }, 300);
-                            throw err;
+                        // Call original print action
+                        if (!$.fn.dataTable.ext.buttons.print._orig) {
+                            $.fn.dataTable.ext.buttons.print._orig = $.fn.dataTable.ext.buttons.print.action;
                         }
 
-                        setTimeout(function () { try { btnApi.processing(false); } catch (err) { } }, 2000);
+                        $.fn.dataTable.ext.buttons.print._orig.call(this, e, dt, button, config);
+
+                        // Reset processing state
+                        setTimeout(() => {
+                            try { btnApi.processing(false); } catch (err) { }
+                        }, 2000);
                     }
                 },
                 //PDF
@@ -369,7 +417,7 @@
                     orientation: 'landscape',
                     pageSize: 'A4',
                     exportOptions: {
-                        columns: [2, 3, 4, 5, 6, 7, 8],
+                        columns: [2, 3, 4, 5, 6, 7],
                         orthogonal: 'export',
                         rows: function (idx, data, node) {
                             return $(node).find('input.rowCheckbox').prop('checked');
@@ -473,7 +521,7 @@
                         }
 
                         // ---------- SET COLUMN WIDTHS ----------
-                        tableNode.table.widths = ['5%', '12%', '15%', '30%', '10%', '10%', '9%', '9%'];
+                        tableNode.table.widths = ['5%', '12%', '15%', '30%', '10%', '10%', '9%'];
 
                         // ---------- STYLE CELLS ----------
                         for (var i = 1; i < tableNode.table.body.length; i++) {
@@ -540,9 +588,6 @@
                                 rowData.UOMName || '',
                                 rowData.UnitRates || '',
                                 rowData.Quantity || '',
-                                rowData.RequiredDate
-                                    ? new Date(rowData.RequiredDate).toLocaleDateString("en-GB")
-                                    : '',
                             ]);
                         });
                         // Format date as DD/MM/YYYY
@@ -562,7 +607,6 @@
                                 { title: 'UOM Name' },
                                 { title: 'Unit Rates' },
                                 { title: 'Quantity' },
-                                { title: 'Required Date' },
                             ],
                             dom: 'Bfrtip',
                             buttons: [{
@@ -646,7 +690,7 @@
                         rows: function (idx, data, node) {
                             return $(node).find('input.rowCheckbox').prop('checked');
                         },
-                        columns: [1, 2, 3, 4, 5, 6, 7, 8],
+                        columns: [1, 2, 3, 4, 5, 6, 7],
                         modifier: { search: 'applied', order: 'applied' },
                         format: {
                             body: (function () {
@@ -831,25 +875,32 @@
         }).fail(function () {
             $('#priority').empty().append('<option value="">-- No priorities --</option>');
         });
-        $('#ToDate').on('change', function () {
-            let ddl = $('#priority');
-            let requiredDateStr = $(this).val();
-            if (requiredDateStr) {
-                let requiredDate = new Date(requiredDateStr);
-                let today = new Date();
-                let diffDays = Math.ceil((requiredDate - today) / (1000 * 60 * 60 * 24));
-                let selectedText = '';
+        $('#priority').on('change', function () {
 
-                if (diffDays <= 5) selectedText = 'Hot';
-                else if (diffDays <= 10) selectedText = 'Warm';
-                else if (diffDays > 15) selectedText = 'Cold';
+            let priority = $(this).find('option:selected').text();
+            let today = new Date();
 
-                let selectedItem = ddl.find('option').filter(function () {
-                    return $(this).text().toLowerCase() === selectedText.toLowerCase();
-                });
-                ddl.val(selectedItem.val());
+            let addDays = 0;
+
+            if (priority === 'Hot') {
+                addDays = 5;
+            } else if (priority === 'Warm') {
+                addDays = 10;
+            } else if (priority === 'Cold') {
+                addDays = 15;
+            }
+
+            if (addDays > 0) {
+                today.setDate(today.getDate() + addDays);
+
+                // Format date as yyyy-mm-dd for input[type="date"]
+                let formattedDate = today.toISOString().split('T')[0];
+
+                $('#ToDate').val(formattedDate);
             }
         });
+
+
 
         // Hide plan dropdown by default
         $('#planname').closest('.col-md-3').hide().find('input, select').addClass('text-success');
@@ -963,10 +1014,7 @@
                         <td>${rowData.Description || ''}</td>
                         <td>${rowData.UOMName || ''}</td>
                         <td>₹ ${rowData.UnitRates || ''}</td>
-                        <td class="text-end">${rowData.Quantity || ''}</td>
-                        <td class="text-center">
-                        ${rowData.RequiredDate ? new Date(rowData.RequiredDate).toLocaleDateString('en-GB') : ''}
-                        </td>
+                        <td class="text-center">${rowData.Quantity || ''}</td>
                         <td class="text-center">
                             <button type="button" class="btn btn-danger square-pill square-btn btn-delete fs-5 btn-delete" data-itemcode="${rowData.ItemCode}">
                                 <i class="bi bi-trash fs-5"></i>

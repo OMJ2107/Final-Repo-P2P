@@ -50,16 +50,16 @@ namespace P2PLibray.Quality
 
 
 
-        //Confirm GRN list method//
-        public async Task<List<QualityConfirmItemPR>> ConfirmItemGrnPSR()
-        {
-            Dictionary<string, string> param = new Dictionary<string, string>();
-            param.Add("@Flag", "ConfirmItemPR");
+		//Confirm GRN list method//
+		public async Task<List<QualityConfirmItemPR>> ConfirmItemGrnPSR()
+		{
+			Dictionary<string, string> param = new Dictionary<string, string>();
+			param.Add("@Flag", "ConfirmItemPR");
 
             SqlDataReader dr = await obj.ExecuteStoredProcedureReturnDataReader(
                 "QualityCheckProcedure", param);
 
-            List<QualityConfirmItemPR> list = new List<QualityConfirmItemPR>();
+			List<QualityConfirmItemPR> list = new List<QualityConfirmItemPR>();
 
             if (dr.HasRows)
             {
@@ -83,14 +83,14 @@ namespace P2PLibray.Quality
                 }
             }
 
-            return list;
-        }
+			return list;
+		}
 
 
 
-        // New method to get confirmed item details by GRNCode
+		// New method to get confirmed item details by GRNCode
 
-        public async Task<List<ConfirmedItemDetailPSR>> ConfirmItemPR(string grnCode)
+		public async Task<List<ConfirmedItemDetailPSR>> ConfirmItemPR(string grnCode)
         {
             Dictionary<string, string> param = new Dictionary<string, string>
 {

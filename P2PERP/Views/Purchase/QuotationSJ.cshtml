@@ -2004,6 +2004,7 @@
                     var header = response.header || {};
                     var items = response.items || [];
 
+
                     $("#rfqPRCode").val(header.PRCode || "");
 
                     // Format CreatedDate if it exists
@@ -2015,7 +2016,7 @@
 
                         //console.log(header.RequiredDate);
 
-                        //// Correct format for "19-01-2026 12:00:00 AM"
+                        // Correct format for "19-01-2026 12:00:00 AM"
                         //let m = moment(header.RequiredDate, "DD-MM-YYYY hh:mm:ss A", true);
 
                         //// Fallback if format changes
@@ -2034,7 +2035,8 @@
                         //} else {
                         //    console.warn("⚠️ Invalid RequiredDate:", header.RequiredDate);
                         //}
-                        $("#rfqRequiredDate").val(header.RequiredDate.replace('-', '/').replace('-', '/'));
+
+                        $("#rfqRequiredDate").val(header.RequiredDate.substring(0, 10).replace('-', '/').replace('-', '/'));
                     }
 
 
