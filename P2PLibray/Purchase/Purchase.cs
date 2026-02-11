@@ -276,6 +276,7 @@ namespace P2PLibray.Purchase
         public string VendorContact { get; set; }
         public string VendorAddress { get; set; }
         public string InvoiceToCompanyName { get; set; }
+        public string VendorDeliveryDate { get; set; }
 
 
     }
