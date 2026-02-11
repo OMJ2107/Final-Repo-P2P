@@ -75,82 +75,90 @@
                         <form id="viewItemForm" class="p-3">
 
                             <div class="row g-3">
+
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Item Code</label>
-                                    <input type="text" id="v_itemCode" class="form-control form-control-sm  bg-light text-dark shadow-sm bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Item Code</label>
+                                    <label id="v_itemCode" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Item Name</label>
-                                    <input type="text" id="v_itemName" class="form-control form-control-sm bg-light text-dark bg-opacity-25 shadow-sm border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Item Name</label>
+                                    <label id="v_itemName" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Item Category</label>
-                                    <input type="text" id="v_itemCategory" name="ItemCategoryId" class="form-control bg-light text-dark form-control-sm shadow-sm  bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Item Category</label>
+                                    <label id="v_itemCategory" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Cost Per Unit</label>
-                                    <input type="text" id="v_costPerUnit" class="form-control form-control-sm bg-light text-dark shadow-sm bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Cost Per Unit</label>
+                                    <label id="v_costPerUnit" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Reorder Quantity</label>
-                                    <input type="text" id="v_reorderQuantity" class="form-control form-control-sm bg-light text-dark shadow-sm bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Reorder Quantity</label>
+                                    <label id="v_reorderQuantity" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Min Quantity</label>
-                                    <input type="text" id="v_minQuantity" class="form-control form-control-sm bg-light text-dark shadow-sm bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Min Quantity</label>
+                                    <label id="v_minQuantity" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">UOM</label>
-                                    <input type="text" id="v_uom" class="form-control form-control-sm bg-light text-dark shadow-sm bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">UOM</label>
+                                    <label id="v_uom" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">HSN Code</label>
-                                    <input type="text" id="v_hsnCode" class="form-control form-control-sm bg-light text-dark shadow-sm bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">HSN Code</label>
+                                    <label id="v_hsnCode" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Item Make</label>
-                                    <input type="text" id="v_itemMake" class="form-control form-control-sm bg-light text-dark shadow-sm bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-bold text-dark">Item Make</label>
+                                    <label id="v_itemMake" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Expiry Days</label>
-                                    <input type="text" id="v_ExpiryDays" class="form-control form-control-sm bg-light text-dark shadow-sm bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Expiry Days</label>
+                                    <label id="v_ExpiryDays" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Quality Check</label>
-                                    <input type="text" id="v_qualityCheck" class="form-control form-control-sm shadow-sm  bg-light text-dark bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Quality Check</label>
+                                    <label id="v_qualityCheck" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary">Item Status</label>
-                                    <input type="text" id="v_itemStatus" class="form-control form-control-sm shadow-sm bg-light text-dark bg-opacity-25 border" readonly>
+                                    <label class="form-label fw-semibold text-dark">Item Status</label>
+                                    <label id="v_itemStatus" class="form-control-plaintext text-dark fw-normal">-</label>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-secondary">Description</label>
-                                    <textarea id="v_description" class="form-control form-control-sm bg-light text-dark shadow-sm bg-opacity-25 border" rows="3" readonly></textarea>
+                                    <label class="form-label fw-semibold text-dark">Description</label>
+                                    <label id="v_description"
+                                           class="form-control-plaintext text-dark fw-normal"
+                                           style="white-space: pre-wrap;">
+                                        -
+                                    </label>
                                 </div>
+
                             </div>
+
 
                             <!-- Inspection Plan Section -->
                             <div id="v_inspectionfrm" style="display:none;" class="mt-4">
                                 <div class="table-responsive ">
                                     <table id="v_paralistTable" class="table table-hover  table-bordered align-middle">
-                                        <thead class="table-success text-center table-dark" >
+                                        <thead class="table-success text-center table-dark">
                                             <tr>
                                                 <th>Sr.No</th>
                                                 <th>Quality Parameters</th>
                                                 <th>Parameters</th>
                                                 <th>UOM</th>
+                                                
                                             </tr>
 
                                         </thead>
@@ -357,14 +365,14 @@
                                             <tr>
                                                 <th>Sr.No</th>
                                                 <th>Quality Parameters</th>
-<<<<<<< HEAD
 
-                                                <th>Parameters</th>
+
+                                                <!--<th>Parameters</th>-->
                                                 @*<th>Parameters</th>*@
-=======
+
                                                 <th>Parameters</th>
 
->>>>>>> 53678e2a1bbf2611e4b0740e78e71692daadbeaf
+
                                                 <th>UOM</th>
                                                 <th>Action</th>
                                             </tr>
@@ -470,11 +478,12 @@
 
 <script>
     $(document).ready(function () {
-
+        var itemCode;
         $(document).on("click", ".btnview", function () {
             var id = $(this).data("id");
-            var itemCode = $(this).data("code");
-
+             itemCode = $(this).data("code");
+            //var itemCode = $("#itemCode").val();
+            console.log(itemCode)
             $("#viewItemModal").modal("show");
 
             // Reset previous content
@@ -485,24 +494,26 @@
                 url: '/Inventory/GetitemsidOJ',
                 type: 'GET',
                 data: { id: id },
+
                 success: function (data) {
-                    console.log()
+                    console.log(data);
+
                     if (data.success) {
 
                         // Fill form fields
-                        $("#v_itemCode").val(data.itemcode);
-                        $("#v_itemName").val(data.name);
-                        $("#v_description").val(data.descri);
-                        $("#v_costPerUnit").val(data.unitR);
-                        $("#v_reorderQuantity").val(data.recQ);
-                        $("#v_minQuantity").val(data.minQ);
-                        $("#v_itemMake").val(data.itemmake);
-                        $("#v_ExpiryDays").val(data.exp);
-                        $("#v_qualityCheck").val(data.isqua == 1 ? "Yes" : "No");
-                        $("#v_hsnCode").val(data.hsn);
-                        $("#v_itemCategory").val(data.categoryname);
-                        $("#v_uom").val(data.uom);
-                        $("#v_itemStatus").val(data.Status);
+                        $("#v_itemCode").text(data.itemcode || "-");
+                        $("#v_itemName").text(data.name || "-");
+                        $("#v_description").text(data.descri || "-");
+                        $("#v_costPerUnit").text(data.unitR || "-");
+                        $("#v_reorderQuantity").text(data.recQ || "-");
+                        $("#v_minQuantity").text(data.minQ || "-");
+                        $("#v_itemMake").text(data.itemmake || "-");
+                        $("#v_ExpiryDays").text(data.exp || "-");
+                        $("#v_qualityCheck").text(data.isqua == 1 ? "Yes" : "No");
+                        $("#v_hsnCode").text(data.hsn || "-");
+                        $("#v_itemCategory").text(data.categoryname || "-");
+                        $("#v_uom").text(data.uom || "-");
+                        $("#v_itemStatus").text(data.Status || "-");
 
                         if (data.isqua == 1) {
                             $("#v_inspectionfrm").show();
@@ -517,16 +528,10 @@
                                     { data: 'srno', title: 'Sr.No' },
                                     { data: 'parametersname', title: 'Quality Parameters' },
                                     { data: 'pquality', title: 'Parameters' },
-                                    { data: 'puomname', title: 'UOM' }
+                                    { data: 'puomname', title: 'UOM' },
                                 ],
                                 columnDefs: [
-                                    {
-                                        targets: 0,
-                                        title: `<input type="checkbox" id="select-all">`,
-                                        orderable: false
-                                    },
                                     { targets: "_all", className: "text-center" }
-
                                 ],
                                 paging: true,
                                 searching: true,
@@ -537,33 +542,49 @@
                                 dom: '<"d-flex justify-content-end mb-3"f>rt<"d-flex justify-content-between mt-2"<"text-center"i><"text-end"p>>'
                             });
 
-                            // Fetch inspection plan data
+                            // 🔹 SECOND AJAX CALL (Inspection Plan)
                             $.ajax({
                                 url: '/Inventory/GetInspeplanOJ',
                                 type: 'GET',
                                 data: { itemCode: itemCode },
                                 success: function (plan) {
+                                    console.log(plan);
                                     var tableData = [];
+
                                     if (plan.success && plan.data.length > 0) {
                                         $(plan.data).each(function (i, inspe) {
                                             tableData.push({
                                                 srno: i + 1,
                                                 parametersname: inspe.parametersname,
                                                 pquality: inspe.pquality,
-                                                puomname: inspe.puomname
+                                                puomname: inspe.puomname,
+                                                action:
+                                                    '<button class="btn btn-danger btndelete" data-id="' +
+                                                    inspe.ItemQualityId +
+                                                    '"><i class="bi bi-trash3"></i></button>'
                                             });
                                         });
                                     }
+
                                     planTable.clear().rows.add(tableData).draw();
+                                    planTable.columns.adjust().draw();
+                                },
+                                error: function (err) {
+                                    console.log("Error:", err.responseText);
                                 }
                             });
                         }
-                    } else {
-                        alert(data.message);
                     }
+                },
+                error: function (err) {
+                    console.log("Error:", err.responseText);
                 }
             });
+
         });
+
+    });
+
       
 
 
@@ -667,18 +688,14 @@
                 layout: {
                     topStart: {
                         buttons: [
-                            {
-                                extend: 'collection',
-                                text: '<i class="bi bi-download fs-5"></i> <span class="ms-1 fw-semibold">Export</span>',
-                                className: 'btn btn-outline-primary fw-semibold rounded-pill px-3 py-1 no-hover',
-                                autoClose: true,
-                                background: false,
-                                buttons: [
+                            
+                               
+                               
 
                                     // 🖨 PRINT
                                     {
                                         extend: 'print',
-                                        text: '<i class="bi bi-printer-fill text-dark fs-5"></i> <span class="text-dark fw-semibold ms-1">Print</span>',
+                                        text: '<i class="bi bi-printer-fill text-dark fs-5"></i> <span class="text-dark fw-semibold ms-1"></span>',
                                         title: "Inventory List - " + moment().format("DD/MM/YYYY"),
                                         action: function (e, dt, button, config) {
                                             if ($('.row-checkbox:checked').length === 0) {
@@ -726,7 +743,7 @@
                                     // 📄 PDF
                                     {
                                         extend: 'pdfHtml5',
-                                        text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i> PDF',
+                                        text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i> ',
                                         title: "",
                                         action: function (e, dt, button, config) {
                                             if ($('.row-checkbox:checked').length === 0) {
@@ -797,7 +814,7 @@
                                     // 📊 EXCEL
                                     {
                                         extend: 'excelHtml5',
-                                        text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i> Excel',
+                                        text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i> ',
                                         title: 'Item Master List',
                                         messageTop: 'Generated Date: ' + moment().format('DD/MM/YYYY'),
                                         action: function (e, dt, button, config) {
@@ -864,7 +881,7 @@
                                     // 🧾 CSV
                                     {
                                         extend: 'csvHtml5',
-                                        text: '<i class="bi bi-filetype-csv text-info fs-5"></i> CSV',
+                                        text: '<i class="bi bi-filetype-csv text-success fs-5"></i> ',
                                         title: "Inventory List",
                                         action: function (e, dt, button, config) {
                                             const selectedRows = [];
@@ -940,8 +957,8 @@
                                     }
 
                                 ]
-                            }
-                        ]
+                            
+                        
 
                     }
                 }
@@ -1955,7 +1972,8 @@ $('#itemForm').on('submit', function (e) {
             });
         }
 
-    })
+   // })
+    
  
     $("#addpara").on("click", function (e) {
         e.preventDefault();
