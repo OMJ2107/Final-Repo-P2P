@@ -14,7 +14,9 @@
         vertical-align: middle !important;
     }
 
-
+    thead th {
+        white-space: nowrap !important;
+    }
     .control-container {
         display: flex;
         justify-content: space-between;
@@ -55,11 +57,13 @@
 </style>
 <div class="container-fluid">
     <div class="container bg-white rounded m-2 shadow p-2">
-        <h2 class="mb-4 text-center text-primary">Inhouse Transfer Report</h2>
+        @*<h3 class="mb-4 text-center text-primary">Inhouse Transfer Report</h3>*@
+        <h3 id="reportHeading" class="mb-4 text-center text-primary"></h3>
+
 
         <!-- Chart -->
         <div class="card p-3 mb-4">
-            <h5 class="text-center">Quantity by Category per Department</h5>
+            <h5 class="text-center">Most Transfered Items – Production</h5>
             <div id="deptCatChart" style="height:400px;"></div>
         </div>
 
@@ -77,8 +81,8 @@
                         <input type="text" id="InhouseDatepicker" class="form-control" placeholder="Select date range" readonly style="height:100%;" />
                     </div>
                     <!-- Export buttons
-                    <div id="dtButtonsContainer" class="dt-buttons"></div>
-                    -->
+                <div id="dtButtonsContainer" class="dt-buttons"></div>
+                -->
                 </div>
             </div>
 
@@ -103,16 +107,13 @@
 
     <!-- Modal -->
     <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary d-flex justify-content-between align-items-center">
-                    <h5 class="modal-title text-white mb-3 text-center flex-grow-1" id="detailModalLabel">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content shadow-lg rounded-3">
+                <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">
+                    <h5 class="modal-title fw-bold text-white mb-0 fs-5" id="detailModalLabel">
                         Items Detail
                     </h5>
-                    <button type="button"
-                            class="btn-close btn-close-white ms-2 mb-3"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <table class="table table-bordered table-striped" id="detailTable">
@@ -535,77 +536,155 @@
 
 
 
-            const matrix = {}, categoriesSet = new Set(), departmentsSet = new Set();
-            data.forEach(d => {
-                const dept = d.TransferTo || 'Unknown';
-                const cat = d.ItemCategory || 'Uncategorized';
-                departmentsSet.add(dept); categoriesSet.add(cat);
-                matrix[dept] = matrix[dept] || {};
-                matrix[dept][cat] = (matrix[dept][cat] || 0) + d.Quantity;
+            //const matrix = {}, categoriesSet = new Set(), departmentsSet = new Set();
+            //data.forEach(d => {
+            //    const dept = d.TransferTo || 'Unknown';
+            //    const cat = d.ItemCategory || 'Uncategorized';
+            //    departmentsSet.add(dept); categoriesSet.add(cat);
+            //    matrix[dept] = matrix[dept] || {};
+            //    matrix[dept][cat] = (matrix[dept][cat] || 0) + d.Quantity;
+            //});
+            //const departments = Array.from(departmentsSet);
+            //const categories = Array.from(categoriesSet);
+            //const series = categories.map(cat => ({ name: cat, data: departments.map(dep => matrix[dep]?.[cat] || 0) }));
+            //Highcharts.chart('deptCatChart', {
+            //    chart: { type: 'bar' }, // ✅ Horizontal bar
+            //    title: { text: '' },
+            //    xAxis: {
+            //        categories: departments,
+            //        title: { text: 'Departments' },
+            //        labels: { style: { fontSize: '13px', fontWeight: '600' } }
+            //    },
+            //    yAxis: {
+            //        min: 0,
+            //        title: { text: 'Quantity' },
+            //        labels: { style: { fontSize: '12px' } }
+            //    },
+            //    legend: {
+            //        align: 'center',
+            //        verticalAlign: 'bottom',
+            //        layout: 'horizontal',
+            //        itemStyle: { fontSize: '13px', fontWeight: '500' }
+            //    },
+            //    tooltip: {
+            //        shared: true,
+            //        backgroundColor: '#f8f9fa',
+            //        borderColor: '#0d6efd',
+            //        borderRadius: 8,
+            //        formatter: function () {
+            //            let s = `<b>${this.x}</b><br/>`;
+            //            this.points.forEach(p => {
+            //                s += `<span style="color:${p.color}">\u25CF</span>
+            //          ${p.series.name}: <b>${p.y}</b><br/>`;
+            //            });
+            //            return s;
+            //        }
+            //    },
+            //    plotOptions: {
+            //        series: {
+            //            stacking: null, // ✅ grouped, not stacked
+            //            borderWidth: 0,
+            //            cursor: 'pointer',
+            //            dataLabels: {
+            //                enabled: true,
+            //                style: { fontSize: '11px', fontWeight: 'bold' }
+            //            },
+            //            point: {
+            //                events: {
+            //                    click: function () {
+            //                        showDetailModal(this.category, this.series.name);
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    },
+            //    series: series,
+            //    credits: { enabled: false },
+            //    colors: Highcharts.getOptions().colors.map(c =>
+            //        Highcharts.color(c).brighten(0.05).get()
+            //    )
+            //});
+
+            // ===== TOP 10 ITEMS FOR PRODUCTION =====
+
+            // Filter Production department
+            const productionData = data.filter(d => d.TransferTo === 'Production');
+
+            // If no production data
+            if (productionData.length === 0) {
+                $('#deptCatChart').html(`
+        <div class="d-flex flex-column align-items-center justify-content-center" style="height:300px;">
+            <i class="bi bi-emoji-frown text-secondary" style="font-size:2rem;"></i>
+            <span class="mt-2 text-muted fw-semibold">No Production data found</span>
+        </div>
+    `);
+                return;
+            }
+
+            // Group by ItemName & sum Quantity
+            const itemMap = {};
+            productionData.forEach(d => {
+                const item = d.ItemName || 'Unknown Item';
+                itemMap[item] = (itemMap[item] || 0) + d.Quantity;
             });
-            const departments = Array.from(departmentsSet);
-            const categories = Array.from(categoriesSet);
-            const series = categories.map(cat => ({ name: cat, data: departments.map(dep => matrix[dep]?.[cat] || 0) }));
+
+            // Convert to array & sort desc
+            const sortedItems = Object.entries(itemMap)
+                .map(([name, qty]) => ({ name, qty }))
+                .sort((a, b) => b.qty - a.qty)
+                .slice(0, 10); // TOP 10
+
+            const categories = sortedItems.map(i => i.name);
+            const quantities = sortedItems.map(i => i.qty);
+
+            // Render chart
             Highcharts.chart('deptCatChart', {
-                chart: { type: 'bar' }, // ✅ Horizontal bar
+                chart: { type: 'column' },
                 title: { text: '' },
+
                 xAxis: {
-                    categories: departments,
-                    title: { text: 'Departments' },
-                    labels: { style: { fontSize: '13px', fontWeight: '600' } }
-                },
-                yAxis: {
-                    min: 0,
-                    title: { text: 'Quantity' },
-                    labels: { style: { fontSize: '12px' } }
-                },
-                legend: {
-                    align: 'center',
-                    verticalAlign: 'bottom',
-                    layout: 'horizontal',
-                    itemStyle: { fontSize: '13px', fontWeight: '500' }
-                },
-                tooltip: {
-                    shared: true,
-                    backgroundColor: '#f8f9fa',
-                    borderColor: '#0d6efd',
-                    borderRadius: 8,
-                    formatter: function () {
-                        let s = `<b>${this.x}</b><br/>`;
-                        this.points.forEach(p => {
-                            s += `<span style="color:${p.color}">\u25CF</span>
-                      ${p.series.name}: <b>${p.y}</b><br/>`;
-                        });
-                        return s;
+                    categories: categories,
+                    title: { text: 'Items' },
+                    labels: {
+                        rotation: -30,
+                        style: { fontSize: '12px', fontWeight: '600' }
                     }
                 },
+
+                yAxis: {
+                    min: 0,
+                    title: { text: 'Total Quantity' }
+                },
+
+                tooltip: {
+                    pointFormat: '<b>Quantity: {point.y}</b>'
+                },
+
                 plotOptions: {
-                    series: {
-                        stacking: null, // ✅ grouped, not stacked
-                        borderWidth: 0,
-                        cursor: 'pointer',
+                    column: {
+                        borderRadius: 4,
                         dataLabels: {
                             enabled: true,
-                            style: { fontSize: '11px', fontWeight: 'bold' }
-                        },
-                        point: {
-                            events: {
-                                click: function () {
-                                    showDetailModal(this.category, this.series.name);
-                                }
-                            }
+                            style: { fontWeight: 'bold' }
                         }
                     }
                 },
-                series: series,
-                credits: { enabled: false },
-                colors: Highcharts.getOptions().colors.map(c =>
-                    Highcharts.color(c).brighten(0.05).get()
-                )
+
+                series: [{
+                    name: 'Production',
+                    data: quantities
+                }],
+
+                credits: { enabled: false }
             });
 
+
+
+
         });
-    }
+            }
+
+
 
     function showDetailModal(dept, category) {
         $('#detailModalLabel').text(`Items in ${category} for ${dept}`);
@@ -659,6 +738,37 @@
 
 
     $(document).ready(function () {
+
+        function setReportHeading(fromDate, toDate) {
+
+            if (!fromDate || !toDate) {
+                $('#reportHeading').text("Inhouse Transfer Report");
+                return;
+            }
+
+            const from = moment(fromDate);
+            const to = moment(toDate);
+
+            // Same month → show Month + Year
+            if (from.format('MM-YYYY') === to.format('MM-YYYY')) {
+                $('#reportHeading').text(
+                    `Inhouse Transfer Report – ${from.format("MMMM YYYY")}`
+                );
+                return;
+            }
+
+            // Range → show From - To dates
+            const fromText = from.format("DD MMM YYYY");
+            const toText = to.format("DD MMM YYYY");
+
+            $('#reportHeading').text(
+                `Inhouse Transfer Report – ${fromText} to ${toText}`
+            );
+        }
+
+
+
+
         $('#InhouseDatepicker').daterangepicker({
             autoUpdateInput: false,
             opens: "center",
@@ -672,12 +782,42 @@
             },
             locale: { cancelLabel: 'Clear' }
         }, function (start, end) {
-            $('#InhouseDatepicker').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
-            loadReport(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-        });
-        $('#InhouseDatepicker').on('cancel.daterangepicker', function () { $(this).val(''); loadReport(); });
+            $('#InhouseDatepicker').val(
+                start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY')
+            );
 
-        loadReport();
+            loadReport(
+                start.format('YYYY-MM-DD'),
+                end.format('YYYY-MM-DD')
+            );
+
+            // ✅ Update heading
+            setReportHeading(start, end);
+        })
+        $('#InhouseDatepicker').on('cancel.daterangepicker', function () {
+            $(this).val('');
+            loadReport();
+            setReportHeading(null, null);   // ✅ reset heading
+        });
+
+
+        // 👉 Default: Current Month
+        const startOfMonth = moment().startOf('month');
+        const endOfMonth = moment().endOf('month');
+
+        // Load report for current month
+        loadReport(
+            startOfMonth.format('YYYY-MM-DD'),
+            endOfMonth.format('YYYY-MM-DD')
+        );
+
+        // Set heading
+        setReportHeading(startOfMonth, endOfMonth);
+
+        // Show range in datepicker
+        $('#InhouseDatepicker').val(
+            startOfMonth.format('DD-MM-YYYY') + ' - ' + endOfMonth.format('DD-MM-YYYY')
+        );
 
 
 

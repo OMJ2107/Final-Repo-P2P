@@ -4,7 +4,15 @@
 
 <!-- Date Filter + Table Container -->
 <div class="p-3 bg-white rounded shadow-sm">
-   
+    <!-- Date Range Picker -->
+    <div class="mb-3">
+        <div class="input-group" style="max-width: 280px;">
+            <span class="input-group-text bg-primary text-white">
+                <i class="bi bi-calendar-date"></i>
+            </span>
+            <input type="text" id="prDateFilter" class="form-control" placeholder="Select date range" readonly />
+        </div>
+    </div>
     <!-- Table -->
     <div class="table-responsive">
         <table id="approvedPrTable" class="table table-bordered table-hover align-middle shadow-sm">
@@ -15,6 +23,7 @@
                     <th>PR Code</th>
                     <th>Added Date</th>
                     <th>Approved Date</th>
+                    <th>REQUIRED DATE</th>
                     <th>Priority</th>
                 </tr>
             </thead>
@@ -53,6 +62,9 @@
         button.dt-button.processing:after {
             content: none !important;
         }
+    thead th {
+        white-space: nowrap !important;
+    }
 </style>
 
 <!-- JavaScript -->
@@ -110,6 +122,8 @@ const endDate = "@ViewBag.EndDate";
 
                 data.forEach(function (i, index) {
                     const addedDate = i.AddedDate ? moment(i.AddedDate).format('DD/MM/YYYY') : '';
+                    const expectedDate = i.ExpectedDate ? moment(i.ExpectedDate).format("DD/MM/YYYY") : "";
+
                     const approvedDate = i.ApprovedRejectedDate ? moment(i.ApprovedRejectedDate).format('DD/MM/YYYY') : '';
                     const priorityBadge = i.Priority
                         ? `<span class="${i.Priority.toLowerCase() === 'cold' ? 'badge bg-success' :
@@ -126,6 +140,7 @@ const endDate = "@ViewBag.EndDate";
                             <td>${i.PRCode}</td>
                             <td>${addedDate}</td>
                             <td>${approvedDate}</td>
+                            <td>${expectedDate}</td>
                             <td>${priorityBadge}</td>
                         </tr>
                     `);
@@ -274,8 +289,8 @@ const endDate = "@ViewBag.EndDate";
                                         vLineWidth: () => 0.5,
                                         hLineColor: () => '#dddddd',
                                         vLineColor: () => '#dddddd',
-                                        paddingLeft: () => 30,
-                                        paddingRight: () => 30,
+                                        paddingLeft: () => 20,
+                                        paddingRight: () => 20,
                                         paddingTop: () => 4,
                                         paddingBottom: () => 4
                                     };
@@ -453,12 +468,13 @@ const endDate = "@ViewBag.EndDate";
                         'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
                         'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
                     }
-                }, function (start, end) {
+                },
+                    function (start, end) {
                     $('#prDateFilter').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
                     $.fn.dataTable.ext.search.push(function (settings, data) {
                         if (settings.nTable.id !== 'approvedPrTable') return true;
-                        const addedDate = moment(data[3], 'DD/MM/YYYY');
-                        return addedDate.isBetween(start, end, undefined, '[]');
+                        const approvedDate = moment(data[4], 'DD/MM/YYYY');
+                        return approvedDate.isBetween(start, end, undefined, '[]');
                     });
                     table.draw();
                     $.fn.dataTable.ext.search.pop();

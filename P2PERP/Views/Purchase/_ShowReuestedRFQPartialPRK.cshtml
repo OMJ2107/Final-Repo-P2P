@@ -5,6 +5,15 @@
 <!-- ✅ Date Filter + Table Container -->
 <div class="p-3 bg-white rounded shadow-sm">
 
+    <!-- Date Range Picker -->
+    <div class="mb-3">
+        <div class="input-group" style="max-width: 280px;">
+            <span class="input-group-text bg-primary text-white">
+                <i class="bi bi-calendar-date"></i>
+            </span>
+            <input type="text" id="prDateFilter" class="form-control" placeholder="Select date range" readonly />
+        </div>
+    </div>
 
     <!-- Table -->
     <div class="table-responsive shadow-sm rounded mt-3">
@@ -65,6 +74,9 @@
         button.dt-button.processing:after {
             content: none !important;
         }
+    thead th {
+        white-space: nowrap !important;
+    }
 </style>
 
 <!-- ✅ JavaScript -->
@@ -433,7 +445,7 @@
         loadRequestedRFQ();
 
         // ✅ Date Range Picker Filter
-        $('#rfqDateFilter').daterangepicker({
+        $('#prDateFilter').daterangepicker({
             autoUpdateInput: false,
             opens: "center",
             drops: "down",
@@ -446,7 +458,7 @@
                 'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
             }
         }, function (start, end) {
-            $('#rfqDateFilter').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+            $('#prDateFilter').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
             $.fn.dataTable.ext.search.push(function (settings, data) {
                 if (settings.nTable.id !== 'requestedRfqTable') return true;
                 const addedDate = moment(data[7], 'DD/MM/YYYY');
@@ -456,7 +468,7 @@
             $.fn.dataTable.ext.search.pop();
         });
 
-        $('#rfqDateFilter').on('cancel.daterangepicker', function () {
+        $('#prDateFilter').on('cancel.daterangepicker', function () {
             $(this).val('');
             table.draw();
         });

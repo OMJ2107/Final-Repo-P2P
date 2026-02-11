@@ -8,7 +8,9 @@
         text-align: center !important;
         vertical-align: middle !important;
     }
-
+    thead th {
+        white-space: nowrap !important;
+    }
     .chart-card {
         background: #fff;
         border-radius: 12px;
@@ -64,7 +66,8 @@
 <div id="receivedSection" class="container-fluid">
 
     <div class="container bg-white rounded m-2 shadow p-2">
-        <h2 class="text-center text-primary">Received Material Report</h2>
+        <h3 id="reportHeading" class="text-center text-primary"></h3>
+
 
         <!-- Charts -->
         <div class="row mb-4">
@@ -97,8 +100,8 @@
                 </div>
 
                 <!-- Buttons Container
-                                <div id="dtButtonsContainer" class="dt-buttons"></div>
-                -->
+                            <div id="dtButtonsContainer" class="dt-buttons"></div>
+            -->
             </div>
 
             <!-- Right side: Search input -->
@@ -118,7 +121,7 @@
                     <th>Item Code</th>
                     <th>Item Name</th>
                     <th>Item Category</th>
-                    
+
                     <th>Received Qty</th>
                     <th>Warehouse</th>
                     <th>Bin Assigned</th>
@@ -681,9 +684,62 @@
     }
 
     $(document).ready(function () {
+
+        function setReportHeading(fromDate, toDate) {
+
+            if (!fromDate || !toDate) {
+                $('#reportHeading').text("Received Material Report");
+                return;
+            }
+
+            const from = moment(fromDate);
+            const to = moment(toDate);
+
+            // Same month → show only Month Year
+            if (from.format('MM-YYYY') === to.format('MM-YYYY')) {
+                const monthText = from.format("MMMM YYYY");
+                $('#reportHeading').text(`Received Material Report – ${monthText}`);
+                return;
+            }
+
+            // Different range → show From - To
+            const fromText = from.format("DD MMM YYYY");
+            const toText = to.format("DD MMM YYYY");
+
+            $('#reportHeading').text(
+                `Received Material Report – ${fromText} to ${toText}`
+            );
+        }
+
+
         $('#binDetailTable').DataTable(); // still ok to have modal's table ready
-        loadReceivedTable();
-        loadCharts();
+        // 👉 Default: Current Month
+        const startOfMonth = moment().startOf('month');
+        const endOfMonth = moment().endOf('month');
+
+        currentFromDate = startOfMonth;
+        currentToDate = endOfMonth;
+
+        // Load table and charts for current month
+        loadReceivedTable(
+            startOfMonth.format('YYYY-MM-DD'),
+            endOfMonth.format('YYYY-MM-DD')
+        );
+
+        loadCharts(
+            startOfMonth.format('YYYY-MM-DD'),
+            endOfMonth.format('YYYY-MM-DD')
+
+        );
+
+        // Set heading text
+        setReportHeading(startOfMonth, endOfMonth);
+
+        // Show selected month in datepicker input
+        $('#ReceivedDatepicker').val(
+            startOfMonth.format('DD-MM-YYYY') + ' - ' + endOfMonth.format('DD-MM-YYYY')
+        );
+
 
         $('#ReceivedDatepicker').daterangepicker({
             autoUpdateInput: false,
@@ -716,9 +772,13 @@
 
             // reload charts using the selected date range
             loadCharts(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+            setReportHeading(start, end);
+
         });
 
         $('#ReceivedDatepicker').on('cancel.daterangepicker', function () {
+            setReportHeading(null, null);
+
             $(this).val('');
             currentFromDate = null;
             currentToDate = null;
