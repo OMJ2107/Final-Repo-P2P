@@ -66,7 +66,7 @@ namespace P2PLibray.Quality
         public string QualityCheckDate { get; set; }
         public int ItemCount { get; set; }
 
-    }
+	}
 
     // Detailed confirmed item
     public class ConfirmedItemDetailPSR
