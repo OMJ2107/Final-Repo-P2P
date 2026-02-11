@@ -1,8 +1,12 @@
 ﻿@model IEnumerable<P2PLibray.GRN.GRN>
-
+<style>
+    #qcItemsTable thead th {
+        padding: 0.10rem 0.11rem !important;
+    }
+</style>
 <div class="mb-3">
-    <label for="txtGRNCodeQC" class="fw-semibold">GRN No:</label>
-    <input type="text" id="txtGRNCodeQC" class="form-control d-inline-block w-auto bg-light" readonly="readonly" />
+    <label for="txtGRNCodeQC" class="form-label fw-bold text-dark">GRN No:</label>
+    <input type="text" id="txtGRNCodeQC" class="form-control form-control-sm  text-dark shadow-sm d-inline-block w-auto bg-light" readonly="readonly" />
 </div>
 
 <!-- QC Items Table -->
@@ -79,10 +83,10 @@
 
         // DataTable init
         var qcTable = $('#qcItemsTable').DataTable({
-            paging: true,
+            paging: false,
             searching: true,
             ordering: false,
-            info: true,
+            info: false,
             lengthChange: false,
             pageLength: 10,
             language: { emptyTable: "No QC items available" },

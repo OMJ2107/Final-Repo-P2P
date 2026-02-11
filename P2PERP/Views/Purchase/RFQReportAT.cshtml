@@ -88,7 +88,7 @@
                                     <button id="btnview" type="button"
                                             class="btn btn-sm btn-primary view-vendors rounded-2"
                                             data-rfqcode="@item.RFQCode">
-                                        <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye fs-6"></i>
                                     </button>
 
                                 </td>
@@ -296,7 +296,6 @@
                     extend: 'print',
                     title: '', // remove default title
                     text: '<i class="bi bi-printer-fill text-dark fs-5"></i>',
-                    className: 'btn bg-muted btn-outline-dark border-2 fw-bold',
 
                     exportOptions: {
                         columns: [1, 2, 3, 4, 5, 6, 7, 8, 9], // include Sr.No, exclude checkbox & action
@@ -397,7 +396,8 @@
                     extend: 'pdfHtml5',
                     title: 'RFQ List',
                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
-                    className: 'btn bg-muted btn-outline-dark border-2 fw-bold',
+
+                    
                     orientation: 'landscape',
                     pageSize: 'A4',
 
@@ -604,6 +604,7 @@
                     extend: 'csvHtml5',
                     title: 'RFQ List',
                     text: '<i class="bi bi-filetype-csv text-success fs-5"></i>',
+
                     exportOptions: {
                         rows: function (idx, data, node) {
                             return $(node).find('input.rowCheckbox').prop('checked');

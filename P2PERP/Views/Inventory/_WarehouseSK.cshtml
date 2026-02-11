@@ -101,6 +101,7 @@
 </div>
 
 <!-- Add/Edit Warehouse Modal -->
+
 <div class="modal fade" id="addWarehouseModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content shadow-lg rounded-3">
@@ -427,6 +428,7 @@
 
                 return isValid;
             }
+
         };
 
         // ================= DATA TABLE INITIALIZATION =================
@@ -858,6 +860,7 @@
         }
 
         // ================= EVENT HANDLERS =================
+        // ================= EVENT HANDLERS =================
         function setupEventHandlers() {
             // Checkbox selection
             $("#WHselectAll").on("change", function () {
@@ -1027,6 +1030,16 @@
                 }
             });
         }
+
+        //function handleFormError(res) {
+        //    utils.clearFieldError("WarehouseName", "WarehouseNameError");
+        //    const msg = (res || "").toLowerCase();
+        //    if (msg.includes("already exist") || msg.includes("duplicate") || msg.includes("exists")) {
+        //        utils.showFieldError("WarehouseName", "WarehouseNameError", "Warehouse Name already exists.");
+        //    } else {
+        //        utils.showFieldError("WarehouseName", "WarehouseNameError", message || "Something went wrong while saving Warehouse.");
+        //    }
+        //}
 
         function handleFormError(res) {
             utils.clearAllErrors(CONFIG.selectors.form);

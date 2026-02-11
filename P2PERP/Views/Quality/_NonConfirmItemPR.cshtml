@@ -15,7 +15,7 @@
         <div class="col-md-3"></div>
     </div>
 
-    <table id="Non-confirmItesmTable" class="table table-striped table-bordered wrap" style="width:100%">
+    <table id="NonConfirmItemTable" class="table table-striped table-bordered wrap" style="width:100%">
         <thead class="table-dark">
             <tr>
                 <th><input type="checkbox" id="selectAllNonConfirm" class="small-checkbox" /></th>
@@ -79,7 +79,7 @@
 </div>
 
 <style>
-    #Non-confirmItemTable thead th {
+    #NonConfirmItemTable thead th {
         padding: 0.3rem 0.4rem !important;
     }
 
@@ -110,8 +110,8 @@
     }
 
     /* Table heading aur cell content center mein */
-    #Non-confirmItemTable th,
-    #Non-confirmItemTable td,
+    #NonConfirmItemTable th,
+    #NonConfirmItemTable td,
     #itemDetailsTableNonConfirm th,
     #itemDetailsTableNonConfirm td {
         text-align: center;
@@ -128,8 +128,8 @@
     }
 
     /* Ensure proper alignment for checkbox columns */
-    #Non-confirmItemTable th:first-child,
-    #Non-confirmItemTable td:first-child,
+    #NonConfirmItemTable th:first-child,
+    #NonConfirmItemTable td:first-child,
     #itemDetailsTableNonConfirm th:first-child,
     #itemDetailsTableNonConfirm td:first-child {
         width: 30px !important;
@@ -227,7 +227,7 @@
                             if (column === 1) {
                                 const $node = $(node);
                                 if ($node.closest('tr').find('.row-select').prop('checked')) {
-                                    const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
+                                    const selectedRows = $('#NonConfirmItemTable tbody input.row-select:checked');
                                     const currentRow = $node.closest('tr');
                                     const currentIndex = selectedRows.index(currentRow.find('.row-select'));
                                     return currentIndex + 1;
@@ -319,7 +319,7 @@
                             if (column === 1) {
                                 const $node = $(node);
                                 if ($node.closest('tr').find('.row-select').prop('checked')) {
-                                    const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
+                                    const selectedRows = $('#NonConfirmItemTable tbody input.row-select:checked');
                                     const currentRow = $node.closest('tr');
                                     const currentIndex = selectedRows.index(currentRow.find('.row-select'));
                                     return currentIndex + 1;
@@ -416,7 +416,7 @@
                             if (column === 1) {
                                 const $node = $(node);
                                 if ($node.closest('tr').find('.row-select').prop('checked')) {
-                                    const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
+                                    const selectedRows = $('#NonConfirmItemTable tbody input.row-select:checked');
                                     const currentRow = $node.closest('tr');
                                     const currentIndex = selectedRows.index(currentRow.find('.row-select'));
                                     return currentIndex + 1;
@@ -491,7 +491,7 @@
                             if (column === 1) {
                                 const $node = $(node);
                                 if ($node.closest('tr').find('.row-select').prop('checked')) {
-                                    const selectedRows = $('#Non-confirmItemTable tbody input.row-select:checked');
+                                    const selectedRows = $('#NonConfirmItemTable tbody input.row-select:checked');
                                     const currentRow = $node.closest('tr');
                                     const currentIndex = selectedRows.index(currentRow.find('.row-select'));
                                     return currentIndex + 1;
@@ -855,7 +855,7 @@
             console.log('Date range selected:', start.format('DD/MM/YYYY'), 'to', end.format('DD/MM/YYYY'));
 
             // Trigger table redraw
-            $('#Non-confirmItemTable').DataTable().draw();
+            $('#NonConfirmItemTable').DataTable().draw();
         });
 
         // Handle cancel event
@@ -863,7 +863,7 @@
             $(this).val('Select Date Range');
             $(this).removeData('start').removeData('end');
             console.log('Date filter cleared');
-            $('#Non-confirmItemTable').DataTable().draw();
+            $('#NonConfirmItemTable').DataTable().draw();
         });
 
         // Set initial placeholder value
@@ -871,7 +871,7 @@
 
         // Simple Date Filter - Only check AddDate column (index 4)
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-            if (settings.nTable.id !== 'Non-confirmItemTable') return true;
+            if (settings.nTable.id !== 'NonConfirmItemTable') return true;
 
             const start = $('#Tabledate').data('start');
             const end = $('#Tabledate').data('end');
@@ -904,66 +904,52 @@
         });
 
         // Main DataTable Initialization
-        var table = $('#Non-confirmItemTable').DataTable({
-            ...commonTableConfig,
-            dom: '<"d-flex justify-content-between align-items-center mb-2"Bf>rt<"d-flex justify-content-between align-items-center mt-2"ip>',
-            ajax: {
-                url: '@Url.Action("nonConfirmItemsPR", "Quality")',
-                type: "GET",
-                datatype: "json",
-                error: function (xhr) {
-                    console.log("Ajax Error:", xhr.responseText);
-                    alert("Error: " + xhr.status + " - " + xhr.statusText);
-                }
-            },
-            columns: [
-                {
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    className: 'dt-center',
-                    render: function (data, type, row) {
-                        return `<input type="checkbox" class="row-select small-checkbox" value="${row.GRNCode}" />`;
-                    }
-                },
-                {
-                    data: null,
-                    title: 'Sr No',
-                    orderable: false,
-                    className: 'dt-center',
-                    render: function (data, type, row, meta) {
-                        return meta.row + 1;
-                    }
-                },
-                { data: "GRNCode", orderable: false, className: "dt-center" },
-                { data: "VenderName", orderable: false, className: "dt-center" },
-                { data: "AddDate", orderable: false, className: "dt-center" },
-                {
-                    data: "ItemCount", // ✅ new column
-                    orderable: false,
-                    className: "dt-center",
-                    render: function (data, type, row) {
-                        return data || 0;
-                    }
-                },
-                {
-                    data: null,
-                    className: "dt-center",
-                    orderable: false,
-                    render: function (data, type, row) {
-                        return `<button class="btn btn-sm btn-primary view-details-btn"
-            data-grn="${row.GRNCode}"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            title="View Details">
-                <i class="btn-sm bi-eye"></i>
-            </button>`;
-                    }
-                }
-            ],
+        var table = $('#NonConfirmItemTable').DataTable({
+    processing: true,
+    serverSide: false,
+    responsive: true,
+    paging: true,
+    searching: true,
+    ordering: false,
+    lengthChange: false,
+    pageLength: 10,
 
-            buttons: mainTableExportButtons
-        });
+    ajax: {
+        url: '@Url.Action("nonConfirmItemsPR", "Quality")',
+        type: "GET",
+        dataType: "json",
+        dataSrc: 'data',
+        error: function (xhr) {
+            console.log(xhr.responseText);
+        }
+    },
+
+    columns: [
+        {
+            data: null,
+            render: row => `<input type="checkbox" class="row-select small-checkbox" />`
+        },
+        {
+            data: null,
+            render: (d, t, r, m) => m.row + 1
+        },
+        { data: "GRNCode" },
+        { data: "VenderName" },   // ✅ FIXED
+        { data: "AddDate" },
+        { data: "ItemCount", defaultContent: 0 },
+        {
+            data: null,
+            render: row => `
+                <button class="btn btn-sm btn-primary view-details-btn"
+                    data-grn="${row.GRNCode}">
+                    <i class="bi bi-eye"></i>
+                </button>`
+        }
+    ],
+
+    buttons: mainTableExportButtons
+});
+
 
         // Initialize Bootstrap tooltips on page load
         $('body').tooltip({
@@ -971,7 +957,7 @@
         });
 
         // Re-initialize tooltips on every DataTable draw
-        $('#Non-confirmItemTable').on('draw.dt', function () {
+        $('#NonConfirmItemTable').on('draw.dt', function () {
             $('[data-bs-toggle="tooltip"]').tooltip();
         });
 
@@ -980,13 +966,13 @@
             $('.row-select').prop('checked', this.checked);
         });
 
-        $('#Non-confirmItemTable tbody').on('change', '.row-select', function () {
+        $('#NonConfirmItemTable tbody').on('change', '.row-select', function () {
             const allChecked = $('.row-select').length === $('.row-select:checked').length;
             $('#selectAllNonConfirm').prop('checked', allChecked);
         });
 
         // 🔹 Modal View: Fetch Details via AJAX
-        $('#Non-confirmItemTable').on('click', '.view-details-btn', function () {
+        $('#NonConfirmItemTable').on('click', '.view-details-btn', function () {
             const grnCode = $(this).data('grn');
             $('#modalGRNCodeNonConfirm').text(grnCode);
             const tbody = $('#itemDetailsTableNonConfirm tbody');
