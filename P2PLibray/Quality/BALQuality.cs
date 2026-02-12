@@ -83,9 +83,7 @@ namespace P2PLibray.Quality
                 }
             }
 
-					});
-				}
-			}
+			
 
 			return list;
 		}

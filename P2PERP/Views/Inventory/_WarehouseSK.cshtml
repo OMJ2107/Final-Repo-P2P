@@ -2,9 +2,9 @@
     <div class="flex-grow-1 text-center">
         <h4 class="mb-0 h3 text-primary">Warehouse List</h4>
     </div>
-    <button class="btn btn-sm btn-success" id="btnAddWarehouse">
+    @*<button class="btn btn-sm btn-success" id="btnAddWarehouse">
         <i class="bi bi-plus-circle"></i> Add Warehouse
-    </button>
+    </button>*@
 </div>
 
 <style>
@@ -457,7 +457,7 @@
                     { data: "WareHouseId", visible: false },
                     { data: "WarehouseCode", visible: false },
                     { data: "WarehouseName" },
-                    { data: "Address" },
+                    { data: "Address", visible: false },
                     {
                         data: null,
                         render: function (data, type, row) {
@@ -501,12 +501,8 @@
                                     <button class="btn btn-sm btn-primary btn-view" data-id="${data}" data-bs-toggle="tooltip" title="View Warehouse">
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-secondary btn-edit" data-id="${data}" data-bs-toggle="tooltip" title="Edit Warehouse">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger btn-delete" data-id="${data}" data-bs-toggle="tooltip" title="Delete Warehouse">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    
+                                   
                                 </div>
                             `;
                         }
