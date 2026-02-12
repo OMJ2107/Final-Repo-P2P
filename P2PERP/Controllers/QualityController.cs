@@ -169,11 +169,11 @@ namespace P2PERP.Controllers
         {
             var confirmList = await bal.ConfirmItemGrnPSR();
 
-            return Json(new { data = confirmList }, JsonRequestBehavior.AllowGet);
-        }
+			return Json(new { data = confirmList }, JsonRequestBehavior.AllowGet);
+		}
 
-        // ✅ Get Confirmed Item Details by GRN Code
-        [HttpGet]
+		// ✅ Get Confirmed Item Details by GRN Code
+		[HttpGet]
         public async Task<JsonResult> ConfirmedItemsDetailsPR(string grnCode)
         {
             if (string.IsNullOrEmpty(grnCode))
