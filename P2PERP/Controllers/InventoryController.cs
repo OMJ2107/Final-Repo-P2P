@@ -1513,7 +1513,7 @@ namespace P2PERP.Controllers
         }
 
         // Loads the Item Stock Refill (ISR) view for MHB.
-        [DisplayName("Item Stock Refile")]
+        [DisplayName("Requisition Analysis")]
         public ActionResult ISRStockMHB()
         {
             return View();
