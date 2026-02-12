@@ -13,7 +13,7 @@
 
         <!--  Empty right column (optional) -->
         <div class="col-md-3"></div>
-    </div>
+    
 
     <table id="NonConfirmItemTable" class="table table-striped table-bordered wrap" style="width:100%">
         <thead class="table-dark">
@@ -31,6 +31,7 @@
     </table>
 </div>
 
+    </div>
 <!-- Bootstrap Modal for Viewing Details -->
 <div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-labelledby="viewDetailsModalLabel" aria-hidden="true" data-bs-backdrop="True">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -903,7 +904,6 @@
             return false;
         });
 
-        // Main DataTable Initialization
         var table = $('#NonConfirmItemTable').DataTable({
     processing: true,
     serverSide: false,
@@ -913,6 +913,9 @@
     ordering: false,
     lengthChange: false,
     pageLength: 10,
+
+    // ✅ ADD THIS DOM LINE (Same as modal table style)
+    dom: '<"d-flex justify-content-between align-items-center mb-2"Bf>rt<"d-flex justify-content-between align-items-center mt-2"ip>',
 
     ajax: {
         url: '@Url.Action("nonConfirmItemsPR", "Quality")',
@@ -934,7 +937,7 @@
             render: (d, t, r, m) => m.row + 1
         },
         { data: "GRNCode" },
-        { data: "VenderName" },   // ✅ FIXED
+        { data: "VenderName" },
         { data: "AddDate" },
         { data: "ItemCount", defaultContent: 0 },
         {
@@ -949,6 +952,7 @@
 
     buttons: mainTableExportButtons
 });
+
 
 
         // Initialize Bootstrap tooltips on page load

@@ -491,6 +491,7 @@
                 { data: "AddedBy" },
                 {
                     data: "Description",
+                    visible: false,
                     render: function (data, type, row) {
                         if (!data) return "-";
                         const shortText = data.length > 30 ? data.substring(0, 30) + "..." : data;
