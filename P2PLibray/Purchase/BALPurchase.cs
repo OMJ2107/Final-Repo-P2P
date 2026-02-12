@@ -1148,14 +1148,11 @@ namespace P2PLibray.Purchase
         {
             try
             {
-
                 Dictionary<string, string> dic = new Dictionary<string, string>();
                 dic.Add("@Flag", "GetPOHeaderNAM");
                 dic.Add("@POCode", poCode);
 
-
                 var ds = await obj.ExecuteStoredProcedureReturnDS("PurchaseProcedure", dic);
-
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
@@ -1164,12 +1161,18 @@ namespace P2PLibray.Purchase
                     {
                         POCode = row.Table.Columns.Contains("POCode") ? row["POCode"]?.ToString() : null,
                         RegisterQuotationCode = row.Table.Columns.Contains("RegisterQuotationCode") ? row["RegisterQuotationCode"]?.ToString() : null,
-                        AddedDateVK = row.Table.Columns.Contains("AddedDate") && row["AddedDate"] != DBNull.Value
-                            ? Convert.ToDateTime(row["AddedDate"]).ToString("yyyy-MM-dd")
+                        AddedDateVK = row.Table.Columns.Contains("PODate") && row["PODate"] != DBNull.Value
+                            ? Convert.ToDateTime(row["PODate"]).ToString("yyyy-MM-dd")
                             : null,
                         ApprovedRejectedDateVK = row.Table.Columns.Contains("ApprovedRejectedDate") && row["ApprovedRejectedDate"] != DBNull.Value
                             ? Convert.ToDateTime(row["ApprovedRejectedDate"]).ToString("yyyy-MM-dd")
                             : null,
+
+                        // ✅ Vendor Delivery Date (VK removed)
+                        VendorDeliveryDate = row.Table.Columns.Contains("VendorDeliveryDate") && row["VendorDeliveryDate"] != DBNull.Value
+                            ? Convert.ToDateTime(row["VendorDeliveryDate"]).ToString("yyyy-MM-dd")
+                            : null,
+
                         TotalAmount = row.Table.Columns.Contains("TotalAmount") && row["TotalAmount"] != DBNull.Value
                             ? Convert.ToDecimal(row["TotalAmount"])
                             : 0m,
@@ -1193,6 +1196,7 @@ namespace P2PLibray.Purchase
                 throw new Exception("Error in GetPOHeaderNAM", ex);
             }
         }
+
 
         /// <summary>
         /// Retrieves the purchase order item details by PO code.

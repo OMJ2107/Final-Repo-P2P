@@ -149,10 +149,32 @@
         flex-grow: 1;
     }
 
-    .btn-close-custom {
+
+
+    .visually-hidden {
         position: absolute;
-        right: 15px;
-        background: rgba(255, 255, 255, 0.2);
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+    }
+
+    .confirm-list-body,
+    .nonconfirm-list-body {
+        max-height: 400px;
+        overflow-y: auto;
+        overflow-x: auto;
+        padding: 15px;
+    }
+
+
+
+    .calendar-btn {
+        background-color: #6f42c1;
+        color: white;
         border: none;
         color: white;
         width: 28px;
@@ -268,17 +290,10 @@
 
 
 
-<!-- Unified Modal (Aligned with Inventory) -->
-<div class="modal fade" id="chartModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div id="modalHeader" class="modal-header">
-                <h5 id="modalTitle" class="modal-title">Details</h5>
-                <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="modal-body p-4">
+
+            <!-- Modal Body -->
+            <div class="modal-body Pending-list-body" style="max-height: 500px; overflow-y: auto;">
+                <!-- Table -->
                 <div class="table-responsive">
                     <table id="chartDataTable" class="table w-100">
                         <!-- Table structure will be dynamic or updated via JS -->

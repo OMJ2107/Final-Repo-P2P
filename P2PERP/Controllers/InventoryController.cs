@@ -2,17 +2,18 @@
 using P2PLibray.Inventory;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
-using System.Net.Mail;
 using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using static P2PLibray.Inventory.Inventory;
-using System.IO;
 
 namespace P2PERP.Controllers
 {
@@ -22,6 +23,7 @@ namespace P2PERP.Controllers
         // GET: InventoryP2P
         [Route("Inventory/InventoryDashboard")]
         [HttpGet]
+        [DisplayName("Dashboard")]
         public ActionResult Index()
         {
             var RoleId = Convert.ToInt32(Session["RoleId"]);
@@ -200,6 +202,7 @@ namespace P2PERP.Controllers
         #region Divyani
 
         // Loads the Receive Material view
+        [DisplayName("Receive Material")]
         public ActionResult ReceiveMaterialDRB()
         {
             return View();
@@ -264,6 +267,7 @@ namespace P2PERP.Controllers
 
         // Loads the Issue In-House view
         [HttpGet]
+        [DisplayName("In-House Transfer")]
         public ActionResult IssueInHouseDRB()
         {
             return View();
@@ -464,6 +468,7 @@ namespace P2PERP.Controllers
         // GET: InventoryP2P
 
         //Stock Cheak Main View
+        [DisplayName("Stock Check")]
         public Task<ActionResult> StocksCheakLM()
         {
 
@@ -471,18 +476,21 @@ namespace P2PERP.Controllers
         }
 
         //Current Stock Partial View
+        [DisplayName("Current Stock")]
         public ActionResult _currentStocksLM()
         {
             return View();
         }
 
         //NonMoving Stock Partial View
+        [DisplayName("Dead Stock")]
         public ActionResult _nonMovingSLM()
         {
             return View();
         }
 
         //Quality Cheak Stock Partial View
+        [DisplayName("Quality Check")]
         public ActionResult _qualityCheakLM()
         {
             return View();
@@ -543,6 +551,7 @@ namespace P2PERP.Controllers
         /// Requirement Master main view
         /// Displays list of item requirements
         /// </summary>
+        [DisplayName("Requirement Master")]
         public ActionResult ReqMasterRHK()
         {
             return View();
@@ -648,6 +657,7 @@ namespace P2PERP.Controllers
         /// Stock Master main view
         /// Displays list of material requirement plans
         /// </summary>
+        [DisplayName("Stock Master")]
         public ActionResult StockMasterRHK()
         {
             return View();
@@ -778,6 +788,7 @@ namespace P2PERP.Controllers
         /// Loads Received Material Report view.
         /// </summary>
         [HttpGet]
+        [DisplayName("Received Material Reports")]
         public ActionResult ReceivedMaterialReportAMG()
         {
             try
@@ -810,6 +821,7 @@ namespace P2PERP.Controllers
         /// <summary>
         /// Loads Inhouse Transfer Report view.
         /// </summary>
+        [DisplayName("In-House Transfer Reports")]
         public ActionResult InhouseTransferReportVAMG()
         {
             try
@@ -841,6 +853,7 @@ namespace P2PERP.Controllers
 
         #region Saurabh
         // GET: InventoryP2P
+        [DisplayName("Wherehouse Master")]
         public ActionResult WHIndex()
         {
             return View();
@@ -1456,6 +1469,7 @@ namespace P2PERP.Controllers
 
         #region Mayur
         // Loads the stock level view for MHB location.
+        [DisplayName("Stock Level")]
         public ActionResult ShowStocklevelMHB()
 
         {
@@ -1499,6 +1513,7 @@ namespace P2PERP.Controllers
         }
 
         // Loads the Item Stock Refill (ISR) view for MHB.
+        [DisplayName("Item Stock Refile")]
         public ActionResult ISRStockMHB()
         {
             return View();
@@ -1533,6 +1548,7 @@ namespace P2PERP.Controllers
         }
 
         // Loads the Just-In-Time (JIT) stock view for MHB.
+        [DisplayName("Just In Time")]
         public ActionResult JITStockMHB()
         {
             return View();
@@ -1599,6 +1615,7 @@ namespace P2PERP.Controllers
         }
 
         // Loads the MRP new planning view for MHB.
+        [DisplayName("Material Required Planning")]
         public ActionResult NewplanMHB()
         {
             return View();
@@ -1614,6 +1631,7 @@ namespace P2PERP.Controllers
         }
 
         // Loads the manager approval dashboard view.
+        [DisplayName("Material Required Planning Approval")]
         public ActionResult ManagerApprovalMHB()
         {
             return View();
@@ -1990,6 +2008,7 @@ namespace P2PERP.Controllers
 
 
         // Main Category View
+        [DisplayName("Item Master")]
         public ActionResult CategorySSG()
         {
             return View();

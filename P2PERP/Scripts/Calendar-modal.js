@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <strong>Goods Return Code:</strong> ${safe(props.GoodsReturnCode)}
+                        <strong>Purchase Return Code:</strong> ${safe(props.GoodsReturnCode)}
                     </div>
                     <div class="col-sm-6">
                         <strong>GRN Code:</strong> ${safe(props.GRNCode)}

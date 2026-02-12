@@ -5,6 +5,7 @@ using P2PLibray.Account;
 using P2PLibray.GRN;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
@@ -64,6 +65,7 @@ namespace P2PERP.Controllers
         }
 
         // ---- Loads the Rejected Goods page
+        [DisplayName("Rejected Goods")]
         public ActionResult RejectedGoods()
         {
             return View();
@@ -266,6 +268,7 @@ namespace P2PERP.Controllers
         #region Pravin
 
         //GRN Summary Report Action Methods
+        [DisplayName("GRN Summary Reports")]
         public ActionResult GRNSummaryReportPSM()
         {
             return View();
@@ -371,6 +374,7 @@ namespace P2PERP.Controllers
 
 
         //Return Good Report Action Methods
+        [DisplayName("Purchase Return Summary Reports")]
         public ActionResult GoodsReturnSummaryReportPSM()
         {
             return View();
@@ -516,6 +520,7 @@ namespace P2PERP.Controllers
 
 
         //Quality check Report Action Method 
+        [DisplayName("Quality Check Reports")]
         public ActionResult GRNQualityCheckPSM()
         {
             return View();
@@ -589,6 +594,7 @@ namespace P2PERP.Controllers
 
 
         // Approved Purchase Order Item  Action Method
+        [DisplayName("Approved Purchase Order Reports")]
         public ActionResult ApprovedPOReportPSM()
         {
             return View();
@@ -721,7 +727,7 @@ namespace P2PERP.Controllers
         #endregion
 
         #region Rushikesh
-
+        [DisplayName("Dashboard")]
         public ActionResult GRNDashboardRHK()
         {
             return View();
@@ -1170,6 +1176,7 @@ namespace P2PERP.Controllers
 
 
         // Returns the main GRN page view
+        [DisplayName("Goods Receive Notes")]
         public ActionResult GRNSSG()
         {
             return View();

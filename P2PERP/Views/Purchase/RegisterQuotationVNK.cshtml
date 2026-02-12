@@ -371,6 +371,7 @@ $(document).ready(function(){
 
                 row.amount = calcLine(row.qty, row.cpu, row.disc, row.gst).lineTotal;
                 gridItems.push(row);
+                console.log(gridItems)
             });
             renderGrid();
         }
@@ -392,7 +393,7 @@ $(document).ready(function(){
         return {lineTotal:parseFloat((taxable+gstAmt).toFixed(2))};
     }
 
-    function renderGrid(){
+    function renderGrid() {
         const $tb=$("#grid tbody").empty(); let total=0;
         gridItems.forEach((r,idx)=>{
             total+=r.amount;

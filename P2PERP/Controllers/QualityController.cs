@@ -3,15 +3,16 @@ using P2PLibray.GRN;
 using P2PLibray.Quality;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
-using System.Net.Mail;
 using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using static P2PLibray.Quality.GRNShowItemPR;
 using static P2PLibray.Quality.Quality;
-using System.IO;
 
 namespace P2PERP.Controllers
 {
@@ -101,6 +102,7 @@ namespace P2PERP.Controllers
         #region Prashant
 
         // Loads the Quality Check Reports page (View only)
+        [DisplayName("Qality Cheack Reports")]
         public ActionResult QalityCheackReports()
         {
             return View();
@@ -327,6 +329,7 @@ namespace P2PERP.Controllers
 
         // GET: QualityP2P
         //  Default Index action
+        [DisplayName("Check Quality")]
         public ActionResult IndexRG()
         {
             return View();
@@ -494,6 +497,7 @@ namespace P2PERP.Controllers
         }
 
         [Route("Quality/QCheckDashboard")]
+        [DisplayName("Dashboard")]
         // GET: Quality Dashboard for NAM
         public ActionResult QCheckDashboardNAM()
         {
