@@ -1,22 +1,21 @@
-﻿
-@model P2PLibray.Inventory.InventoryMHB
+﻿@model P2PLibray.Inventory.InventoryMHB
 
 <div class="card p-3">
     <form id="raiseOrderForm" method="post" action="/Inventory/SubmitPRMHB" novalidate>
         <div class="row mb-2">
             <div class="col">
-                <label  class="form-label form-label-sm fw-bold text-dark">Item Name</label>
+                <label class="form-label form-label-sm fw-bold text-dark">Item Name</label>
                 <input type="text" class="form-control form-control-sm  text-dark shadow-sm bg-light " value="@Model.ItemName" readonly />
             </div>
             <div class="col">
-                <label  class="form-label form-label-sm fw-bold text-dark">Item Code</label>
+                <label class="form-label form-label-sm fw-bold text-dark">Item Code</label>
                 <input type="text" name="ItemCode" class="form-control form-control-sm  text-dark shadow-sm bg-light" value="@Model.ItemCode" readonly />
             </div>
         </div>
 
         <div class="row mb-2">
             <div class="col">
-                <label  class="form-label form-label-sm fw-bold text-dark">Quantity <span class="required-star">*</span></label>
+                <label class="form-label form-label-sm fw-bold text-dark">Quantity <span class="required-star">*</span></label>
                 <input type="number" id="Quantity" name="Quantity" class="form-control form-control-sm  text-dark shadow-sm "
                        placeholder="Order Quantity upto @Model.ReorderQuantity"
                        min="1"
@@ -25,21 +24,21 @@
                 <small class="text-danger d-none" id="qtyError"></small>
             </div>
             <div class="col">
-                <label  class="form-label form-label-sm fw-bold text-dark">UOM</label>
+                <label class="form-label form-label-sm fw-bold text-dark">UOM</label>
                 <input type="text" class="form-control form-control-sm  text-dark shadow-sm bg-light" value="@Model.UOMName" readonly />
             </div>
         </div>
 
         <div class="row mb-2">
             <div class="col">
-                <label  class="form-label form-label-sm fw-bold text-dark" >Description</label>
+                <label class="form-label form-label-sm fw-bold text-dark">Description</label>
                 <textarea name="Description" class="form-control form-control-sm  text-dark shadow-sm bg-light" readonly>@Model.Description</textarea>
             </div>
             <div class="col">
-                <label for="RequiredDate"  class="form-label form-label-sm fw-bold text-dark" >Required Date <span class="required-star">*</span></label>
+                <label for="RequiredDate" class="form-label form-label-sm fw-bold text-dark">Required Date <span class="required-star">*</span></label>
                 <input type="date" id="RequiredDate" name="RequiredDate"
                        class="form-control form-control-sm  text-dark shadow-sm "
-                       min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                       min="@DateTime.Now.AddDays(5).ToString("yyyy-MM-dd")"
                        required />
                 <small class="text-danger d-none" id="dateError"></small>
             </div>
@@ -68,96 +67,98 @@
     }
 </style>
 
+<script>
+$(function () {
 
-    <script>
-    // -- Use jQuery to make sure DOM is ready and selectors exist --
-    $(function () {
-        console.log("raiseOrderForm script loaded"); // debug: should appear in browser console
+    var $form = $('#raiseOrderForm');
+    var $qty = $('#Quantity');
+    var $date = $('#RequiredDate');
+    var $qtyErr = $('#qtyError');
+    var $dateErr = $('#dateError');
 
-        var $form = $('#raiseOrderForm');
-        var $qty = $('#Quantity');
-        var $date = $('#RequiredDate');
-        var $qtyErr = $('#qtyError');
-        var $dateErr = $('#dateError');
-        var maxQty = parseFloat("@Model.ReorderQuantity") || Infinity;
+    var maxQty = parseFloat("@Model.ReorderQuantity") || 0;
 
-        // Defensive checks: ensure elements are found
-        if ($form.length === 0) { console.error("raiseOrderForm not found"); return; }
-        if ($qty.length === 0) { console.error("Quantity input not found"); }
-        if ($date.length === 0) { console.error("RequiredDate input not found"); }
+    // Defensive check
+    if ($form.length === 0) return;
 
-        // Remove error visuals when user changes input
-        $qty.on('input', function () {
+    // 🔹 Quantity Validation
+    $qty.on('input', function () {
+
+        let qtty = parseInt($(this).val());
+
+        if (isNaN(qtty) || qtty <= 0) {
+            showError($qty, $qtyErr, "Quantity must be greater than 0");
+
+            return;
+        }
+
+        if (qtty > maxQty) {
+            $(this).val(maxQty);
+            showError($qty, $qtyErr, "Max quantity is " + maxQty);
+
+        }
+        if (qtty == maxQty) {
+            $(this).val(maxQty);
+
             clearError($qty, $qtyErr);
-        });
-        $date.on('change input', function () {
-            clearError($date, $dateErr);
-        });
-
-        // Submit handler
-        $form.on('submit', function (ev) {
-            console.log("submit clicked"); // debug
-            var valid = true;
-
-            // Validate quantity
-            var qtyVal = $qty.val();
-            // convert to number
-            var qtyNum = parseFloat(qtyVal);
-            if (isNaN(qtyNum) || qtyNum < 1 || qtyNum > maxQty) {
-                showError($qty, $qtyErr, ' Quantity must be between 1 and ' + maxQty + '.');
-                valid = false;
-            } else {
-                clearError($qty, $qtyErr);
-            }
-
-            // Validate date (non-empty and not before today)
-            var dateVal = $date.val();
-            if (!dateVal) {
-                showError($date, $dateErr, ' Please select a required date.');
-                valid = false;
-            } else {
-                // optional: ensure date is today or later
-                var selectedDate = new Date(dateVal);
-                var today = new Date();
-                // zero time part for comparison
-                today.setHours(0,0,0,0);
-                selectedDate.setHours(0,0,0,0);
-                if (selectedDate < today) {
-                    showError($date, $dateErr, '⚠️ Required date cannot be in the past.');
-                    valid = false;
-                } else {
-                    clearError($date, $dateErr);
-                }
-            }
-
-            if (!valid) {
-                ev.preventDefault();
-                ev.stopImmediatePropagation();
-                // focus first invalid field for UX
-                if ($qty.hasClass('error-border')) $qty.focus();
-                else if ($date.hasClass('error-border')) $date.focus();
-                return false;
-            }
-
-            // If everything valid let the form submit normally (or do your AJAX here)
-            // If you use AJAX, prevent default and call AJAX; else allow submit
-            // ev.preventDefault(); // uncomment if using AJAX submit
-        });
-
-        // helper functions
-        function showError($input, $errElem, message) {
-            if ($input && $input.length) $input.addClass('error-border');
-            if ($errElem && $errElem.length) {
-                $errElem.text(message).removeClass('d-none');
-            }
+        }
+        else {
+            clearError($qty, $qtyErr);
         }
 
-        function clearError($input, $errElem) {
-            if ($input && $input.length) $input.removeClass('error-border');
-            if ($errElem && $errElem.length) {
-                $errElem.text('').addClass('d-none');
-            }
-        }
     });
-    </script>
 
+    // 🔹 Date Clear Error
+    $date.on('change input', function () {
+        clearError($date, $dateErr);
+    });
+
+    // 🔹 Submit Validation
+    $form.on('submit', function (ev) {
+
+        var valid = true;
+
+        let qtyNum = parseFloat($qty.val());
+
+        if (isNaN(qtyNum) || qtyNum < 1 || qtyNum > maxQty) {
+            showError($qty, $qtyErr, "Quantity must be between 1 and " + maxQty);
+            valid = false;
+        }
+
+        let dateVal = $date.val();
+
+        if (!dateVal) {
+            showError($date, $dateErr, "Please select date");
+            valid = false;
+        }
+        else {
+            let selectedDate = new Date(dateVal);
+            let today = new Date();
+            today.setHours(0,0,0,0);
+
+            if (selectedDate < today) {
+                showError($date, $dateErr, "Date cannot be past");
+                valid = false;
+            }
+        }
+
+        if (!valid) {
+            ev.preventDefault();
+            return false;
+        }
+
+    });
+
+    // 🔹 Helper Functions
+    function showError($input, $errElem, message) {
+        $input.addClass('error-border');
+        $errElem.text(message).removeClass('d-none');
+    }
+
+    function clearError($input, $errElem) {
+        $input.removeClass('error-border');
+        $errElem.text('').addClass('d-none');
+    }
+
+});
+</script>

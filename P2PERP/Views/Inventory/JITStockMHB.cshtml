@@ -2,7 +2,7 @@
 
 
 @{
-    ViewBag.Title = "JITStockMHB";
+    ViewBag.Title = "Just In Time";
 }
 
 <div class="container mt-4 container-fluid">
@@ -52,7 +52,8 @@
                 <label for="RequiredDate" class="form-label fw-bold text-dark">Required Date <span class="text-danger">*</span></label>
                 <input type="date" id="RequiredDate" name="RequiredDate"
                        class="form-control form-control-sm shadow-sm text-dark"
-                       min="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                       min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                       max="@DateTime.Now.AddDays(5).ToString("yyyy-MM-dd")" required>
                 <div class="invalid-feedback">Please select a valid date.</div>
             </div>
 
@@ -67,71 +68,7 @@
 
 
 
-<!--<div class="container mt-4 container-fluid">-->
-<!-- ✅ Alert Messages -->
-<!--<div id="alertSuccess" class="alert alert-success d-none" role="alert">
-    ✅ Stock request submitted successfully!
-</div>
-<div id="alertError" class="alert alert-danger d-none" role="alert">
-    ❌ Failed to submit stock request.
-</div>-->
-<!-- 📋 Form -->
-<!--<form id="stockForm" class="bg-white p-4 rounded shadow-sm" novalidate>
-    <h3 class="text-center text-primary mb-1 fw-bold">Just In Time - Stock Request</h3>
-    <div class="row g-3">-->
-<!-- 🔽 Item Name Dropdown -->
-<!--<div class="col-md-6">
-    <label for="itemName" class="form-label form-label-sm fw-bold text-dark ">Item Name <span class="text-danger">*</span></label>
-    <select id="itemName" class="form-select form-select-sm item-select shadow-sm" name="ItemId" required>
-        <option value="">-- Select Item --</option>
-    </select>
-    <div class="invalid-feedback">Please select an item.</div>
-</div>-->
-<!-- 🔐 Item Code -->
-<!--<div class="col-md-6">
-    <label for="itemCode" class="form-label form-label-sm fw-bold text-dark ">Item Code</label>
-    <input type="text" class="form-control form-control-sm  text-dark shadow-sm" id="itemCode" name="ItemCode" readonly>
-</div>-->
-<!-- 📏 UOM -->
-<!--<div class="col-md-6">
-    <label for="uom"class="form-label form-label-sm fw-bold text-dark ">UOM</label>
-    <input type="text" class="form-control form-control-sm  text-dark shadow-sm" id="uom" name="UOM" readonly>
-</div>-->
-<!-- 🔢 Quantity -->
-<!--<div class="col-md-6">
-    <label for="quantity" class="form-label form-label-sm fw-bold text-dark ">
-        Quantity <span class="text-danger">*</span>
-    </label>
-    <input type="number" class="form-control form-control-sm  text-dark shadow-sm " id="quantity" name="Quantity"
-           min="1" placeholder="Enter order quantity" required>
-    <div class="invalid-feedback">
-        Please enter a valid quantity greater than 0 and within allowed limit.
-    </div>
-</div>-->
-<!-- 📝 Description -->
-<!--<div class="col-md-6">
-    <label for="description" class="form-label form-label-sm fw-bold text-dark ">Description</label>
-    <textarea class="form-control form-control-sm  text-dark shadow-sm " id="description" name="Description" rows="3" readonly></textarea>
-</div>-->
-<!-- 📅 Required Date -->
-<!--<div class="col-md-6">
-    <label for="RequiredDate" class="form-label form-label-sm fw-bold text-dark ">
-        Required Date <span class="text-danger">*</span>
-    </label>
-    <input type="date" id="RequiredDate" name="RequiredDate"
-           class="form-control form-control-sm  text-dark shadow-sm" required
-           min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-    <div class="invalid-feedback">
-        Please select a valid date .
-    </div>
-</div>-->
-<!-- ✅ Submit Button -->
-<!--<div class="col-12 text-end mt-4">
-                <button type="submit" class="btn btn-success px-4">Submit</button>
-            </div>
-        </div>
-    </form>
-</div>-->
+
 <style>
     .required-star {
         color: red;
@@ -180,13 +117,14 @@
             });
         });
 
-        // 🔄 Fetch Item Details on Change
+
         $('#itemName').on('change', function () {
             const itemId = $(this).val();
-            $('#itemName').removeClass('is-invalid'); // clear invalid state
+            $('#itemName').removeClass('is-invalid');
 
             if (!itemId) {
-                $('#itemCode, #uom, #description').val('');
+                $('#itemCode, #uom, #description, #quantity').val('');
+                $('#quantity').removeClass('is-invalid');
                 return;
             }
 
@@ -194,13 +132,30 @@
                 $('#itemCode').val(item.ItemCode);
                 $('#uom').val(item.UOMName);
                 $('#description').val(item.Description);
-                $('#quantity').val('');
+
                 $('#quantity')
+                    .val('')
+                    .removeClass('is-invalid')
                     .attr('placeholder', 'Order quantity upto ' + item.ReorderQuantity)
                     .attr('max', item.ReorderQuantity)
-                    .data('maxqty', item.ReorderQuantity); // store for validation
+                    .data('maxqty', item.ReorderQuantity);
             });
         });
+
+        $('#quantity').on('input', function () {
+            const qtyInput = $(this);
+            const qty = parseInt(qtyInput.val(), 10);
+            const maxQty = qtyInput.data('maxqty');
+
+            // If item not selected yet, skip validation
+            if (!maxQty) return;
+
+            // 🔹 Validate Quantity
+            if (isNaN(qty) || qty <= 0 || qty > maxQty) {
+                qtyInput.val(maxQty);
+            }
+        });
+
 
         // ✅ Unified validation + submission
         $('#stockForm').on('submit', function (e) {
