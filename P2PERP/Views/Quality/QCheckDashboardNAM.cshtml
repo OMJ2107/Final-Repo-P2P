@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "QCheckDashboardNAM";
 }
 
@@ -132,12 +131,29 @@
     }
 
     .modal-header {
+        background: var(--theme-purple) !important;
         padding: 12px 25px !important;
         border-bottom: none !important;
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
         position: relative;
+    }
+
+    .btn-close-custom {
+        position: absolute;
+        right: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s;
     }
 
     .modal-title {
@@ -192,11 +208,124 @@
     }
 
     /* Status-Specific Header Backgrounds */
-    .bg-success-premium { background: var(--theme-green) !important; }
-    .bg-danger-premium { background: var(--theme-red) !important; }
-    .bg-warning-premium { background: var(--theme-amber) !important; color: white !important; }
-    .bg-primary-premium { background: var(--theme-purple) !important; }
+    .bg-success-premium {
+        background: var(--theme-green) !important;
+    }
 
+    .bg-danger-premium {
+        background: var(--theme-red) !important;
+    }
+
+    .bg-warning-premium {
+        background: var(--theme-amber) !important;
+        color: white !important;
+    }
+
+    .bg-primary-premium {
+        background: var(--theme-purple) !important;
+    }
+
+    /* 7. Filter Button (Top Right) */
+    .filter-btn-premium {
+        background: var(--theme-purple);
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .filter-btn-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(139, 92, 246, 0.3);
+        background: #7c3aed;
+        color: white;
+    }
+
+    .filter-btn-premium i {
+        font-size: 18px;
+    }
+
+    /* 8. Dashboard Card Enhancements */
+    .dashboard-card {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .card-warning .card-icon-wrapper {
+        background: #fff7ed;
+        color: #f59e0b;
+    }
+
+    .card-success .card-icon-wrapper {
+        background: #f0fdf4;
+        color: #10b981;
+    }
+
+    .card-danger .card-icon-wrapper {
+        background: #fef2f2;
+        color: #ef4444;
+    }
+
+    .card-primary .card-icon-wrapper {
+        background: #f5f3ff;
+        color: #8b5cf6;
+    }
+
+    .card-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1.2;
+    }
+
+    .card-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .card-bg-icon {
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        font-size: 80px;
+        opacity: 0.05;
+        transform: rotate(-15deg);
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
 </style>
 
 <div class="container-fluid py-4">
@@ -207,8 +336,9 @@
             <p class="text-secondary small mb-0">Overview of item inspection status</p>
         </div>
         <div class="header-actions">
-            <button id="calendarTrigger" class="calendar-trigger-btn" title="Filter by Date">
-                <i class="bi bi-calendar-date fs-5"></i>
+            <button id="dateFilterBtn" class="filter-btn-premium" data-bs-toggle="tooltip" title="Filter Date">
+                <i class="bi bi-calendar4-week"></i>
+                <span>Filter Date</span>
             </button>
             <input type="text" id="reportrange" style="width: 1px; height: 1px; opacity: 0; position: absolute;" />
         </div>
@@ -256,7 +386,7 @@
         </div>
 
         <div class="col-md-3">
-            <div class="dashboard-card card-primary">
+            <div class="dashboard-card card-primary cursor-pointer" onclick="loadTotalQCList()">
                 <div class="card-icon-wrapper">
                     <i class="bi bi-bar-chart-line"></i>
                 </div>
@@ -268,6 +398,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Chart Section -->
     <div class="row">
@@ -291,12 +423,19 @@
 
 
 
-            <!-- Modal Body -->
-            <div class="modal-body Pending-list-body" style="max-height: 500px; overflow-y: auto;">
-                <!-- Table -->
+<!-- Unified Modal (Align with Inventory) -->
+<div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">
+                <h5 id="modalTitle" class="modal-title">Inspection Details</h5>
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body p-4">
                 <div class="table-responsive">
                     <table id="chartDataTable" class="table w-100">
-                        <!-- Table structure will be dynamic or updated via JS -->
                     </table>
                 </div>
             </div>
@@ -311,88 +450,54 @@
 
     let startDateGlobal = null;
     let endDateGlobal = null;
+
     $(document).ready(function () {
         $.fn.dataTable.ext.errMode = 'none';
-        loadDashboardData(); // initial load
+        loadDashboardData();
         initDateRangePicker();
 
-        // Open datepicker on calendar button click
-        $('#calendarTrigger').on('click', function () {
-            $('#reportrange').data('daterangepicker').show();
-        });
+        // Initialize tooltips (for the FAB)
+        $('[data-bs-toggle="tooltip"]').tooltip();
     });
 
     // Toast Notification
     function showToast(message, type = 'warning') {
-        // Map to Bootstrap contextual colors
         let icon = '';
-        let progressColor = '';
-
         switch (type) {
-            case 'success':
-                icon = '<i class="bi bi-check-circle-fill me-2"></i>';
-                progressColor = 'bg-light';
-                break;
-            case 'warning':
-                icon = '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
-                progressColor = 'bg-dark';
-                break;
-            case 'info':
-                icon = '<i class="bi bi-info-circle-fill me-2"></i>';
-                progressColor = 'bg-light';
-                break;
-            default: // error
-                icon = '<i class="bi bi-x-circle-fill me-2"></i>';
-                progressColor = 'bg-light';
+            case 'success': icon = '<i class="bi bi-check-circle-fill me-2"></i>'; break;
+            case 'warning': icon = '<i class="bi bi-exclamation-triangle-fill me-2"></i>'; break;
+            case 'info': icon = '<i class="bi bi-info-circle-fill me-2"></i>'; break;
+            default: icon = '<i class="bi bi-x-circle-fill me-2"></i>';
         }
 
         const toastId = `toast-${Date.now()}`;
-
-        // ✅ Toast HTML with white text for all
         const toastHTML = `
-<div id="${toastId}" class="toast align-items-center bg-${type} border-0 mb-2 shadow-lg"
-                                 role="alert" aria-live="assertive" aria-atomic="true"
-                                 data-bs-delay="3000" data-bs-animation="true">
-                                <div class="d-flex">
-                                    <div class="toast-body d-flex align-items-center text-white">
-                                        ${icon} ${message}
-                                    </div>
-                                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
-                                            data-bs-dismiss="toast" aria-label="Close"></button>
-                                </div>
-                                <div class="progress" style="height: 3px; margin:0; background: rgba(255,255,255,0.3);">
-                            <div class="progress-bar" role="progressbar"></div>
-</div>
+            <div id="${toastId}" class="toast align-items-center bg-${type} border-0 mb-2 shadow-lg"
+                 role="alert" aria-live="assertive" aria-atomic="true"
+                 data-bs-delay="3000" data-bs-animation="true">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center text-white">
+                        ${icon} ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="progress" style="height: 3px; margin:0; background: rgba(255,255,255,0.3);">
+                    <div class="progress-bar" role="progressbar"></div>
+                </div>
+            </div>`;
 
-</div>`;
-
-        const $toast = $(toastHTML);
-        $('#toastContainer').prepend($toast); // newestOnTop
-
-        // ✅ Initialize bootstrap toast
+        $('#toastContainer').prepend(toastHTML);
+        const $toast = $(`#${toastId}`);
         const toast = new bootstrap.Toast($toast[0], { delay: 3000 });
         toast.show();
 
-        // ✅ Animate progress bar
         $toast.find('.progress-bar')
-            .css({
-                width: "100%",
-                float: "right",
-                backgroundColor: "black"
-            })
-            .animate(
-                { width: "0%" },
-                { duration: 3000, easing: "linear" }
-            );
+            .css({ width: "100%", float: "right", backgroundColor: "white" })
+            .animate({ width: "0%" }, { duration: 3000, easing: "linear" });
 
-
-
-        // ✅ Auto-remove
-        $toast.on('hidden.bs.toast', function () {
-            $(this).remove();
-        });
+        $toast.on('hidden.bs.toast', function () { $(this).remove(); });
     }
-
 
     // === Dashboard Data ===
     function loadDashboardData(startDate = null, endDate = null) {
@@ -407,31 +512,18 @@
             data: requestData,
             success: function (data) {
                 if (data) {
-                    // Show individual counts
                     $('#confirm').text(data.ConfirmCount);
                     $('#nonconfirm').text(data.NonConfirmCount);
-                    $('#pending').text(data.PendingCount); // ✅ Pending dikhega
+                    $('#pending').text(data.PendingCount);
 
-                    // ✅ Total QC = ONLY Confirm + Non-Confirm
-                    const totalQC =
-                        (data.ConfirmCount || 0) +
-                        (data.NonConfirmCount || 0);
-
+                    const totalQC = (data.ConfirmCount || 0) + (data.NonConfirmCount || 0);
                     $('#totalqc').text(totalQC);
 
-                    // Chart (agar pending dikhana hai to rehne do)
-                    renderDoughnutChart(
-                        data.ConfirmCount,
-                        data.NonConfirmCount,
-                        data.PendingCount
-                    );
+                    renderDoughnutChart(data.ConfirmCount, data.NonConfirmCount, data.PendingCount);
                 }
             }
         });
     }
-
-
-
 
     function renderDoughnutChart(c, n, p) {
         Highcharts.chart('doughnutChart', {
@@ -440,35 +532,22 @@
                 backgroundColor: 'transparent',
                 height: 350,
                 spacing: [20, 20, 20, 20],
-                style: {
-                    fontFamily: "'Inter', sans-serif"
-                }
+                style: { fontFamily: "'Inter', sans-serif" }
             },
-            title: {
-                text: null // Title already in chart-header
-            },
+            title: { text: null },
             xAxis: {
                 categories: ['Approved Quality', 'Rejected Quality', 'Pending Units'],
                 title: { text: null },
                 gridLineWidth: 0,
                 lineWidth: 0,
                 labels: {
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: '#64748b'
-                    }
+                    style: { fontSize: '14px', fontWeight: '600', color: '#64748b' }
                 }
             },
             yAxis: {
                 min: 0,
-                title: {
-                    text: 'Quantity of Items',
-                    style: { color: '#94a3b8' }
-                },
-                labels: {
-                    style: { color: '#94a3b8' }
-                },
+                title: { text: 'Quantity of Items', style: { color: '#94a3b8' } },
+                labels: { style: { color: '#94a3b8' } },
                 gridLineColor: '#f1f5f9',
                 gridLineDashStyle: 'Dash'
             },
@@ -490,23 +569,15 @@
                     dataLabels: {
                         enabled: true,
                         format: '{y}',
-                        style: {
-                            fontSize: '13px',
-                            fontWeight: '700',
-                            color: '#1e293b',
-                            textOutline: 'none'
-                        }
+                        style: { fontSize: '13px', fontWeight: '700', color: '#1e293b', textOutline: 'none' }
                     },
                     cursor: 'pointer',
                     point: {
                         events: {
                             click: function () {
-                                if (this.category === 'Approved Quality')
-                                    loadConfirmList();
-                                else if (this.category === 'Rejected Quality')
-                                    loadNonConfirmList();
-                                else if (this.category === 'Pending Units')
-                                    loadPendingList();
+                                if (this.category === 'Approved Quality') loadConfirmList();
+                                else if (this.category === 'Rejected Quality') loadNonConfirmList();
+                                else if (this.category === 'Pending Units') loadPendingList();
                             }
                         }
                     }
@@ -518,16 +589,13 @@
                 name: 'Status',
                 colorByPoint: true,
                 data: [
-                    { name: 'Approved Quality', y: c, color: '#10b981' }, // Success Emerald
-                    { name: 'Rejected Quality', y: n, color: '#ef4444' }, // Danger Rose
-                    { name: 'Pending Units', y: p, color: '#f59e0b' }    // Warning Amber
+                    { name: 'Approved Quality', y: c, color: '#10b981' },
+                    { name: 'Rejected Quality', y: n, color: '#ef4444' },
+                    { name: 'Pending Units', y: p, color: '#f59e0b' }
                 ]
             }]
         });
     }
-
-
-
 
     // Unified Modal Open Logic
     function openStatusModal(type) {
@@ -535,152 +603,144 @@
         let headerClass = "";
         let url = "";
         let columns = [];
+        let selectedRows = new Set();
+        let exportRowIndex = 0;
 
-        // Define Header Checkbox HTML
-        const headerCheckbox = (id) => `<input type="checkbox" id="${id}" class="form-check-input" />`;
+        const headerCheckbox = '<input type="checkbox" id="selectAllRows" class="form-check-input" />';
 
         switch (type) {
             case 'pending':
                 title = "Pending Inspection List";
                 headerClass = "bg-warning-premium";
                 url = "/Quality/GetPendingListNAM";
-                columns = [
-                    { title: headerCheckbox('selectAllRows'), data: 'QualityCheckCode', className: 'text-center', render: (d) => `<input type="checkbox" class="row-select" value="${d}" />` },
-                    { title: "Sr.No", data: null, className: 'text-center', render: (d, t, r, meta) => meta.row + meta.settings._iDisplayStart + 1 },
-                    { title: "QC Code", data: 'QualityCheckCode', className: 'text-center' },
-                    { title: "Item Name", data: 'ItemName' },
-                    { title: "Quantity", data: 'Quantity', className: 'text-center' },
-                    { title: "Added By", data: 'AddedBy', className: 'text-center' },
-                    { title: "Added Date", data: 'AddedDate', className: 'text-center', render: (d) => moment(d).format('DD/MM/YYYY') }
-                ];
                 break;
             case 'confirm':
                 title = "Approved Quality List";
                 headerClass = "bg-success-premium";
                 url = "/Quality/GetConfirmedListNAM";
-                columns = [
-                    { title: headerCheckbox('selectAllRows'), data: 'QualityCheckCode', className: 'text-center', render: (d) => `<input type="checkbox" class="row-select" value="${d}" />` },
-                    { title: "Sr.No", data: null, className: 'text-center', render: (d, t, r, meta) => meta.row + meta.settings._iDisplayStart + 1 },
-                    { title: "QC Code", data: 'QualityCheckCode', className: 'text-center' },
-                    { title: "Item Name", data: 'ItemName' },
-                    { title: "Quantity", data: 'Quantity', className: 'text-center' },
-                    { title: "Added By", data: 'AddedBy', className: 'text-center' },
-                    { title: "Added Date", data: 'AddedDate', className: 'text-center', render: (d) => moment(d).format('DD/MM/YYYY') }
-                ];
                 break;
             case 'nonconfirm':
                 title = "Rejected Quality List";
                 headerClass = "bg-danger-premium";
                 url = "/Quality/GetNonConfirmedListNAM";
-                columns = [
-                    { title: headerCheckbox('selectAllRows'), data: 'QualityCheckCode', className: 'text-center', render: (d) => `<input type="checkbox" class="row-select" value="${d}" />` },
-                    { title: "Sr.No", data: null, className: 'text-center', render: (d, t, r, meta) => meta.row + meta.settings._iDisplayStart + 1 },
-                    { title: "QC Code", data: 'QualityCheckCode', className: 'text-center' },
-                    { title: "Item Name", data: 'ItemName' },
-                    { title: "Quantity", data: 'Quantity', className: 'text-center' },
-                    { title: "Added By", data: 'AddedBy', className: 'text-center' },
-                    { title: "Reason", data: 'Reason', className: 'text-center', render: (d) => d || '' },
-                    { title: "Added Date", data: 'AddedDate', className: 'text-center', render: (d) => moment(d).format('DD/MM/YYYY') }
-                ];
+                break;
+            case 'totalqc':
+                title = "Total QC Items List";
+                headerClass = "bg-primary-premium";
+                url = "/Quality/GetConfirmedListNAM"; // For now, showing confirmed or we might need a combined endpoint
                 break;
         }
 
-        // Apply UI Updates
-        $("#modalTitle").text(title);
-        $("#modalHeader").removeClass("bg-success-premium bg-danger-premium bg-warning-premium").addClass(headerClass);
+        columns = [
+            {
+                title: headerCheckbox,
+                data: null,
+                className: 'text-center no-export',
+                orderable: false,
+                render: (d, t, r) => `<input type="checkbox" class="row-select form-check-input" value="${r.QualityCheckCode || r.Id || ''}" />`
+            },
+            { title: "Sr.No", data: null, className: 'text-center', render: (d, t, r, meta) => meta.row + meta.settings._iDisplayStart + 1 },
+            { title: "QC Code", data: 'QualityCheckCode', className: 'text-center' },
+            { title: "Item Name", data: 'ItemName' },
+            { title: "Quantity", data: 'Quantity', className: 'text-center' },
+            { title: "Added By", data: 'AddedBy', className: 'text-center' },
+            {
+                title: "Added Date",
+                data: 'AddedDate',
+                className: 'text-center',
+                render: (d) => d ? moment(d).format('DD/MM/YYYY') : ''
+            }
+        ];
 
-        // Clear existing DataTable if any
+        if (type === 'nonconfirm') {
+            columns.splice(6, 0, { title: "Reason", data: 'Reason', className: 'text-center', render: (d) => d || '' });
+        }
+
+        $("#modalTitle").text(title);
+        $("#modalHeader").removeClass("bg-success-premium bg-danger-premium bg-warning-premium bg-primary-premium").addClass(headerClass);
+
         if ($.fn.DataTable.isDataTable('#chartDataTable')) {
             $('#chartDataTable').DataTable().destroy();
             $('#chartDataTable').empty();
         }
 
-        // Show Modal
         let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('chartModal'));
         modal.show();
 
-        // Load Data and Init DataTable
         let requestData = { startDate: startDateGlobal, endDate: endDateGlobal };
 
         $('#chartDataTable').DataTable({
-            ajax: {
-                url: url,
-                data: requestData,
-                dataSrc: ""
-            },
+            ajax: { url: url, data: requestData, dataSrc: "" },
             columns: columns,
-            dom: '<"table-controls"<"dt-buttons"B><"dt-search"f>>rt<"bottom d-flex justify-content-between align-items-center"ip>>',
+            dom: '<"table-controls d-flex justify-content-between align-items-center mb-3"<"dt-buttons"B><"dt-search"f>>rt<"bottom d-flex justify-content-between align-items-center mt-3"ip>',
             ordering: false,
             buttons: [
                 {
                     extend: 'print',
                     text: '<i class="bi bi-printer text-dark fs-5"></i>',
-                    titleAttr: 'Print',
-                    exportOptions: { columns: ':visible:not(:first-child)' }
+                    title: title,
+                    exportOptions: { columns: ':visible:not(.no-export)' }
                 },
                 {
                     extend: 'pdfHtml5',
                     text: '<i class="bi bi-file-earmark-pdf text-danger fs-5"></i>',
-                    titleAttr: 'PDF',
-                    exportOptions: { columns: ':visible:not(:first-child)' }
+                    title: title,
+                    exportOptions: { columns: ':visible:not(.no-export)' }
                 },
                 {
                     extend: 'excelHtml5',
                     text: '<i class="bi bi-file-earmark-excel text-success fs-5"></i>',
-                    titleAttr: 'Excel',
-                    exportOptions: { columns: ':visible:not(:first-child)' }
+                    title: title,
+                    exportOptions: { columns: ':visible:not(.no-export)' }
                 }
             ],
-            initComplete: function() {
-                // Select All logic
-                $('#selectAllRows').on('click', function() {
+            initComplete: function () {
+                $('#selectAllRows').on('change', function () {
                     $('.row-select').prop('checked', this.checked);
                 });
             }
         });
     }
 
-    // Legacy function wrappers for compatibility with existing onclicks
     function loadPendingList() { openStatusModal('pending'); }
     function loadConfirmList() { openStatusModal('confirm'); }
     function loadNonConfirmList() { openStatusModal('nonconfirm'); }
-
+    function loadTotalQCList() { openStatusModal('totalqc'); }
 
     function initDateRangePicker() {
         var start = moment().subtract(29, 'days');
         var end = moment();
+
         function cb(start, end) {
-            $('#reportrange').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
             startDateGlobal = start.format("YYYY-MM-DD");
             endDateGlobal = end.format("YYYY-MM-DD");
-            loadDashboardData(start.format("YYYY-MM-DD"), end.format("YYYY-MM-DD"));
+            loadDashboardData(startDateGlobal, endDateGlobal);
 
-
-
-
-
+            // Update FAB Tooltip
+            let rangeText = start.format('D MMM') + ' - ' + end.format('D MMM');
+            $('#dateFilterBtn').attr('data-bs-original-title', rangeText).tooltip('hide');
         }
-        $('#reportrange').daterangepicker({
-            startDate: start, endDate: end, autoUpdateInput: false,
+
+        $('#dateFilterBtn').daterangepicker({
+            startDate: start,
+            endDate: end,
+            opens: 'left',
             ranges: {
                 'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 1 Month': [moment().subtract(1, 'month'), moment()],
-                'Last 3 Months': [moment().subtract(3, 'month'), moment()],
-                'Last 1 Year': [moment().subtract(1, 'year'), moment()]
-            },
-            locale: { cancelLabel: 'Clear' }
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
         }, cb);
 
-        $('#reportrange').on('cancel.daterangepicker', function () {
-            $(this).val('');
-            loadDashboardData();
+        $('#dateFilterBtn').on('cancel.daterangepicker', function () {
             startDateGlobal = null;
             endDateGlobal = null;
-
+            loadDashboardData();
         });
     }
 
 
 </script>
-
