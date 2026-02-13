@@ -37,11 +37,11 @@
         border-left: 1px solid #dc3545 !important;
     }
 
-        .input-group-merge .form-control.is-invalid ~ .input-group-text,
-        .input-group-merge .form-select.is-invalid ~ .input-group-text {
-            border-color: #dc3545 !important;
-            background-color: #f8d7da;
-        }
+    .input-group-merge .form-control.is-invalid~.input-group-text,
+    .input-group-merge .form-select.is-invalid~.input-group-text {
+        border-color: #dc3545 !important;
+        background-color: #f8d7da;
+    }
 
     button.dt-button.processing,
     div.dt-button.processing {
@@ -50,9 +50,9 @@
         background: none !important;
     }
 
-        button.dt-button.processing:after {
-            content: none !important;
-        }
+    button.dt-button.processing:after {
+        content: none !important;
+    }
 
     .text-red {
         color: red;
@@ -69,11 +69,11 @@
         padding: 0.375rem 0.75rem;
     }
 
-        .form-control-plaintext.bg-light:empty::before {
-            content: "-";
-            color: #6c757d;
-            font-style: italic;
-        }
+    .form-control-plaintext.bg-light:empty::before {
+        content: "-";
+        color: #6c757d;
+        font-style: italic;
+    }
 </style>
 
 <div class="table-responsive">
@@ -110,1132 +110,1152 @@
                 <h5 class="modal-title fw-bold text-white mb-0 fs-5" id="warehouseModalTitle">
                     Add Warehouse
                 </h5>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Body -->
-            <div class="modal-body">
-                <form id="addWarehouseForm" class="row g-3">
-                    <div class="col-md-6">
-                        <label for="WarehouseCode" class="form-label fw-bold text-dark">Warehouse Code <span class="text-red">*</span></label>
-                        <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light" id="WarehouseCode" placeholder="Warehouse Code" name="WarehouseCode" readonly>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="WarehouseName" class="form-label fw-bold text-dark">Warehouse Name <span class="text-red">*</span></label>
-                        <input type="text" class="form-control form-control-sm text-dark shadow-sm" placeholder="Enter Warehouse Name" id="WarehouseName" name="WarehouseName">
-                        <span id="WarehouseNameError" class="text-danger d-none"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="Address" class="form-label fw-bold text-dark">Address <span class="text-red">*</span></label>
-                        <input type="text" class="form-control form-control-sm text-dark shadow-sm" placeholder="Enter Warehouse Address" id="Address" name="Address">
-                        <span id="WarehouseAddressError" class="text-danger d-none"></span>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="CountryId" class="form-label fw-bold text-dark">Country <span class="text-red">*</span></label>
-                        <select class="form-select form-select-sm shadow-sm" id="CountryId" name="CountryCode">
-                            <option value="">-- Select Country --</option>
-                        </select>
-                        <span id="WarehouseCountryError" class="text-danger d-none"></span>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="StateId" class="form-label fw-bold text-dark">State <span class="text-red">*</span></label>
-                        <select class="form-select form-select-sm shadow-sm" id="StateId" name="StateCode">
-                            <option value="">-- Select State --</option>
-                        </select>
-                        <span id="WarehouseStateError" class="text-danger d-none"></span>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="CityId" class="form-label fw-bold text-dark">City <span class="text-red">*</span></label>
-                        <select class="form-select form-select-sm shadow-sm" id="CityId" name="CityId">
-                            <option value="">-- Select City --</option>
-                        </select>
-                        <span id="WarehouseCityError" class="text-danger d-none"></span>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="Phone" class="form-label fw-bold text-dark">Phone <span class="text-red">*</span></label>
-                        <input type="number" class="form-control form-control-sm text-dark shadow-sm" id="Phone" name="Phone" placeholder="Enter 10-digit phone">
-                        <span id="WarehousePhoneError" class="text-danger d-none"></span>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="Email" class="form-label fw-bold text-dark">Email <span class="text-red">*</span></label>
-                        <input type="email" class="form-control form-control-sm text-dark shadow-sm" id="Email" name="Email" placeholder="Enter Email">
-                        <span id="WarehouseEmailError" class="text-danger d-none"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="Description" class="form-label fw-bold text-dark">Description <span class="text-red">*</span></label>
-                        <textarea class="form-control form-control-sm text-dark shadow-sm" id="Description" name="Description" rows="3" placeholder="Enter at least 5 words"></textarea>
-                        <span id="WarehouseDescriptionError" class="text-danger d-none"></span>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Footer -->
-            <div class="modal-footer justify-content-center">
-                <button type="submit" form="addWarehouseForm" class="btn btn-sm btn-success px-4">
-                    <i class="bi bi-check-circle me-2 text-white"></i> Save
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- View Warehouse Modal -->
-<!-- View Warehouse Modal -->
-<div class="modal fade" id="viewWarehouseModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content shadow-lg rounded-3">
-
-            <!-- Header -->
-            <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">
-                <h5 class="modal-title fw-bold text-white mb-0 fs-5" id="warehouseViewTitle">
-                    Warehouse Details
-                </h5>
                 <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2"
                         data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Body -->
             <div class="modal-body">
-                <div class="row g-3">
+                <form id="addWarehouseForm" class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark">Warehouse Code</label>
-                        <div class="text-dark" id="vwCode">-</div>
-                    </div>
+                        <label for="WarehouseCode" class="form-label fw-bold text-dark">Warehouse Code <span
+                            class="text-red">*</span></label>
+                            <input type="text" class="form-control form-control-sm text-dark shadow-sm bg-light"
+                                   id="WarehouseCode" placeholder="Warehouse Code" name="WarehouseCode" readonly>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark">Warehouse Name</label>
-                        <div class="text-dark" id="vwName">-</div>
-                    </div>
+                        <div class="col-md-6">
+                            <label for="WarehouseName" class="form-label fw-bold text-dark">Warehouse Name <span
+                                class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-sm text-dark shadow-sm"
+                                       placeholder="Enter Warehouse Name" id="WarehouseName" name="WarehouseName">
+                                <span id="WarehouseNameError" class="text-danger d-none"></span>
+                            </div>
 
-                    <div class="col-12">
-                        <label class="form-label fw-bold text-dark">Address</label>
-                        <div class="text-dark" id="vwAddress">-</div>
-                    </div>
+                            <div class="col-12">
+                                <label for="Address" class="form-label fw-bold text-dark">Address <span
+                                    class="text-red">*</span></label>
+                                    <input type="text" class="form-control form-control-sm text-dark shadow-sm"
+                                           placeholder="Enter Warehouse Address" id="Address" name="Address">
+                                    <span id="WarehouseAddressError" class="text-danger d-none"></span>
+                                </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark">City</label>
-                        <div class="text-dark" id="vwCity">-</div>
-                    </div>
+                                <div class="col-md-4">
+                                    <label for="CountryId" class="form-label fw-bold text-dark">Country <span
+                                        class="text-red">*</span></label>
+                                        <select class="form-select form-select-sm shadow-sm" id="CountryId" name="CountryCode">
+                                            <option value="">-- Select Country --</option>
+                                        </select>
+                                        <span id="WarehouseCountryError" class="text-danger d-none"></span>
+                                    </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark">Phone</label>
-                        <div class="text-dark" id="vwPhone">-</div>
-                    </div>
+                                    <div class="col-md-4">
+                                        <label for="StateId" class="form-label fw-bold text-dark">State <span
+                                            class="text-red">*</span></label>
+                                            <select class="form-select form-select-sm shadow-sm" id="StateId" name="StateCode">
+                                                <option value="">-- Select State --</option>
+                                            </select>
+                                            <span id="WarehouseStateError" class="text-danger d-none"></span>
+                                        </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark">Email</label>
-                        <div class="text-dark" id="vwEmail">-</div>
-                    </div>
+                                        <div class="col-md-4">
+                                            <label for="CityId" class="form-label fw-bold text-dark">City <span
+                                                class="text-red">*</span></label>
+                                                <select class="form-select form-select-sm shadow-sm" id="CityId" name="CityId">
+                                                    <option value="">-- Select City --</option>
+                                                </select>
+                                                <span id="WarehouseCityError" class="text-danger d-none"></span>
+                                            </div>
 
-                    <div class="col-12">
-                        <label class="form-label fw-bold text-dark">Description</label>
-                        <div class="text-dark" id="vwDesc">-</div>
-                    </div>
+                                            <div class="col-md-6">
+                                                <label for="Phone" class="form-label fw-bold text-dark">Phone <span
+                                                    class="text-red">*</span></label>
+                                                    <input type="number" class="form-control form-control-sm text-dark shadow-sm" id="Phone"
+                                                           name="Phone" placeholder="Enter 10-digit phone">
+                                                    <span id="WarehousePhoneError" class="text-danger d-none"></span>
+                                                </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark">Added Date</label>
-                        <div class="text-dark" id="vwAddedDates">-</div>
-                    </div>
+                                                <div class="col-md-6">
+                                                    <label for="Email" class="form-label fw-bold text-dark">Email <span
+                                                        class="text-red">*</span></label>
+                                                        <input type="email" class="form-control form-control-sm text-dark shadow-sm" id="Email"
+                                                               name="Email" placeholder="Enter Email">
+                                                        <span id="WarehouseEmailError" class="text-danger d-none"></span>
+                                                    </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark">Added By</label>
-                        <div class="text-dark" id="vwAddedBy">-</div>
-                    </div>
-                </div>
-            </div>
+                                                    <div class="col-12">
+                                                        <label for="Description" class="form-label fw-bold text-dark">Description <span
+                                                            class="text-red">*</span></label>
+                                                            <textarea class="form-control form-control-sm text-dark shadow-sm" id="Description"
+                                                                      name="Description" rows="3" placeholder="Enter at least 5 words"></textarea>
+                                                            <span id="WarehouseDescriptionError" class="text-danger d-none"></span>
+                                                        </div>
+                                                    </form>
+                                                </div>
 
-        </div>
-    </div>
-</div>
-<script>
-    $(document).ready(function () {
-        // ================= CONFIGURATION & CONSTANTS =================
-        const CONFIG = {
-            urls: {
-                getWarehouses: '/Inventory/GetWarehousesSK',
-                getNextCode: '/Inventory/GetNextWarehouseCodeSK',
-                addWarehouse: '/Inventory/AddWarehouseSK',
-                updateWarehouse: '/Inventory/UpdateWarehouseSK',
-                deleteWarehouse: '/Inventory/DeleteWarehouseSK',
-                viewWarehouse: '/Inventory/ViewWarehouseSK',
-                getCountries: '/Purchase/GetCountries',
-                getStates: '/Account/GetStates',
-                getCities: '/Account/GetCities'
-            },
-            selectors: {
-                table: '#warehouseTable',
-                form: '#addWarehouseForm',
-                modal: '#addWarehouseModal',
-                viewModal: '#viewWarehouseModal'
-            }
-        };
+                                                <!-- Footer -->
+                                                <div class="modal-footer justify-content-center">
+                                                    <button type="submit" form="addWarehouseForm" class="btn btn-sm btn-success px-4">
+                                                        <i class="bi bi-check-circle me-2 text-white"></i> Save
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-        // ================= GLOBAL VARIABLES =================
-        let selectedWarehouseIds = new Set();
-        let cityMap = new Map();
-        let table;
+                                    <!-- View Warehouse Modal -->
+                                    <!-- View Warehouse Modal -->
+                                    <div class="modal fade" id="viewWarehouseModal" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                                            <div class="modal-content shadow-lg rounded-3">
 
-        // ================= UTILITY FUNCTIONS =================
-        const utils = {
-            // Date formatting utility
-            formatSqlDate: function (sqlDate) {
-                if (!sqlDate) return "N/A";
+                                                <!-- Header -->
+                                                <div class="modal-header bg-primary d-flex justify-content-center align-items-center rounded-top p-1">
+                                                    <h5 class="modal-title fw-bold text-white mb-0 fs-5" id="warehouseViewTitle">
+                                                        Warehouse Details
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white position-absolute end-0 me-2"
+                                                            data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
 
-                let dateObj;
-                const match = /\/Date\((\d+)\)\//.exec(sqlDate);
+                                                <!-- Body -->
+                                                <div class="modal-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-bold text-dark">Warehouse Code</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1" id="vwCode">-</div>
+                                                        </div>
 
-                if (match) {
-                    dateObj = new Date(parseInt(match[1], 10));
-                } else if (typeof sqlDate === 'string' && sqlDate.includes('T')) {
-                    dateObj = new Date(sqlDate);
-                } else if (typeof sqlDate === 'string') {
-                    dateObj = new Date(sqlDate + 'T00:00:00');
-                } else {
-                    dateObj = new Date(sqlDate);
-                }
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-bold text-dark">Warehouse Name</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1" id="vwName">-</div>
+                                                        </div>
 
-                return isNaN(dateObj.getTime()) ? "Invalid Date" :
-                    dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
-            },
+                                                        <div class="col-12">
+                                                            <label class="form-label fw-bold text-dark">Address</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1" id="vwAddress">-
+                                                            </div>
+                                                        </div>
 
-            // Validation helpers
-            showFieldError: function (inputId, errorId, message) {
-                const $input = $(`#${inputId}`);
-                $input.addClass("is-invalid");
-                $(`#${errorId}`).text(message).removeClass("d-none");
-            },
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-bold text-dark">City</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1" id="vwCity">-</div>
+                                                        </div>
 
-            clearFieldError: function (inputId, errorId) {
-                const $input = $(`#${inputId}`);
-                $input.removeClass("is-invalid");
-                if (errorId) {
-                    $(`#${errorId}`).text("").addClass("d-none");
-                }
-            },
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-bold text-dark">Phone</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1" id="vwPhone">-</div>
+                                                        </div>
 
-            clearAllErrors: function (formSelector) {
-                $(`${formSelector} .form-control, ${formSelector} .form-select`).removeClass("is-invalid");
-                $(`${formSelector} .text-danger`).text("").addClass("d-none");
-            },
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-bold text-dark">Email</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1" id="vwEmail">-</div>
+                                                        </div>
 
-            // Tooltip initialization
-            initTooltips: function () {
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl, { trigger: 'hover' });
-                });
-            }
-        };
+                                                        <div class="col-12">
+                                                            <label class="form-label fw-bold text-dark">Description</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1"
+                                                                 style="min-height: 80px;" id="vwDesc">-</div>
+                                                        </div>
 
-        // ================= VALIDATION FUNCTIONS =================
-        const validators = {
-            warehouseForm: function (formSelector) {
-                let isValid = true;
-                const $form = $(formSelector);
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-bold text-dark">Added Date</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1" id="vwAddedDates">-
+                                                            </div>
+                                                        </div>
 
-                // Define validation rules for each field
-                const fields = [
-                    {
-                        id: 'WarehouseName',
-                        errorId: 'WarehouseNameError',
-                        value: $form.find("#WarehouseName").val().trim(),
-                        required: true,
-                        message: 'Warehouse Name is required.'
-                    },
-                    {
-                        id: 'Address',
-                        errorId: 'WarehouseAddressError',
-                        value: $form.find("#Address").val().trim(),
-                        required: true,
-                        message: 'Address is required.'
-                    },
-                    {
-                        id: 'CountryId',
-                        errorId: 'WarehouseCountryError',
-                        value: $form.find("#CountryId").val(),
-                        required: true,
-                        message: 'Country is required.'
-                    },
-                    {
-                        id: 'StateId',
-                        errorId: 'WarehouseStateError',
-                        value: $form.find("#StateId").val(),
-                        required: true,
-                        message: 'State is required.'
-                    },
-                    {
-                        id: 'CityId',
-                        errorId: 'WarehouseCityError',
-                        value: $form.find("#CityId").val(),
-                        required: true,
-                        message: 'City is required.'
-                    },
-                    {
-                        id: 'Phone',
-                        errorId: 'WarehousePhoneError',
-                        value: $form.find("#Phone").val().trim(),
-                        required: true,
-                        pattern: /^\d{10}$/,
-                        message: 'Phone number is required.',
-                        patternMessage: 'Please enter a valid 10-digit phone number.'
-                    },
-                    {
-                        id: 'Email',
-                        errorId: 'WarehouseEmailError',
-                        value: $form.find("#Email").val().trim(),
-                        required: true,
-                        message: 'Email is required.'
-                    },
-                    {
-                        id: 'Description',
-                        errorId: 'WarehouseDescriptionError',
-                        value: $form.find("#Description").val().trim(),
-                        required: true,
-                        minWords: 5,
-                        message: 'Description is required.',
-                        minWordsMessage: 'Description must contain at least 5 words.'
-                    }
-                ];
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-bold text-dark">Added By</label>
+                                                            <div class="form-control-plaintext bg-light shadow-sm text-dark px-3 mt-1" id="vwAddedBy">-
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                // Validate each field
-                fields.forEach(field => {
-                    if (!field.value) {
-                        utils.showFieldError(field.id, field.errorId, field.message);
-                        isValid = false;
-                    } else if (field.pattern && !field.pattern.test(field.value)) {
-                        utils.showFieldError(field.id, field.errorId, field.patternMessage);
-                        isValid = false;
-                    } else if (field.minWords) {
-                        const wordCount = field.value.split(/\s+/).filter(word => word.length > 0).length;
-                        if (wordCount < field.minWords) {
-                            utils.showFieldError(field.id, field.errorId, field.minWordsMessage);
-                            isValid = false;
-                        } else {
-                            utils.clearFieldError(field.id, field.errorId);
-                        }
-                    } else {
-                        utils.clearFieldError(field.id, field.errorId);
-                    }
-                });
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <script>
+                                        $(document).ready(function () {
+                                            // ================= CONFIGURATION & CONSTANTS =================
+                                            const CONFIG = {
+                                                urls: {
+                                                    getWarehouses: '/Inventory/GetWarehousesSK',
+                                                    getNextCode: '/Inventory/GetNextWarehouseCodeSK',
+                                                    addWarehouse: '/Inventory/AddWarehouseSK',
+                                                    updateWarehouse: '/Inventory/UpdateWarehouseSK',
+                                                    deleteWarehouse: '/Inventory/DeleteWarehouseSK',
+                                                    viewWarehouse: '/Inventory/ViewWarehouseSK',
+                                                    getCountries: '/Purchase/GetCountries',
+                                                    getStates: '/Account/GetStates',
+                                                    getCities: '/Account/GetCities'
+                                                },
+                                                selectors: {
+                                                    table: '#warehouseTable',
+                                                    form: '#addWarehouseForm',
+                                                    modal: '#addWarehouseModal',
+                                                    viewModal: '#viewWarehouseModal'
+                                                }
+                                            };
 
-                return isValid;
-            }
+                                            // ================= GLOBAL VARIABLES =================
+                                            let selectedWarehouseIds = new Set();
+                                            let cityMap = new Map();
+                                            let table;
 
-        };
+                                            // ================= UTILITY FUNCTIONS =================
+                                            const utils = {
+                                                // Date formatting utility
+                                                formatSqlDate: function (sqlDate) {
+                                                    if (!sqlDate) return "N/A";
 
-        // ================= DATA TABLE INITIALIZATION =================
-        function initializeDataTable() {
-            table = $(CONFIG.selectors.table).DataTable({
-                dom: '<"d-flex justify-content-between align-items-center mt-1 mb-2"Bf>rt<"d-flex justify-content-between mt-2"<"datatable-info"i><"datatable-pagination"p>>',
-                ajax: {
-                    url: CONFIG.urls.getWarehouses,
-                    type: 'GET',
-                    dataSrc: 'data'
-                },
-                order: [[2, 'desc']],
-                columns: [
-                    {
-                        data: "WareHouseId",
-                        render: function (data) {
-                            return `<input type="checkbox" class="row-select" value="${data}" />`;
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            return type === 'display' ? meta.row + 1 : '';
-                        }
-                    },
-                    { data: "WareHouseId", visible: false },
-                    { data: "WarehouseCode", visible: false },
-                    { data: "WarehouseName" },
-                    { data: "Address", visible: false },
-                    {
-                        data: null,
-                        render: function (data, type, row) {
-                            const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
-                            return type === 'export' ?
-                                (cityMap.get(cityKey) || "N/A") :
-                                `<span class="city-name" data-country="${row.CountryCode}" data-state="${row.StateCode}" data-cityid="${row.CityId}">Loading...</span>`;
-                        }
-                    },
-                    {
-                        data: "AddedDate",
-                        render: function (data, type) {
-                            if (!data) return "";
-                            return type === 'sort' ? new Date(data).getTime() : utils.formatSqlDate(data);
-                        }
-                    },
-                    { data: "AddedBy" },
-                    { data: "Phone" },
-                    { data: "Email" },
-                    {
-                        data: "Description",
-                        visible: false,
-                        render: function (data) {
-                            if (!data) return "";
-                            const truncated = data.length > 30 ? data.substr(0, 30) + "..." : data;
-                            return `<span class="description-tooltip" data-bs-toggle="tooltip" title="${data.replace(/"/g, '&quot;')}">${truncated}</span>`;
-                        }
-                    },
-                    {
-                        data: "Capacity",
-                        visible: false,
-                        render: function (data) {
-                            return data ? parseInt(data).toLocaleString('en-IN') : data;
-                        }
-                    },
-                    {
-                        data: "WareHouseId",
-                        render: function (data) {
-                            return `
-                                <div class="d-flex justify-content-center gap-1">
-                                    <button class="btn btn-sm btn-primary btn-view" data-id="${data}" data-bs-toggle="tooltip" title="View Warehouse">
-                                        <i class="bi bi-eye-fill"></i>
-                                    </button>
+                                                    let dateObj;
+                                                    const match = /\/Date\((\d+)\)\//.exec(sqlDate);
+
+                                                    if (match) {
+                                                        dateObj = new Date(parseInt(match[1], 10));
+                                                    } else if (typeof sqlDate === 'string' && sqlDate.includes('T')) {
+                                                        dateObj = new Date(sqlDate);
+                                                    } else if (typeof sqlDate === 'string') {
+                                                        dateObj = new Date(sqlDate + 'T00:00:00');
+                                                    } else {
+                                                        dateObj = new Date(sqlDate);
+                                                    }
+
+                                                    return isNaN(dateObj.getTime()) ? "Invalid Date" :
+                                                        dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+                                                },
+
+                                                // Validation helpers
+                                                showFieldError: function (inputId, errorId, message) {
+                                                    const $input = $(`#${inputId}`);
+                                                    $input.addClass("is-invalid");
+                                                    $(`#${errorId}`).text(message).removeClass("d-none");
+                                                },
+
+                                                clearFieldError: function (inputId, errorId) {
+                                                    const $input = $(`#${inputId}`);
+                                                    $input.removeClass("is-invalid");
+                                                    if (errorId) {
+                                                        $(`#${errorId}`).text("").addClass("d-none");
+                                                    }
+                                                },
+
+                                                clearAllErrors: function (formSelector) {
+                                                    $(`${formSelector} .form-control, ${formSelector} .form-select`).removeClass("is-invalid");
+                                                    $(`${formSelector} .text-danger`).text("").addClass("d-none");
+                                                },
+
+                                                // Tooltip initialization
+                                                initTooltips: function () {
+                                                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                                                    tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                                        return new bootstrap.Tooltip(tooltipTriggerEl, { trigger: 'hover' });
+                                                    });
+                                                }
+                                            };
+
+                                            // ================= VALIDATION FUNCTIONS =================
+                                            const validators = {
+                                                warehouseForm: function (formSelector) {
+                                                    let isValid = true;
+                                                    const $form = $(formSelector);
+
+                                                    // Define validation rules for each field
+                                                    const fields = [
+                                                        {
+                                                            id: 'WarehouseName',
+                                                            errorId: 'WarehouseNameError',
+                                                            value: $form.find("#WarehouseName").val().trim(),
+                                                            required: true,
+                                                            message: 'Warehouse Name is required.'
+                                                        },
+                                                        {
+                                                            id: 'Address',
+                                                            errorId: 'WarehouseAddressError',
+                                                            value: $form.find("#Address").val().trim(),
+                                                            required: true,
+                                                            message: 'Address is required.'
+                                                        },
+                                                        {
+                                                            id: 'CountryId',
+                                                            errorId: 'WarehouseCountryError',
+                                                            value: $form.find("#CountryId").val(),
+                                                            required: true,
+                                                            message: 'Country is required.'
+                                                        },
+                                                        {
+                                                            id: 'StateId',
+                                                            errorId: 'WarehouseStateError',
+                                                            value: $form.find("#StateId").val(),
+                                                            required: true,
+                                                            message: 'State is required.'
+                                                        },
+                                                        {
+                                                            id: 'CityId',
+                                                            errorId: 'WarehouseCityError',
+                                                            value: $form.find("#CityId").val(),
+                                                            required: true,
+                                                            message: 'City is required.'
+                                                        },
+                                                        {
+                                                            id: 'Phone',
+                                                            errorId: 'WarehousePhoneError',
+                                                            value: $form.find("#Phone").val().trim(),
+                                                            required: true,
+                                                            pattern: /^\d{10}$/,
+                                                            message: 'Phone number is required.',
+                                                            patternMessage: 'Please enter a valid 10-digit phone number.'
+                                                        },
+                                                        {
+                                                            id: 'Email',
+                                                            errorId: 'WarehouseEmailError',
+                                                            value: $form.find("#Email").val().trim(),
+                                                            required: true,
+                                                            message: 'Email is required.'
+                                                        },
+                                                        {
+                                                            id: 'Description',
+                                                            errorId: 'WarehouseDescriptionError',
+                                                            value: $form.find("#Description").val().trim(),
+                                                            required: true,
+                                                            minWords: 5,
+                                                            message: 'Description is required.',
+                                                            minWordsMessage: 'Description must contain at least 5 words.'
+                                                        }
+                                                    ];
+
+                                                    // Validate each field
+                                                    fields.forEach(field => {
+                                                        if (!field.value) {
+                                                            utils.showFieldError(field.id, field.errorId, field.message);
+                                                            isValid = false;
+                                                        } else if (field.pattern && !field.pattern.test(field.value)) {
+                                                            utils.showFieldError(field.id, field.errorId, field.patternMessage);
+                                                            isValid = false;
+                                                        } else if (field.minWords) {
+                                                            const wordCount = field.value.split(/\s+/).filter(word => word.length > 0).length;
+                                                            if (wordCount < field.minWords) {
+                                                                utils.showFieldError(field.id, field.errorId, field.minWordsMessage);
+                                                                isValid = false;
+                                                            } else {
+                                                                utils.clearFieldError(field.id, field.errorId);
+                                                            }
+                                                        } else {
+                                                            utils.clearFieldError(field.id, field.errorId);
+                                                        }
+                                                    });
+
+                                                    return isValid;
+                                                }
+
+                                            };
+
+                                            // ================= DATA TABLE INITIALIZATION =================
+                                            function initializeDataTable() {
+                                                table = $(CONFIG.selectors.table).DataTable({
+                                                    dom: '<"d-flex justify-content-between align-items-center mt-1 mb-2"Bf>rt<"d-flex justify-content-between mt-2"<"datatable-info"i><"datatable-pagination"p>>',
+                                                    ajax: {
+                                                        url: CONFIG.urls.getWarehouses,
+                                                        type: 'GET',
+                                                        dataSrc: 'data'
+                                                    },
+                                                    order: [[2, 'desc']],
+                                                    columns: [
+                                                        {
+                                                            data: "WareHouseId",
+                                                            render: function (data) {
+                                                                return `<input type="checkbox" class="row-select" value="${data}" />`;
+                                                            }
+                                                        },
+                                                        {
+                                                            data: null,
+                                                            render: function (data, type, row, meta) {
+                                                                return type === 'display' ? meta.row + 1 : '';
+                                                            }
+                                                        },
+                                                        { data: "WareHouseId", visible: false },
+                                                        { data: "WarehouseCode", visible: false },
+                                                        { data: "WarehouseName" },
+                                                        { data: "Address", visible: false },
+                                                        {
+                                                            data: null,
+                                                            render: function (data, type, row) {
+                                                                const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
+                                                                return type === 'export' ?
+                                                                    (cityMap.get(cityKey) || "N/A") :
+                                                                    `<span class="city-name" data-country="${row.CountryCode}" data-state="${row.StateCode}" data-cityid="${row.CityId}">Loading...</span>`;
+                                                            }
+                                                        },
+                                                        {
+                                                            data: "AddedDate",
+                                                            render: function (data, type) {
+                                                                if (!data) return "";
+                                                                return type === 'sort' ? new Date(data).getTime() : utils.formatSqlDate(data);
+                                                            }
+                                                        },
+                                                        { data: "AddedBy" },
+                                                        { data: "Phone" },
+                                                        { data: "Email" },
+                                                        {
+                                                            data: "Description",
+                                                            visible: false,
+                                                            render: function (data) {
+                                                                if (!data) return "";
+                                                                const truncated = data.length > 30 ? data.substr(0, 30) + "..." : data;
+                                                                return `<span class="description-tooltip" data-bs-toggle="tooltip" title="${data.replace(/"/g, '&quot;')}">${truncated}</span>`;
+                                                            }
+                                                        },
+                                                        {
+                                                            data: "Capacity",
+                                                            visible: false,
+                                                            render: function (data) {
+                                                                return data ? parseInt(data).toLocaleString('en-IN') : data;
+                                                            }
+                                                        },
+                                                        {
+                                                            data: "WareHouseId",
+                                                            render: function (data) {
+                                                                return `
+                                                                    <div class="d-flex justify-content-center gap-1">
+                                                                        <button class="btn btn-sm btn-primary btn-view" data-id="${data}" data-bs-toggle="tooltip" title="View Warehouse">
+                                                                            <i class="bi bi-eye-fill"></i>
+                                                                        </button>
                                     
                                    
-                                </div>
-                            `;
-                        }
-                    }
-                ],
-                columnDefs: [
-                    { orderable: false, targets: [0, 13] },
-                    { className: "text-center", targets: "_all" },
-                    { type: 'date', targets: 7 }
-                ],
-                buttons: getTableButtons(),
-                drawCallback: function () {
-                    setTimeout(utils.initTooltips, 100);
-                    loadAllCityData();
-                },
-                initComplete: function () {
-                    setTimeout(utils.initTooltips, 100);
-                }
-            });
-
-            // Add date range picker
-            addDateRangePicker();
-        }
-
-        // ================= TABLE BUTTONS CONFIGURATION =================
-        function getTableButtons() {
-            const baseConfig = {
-                columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
-                rows: (idx, data) => selectedWarehouseIds.has(data.WareHouseId),
-                action: function (e, dt, button, config) {
-                    if (selectedWarehouseIds.size === 0) {
-                        toastr.warning("Please select at least one warehouse before exporting.", "No Selection");
-                        return;
-                    }
-                    $.fn.dataTable.ext.buttons[config.extend].action.call(this, e, dt, button, config);
-                }
-            };
-
-            return [
-                createPrintButton(baseConfig),
-                createPdfButton(baseConfig),
-                createExcelButton(baseConfig),
-                createCsvButton(baseConfig)
-            ];
-        }
-
-        function createPrintButton(baseConfig) {
-            return {
-                extend: 'print',
-                text: '<i class="bi bi-printer-fill text-dark fs-5" data-bs-toggle="tooltip" title="Print"></i>',
-                title: '',
-                exportOptions: {
-                    columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
-                    rows: function (idx, data, node) {
-                        return selectedWarehouseIds.has(data.WareHouseId);
-                    },
-                    format: {
-                        body: function (data, row, column, node) {
-                            // Reset serial counter for each export
-                            if (!this.serialCounter) {
-                                this.serialCounter = 1;
-                            }
-
-                            // For serial number column (index 1)
-                            if (column === 1) {
-                                var serial = this.serialCounter;
-                                this.serialCounter++;
-                                return serial.toString();
-                            }
-
-                            // For city column (index 6) - get actual city name
-                            if (column === 6) {
-                                const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
-                                return cityMap.get(cityKey) || "N/A";
-                            }
-
-                            return data;
-                        }
-                    }
-                },
-                action: function (e, dt, button, config) {
-                    if (selectedWarehouseIds.size === 0) {
-                        toastr.warning("Please select at least one warehouse before printing.", "No Selection");
-                        return;
-                    }
-                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                },
-                customize: function (win) {
-                    // Reset serial counter
-                    this.serialCounter = 1;
-
-                    $(win.document.body).prepend(
-                        '<h2 style="text-align: center; margin-bottom: 10px;">Warehouse List</h2>' +
-                        '<p style="text-align: center; margin-bottom: 20px; color: #666;">Generated Date: ' + new Date().toLocaleDateString("en-GB") + '</p>' +
-                        '<hr style="margin-bottom: 20px;">'
-                    );
-
-                    $(win.document.body).find('table')
-                        .css('border', '1px solid black').css('border-collapse', 'collapse').css('width', '100%')
-                        .find('th, td').css('border', '1px solid black').css('padding', '8px').css('text-align', 'center');
-
-                    $(win.document.body).find('th')
-                        .css('background-color', 'black').css('color', 'white').css('font-weight', 'bold');
-                }
-            };
-        }
-
-        function createPdfButton(baseConfig) {
-            return {
-                extend: 'pdfHtml5',
-                text: '<i class="bi bi-file-earmark-pdf text-danger fs-5" data-bs-toggle="tooltip" title="Export PDF"></i>',
-                title: 'WareHouse',
-                exportOptions: {
-                    columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
-                    rows: function (idx, data, node) {
-                        return selectedWarehouseIds.has(data.WareHouseId);
-                    },
-                    format: {
-                        body: function (data, row, column, node) {
-                            if (!this.serialCounter) {
-                                this.serialCounter = 1;
-                            }
-
-                            if (column === 1) {
-                                var serial = this.serialCounter;
-                                this.serialCounter++;
-                                return serial.toString();
-                            }
-
-                            if (column === 6) {
-                                const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
-                                return cityMap.get(cityKey) || "N/A";
-                            }
-
-                            return data;
-                        }
-                    }
-                },
-                action: function (e, dt, button, config) {
-                    if (selectedWarehouseIds.size === 0) {
-                        toastr.warning("Please select at least one warehouse before exporting.", "No Selection");
-                        return;
-                    }
-                    $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-                },
-                customize: function (doc) {
-                    // Reset serial counter
-                    this.serialCounter = 1;
-
-                    doc.content.splice(0, 0,
-                        { text: 'Warehouse List', alignment: 'center', fontSize: 16, bold: true, margin: [0, 0, 0, 10] },
-                        { text: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"), alignment: 'center', margin: [0, 0, 0, 15] }
-                    );
-
-                    doc.styles.tableHeader.fillColor = 'black';
-                    doc.styles.tableHeader.color = 'white';
-                    doc.styles.tableHeader.alignment = 'center';
-                    doc.styles.tableHeader.bold = true;
-
-                    doc.content[2].layout = {
-                        hLineWidth: i => 0.5, vLineWidth: i => 0.5,
-                        hLineColor: i => '#000000', vLineColor: i => '#000000',
-                        paddingLeft: i => 5, paddingRight: i => 5
-                    };
-                }
-            };
-        }
-
-        function createExcelButton(baseConfig) {
-            return {
-                extend: 'excelHtml5',
-                text: '<i class="bi bi-file-earmark-excel text-success fs-5" data-bs-toggle="tooltip" title="Export Excel"></i>',
-                title: 'Warehouse List',
-                messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
-                exportOptions: {
-                    columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
-                    rows: function (idx, data, node) {
-                        return selectedWarehouseIds.has(data.WareHouseId);
-                    },
-                    format: {
-                        body: function (data, row, column, node) {
-                            if (!this.serialCounter) {
-                                this.serialCounter = 1;
-                            }
-
-                            if (column === 1) {
-                                var serial = this.serialCounter;
-                                this.serialCounter++;
-                                return serial.toString();
-                            }
-
-                            if (column === 6) {
-                                const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
-                                return cityMap.get(cityKey) || "N/A";
-                            }
-
-                            return data;
-                        }
-                    }
-                },
-                action: function (e, dt, button, config) {
-                    if (selectedWarehouseIds.size === 0) {
-                        toastr.warning("Please select at least one warehouse before exporting Excel.", "No Selection");
-                        return;
-                    }
-                    $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
-                },
-                customize: function (xlsx) {
-                    const sheet = xlsx.xl.worksheets['sheet1.xml'];
-                    let serial = 1;
-
-                    $('row', sheet).each(function () {
-                        const rowIndex = parseInt($(this).attr('r'));
-                        if (rowIndex === 3) {
-                            // Header row - insert "Sr. No" at the beginning
-                            $(this).find('c:first').before('<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>');
-                        } else if (rowIndex > 3) {
-                            // Data rows - insert serial numbers
-                            $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>${serial}</t></is></c>`);
-                            serial++;
-                        }
-                    });
-
-                    // Style header rows
-                    $('row[r="1"] c, row[r="2"] c', sheet).attr('s', '51');
-                    $('row[r="3"] c', sheet).attr('s', '2'); // Style for header row with bold
-                }
-            };
-        }
-
-        function createCsvButton(baseConfig) {
-            return {
-                extend: 'csvHtml5',
-                text: '<i class="bi bi-filetype-csv text-success fs-5" data-bs-toggle="tooltip" title="Export CSV"></i>',
-                title: 'Warehouse List',
-                message: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
-                exportOptions: {
-                    columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
-                    rows: function (idx, data, node) {
-                        return selectedWarehouseIds.has(data.WareHouseId);
-                    },
-                    format: {
-                        body: function (data, row, column, node) {
-                            if (!this.serialCounter) {
-                                this.serialCounter = 1;
-                            }
-
-                            if (column === 1) {
-                                var serial = this.serialCounter;
-                                this.serialCounter++;
-                                return serial.toString();
-                            }
-
-                            if (column === 6) {
-                                const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
-                                return cityMap.get(cityKey) || "N/A";
-                            }
-
-                            return data;
-                        }
-                    }
-                },
-                action: function (e, dt, button, config) {
-                    if (selectedWarehouseIds.size === 0) {
-                        toastr.warning("Please select at least one warehouse before exporting CSV.", "No Selection");
-                        return;
-                    }
-                    $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                }
-            };
-        }
-
-        // ================= CITY DATA MANAGEMENT =================
-        function loadAllCityData() {
-            $('.city-name').each(function () {
-                const $span = $(this);
-                const country = $span.data('country');
-                const state = $span.data('state');
-                const cityId = $span.data('cityid');
-                const cityKey = `${country}_${state}_${cityId}`;
-
-                if (!country || !state || !cityId) {
-                    $span.text("N/A");
-                    return;
-                }
-
-                if (cityMap.has(cityKey)) {
-                    $span.text(cityMap.get(cityKey));
-                    return;
-                }
-
-                $.get(CONFIG.urls.getCities, { countryCode: country, stateCode: state, CityId: cityId }, function (city) {
-                    const cityName = city && city.Name ? city.Name : "Unknown";
-                    $span.text(cityName);
-                    cityMap.set(cityKey, cityName);
-                });
-            });
-        }
-
-        // ================= DATE RANGE PICKER =================
-        function addDateRangePicker() {
-            $('#warehouseTable_wrapper').prepend(`
-        <div class="input-group mb-2 mt-3" style="max-width: 280px;">
-            <span class="input-group-text bg-primary text-white">
-                <i class="bi bi-calendar-date"></i>
-            </span>
-            <input type="text" id="warehouseDateRange" class="form-control" placeholder="Select date range" readonly />
-        </div>
-    `);
-
-            // Initialize date range picker
-            $('#warehouseDateRange').daterangepicker({
-                autoUpdateInput: false,
-                locale: { cancelLabel: 'Clear' },
-                ranges: {
-                    'Today': [moment(), moment()],
-                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                    'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
-                    'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
-                    'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
-                }
-            });
-
-            // Custom filter function for DataTable
-            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-                if (settings.nTable.id !== "warehouseTable") return true;
-
-                var dateRange = $('#warehouseDateRange').val();
-                if (!dateRange) return true;
-
-                var minMax = dateRange.split(' to ');
-                var min = moment(minMax[0], 'DD/MM/YYYY');
-                var max = moment(minMax[1], 'DD/MM/YYYY');
-
-                // Added Date column index = 7 (0-based)
-                var date = moment(data[7], 'DD/MM/YYYY');
-                return date.isBetween(min, max, 'day', '[]');
-            });
-
-            // Apply filter on selection
-            $('#warehouseDateRange').on('apply.daterangepicker', function (ev, picker) {
-                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' to ' + picker.endDate.format('DD/MM/YYYY'));
-                table.draw();
-            });
-
-            // Clear filter
-            $('#warehouseDateRange').on('cancel.daterangepicker', function () {
-                $(this).val('');
-                table.draw();
-            });
-        }
-
-        // ================= EVENT HANDLERS =================
-        // ================= EVENT HANDLERS =================
-        function setupEventHandlers() {
-            // Checkbox selection
-            $("#WHselectAll").on("change", function () {
-                $(".row-select").prop("checked", $(this).prop("checked")).trigger("change");
-            });
-
-            $(document).on("change", ".row-select", function () {
-                const id = parseInt($(this).val());
-                $(this).prop("checked") ? selectedWarehouseIds.add(id) : selectedWarehouseIds.delete(id);
-                $("#WHselectAll").prop("checked", selectedWarehouseIds.size === $(".row-select").length);
-            });
-
-            // Location dropdowns with proper error clearing
-            $('#CountryId').change(function () {
-                const countryCode = $(this).val();
-                // Clear country error
-                utils.clearFieldError('CountryId', 'WarehouseCountryError');
-
-                if (!countryCode) {
-                    $("#StateId, #CityId").empty().append('<option value="">-- Select --</option>');
-                    return;
-                }
-
-                $.getJSON(CONFIG.urls.getStates, { CountryCode: countryCode }, function (states) {
-                    $('#StateId').empty().append('<option value="">Select State</option>');
-                    states.forEach(state => {
-                        $('#StateId').append(`<option value="${state.Iso2}">${state.Name}</option>`);
-                    });
-                });
-            });
-
-            $('#StateId').change(function () {
-                const countryCode = $('#CountryId').val();
-                const stateCode = $(this).val();
-
-                // Clear state error
-                utils.clearFieldError('StateId', 'WarehouseStateError');
-
-                $.getJSON(CONFIG.urls.getCities, { countryCode, stateCode }, function (data) {
-                    const cities = typeof data === "string" ? JSON.parse(data) : data;
-                    $('#CityId').empty().append('<option value="">Select City</option>');
-                    cities.forEach(city => {
-                        $('#CityId').append(`<option value="${city.Id}">${city.Name}</option>`);
-                    });
-                });
-            });
-
-            $('#CityId').change(function () {
-                // Clear city error
-                utils.clearFieldError('CityId', 'WarehouseCityError');
-            });
-
-            // Form interactions - Clear errors when user starts typing
-            $(document).on("input change", "#addWarehouseForm .form-control, #addWarehouseForm .form-select", function () {
-                const fieldId = $(this).attr("id");
-                const fieldName = $(this).attr("name");
-
-                if (fieldId) {
-                    // Handle different field types and their error IDs
-                    let errorId;
-
-                    if (fieldName === 'CountryCode') {
-                        errorId = 'WarehouseCountryError';
-                    } else if (fieldName === 'StateCode') {
-                        errorId = 'WarehouseStateError';
-                    } else if (fieldName === 'CityId') {
-                        errorId = 'WarehouseCityError';
-                    } else {
-                        errorId = `Warehouse${fieldId}Error`;
-                    }
-
-                    utils.clearFieldError(fieldId, errorId);
-                }
-            });
-
-            $('#addWarehouseModal').on('hidden.bs.modal', function () {
-                $(CONFIG.selectors.form)[0].reset();
-                utils.clearAllErrors(CONFIG.selectors.form);
-                $("#WareHouseId").remove();
-            });
-
-            // Add warehouse button
-            $("#btnAddWarehouse").on("click", function () {
-                openAddWarehouseModal();
-            });
-
-            // Form submission
-            $(CONFIG.selectors.form).on("submit", function (e) {
-                e.preventDefault();
-                submitWarehouseForm();
-            });
-
-            // Action buttons
-            $(document).on("click", ".btn-view", function () {
-                viewWarehouse($(this).data("id"));
-            });
-
-            $(document).on("click", ".btn-edit", function () {
-                editWarehouse($(this).data("id"));
-            });
-
-            $(document).on("click", ".btn-delete", function () {
-                deleteWarehouse($(this).data("id"));
-            });
-        }
-
-        // ================= MODAL OPERATIONS =================
-        function openAddWarehouseModal() {
-            $(CONFIG.selectors.form)[0].reset();
-            utils.clearAllErrors(CONFIG.selectors.form);
-            $("#warehouseModalTitle").text("Add Warehouse");
-            $("#warehouseModalSubmitBtn").html('<i class="bi bi-check-circle me-2 text-white"></i>Save');
-
-            // Load next code and countries
-            $.get(CONFIG.urls.getNextCode, function (res) {
-                res.success && $("#WarehouseCode").val(res.code);
-            });
-
-            loadCountries();
-            $(CONFIG.selectors.modal).modal("show");
-        }
-
-        function loadCountries() {
-            $.getJSON(CONFIG.urls.getCountries, function (countries) {
-                $('#CountryId').empty().append('<option value="">Select Country</option>');
-                countries.forEach(country => {
-                    $('#CountryId').append(`<option value="${country.iso2}">${country.name}</option>`);
-                });
-            });
-        }
-
-        function submitWarehouseForm() {
-            // Clear previous errors
-            utils.clearAllErrors(CONFIG.selectors.form);
-
-            // Validate form
-            if (!validators.warehouseForm(CONFIG.selectors.form)) {
-                // Scroll to first error
-                const firstError = $(CONFIG.selectors.form).find('.is-invalid').first();
-                if (firstError.length) {
-                    $('html, body').animate({
-                        scrollTop: firstError.offset().top - 100
-                    }, 500);
-                }
-                return;
-            }
-
-            const formData = $(CONFIG.selectors.form).serialize();
-            const isEdit = $("#WareHouseId").length > 0;
-            const url = isEdit ? CONFIG.urls.updateWarehouse : CONFIG.urls.addWarehouse;
-
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: formData,
-                success: function (res) {
-                    if (res.success) {
-                        $(CONFIG.selectors.modal).modal("hide");
-                        table.ajax.reload(null, false);
-                        Swal.fire({ title: "Success", text: res.message, icon: "success", showConfirmButton: false, timer: 2000 });
-                    } else {
-                        handleFormError(res);
-                    }
-                },
-                error: function () {
-                    Swal.fire({ title: "Error", text: "Something went wrong!", icon: "error", confirmButtonText: "OK" });
-                }
-            });
-        }
-
-        //function handleFormError(res) {
-        //    utils.clearFieldError("WarehouseName", "WarehouseNameError");
-        //    const msg = (res || "").toLowerCase();
-        //    if (msg.includes("already exist") || msg.includes("duplicate") || msg.includes("exists")) {
-        //        utils.showFieldError("WarehouseName", "WarehouseNameError", "Warehouse Name already exists.");
-        //    } else {
-        //        utils.showFieldError("WarehouseName", "WarehouseNameError", message || "Something went wrong while saving Warehouse.");
-        //    }
-        //}
-
-        function handleFormError(res) {
-            utils.clearAllErrors(CONFIG.selectors.form);
-
-            if (res.field) {
-                let fieldId = res.field;
-                let errorId = `Warehouse${fieldId}Error`;
-
-                // Special field mappings
-                if (res.field === 'WarehouseName') {
-                    fieldId = 'WarehouseName';
-                    errorId = 'WarehouseNameError';
-                } else if (res.field === 'CountryCode') {
-                    fieldId = 'CountryId';
-                    errorId = 'WarehouseCountryError';
-                } else if (res.field === 'StateCode') {
-                    fieldId = 'StateId';
-                    errorId = 'WarehouseStateError';
-                } else if (res.field === 'Description') {
-                    fieldId = 'Description';
-                    errorId = 'WarehouseDescriptionError';
-                }
-
-                // Show error with hardcoded message
-                utils.showFieldError(fieldId, errorId, "This Name Is Already Exists!.");
-
-                // Scroll to the error field
-                const $input = $(`#${fieldId}`);
-                $('html, body').animate({ scrollTop: $input.offset().top - 100 }, 300);
-            } else {
-                Swal.fire({
-                    title: "Error",
-                    text: "Something went wrong while saving Warehouse.",
-                    icon: "error",
-                    confirmButtonText: "OK"
-                });
-            }
-        }
-
-        // ================= CRUD OPERATIONS =================
-        function viewWarehouse(id) {
-            $.get(CONFIG.urls.viewWarehouse, { id }, function (res) {
-                if (res.success) {
-                    const data = res.data;
-                    populateViewModal(data);
-                    $(CONFIG.selectors.viewModal).modal("show");
-                } else {
-                    Swal.fire("Error", res.message, "error");
-                }
-            });
-        }
-
-        function populateViewModal(data) {
-            $("#vwCode").text(data.WarehouseCode || "-");
-            $("#vwName").text(data.WarehouseName || "-");
-            $("#vwAddress").text(data.Address || "-");
-            $("#vwPhone").text(data.Phone || "-");
-            $("#vwEmail").text(data.Email || "-");
-            $("#vwDesc").text(data.Description || "-");
-            $("#vwAddedDates").text(utils.formatSqlDate(data.AddedDate) || "-");
-            $("#vwAddedBy").text(data.AddedBy || "-");
-
-            // Load city name
-            if (data.CountryCode && data.StateCode && data.CityId) {
-                $.get(CONFIG.urls.getCities, { countryCode: data.CountryCode, stateCode: data.StateCode, CityId: data.CityId }, function (cityRes) {
-                    $("#vwCity").text(cityRes && cityRes.Name ? cityRes.Name : "N/A");
-                });
-            } else {
-                $("#vwCity").text("N/A");
-            }
-        }
-        function editWarehouse(id) {
-            $.get(CONFIG.urls.viewWarehouse, { id }, function (res) {
-                if (res.success) {
-                    const data = res.data;
-                    populateEditModal(data);
-                } else {
-                    Swal.fire("Error", res.message, "error");
-                }
-            });
-        }
-
-        function populateEditModal(data) {
-            $("#WarehouseCode").val(data.WarehouseCode);
-            $("#WarehouseName").val(data.WarehouseName);
-            $("#Address").val(data.Address);
-            $("#Phone").val(data.Phone);
-            $("#Email").val(data.Email);
-            $("#Description").val(data.Description);
-
-            if (!$("#WareHouseId").length) {
-                $("<input>").attr({ type: "hidden", id: "WareHouseId", name: "WareHouseId", value: data.WareHouseId }).appendTo(CONFIG.selectors.form);
-            } else {
-                $("#WareHouseId").val(data.WareHouseId);
-            }
-
-            $("#warehouseModalTitle").text("Update Warehouse");
-            $("#warehouseModalSubmitBtn").html('<i class="bi bi-check-circle me-2 text-white"></i>Update');
-
-            // FIXED: Load countries, states, and cities sequentially
-            $.getJSON(CONFIG.urls.getCountries, function (countries) {
-                $('#CountryId').empty().append('<option value="">Select Country</option>');
-                countries.forEach(country => {
-                    $('#CountryId').append(`<option value="${country.iso2}">${country.name}</option>`);
-                });
-
-                // Set country and load states
-                $("#CountryId").val(data.CountryCode);
-                if (data.CountryCode) {
-                    $.getJSON(CONFIG.urls.getStates, { CountryCode: data.CountryCode }, function (states) {
-                        $("#StateId").empty().append('<option value="">Select State</option>');
-                        states.forEach(state => {
-                            $("#StateId").append(`<option value="${state.Iso2}">${state.Name}</option>`);
-                        });
-
-                        // Set state and load cities
-                        $("#StateId").val(data.StateCode);
-                        if (data.StateCode) {
-                            $.getJSON(CONFIG.urls.getCities, {
-                                countryCode: data.CountryCode,
-                                stateCode: data.StateCode
-                            }, function (cities) {
-                                const citiesData = typeof cities === "string" ? JSON.parse(cities) : cities;
-                                $("#CityId").empty().append('<option value="">Select City</option>');
-                                citiesData.forEach(city => {
-                                    $("#CityId").append(`<option value="${city.Id}">${city.Name}</option>`);
-                                });
-                                $("#CityId").val(data.CityId);
-                            });
-                        }
-                    });
-                }
-            });
-
-            $(CONFIG.selectors.modal).modal("show");
-        }
-
-        function deleteWarehouse(id) {
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: { confirmButton: "btn btn-primary me-2", cancelButton: "btn btn-danger" },
-                buttonsStyling: false
-            });
-
-            swalWithBootstrapButtons.fire({
-                title: "Are you sure?",
-                text: "You Delete Warehouse!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes",
-                cancelButtonText: "Cancel",
-                reverseButtons: false,
-                timer: 10000,
-                showCloseButton: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    performDelete(id, swalWithBootstrapButtons);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    swalWithBootstrapButtons.fire({ title: "Cancelled", text: "Your warehouse record is safe", icon: "error", timer: 3000 });
-                }
-            });
-        }
-
-        function performDelete(id, swalInstance) {
-            $.ajax({
-                url: CONFIG.urls.deleteWarehouse,
-                type: 'POST',
-                data: { id },
-                success: function (res) {
-                    if (res.success) {
-                        swalInstance.fire({ title: "Deleted!", text: res.message, icon: "success", showConfirmButton: false, timer: 3000 });
-                        table.ajax.reload(null, false);
-                    } else {
-                        swalInstance.fire({ title: "Error!", text: res.message, icon: "error", timer: 4000 });
-                    }
-                },
-                error: function () {
-                    swalInstance.fire({ title: "Error!", text: "Something went wrong while deleting.", icon: "error", timer: 4000 });
-                }
-            });
-        }
-
-        // ================= INITIALIZATION =================
-        function initialize() {
-            initializeDataTable();
-            setupEventHandlers();
-
-            // Tooltip initialization and refresh
-            setTimeout(utils.initTooltips, 500);
-
-            // Refresh tooltips whenever modal closes
-            $(document).on('hidden.bs.modal', function () {
-                setTimeout(utils.initTooltips, 300);
-            });
-
-            // Refresh tooltips on table updates
-            $(document).on('draw.dt', function () {
-                setTimeout(utils.initTooltips, 200);
-            });
-        }
-        // Start the application
-        initialize();
-    });
-</script>
+                                                                    </div>
+                                                                `;
+                                                            }
+                                                        }
+                                                    ],
+                                                    columnDefs: [
+                                                        { orderable: false, targets: [0, 13] },
+                                                        { className: "text-center", targets: "_all" },
+                                                        { type: 'date', targets: 7 }
+                                                    ],
+                                                    buttons: getTableButtons(),
+                                                    drawCallback: function () {
+                                                        setTimeout(utils.initTooltips, 100);
+                                                        loadAllCityData();
+                                                    },
+                                                    initComplete: function () {
+                                                        setTimeout(utils.initTooltips, 100);
+                                                    }
+                                                });
+
+                                                // Add date range picker
+                                                addDateRangePicker();
+                                            }
+
+                                            // ================= TABLE BUTTONS CONFIGURATION =================
+                                            function getTableButtons() {
+                                                const baseConfig = {
+                                                    columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
+                                                    rows: (idx, data) => selectedWarehouseIds.has(data.WareHouseId),
+                                                    action: function (e, dt, button, config) {
+                                                        if (selectedWarehouseIds.size === 0) {
+                                                            toastr.warning("Please select at least one warehouse before exporting.", "No Selection");
+                                                            return;
+                                                        }
+                                                        $.fn.dataTable.ext.buttons[config.extend].action.call(this, e, dt, button, config);
+                                                    }
+                                                };
+
+                                                return [
+                                                    createPrintButton(baseConfig),
+                                                    createPdfButton(baseConfig),
+                                                    createExcelButton(baseConfig),
+                                                    createCsvButton(baseConfig)
+                                                ];
+                                            }
+
+                                            function createPrintButton(baseConfig) {
+                                                return {
+                                                    extend: 'print',
+                                                    text: '<i class="bi bi-printer-fill text-dark fs-5" data-bs-toggle="tooltip" title="Print"></i>',
+                                                    title: '',
+                                                    exportOptions: {
+                                                        columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
+                                                        rows: function (idx, data, node) {
+                                                            return selectedWarehouseIds.has(data.WareHouseId);
+                                                        },
+                                                        format: {
+                                                            body: function (data, row, column, node) {
+                                                                // Reset serial counter for each export
+                                                                if (!this.serialCounter) {
+                                                                    this.serialCounter = 1;
+                                                                }
+
+                                                                // For serial number column (index 1)
+                                                                if (column === 1) {
+                                                                    var serial = this.serialCounter;
+                                                                    this.serialCounter++;
+                                                                    return serial.toString();
+                                                                }
+
+                                                                // For city column (index 6) - get actual city name
+                                                                if (column === 6) {
+                                                                    const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
+                                                                    return cityMap.get(cityKey) || "N/A";
+                                                                }
+
+                                                                return data;
+                                                            }
+                                                        }
+                                                    },
+                                                    action: function (e, dt, button, config) {
+                                                        if (selectedWarehouseIds.size === 0) {
+                                                            toastr.warning("Please select at least one warehouse before printing.", "No Selection");
+                                                            return;
+                                                        }
+                                                        $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                                                    },
+                                                    customize: function (win) {
+                                                        // Reset serial counter
+                                                        this.serialCounter = 1;
+
+                                                        $(win.document.body).prepend(
+                                                            '<h2 style="text-align: center; margin-bottom: 10px;">Warehouse List</h2>' +
+                                                            '<p style="text-align: center; margin-bottom: 20px; color: #666;">Generated Date: ' + new Date().toLocaleDateString("en-GB") + '</p>' +
+                                                            '<hr style="margin-bottom: 20px;">'
+                                                        );
+
+                                                        $(win.document.body).find('table')
+                                                            .css('border', '1px solid black').css('border-collapse', 'collapse').css('width', '100%')
+                                                            .find('th, td').css('border', '1px solid black').css('padding', '8px').css('text-align', 'center');
+
+                                                        $(win.document.body).find('th')
+                                                            .css('background-color', 'black').css('color', 'white').css('font-weight', 'bold');
+                                                    }
+                                                };
+                                            }
+
+                                            function createPdfButton(baseConfig) {
+                                                return {
+                                                    extend: 'pdfHtml5',
+                                                    text: '<i class="bi bi-file-earmark-pdf text-danger fs-5" data-bs-toggle="tooltip" title="Export PDF"></i>',
+                                                    title: 'WareHouse',
+                                                    exportOptions: {
+                                                        columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
+                                                        rows: function (idx, data, node) {
+                                                            return selectedWarehouseIds.has(data.WareHouseId);
+                                                        },
+                                                        format: {
+                                                            body: function (data, row, column, node) {
+                                                                if (!this.serialCounter) {
+                                                                    this.serialCounter = 1;
+                                                                }
+
+                                                                if (column === 1) {
+                                                                    var serial = this.serialCounter;
+                                                                    this.serialCounter++;
+                                                                    return serial.toString();
+                                                                }
+
+                                                                if (column === 6) {
+                                                                    const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
+                                                                    return cityMap.get(cityKey) || "N/A";
+                                                                }
+
+                                                                return data;
+                                                            }
+                                                        }
+                                                    },
+                                                    action: function (e, dt, button, config) {
+                                                        if (selectedWarehouseIds.size === 0) {
+                                                            toastr.warning("Please select at least one warehouse before exporting.", "No Selection");
+                                                            return;
+                                                        }
+                                                        $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                                                    },
+                                                    customize: function (doc) {
+                                                        // Reset serial counter
+                                                        this.serialCounter = 1;
+
+                                                        doc.content.splice(0, 0,
+                                                            { text: 'Warehouse List', alignment: 'center', fontSize: 16, bold: true, margin: [0, 0, 0, 10] },
+                                                            { text: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"), alignment: 'center', margin: [0, 0, 0, 15] }
+                                                        );
+
+                                                        doc.styles.tableHeader.fillColor = 'black';
+                                                        doc.styles.tableHeader.color = 'white';
+                                                        doc.styles.tableHeader.alignment = 'center';
+                                                        doc.styles.tableHeader.bold = true;
+
+                                                        doc.content[2].layout = {
+                                                            hLineWidth: i => 0.5, vLineWidth: i => 0.5,
+                                                            hLineColor: i => '#000000', vLineColor: i => '#000000',
+                                                            paddingLeft: i => 5, paddingRight: i => 5
+                                                        };
+                                                    }
+                                                };
+                                            }
+
+                                            function createExcelButton(baseConfig) {
+                                                return {
+                                                    extend: 'excelHtml5',
+                                                    text: '<i class="bi bi-file-earmark-excel text-success fs-5" data-bs-toggle="tooltip" title="Export Excel"></i>',
+                                                    title: 'Warehouse List',
+                                                    messageTop: `Generated Date: ${moment().format("DD/MM/YYYY")}`,
+                                                    exportOptions: {
+                                                        columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
+                                                        rows: function (idx, data, node) {
+                                                            return selectedWarehouseIds.has(data.WareHouseId);
+                                                        },
+                                                        format: {
+                                                            body: function (data, row, column, node) {
+                                                                if (!this.serialCounter) {
+                                                                    this.serialCounter = 1;
+                                                                }
+
+                                                                if (column === 1) {
+                                                                    var serial = this.serialCounter;
+                                                                    this.serialCounter++;
+                                                                    return serial.toString();
+                                                                }
+
+                                                                if (column === 6) {
+                                                                    const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
+                                                                    return cityMap.get(cityKey) || "N/A";
+                                                                }
+
+                                                                return data;
+                                                            }
+                                                        }
+                                                    },
+                                                    action: function (e, dt, button, config) {
+                                                        if (selectedWarehouseIds.size === 0) {
+                                                            toastr.warning("Please select at least one warehouse before exporting Excel.", "No Selection");
+                                                            return;
+                                                        }
+                                                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                                                    },
+                                                    customize: function (xlsx) {
+                                                        const sheet = xlsx.xl.worksheets['sheet1.xml'];
+                                                        let serial = 1;
+
+                                                        $('row', sheet).each(function () {
+                                                            const rowIndex = parseInt($(this).attr('r'));
+                                                            if (rowIndex === 3) {
+                                                                // Header row - insert "Sr. No" at the beginning
+                                                                $(this).find('c:first').before('<c t="inlineStr" s="2"><is><t>Sr. No</t></is></c>');
+                                                            } else if (rowIndex > 3) {
+                                                                // Data rows - insert serial numbers
+                                                                $(this).find('c:first').before(`<c t="inlineStr" s="2"><is><t>${serial}</t></is></c>`);
+                                                                serial++;
+                                                            }
+                                                        });
+
+                                                        // Style header rows
+                                                        $('row[r="1"] c, row[r="2"] c', sheet).attr('s', '51');
+                                                        $('row[r="3"] c', sheet).attr('s', '2'); // Style for header row with bold
+                                                    }
+                                                };
+                                            }
+
+                                            function createCsvButton(baseConfig) {
+                                                return {
+                                                    extend: 'csvHtml5',
+                                                    text: '<i class="bi bi-filetype-csv text-success fs-5" data-bs-toggle="tooltip" title="Export CSV"></i>',
+                                                    title: 'Warehouse List',
+                                                    message: 'Generated Date: ' + new Date().toLocaleDateString("en-GB"),
+                                                    exportOptions: {
+                                                        columns: ':visible:not(:first-child):not(:last-child):not(:nth-child(5))',
+                                                        rows: function (idx, data, node) {
+                                                            return selectedWarehouseIds.has(data.WareHouseId);
+                                                        },
+                                                        format: {
+                                                            body: function (data, row, column, node) {
+                                                                if (!this.serialCounter) {
+                                                                    this.serialCounter = 1;
+                                                                }
+
+                                                                if (column === 1) {
+                                                                    var serial = this.serialCounter;
+                                                                    this.serialCounter++;
+                                                                    return serial.toString();
+                                                                }
+
+                                                                if (column === 6) {
+                                                                    const cityKey = `${row.CountryCode}_${row.StateCode}_${row.CityId}`;
+                                                                    return cityMap.get(cityKey) || "N/A";
+                                                                }
+
+                                                                return data;
+                                                            }
+                                                        }
+                                                    },
+                                                    action: function (e, dt, button, config) {
+                                                        if (selectedWarehouseIds.size === 0) {
+                                                            toastr.warning("Please select at least one warehouse before exporting CSV.", "No Selection");
+                                                            return;
+                                                        }
+                                                        $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                                                    }
+                                                };
+                                            }
+
+                                            // ================= CITY DATA MANAGEMENT =================
+                                            function loadAllCityData() {
+                                                $('.city-name').each(function () {
+                                                    const $span = $(this);
+                                                    const country = $span.data('country');
+                                                    const state = $span.data('state');
+                                                    const cityId = $span.data('cityid');
+                                                    const cityKey = `${country}_${state}_${cityId}`;
+
+                                                    if (!country || !state || !cityId) {
+                                                        $span.text("N/A");
+                                                        return;
+                                                    }
+
+                                                    if (cityMap.has(cityKey)) {
+                                                        $span.text(cityMap.get(cityKey));
+                                                        return;
+                                                    }
+
+                                                    $.get(CONFIG.urls.getCities, { countryCode: country, stateCode: state, CityId: cityId }, function (city) {
+                                                        const cityName = city && city.Name ? city.Name : "Unknown";
+                                                        $span.text(cityName);
+                                                        cityMap.set(cityKey, cityName);
+                                                    });
+                                                });
+                                            }
+
+                                            // ================= DATE RANGE PICKER =================
+                                            function addDateRangePicker() {
+                                                $('#warehouseTable_wrapper').prepend(`
+                                            <div class="input-group mb-2 mt-3" style="max-width: 280px;">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="bi bi-calendar-date"></i>
+                                                </span>
+                                                <input type="text" id="warehouseDateRange" class="form-control" placeholder="Select date range" readonly />
+                                            </div>
+                                        `);
+
+                                                // Initialize date range picker
+                                                $('#warehouseDateRange').daterangepicker({
+                                                    autoUpdateInput: false,
+                                                    locale: { cancelLabel: 'Clear' },
+                                                    ranges: {
+                                                        'Today': [moment(), moment()],
+                                                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                                                        'Last 1 Month': [moment().subtract(1, 'months').startOf('day'), moment()],
+                                                        'Last 3 Months': [moment().subtract(3, 'months').startOf('day'), moment()],
+                                                        'Last 1 Year': [moment().subtract(12, 'months').startOf('day'), moment()]
+                                                    }
+                                                });
+
+                                                // Custom filter function for DataTable
+                                                $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                                                    if (settings.nTable.id !== "warehouseTable") return true;
+
+                                                    var dateRange = $('#warehouseDateRange').val();
+                                                    if (!dateRange) return true;
+
+                                                    var minMax = dateRange.split(' to ');
+                                                    var min = moment(minMax[0], 'DD/MM/YYYY');
+                                                    var max = moment(minMax[1], 'DD/MM/YYYY');
+
+                                                    // Added Date column index = 7 (0-based)
+                                                    var date = moment(data[7], 'DD/MM/YYYY');
+                                                    return date.isBetween(min, max, 'day', '[]');
+                                                });
+
+                                                // Apply filter on selection
+                                                $('#warehouseDateRange').on('apply.daterangepicker', function (ev, picker) {
+                                                    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' to ' + picker.endDate.format('DD/MM/YYYY'));
+                                                    table.draw();
+                                                });
+
+                                                // Clear filter
+                                                $('#warehouseDateRange').on('cancel.daterangepicker', function () {
+                                                    $(this).val('');
+                                                    table.draw();
+                                                });
+                                            }
+
+                                            // ================= EVENT HANDLERS =================
+                                            // ================= EVENT HANDLERS =================
+                                            function setupEventHandlers() {
+                                                // Checkbox selection
+                                                $("#WHselectAll").on("change", function () {
+                                                    $(".row-select").prop("checked", $(this).prop("checked")).trigger("change");
+                                                });
+
+                                                $(document).on("change", ".row-select", function () {
+                                                    const id = parseInt($(this).val());
+                                                    $(this).prop("checked") ? selectedWarehouseIds.add(id) : selectedWarehouseIds.delete(id);
+                                                    $("#WHselectAll").prop("checked", selectedWarehouseIds.size === $(".row-select").length);
+                                                });
+
+                                                // Location dropdowns with proper error clearing
+                                                $('#CountryId').change(function () {
+                                                    const countryCode = $(this).val();
+                                                    // Clear country error
+                                                    utils.clearFieldError('CountryId', 'WarehouseCountryError');
+
+                                                    if (!countryCode) {
+                                                        $("#StateId, #CityId").empty().append('<option value="">-- Select --</option>');
+                                                        return;
+                                                    }
+
+                                                    $.getJSON(CONFIG.urls.getStates, { CountryCode: countryCode }, function (states) {
+                                                        $('#StateId').empty().append('<option value="">Select State</option>');
+                                                        states.forEach(state => {
+                                                            $('#StateId').append(`<option value="${state.Iso2}">${state.Name}</option>`);
+                                                        });
+                                                    });
+                                                });
+
+                                                $('#StateId').change(function () {
+                                                    const countryCode = $('#CountryId').val();
+                                                    const stateCode = $(this).val();
+
+                                                    // Clear state error
+                                                    utils.clearFieldError('StateId', 'WarehouseStateError');
+
+                                                    $.getJSON(CONFIG.urls.getCities, { countryCode, stateCode }, function (data) {
+                                                        const cities = typeof data === "string" ? JSON.parse(data) : data;
+                                                        $('#CityId').empty().append('<option value="">Select City</option>');
+                                                        cities.forEach(city => {
+                                                            $('#CityId').append(`<option value="${city.Id}">${city.Name}</option>`);
+                                                        });
+                                                    });
+                                                });
+
+                                                $('#CityId').change(function () {
+                                                    // Clear city error
+                                                    utils.clearFieldError('CityId', 'WarehouseCityError');
+                                                });
+
+                                                // Form interactions - Clear errors when user starts typing
+                                                $(document).on("input change", "#addWarehouseForm .form-control, #addWarehouseForm .form-select", function () {
+                                                    const fieldId = $(this).attr("id");
+                                                    const fieldName = $(this).attr("name");
+
+                                                    if (fieldId) {
+                                                        // Handle different field types and their error IDs
+                                                        let errorId;
+
+                                                        if (fieldName === 'CountryCode') {
+                                                            errorId = 'WarehouseCountryError';
+                                                        } else if (fieldName === 'StateCode') {
+                                                            errorId = 'WarehouseStateError';
+                                                        } else if (fieldName === 'CityId') {
+                                                            errorId = 'WarehouseCityError';
+                                                        } else {
+                                                            errorId = `Warehouse${fieldId}Error`;
+                                                        }
+
+                                                        utils.clearFieldError(fieldId, errorId);
+                                                    }
+                                                });
+
+                                                $('#addWarehouseModal').on('hidden.bs.modal', function () {
+                                                    $(CONFIG.selectors.form)[0].reset();
+                                                    utils.clearAllErrors(CONFIG.selectors.form);
+                                                    $("#WareHouseId").remove();
+                                                });
+
+                                                // Add warehouse button
+                                                $("#btnAddWarehouse").on("click", function () {
+                                                    openAddWarehouseModal();
+                                                });
+
+                                                // Form submission
+                                                $(CONFIG.selectors.form).on("submit", function (e) {
+                                                    e.preventDefault();
+                                                    submitWarehouseForm();
+                                                });
+
+                                                // Action buttons
+                                                $(document).on("click", ".btn-view", function () {
+                                                    viewWarehouse($(this).data("id"));
+                                                });
+
+                                                $(document).on("click", ".btn-edit", function () {
+                                                    editWarehouse($(this).data("id"));
+                                                });
+
+                                                $(document).on("click", ".btn-delete", function () {
+                                                    deleteWarehouse($(this).data("id"));
+                                                });
+                                            }
+
+                                            // ================= MODAL OPERATIONS =================
+                                            function openAddWarehouseModal() {
+                                                $(CONFIG.selectors.form)[0].reset();
+                                                utils.clearAllErrors(CONFIG.selectors.form);
+                                                $("#warehouseModalTitle").text("Add Warehouse");
+                                                $("#warehouseModalSubmitBtn").html('<i class="bi bi-check-circle me-2 text-white"></i>Save');
+
+                                                // Load next code and countries
+                                                $.get(CONFIG.urls.getNextCode, function (res) {
+                                                    res.success && $("#WarehouseCode").val(res.code);
+                                                });
+
+                                                loadCountries();
+                                                $(CONFIG.selectors.modal).modal("show");
+                                            }
+
+                                            function loadCountries() {
+                                                $.getJSON(CONFIG.urls.getCountries, function (countries) {
+                                                    $('#CountryId').empty().append('<option value="">Select Country</option>');
+                                                    countries.forEach(country => {
+                                                        $('#CountryId').append(`<option value="${country.iso2}">${country.name}</option>`);
+                                                    });
+                                                });
+                                            }
+
+                                            function submitWarehouseForm() {
+                                                // Clear previous errors
+                                                utils.clearAllErrors(CONFIG.selectors.form);
+
+                                                // Validate form
+                                                if (!validators.warehouseForm(CONFIG.selectors.form)) {
+                                                    // Scroll to first error
+                                                    const firstError = $(CONFIG.selectors.form).find('.is-invalid').first();
+                                                    if (firstError.length) {
+                                                        $('html, body').animate({
+                                                            scrollTop: firstError.offset().top - 100
+                                                        }, 500);
+                                                    }
+                                                    return;
+                                                }
+
+                                                const formData = $(CONFIG.selectors.form).serialize();
+                                                const isEdit = $("#WareHouseId").length > 0;
+                                                const url = isEdit ? CONFIG.urls.updateWarehouse : CONFIG.urls.addWarehouse;
+
+                                                $.ajax({
+                                                    url: url,
+                                                    type: 'POST',
+                                                    data: formData,
+                                                    success: function (res) {
+                                                        if (res.success) {
+                                                            $(CONFIG.selectors.modal).modal("hide");
+                                                            table.ajax.reload(null, false);
+                                                            Swal.fire({ title: "Success", text: res.message, icon: "success", showConfirmButton: false, timer: 2000 });
+                                                        } else {
+                                                            handleFormError(res);
+                                                        }
+                                                    },
+                                                    error: function () {
+                                                        Swal.fire({ title: "Error", text: "Something went wrong!", icon: "error", confirmButtonText: "OK" });
+                                                    }
+                                                });
+                                            }
+
+                                            //function handleFormError(res) {
+                                            //    utils.clearFieldError("WarehouseName", "WarehouseNameError");
+                                            //    const msg = (res || "").toLowerCase();
+                                            //    if (msg.includes("already exist") || msg.includes("duplicate") || msg.includes("exists")) {
+                                            //        utils.showFieldError("WarehouseName", "WarehouseNameError", "Warehouse Name already exists.");
+                                            //    } else {
+                                            //        utils.showFieldError("WarehouseName", "WarehouseNameError", message || "Something went wrong while saving Warehouse.");
+                                            //    }
+                                            //}
+
+                                            function handleFormError(res) {
+                                                utils.clearAllErrors(CONFIG.selectors.form);
+
+                                                if (res.field) {
+                                                    let fieldId = res.field;
+                                                    let errorId = `Warehouse${fieldId}Error`;
+
+                                                    // Special field mappings
+                                                    if (res.field === 'WarehouseName') {
+                                                        fieldId = 'WarehouseName';
+                                                        errorId = 'WarehouseNameError';
+                                                    } else if (res.field === 'CountryCode') {
+                                                        fieldId = 'CountryId';
+                                                        errorId = 'WarehouseCountryError';
+                                                    } else if (res.field === 'StateCode') {
+                                                        fieldId = 'StateId';
+                                                        errorId = 'WarehouseStateError';
+                                                    } else if (res.field === 'Description') {
+                                                        fieldId = 'Description';
+                                                        errorId = 'WarehouseDescriptionError';
+                                                    }
+
+                                                    // Show error with hardcoded message
+                                                    utils.showFieldError(fieldId, errorId, "This Name Is Already Exists!.");
+
+                                                    // Scroll to the error field
+                                                    const $input = $(`#${fieldId}`);
+                                                    $('html, body').animate({ scrollTop: $input.offset().top - 100 }, 300);
+                                                } else {
+                                                    Swal.fire({
+                                                        title: "Error",
+                                                        text: "Something went wrong while saving Warehouse.",
+                                                        icon: "error",
+                                                        confirmButtonText: "OK"
+                                                    });
+                                                }
+                                            }
+
+                                            // ================= CRUD OPERATIONS =================
+                                            function viewWarehouse(id) {
+                                                $.get(CONFIG.urls.viewWarehouse, { id }, function (res) {
+                                                    if (res.success) {
+                                                        const data = res.data;
+                                                        populateViewModal(data);
+                                                        $(CONFIG.selectors.viewModal).modal("show");
+                                                    } else {
+                                                        Swal.fire("Error", res.message, "error");
+                                                    }
+                                                });
+                                            }
+
+                                            function populateViewModal(data) {
+                                                $("#vwCode").text(data.WarehouseCode || "-");
+                                                $("#vwName").text(data.WarehouseName || "-");
+                                                $("#vwAddress").text(data.Address || "-");
+                                                $("#vwPhone").text(data.Phone || "-");
+                                                $("#vwEmail").text(data.Email || "-");
+                                                $("#vwDesc").text(data.Description || "-");
+                                                $("#vwAddedDates").text(utils.formatSqlDate(data.AddedDate) || "-");
+                                                $("#vwAddedBy").text(data.AddedBy || "-");
+
+                                                // Load city name
+                                                if (data.CountryCode && data.StateCode && data.CityId) {
+                                                    $.get(CONFIG.urls.getCities, { countryCode: data.CountryCode, stateCode: data.StateCode, CityId: data.CityId }, function (cityRes) {
+                                                        $("#vwCity").text(cityRes && cityRes.Name ? cityRes.Name : "N/A");
+                                                    });
+                                                } else {
+                                                    $("#vwCity").text("N/A");
+                                                }
+                                            }
+                                            function editWarehouse(id) {
+                                                $.get(CONFIG.urls.viewWarehouse, { id }, function (res) {
+                                                    if (res.success) {
+                                                        const data = res.data;
+                                                        populateEditModal(data);
+                                                    } else {
+                                                        Swal.fire("Error", res.message, "error");
+                                                    }
+                                                });
+                                            }
+
+                                            function populateEditModal(data) {
+                                                $("#WarehouseCode").val(data.WarehouseCode);
+                                                $("#WarehouseName").val(data.WarehouseName);
+                                                $("#Address").val(data.Address);
+                                                $("#Phone").val(data.Phone);
+                                                $("#Email").val(data.Email);
+                                                $("#Description").val(data.Description);
+
+                                                if (!$("#WareHouseId").length) {
+                                                    $("<input>").attr({ type: "hidden", id: "WareHouseId", name: "WareHouseId", value: data.WareHouseId }).appendTo(CONFIG.selectors.form);
+                                                } else {
+                                                    $("#WareHouseId").val(data.WareHouseId);
+                                                }
+
+                                                $("#warehouseModalTitle").text("Update Warehouse");
+                                                $("#warehouseModalSubmitBtn").html('<i class="bi bi-check-circle me-2 text-white"></i>Update');
+
+                                                // FIXED: Load countries, states, and cities sequentially
+                                                $.getJSON(CONFIG.urls.getCountries, function (countries) {
+                                                    $('#CountryId').empty().append('<option value="">Select Country</option>');
+                                                    countries.forEach(country => {
+                                                        $('#CountryId').append(`<option value="${country.iso2}">${country.name}</option>`);
+                                                    });
+
+                                                    // Set country and load states
+                                                    $("#CountryId").val(data.CountryCode);
+                                                    if (data.CountryCode) {
+                                                        $.getJSON(CONFIG.urls.getStates, { CountryCode: data.CountryCode }, function (states) {
+                                                            $("#StateId").empty().append('<option value="">Select State</option>');
+                                                            states.forEach(state => {
+                                                                $("#StateId").append(`<option value="${state.Iso2}">${state.Name}</option>`);
+                                                            });
+
+                                                            // Set state and load cities
+                                                            $("#StateId").val(data.StateCode);
+                                                            if (data.StateCode) {
+                                                                $.getJSON(CONFIG.urls.getCities, {
+                                                                    countryCode: data.CountryCode,
+                                                                    stateCode: data.StateCode
+                                                                }, function (cities) {
+                                                                    const citiesData = typeof cities === "string" ? JSON.parse(cities) : cities;
+                                                                    $("#CityId").empty().append('<option value="">Select City</option>');
+                                                                    citiesData.forEach(city => {
+                                                                        $("#CityId").append(`<option value="${city.Id}">${city.Name}</option>`);
+                                                                    });
+                                                                    $("#CityId").val(data.CityId);
+                                                                });
+                                                            }
+                                                        });
+                                                    }
+                                                });
+
+                                                $(CONFIG.selectors.modal).modal("show");
+                                            }
+
+                                            function deleteWarehouse(id) {
+                                                const swalWithBootstrapButtons = Swal.mixin({
+                                                    customClass: { confirmButton: "btn btn-primary me-2", cancelButton: "btn btn-danger" },
+                                                    buttonsStyling: false
+                                                });
+
+                                                swalWithBootstrapButtons.fire({
+                                                    title: "Are you sure?",
+                                                    text: "You Delete Warehouse!",
+                                                    icon: "warning",
+                                                    showCancelButton: true,
+                                                    confirmButtonText: "Yes",
+                                                    cancelButtonText: "Cancel",
+                                                    reverseButtons: false,
+                                                    timer: 10000,
+                                                    showCloseButton: true
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        performDelete(id, swalWithBootstrapButtons);
+                                                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                                        swalWithBootstrapButtons.fire({ title: "Cancelled", text: "Your warehouse record is safe", icon: "error", timer: 3000 });
+                                                    }
+                                                });
+                                            }
+
+                                            function performDelete(id, swalInstance) {
+                                                $.ajax({
+                                                    url: CONFIG.urls.deleteWarehouse,
+                                                    type: 'POST',
+                                                    data: { id },
+                                                    success: function (res) {
+                                                        if (res.success) {
+                                                            swalInstance.fire({ title: "Deleted!", text: res.message, icon: "success", showConfirmButton: false, timer: 3000 });
+                                                            table.ajax.reload(null, false);
+                                                        } else {
+                                                            swalInstance.fire({ title: "Error!", text: res.message, icon: "error", timer: 4000 });
+                                                        }
+                                                    },
+                                                    error: function () {
+                                                        swalInstance.fire({ title: "Error!", text: "Something went wrong while deleting.", icon: "error", timer: 4000 });
+                                                    }
+                                                });
+                                            }
+
+                                            // ================= INITIALIZATION =================
+                                            function initialize() {
+                                                initializeDataTable();
+                                                setupEventHandlers();
+
+                                                // Tooltip initialization and refresh
+                                                setTimeout(utils.initTooltips, 500);
+
+                                                // Refresh tooltips whenever modal closes
+                                                $(document).on('hidden.bs.modal', function () {
+                                                    setTimeout(utils.initTooltips, 300);
+                                                });
+
+                                                // Refresh tooltips on table updates
+                                                $(document).on('draw.dt', function () {
+                                                    setTimeout(utils.initTooltips, 200);
+                                                });
+                                            }
+                                            // Start the application
+                                            initialize();
+                                        });
+                                    </script>

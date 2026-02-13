@@ -2297,6 +2297,7 @@ namespace P2PLibray.Inventory
                     CurrentItems = dr["CurrentItems"] != DBNull.Value ? Convert.ToInt32(dr["CurrentItems"]) : 0,
 
                     Description = dr["Description"].ToString(),
+                    Address = dr["Address"].ToString(),
                     AddedBy = dr["AddedBy"].ToString(),
                     AddedDate = Convert.ToDateTime(dr["AddedDate"])
                 };

@@ -350,7 +350,7 @@
 
             <!-- Inventory Value -->
             <div class="col-sm-6 col-lg-3 animate-enter" style="animation-delay: 0.1s;"
-                onclick="openModalWithData('InventoryValueAll', 'TotalStock')">
+                 onclick="openModalWithData('InventoryValueAll', 'TotalStock')">
                 <div class="dashboard-card card-primary cursor-pointer">
                     <div class="card-content">
                         <div class="card-icon-wrapper">
@@ -365,7 +365,7 @@
 
             <!-- High Consumption Items Value -->
             <div class="col-sm-6 col-lg-3 animate-enter" style="animation-delay: 0.2s;"
-                onclick="openModalWithData('HighConsumption', 'MostStock')">
+                 onclick="openModalWithData('HighConsumption', 'MostStock')">
                 <div class="dashboard-card card-success cursor-pointer">
                     <div class="card-content">
                         <div class="card-icon-wrapper">
@@ -380,7 +380,7 @@
 
             <!-- Non Moving Items Value -->
             <div class="col-sm-6 col-lg-3 animate-enter" style="animation-delay: 0.3s;"
-                onclick="openModalWithData('NonMoving', 'DeadStock')">
+                 onclick="openModalWithData('NonMoving', 'DeadStock')">
                 <div class="dashboard-card card-danger cursor-pointer">
                     <div class="card-content">
                         <div class="card-icon-wrapper">
@@ -396,7 +396,7 @@
 
             <!-- Material Issued Value -->
             <div class="col-sm-6 col-lg-3 animate-enter" style="animation-delay: 0.4s;"
-                onclick="openModalWithData('IssuedValue', '')">
+                 onclick="openModalWithData('IssuedValue', '')">
                 <div class="dashboard-card card-warning cursor-pointer">
                     <div class="card-content">
                         <div class="card-icon-wrapper">
@@ -965,23 +965,25 @@
                     $(this.footer()).html("").removeClass("grand-total-label grand-total-value");
                 });
 
-                // Calculate and set Total Value based on SELECTION
+                // Calculate and set Total Value
                 api.columns().every(function (index) {
                     let headerText = $(this.header()).text().trim().toUpperCase();
                     if (headerText === "TOTAL VALUE") {
                         let total = 0;
 
-                        // Sum only SELECTED rows (Global Requirement)
                         if (selectedRows.size > 0) {
-                            api.rows().every(function () {
-                                let rowData = this.data();
+                            // Sum only SELECTED rows
+                            api.rows().data().each(function (rowData) {
                                 let id = getRowId(rowData);
                                 if (selectedRows.has(id)) {
                                     total += intVal(rowData.TotalValue);
                                 }
                             });
                         } else {
-                            total = 0;
+                            // Sum ALL rows (Default state)
+                            api.rows().data().each(function (rowData) {
+                                total += intVal(rowData.TotalValue);
+                            });
                         }
 
                         // Set Total with Rupee Symbol
